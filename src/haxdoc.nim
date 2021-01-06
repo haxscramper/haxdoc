@@ -132,10 +132,13 @@ let file = AbsFile("/tmp/file.nim")
 
 file.writeFile("""
 proc hello(): int = 12
+proc hello(arg: int): int = 12
 
 let val = hello()
+let val2 = hello(12)
 
-echo val
+# stdout.write $val
+# stdout.write $val
 """)
 
 var graph: ModuleGraph = newModuleGraph(file)
@@ -145,3 +148,5 @@ registerPass(graph, makePass(passOpen, passNode, passClose))
 compileProject(graph)
 
 annotateAst(graph, fileAst)
+
+# echo $fileAst
