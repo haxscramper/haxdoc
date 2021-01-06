@@ -1,0 +1,3 @@
+- [ ] Callgraph
+- [ ] List of all assignments to field
+- [ ] List of symbols
