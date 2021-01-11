@@ -4,6 +4,12 @@ import std/[os, strformat, with]
 import hmisc/other/oswrap
 import hnimast except nkStrKinds
 import fusion/matching
+import nimtrail/cli/sourcetrail_nim
+import nimtrail/[
+  name_hierarchy, symbol_kind, definition_kind,
+  reference_kind, sourcetrail_d_b_writer
+]
+
 import compiler /
   [ idents, options, modulegraphs, passes, lineinfos, sem, pathutils, ast,
     astalgo, modules, condsyms, passaux, llstream, parser
@@ -73,26 +79,23 @@ proc newModuleGraph(file: AbsFile): ModuleGraph =
   return newModuleGraph(cache, config)
 
 type
-  CustomContext = ref object of PPassContext
+  SourcetrailContext = ref object of PPassContext
+    writer: ptr SourcetrailDBWriter
     module: PSym
 
-proc registerToplevel(ctx: CustomContext, node: PNode) =
+proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
   discard
 
 proc passOpen(graph: ModuleGraph; module: PSym): PPassContext =
-  CustomContext(module: module)
+  SourcetrailContext(module: module)
 
 proc passNode(c: PPassContext, n: PNode): PNode =
   result = n
-  if sfMainModule in CustomContext(c).module.flags:
-    registerToplevel(CustomContext(c), n)
+  if sfMainModule in SourcetrailContext(c).module.flags:
+    registerToplevel(SourcetrailContext(c), n)
 
 proc passClose(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
   discard
-
-
-
-# proc isTracked*(current, trackPos: TLineInfo, tokenLen: int): bool =
 
 proc findNode*(n: PNode; trackPos: TLineInfo): PSym =
   if n.kind == nkSym:
@@ -128,9 +131,14 @@ proc annotateAst(graph: ModuleGraph, node: PNode) =
       for subnode in items(node):
         annotateAst(graph, subnode)
 
-let file = AbsFile("/tmp/file.nim")
+proc trailAst(writer: var SourcetrailDBWriter, ast: PNode) =
+  discard
 
-file.writeFile("""
+when isMainModule:
+
+  let file = AbsFile("/tmp/file.nim")
+
+  file.writeFile("""
 proc hello(): int = 12
 proc hello(arg: int): int = 12
 
@@ -141,12 +149,28 @@ let val2 = hello(12)
 # stdout.write $val
 """)
 
-var graph: ModuleGraph = newModuleGraph(file)
-let fileAst: PNode = parsePNode(file)
-registerPass(graph, semPass)
-registerPass(graph, makePass(passOpen, passNode, passClose))
-compileProject(graph)
+  var graph: ModuleGraph = newModuleGraph(file)
+  let fileAst: PNode = parsePNode(file)
+  registerPass(graph, semPass)
 
-annotateAst(graph, fileAst)
+  if true:
+    compileProject(graph)
+    annotateAst(graph, fileAst)
 
-# echo $fileAst
+  # else:
+  #   var writer: SourcetrailDBWriter
+  #   var context = SourcetrailContext(writer: addr writer)
+  #   discard context.writer[].open("/tmp/test.srctrldb")
+
+  #   registerPass(graph, makePass(
+  #     (
+  #       proc(graph: ModuleGraph, module: PSym): PPassContext =
+  #         context.module = module
+  #         return context
+  #     ),
+  #     passNode,
+  #     passClose))
+
+  #   compileProject(graph)
+
+  #   discard context.writer[].close()
