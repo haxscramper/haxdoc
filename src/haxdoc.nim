@@ -2,7 +2,7 @@
 
 import std/[os, strformat, with]
 import hmisc/other/oswrap
-import hnimast except nkStrKinds
+# import hnimast except nkStrKinds
 import fusion/matching
 import nimtrail/cli/sourcetrail_nim
 import nimtrail/[
@@ -12,7 +12,7 @@ import nimtrail/[
 
 import compiler /
   [ idents, options, modulegraphs, passes, lineinfos, sem, pathutils, ast,
-    astalgo, modules, condsyms, passaux, llstream, parser
+    astalgo, modules, condsyms, passaux, llstream, parser, renderer
   ]
 
 {.push inline.}
@@ -84,7 +84,12 @@ type
     module: PSym
 
 proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
-  discard
+  # node.debug()
+  case node:
+    of ProcDef[@name, .._]:
+      echo "Found proc declaration with name ", $name
+      discard ctx.writer[].recordSymbol(
+        ("::", @[("zzz", $name, "()")]), sskFunction)
 
 proc passOpen(graph: ModuleGraph; module: PSym): PPassContext =
   SourcetrailContext(module: module)
@@ -116,6 +121,11 @@ proc symFromInfo(graph: ModuleGraph; trackPos: TLineInfo): PSym =
   if m != nil and m.ast != nil:
     result = findNode(m.ast, trackPos)
 
+const
+  nkStrKinds* = { nkStrLit .. nkTripleStrLit }
+  nkIntKinds* = { nkCharLit .. nkUInt64Lit }
+  nkFloatKinds* = { nkFloatLit .. nkFloat128Lit }
+
 proc annotateAst(graph: ModuleGraph, node: PNode) =
   case node.kind:
     of nkStrKinds, nkIntKinds, nkFloatKinds:
@@ -140,37 +150,33 @@ when isMainModule:
 
   file.writeFile("""
 proc hello(): int = 12
-proc hello(arg: int): int = 12
-
-let val = hello()
-let val2 = hello(12)
-
-# stdout.write $val
-# stdout.write $val
+proc hello2(arg: int): int = 12
 """)
 
   var graph: ModuleGraph = newModuleGraph(file)
   let fileAst: PNode = parsePNode(file)
   registerPass(graph, semPass)
 
-  if true:
+  if false:
     compileProject(graph)
     annotateAst(graph, fileAst)
 
-  # else:
-  #   var writer: SourcetrailDBWriter
-  #   var context = SourcetrailContext(writer: addr writer)
-  #   discard context.writer[].open("/tmp/test.srctrldb")
+  else:
+    var writer: SourcetrailDBWriter
+    var context = SourcetrailContext(writer: addr writer)
+    let file = "/tmp/test.srctrldb"
+    rmFile AbsFile(file)
+    discard context.writer[].open(file)
 
-  #   registerPass(graph, makePass(
-  #     (
-  #       proc(graph: ModuleGraph, module: PSym): PPassContext =
-  #         context.module = module
-  #         return context
-  #     ),
-  #     passNode,
-  #     passClose))
+    registerPass(graph, makePass(
+      (
+        proc(graph: ModuleGraph, module: PSym): PPassContext =
+          context.module = module
+          return context
+      ),
+      passNode,
+      passClose))
 
-  #   compileProject(graph)
+    compileProject(graph)
 
-  #   discard context.writer[].close()
+    discard context.writer[].close()
