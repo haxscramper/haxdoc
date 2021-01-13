@@ -31,3 +31,24 @@ Documentation generator and source code analysis system for nim.
 - [ ] Documentation extractor-as-a-libary. Provide basic API for writing
   documentation extraction software.
 - [ ] Use unit tests as use examples
+- [ ] Extracting additional semantic information from [[https://github.com/haxscramper/haxorg][haxorg]] documentation
+  comments (metadata information like ~@ingroup{}~ annotations,
+  documentation for comments, fields and so on).
+
+** TODO Static site generator for documentation
+   :PROPERTIES:
+   :CREATED:  <2021-01-13 Wed 15:14>
+   :END:
+
+- [ ] Basic implementation of simple documentation - no pretty
+  configuration, can be just bare HTML
+- [ ] Search implementation - can use fulltext search like [[https://github.com/nextapps-de/flexsearch][flexsearch]] in
+  addition to something closer to [[https://hoogle.haskell.org/][hoogle]] for API/error search.
+
+** TODO Change detection for software versions
+   :PROPERTIES:
+   :CREATED:  <2021-01-13 Wed 15:14>
+   :END:
+
+- [ ] Automatic change detection for API/implementation
+- [ ] Automatic changelog documentation
