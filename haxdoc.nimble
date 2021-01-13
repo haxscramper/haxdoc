@@ -11,4 +11,5 @@ srcDir        = "src"
 
 requires "nim >= 1.4.0"
 requires "hmisc >= 0.9.0"
-
+requires "https://github.com/haxscramper/nimtrail.git"
+requires "https://github.com/haxscramper/cxxstd.git"

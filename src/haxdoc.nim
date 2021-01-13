@@ -1,14 +1,11 @@
 {.experimental: "caseStmtMacros".}
 
-import std/[os, strformat, with]
+import std/[os, strformat, with, lenientops, strutils, sequtils]
 import hmisc/other/oswrap
-# import hnimast except nkStrKinds
+import hmisc/other/colorlogger
 import fusion/matching
-import nimtrail/cli/sourcetrail_nim
-import nimtrail/[
-  name_hierarchy, symbol_kind, definition_kind,
-  reference_kind, sourcetrail_d_b_writer
-]
+import nimtrail/nimtrail_common
+import cxxstd/cxx_common
 
 import compiler /
   [ idents, options, modulegraphs, passes, lineinfos, sem, pathutils, ast,
@@ -82,17 +79,90 @@ type
   SourcetrailContext = ref object of PPassContext
     writer: ptr SourcetrailDBWriter
     module: PSym
+    graph: ModuleGraph
+
+converter toSourcetrailSourceRange*(
+  arg: tuple[fileId: cint, ranges: array[4, int16]]): SourcetrailSourceRange =
+
+  result.fileId = arg.fileId
+  result.startLine = arg.ranges[0].cint
+  result.startColumn = arg.ranges[1].cint
+  result.endLine = arg.ranges[2].cint
+  result.endColumn = arg.ranges[3].cint
+
+converter toSourcetrailSourceRange*(
+  arg: tuple[file: cint, name: PNode]): SourcetrailSourceRange =
+  toSourcetrailSourcerange((arg.file, [
+    arg.name.info.line.int16,
+    arg.name.info.col + 1,
+    arg.name.info.line.int16,
+    arg.name.info.col + len($arg.name).int16
+  ]))
+
+
+const
+  nkStrKinds* = { nkStrLit .. nkTripleStrLit }
+  nkIntKinds* = { nkCharLit .. nkUInt64Lit }
+  nkFloatKinds* = { nkFloatLit .. nkFloat128Lit }
+  nkLiteralKinds* = nkStrKinds + nkIntKinds + nkFloatKinds
+
+proc registerProc(writer: var SourcetrailDBWriter, procDef: PNode): cint =
+  [@name, _, _, [@returnType, all @arguments], .._] := procDef
+
+  echo "Found proc declaration with name: ", $name
+  echo "Return type: ", $returnType
+  echo "Arguments: ", $arguments
+
+  result = writer.recordSymbol(
+        ("::", @[($returnType,
+                  $name,
+                  "(" & arguments.mapIt($it).join(", ") & ")")]), sskFunction)
+
+proc registerCalls(
+    writer: var SourcetrailDBWriter,
+    node: PNode,
+    filePath: string,
+    callerId: cint
+  ) =
+
+  case node.kind:
+    of nkSym:
+      echo "----"
+      if node.sym.kind in routineKinds:
+        echo "found proc call '", node, "' "
+        echo node.sym.ast
+        let referencedSymbol = writer.registerProc(node.sym.ast)
+        # let referencedSymbol = writer.recordSymbol(("::", @[("int", "hello", "()")]))
+
+        let referenceId = writer.recordReference(callerId, referencedSymbol, srkCall)
+        let fileId = writer.recordFile(filePath)
+        discard writer.recordReferenceLocation(referenceId, (fileId, node))
+
+
+    of nkLiteralKinds:
+      discard
+
+    else:
+      for subnode in mitems(node.sons):
+        writer.registerCalls(subnode, filePath, callerId)
+
 
 proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
-  # node.debug()
   case node:
-    of ProcDef[@name, .._]:
-      echo "Found proc declaration with name ", $name
-      discard ctx.writer[].recordSymbol(
-        ("::", @[("zzz", $name, "()")]), sskFunction)
+    of ProcDef[@name, _, _, _, _, _, @implementation, .._]:
+      let symbolId = ctx.writer[].registerProc(node)
 
-proc passOpen(graph: ModuleGraph; module: PSym): PPassContext =
-  SourcetrailContext(module: module)
+      let filePath = ctx.graph.config.m.fileInfos[node.info.fileIndex.int32].fullPath.string
+      let file = ctx.writer[].recordFile(filePath)
+      discard ctx.writer[].recordFileLanguage(file, "nim")
+      discard ctx.writer[].recordSymbolLocation(symbolId, (file, name))
+      discard ctx.writer[].recordSymbolScopeLocation(symbolId, (file, name))
+
+      ctx.writer[].registerCalls(implementation, filePath, symbolId)
+
+    else:
+      echo node
+
 
 proc passNode(c: PPassContext, n: PNode): PNode =
   result = n
@@ -121,10 +191,6 @@ proc symFromInfo(graph: ModuleGraph; trackPos: TLineInfo): PSym =
   if m != nil and m.ast != nil:
     result = findNode(m.ast, trackPos)
 
-const
-  nkStrKinds* = { nkStrLit .. nkTripleStrLit }
-  nkIntKinds* = { nkCharLit .. nkUInt64Lit }
-  nkFloatKinds* = { nkFloatLit .. nkFloat128Lit }
 
 proc annotateAst(graph: ModuleGraph, node: PNode) =
   case node.kind:
@@ -149,8 +215,17 @@ when isMainModule:
   let file = AbsFile("/tmp/file.nim")
 
   file.writeFile("""
-proc hello(): int = 12
-proc hello2(arg: int): int = 12
+proc hello(): int =
+  ## Documentation comment 1
+  return 12
+
+proc nice(): int =
+  ## Documentation comment 2
+  return 200
+
+proc hello2(arg: int): int =
+  return hello() + arg + nice()
+
 """)
 
   var graph: ModuleGraph = newModuleGraph(file)
@@ -172,6 +247,7 @@ proc hello2(arg: int): int = 12
       (
         proc(graph: ModuleGraph, module: PSym): PPassContext =
           context.module = module
+          context.graph = graph
           return context
       ),
       passNode,
