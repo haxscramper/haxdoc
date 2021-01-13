@@ -158,22 +158,6 @@ iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
     iterateItDFS(field, it.getSubfields(), it.isKind, dfsPostorder):
       yield it
 
-proc registerTypeDef(
-  writer: var SourcetrailDBWriter, node: PNode, fileId: cint): cint =
-
-  let objDecl: PObjectDecl = parseObject(node, parsePPragma)
-
-  let name = objDecl.name
-
-  info "Found type declaration"
-  debug name.toNNode()
-
-  for fld in iterateFields(objDecl):
-    info "Found field"
-    debug fld.toNNode()
-
-
-
 proc getFilePath(graph: ModuleGraph, node: PNode): AbsoluteFile =
   ## Get absolute file path for declaration location of `node`
   graph.config.m.fileInfos[node.info.fileIndex.int32].fullPath
@@ -188,6 +172,31 @@ proc recordNodeLocation(
   discard ctx.writer[].recordFileLanguage(fileId, "nim")
   discard ctx.writer[].recordSymbolLocation(nodeSymbolId, (fileId, node))
   discard ctx.writer[].recordSymbolScopeLocation(nodeSymbolId, (fileId, node))
+
+proc registerTypeDef(
+  ctx: SourcetrailContext, node: PNode, fileId: cint): cint =
+
+  let objDecl: PObjectDecl = parseObject(node, parsePPragma)
+
+  let name = objDecl.name
+
+  info "Found type declaration"
+  debug name.toNNode()
+
+  let objNameHierarchy = @[("", name.head, "")]
+
+  let objectSymbol = ctx.writer[].recordSymbol(("::", objNameHierarchy), sskStruct)
+
+  discard ctx.recordNodeLocation(objectSymbol, objDecl.declNode.get())
+
+  for fld in iterateFields(objDecl):
+    info "Found field"
+    debug fld.declNode
+    let fieldSymbol = ctx.writer[].recordSymbol(
+      ("::", objNameHierarchy & @[("", fld.name, "")]), sskField)
+
+    discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
+
 
 
 proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
@@ -206,7 +215,7 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
     of TypeDef():
       let filePath = ctx.graph.getFilePath(node).string
       let fileId = ctx.writer[].recordFile(filePath)
-      discard ctx.writer[].registerTypeDef(node, fileId)
+      discard ctx.registerTypeDef(node, fileId)
 
     else:
       info node.kind
@@ -268,6 +277,12 @@ when isMainModule:
 type
  Obj = object
    fld1: int
+   case isRaw: bool
+     of true:
+       fld2: float
+
+     of false:
+       fld3: string
 
 
 proc hello(): int =
