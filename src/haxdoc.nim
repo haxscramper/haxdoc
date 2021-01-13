@@ -1,15 +1,18 @@
 {.experimental: "caseStmtMacros".}
 
 import std/[os, strformat, with, lenientops, strutils, sequtils]
-import hmisc/other/oswrap
-import hmisc/other/colorlogger
+import hmisc/other/[colorlogger, oswrap]
+import hmisc/types/colortext
+import hmisc/algo/htree_mapping
+
+import hnimast, hnimast/obj_field_macros
 import fusion/matching
 import nimtrail/nimtrail_common
 import cxxstd/cxx_common
 
 import compiler /
   [ idents, options, modulegraphs, passes, lineinfos, sem, pathutils, ast,
-    astalgo, modules, condsyms, passaux, llstream, parser, renderer
+    astalgo, modules, condsyms, passaux, llstream, parser
   ]
 
 {.push inline.}
@@ -99,7 +102,6 @@ converter toSourcetrailSourceRange*(
     arg.name.info.col + len($arg.name).int16
   ]))
 
-
 const
   nkStrKinds* = { nkStrLit .. nkTripleStrLit }
   nkIntKinds* = { nkCharLit .. nkUInt64Lit }
@@ -109,33 +111,33 @@ const
 proc registerProc(writer: var SourcetrailDBWriter, procDef: PNode): cint =
   [@name, _, _, [@returnType, all @arguments], .._] := procDef
 
-  echo "Found proc declaration with name: ", $name
-  echo "Return type: ", $returnType
-  echo "Arguments: ", $arguments
-
   result = writer.recordSymbol(
         ("::", @[($returnType,
                   $name,
                   "(" & arguments.mapIt($it).join(", ") & ")")]), sskFunction)
 
+template debug(node: PNode) {.dirty.} =
+  log(lvlDebug, @[
+    $instantiationInfo(),
+    "\n",
+    colorizeToStr($node, "nim")
+    # "\n"
+  ])
+
 proc registerCalls(
     writer: var SourcetrailDBWriter,
     node: PNode,
-    filePath: string,
-    callerId: cint
+    fileId, callerId: cint
   ) =
 
   case node.kind:
     of nkSym:
-      echo "----"
       if node.sym.kind in routineKinds:
-        echo "found proc call '", node, "' "
-        echo node.sym.ast
+        debug "found proc call '", $node, "' "
+        debug node.sym.ast
         let referencedSymbol = writer.registerProc(node.sym.ast)
-        # let referencedSymbol = writer.recordSymbol(("::", @[("int", "hello", "()")]))
 
         let referenceId = writer.recordReference(callerId, referencedSymbol, srkCall)
-        let fileId = writer.recordFile(filePath)
         discard writer.recordReferenceLocation(referenceId, (fileId, node))
 
 
@@ -144,24 +146,71 @@ proc registerCalls(
 
     else:
       for subnode in mitems(node.sons):
-        writer.registerCalls(subnode, filePath, callerId)
+        writer.registerCalls(subnode, fileId, callerId)
+
+iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
+  proc getSubfields(field: PObjectField): seq[PObjectField] =
+    for branch in field.branches:
+      for field in branch.flds:
+        result.add field
+
+  for field in objDecl.flds:
+    iterateItDFS(field, it.getSubfields(), it.isKind, dfsPostorder):
+      yield it
+
+proc registerTypeDef(
+  writer: var SourcetrailDBWriter, node: PNode, fileId: cint): cint =
+
+  let objDecl: PObjectDecl = parseObject(node, parsePPragma)
+
+  let name = objDecl.name
+
+  info "Found type declaration"
+  debug name.toNNode()
+
+  for fld in iterateFields(objDecl):
+    info "Found field"
+    debug fld.toNNode()
+
+
+
+proc getFilePath(graph: ModuleGraph, node: PNode): AbsoluteFile =
+  ## Get absolute file path for declaration location of `node`
+  graph.config.m.fileInfos[node.info.fileIndex.int32].fullPath
+
+proc recordNodeLocation(
+  ctx: SourcetrailContext, nodeSymbolId: cint, node: PNode): cint =
+  ## Record location of `nodeSymbolId` using positional information from
+  ## `node`
+
+  let filePath = ctx.graph.getFilePath(node).string
+  let fileId = ctx.writer[].recordFile(filePath)
+  discard ctx.writer[].recordFileLanguage(fileId, "nim")
+  discard ctx.writer[].recordSymbolLocation(nodeSymbolId, (fileId, node))
+  discard ctx.writer[].recordSymbolScopeLocation(nodeSymbolId, (fileId, node))
 
 
 proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
   case node:
     of ProcDef[@name, _, _, _, _, _, @implementation, .._]:
       let symbolId = ctx.writer[].registerProc(node)
+      let fileId = ctx.recordNodeLocation(symbolId, name)
 
-      let filePath = ctx.graph.config.m.fileInfos[node.info.fileIndex.int32].fullPath.string
-      let file = ctx.writer[].recordFile(filePath)
-      discard ctx.writer[].recordFileLanguage(file, "nim")
-      discard ctx.writer[].recordSymbolLocation(symbolId, (file, name))
-      discard ctx.writer[].recordSymbolScopeLocation(symbolId, (file, name))
+      logIndented:
+        ctx.writer[].registerCalls(implementation, fileId, symbolId)
 
-      ctx.writer[].registerCalls(implementation, filePath, symbolId)
+    of TypeSection():
+      for typeDecl in node:
+        registerToplevel(ctx, typeDecl)
+
+    of TypeDef():
+      let filePath = ctx.graph.getFilePath(node).string
+      let fileId = ctx.writer[].recordFile(filePath)
+      discard ctx.writer[].registerTypeDef(node, fileId)
 
     else:
-      echo node
+      info node.kind
+      debug node
 
 
 proc passNode(c: PPassContext, n: PNode): PNode =
@@ -199,7 +248,7 @@ proc annotateAst(graph: ModuleGraph, node: PNode) =
 
     of nkIdent:
       let sym = graph.symFromInfo(node.info)
-      echo "------"
+      info "------"
       if not sym.isNil:
         echo sym.ast
 
@@ -211,10 +260,16 @@ proc trailAst(writer: var SourcetrailDBWriter, ast: PNode) =
   discard
 
 when isMainModule:
-
+  startColorLogger()
   let file = AbsFile("/tmp/file.nim")
 
   file.writeFile("""
+
+type
+ Obj = object
+   fld1: int
+
+
 proc hello(): int =
   ## Documentation comment 1
   return 12
@@ -225,6 +280,9 @@ proc nice(): int =
 
 proc hello2(arg: int): int =
   return hello() + arg + nice()
+
+proc hello3(obj: Obj): int =
+  return obj.fld1
 
 """)
 
