@@ -109,5 +109,21 @@
     "patterns": [
       "\\b[A-Za-z0-9_]+(?=\\()"
     ]
+  },
+  {
+    "type": "type",
+    "patterns": [
+      "\\b[A-Z][A-Za-z_]*\\b"
+    ]
+  },
+  {
+    "type": "type",
+    "patterns": [
+      "\\bint\\b",
+      "\\bfloat\\b",
+      "\\bstring\\b",
+      "\\bint16\\b",
+      "\\bint8\\b"
+    ]
   }
 ]

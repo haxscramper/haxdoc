@@ -87,11 +87,15 @@ type
 converter toSourcetrailSourceRange*(
   arg: tuple[fileId: cint, ranges: array[4, int16]]): SourcetrailSourceRange =
 
+  assert arg.fileId > 0
+
   result.fileId = arg.fileId
   result.startLine = arg.ranges[0].cint
   result.startColumn = arg.ranges[1].cint
   result.endLine = arg.ranges[2].cint
   result.endColumn = arg.ranges[3].cint
+
+  # debug result
 
 proc declHead(node: PNode): PNode =
   case node.kind:
@@ -159,6 +163,7 @@ proc registerCalls(
     node: PNode,
     fileId, callerId: cint
   ) =
+  assert fileId > 0
 
   case node.kind:
     of nkSym:
@@ -202,6 +207,8 @@ proc recordNodeLocation(
   discard ctx.writer[].recordFileLanguage(fileId, "nim")
   discard ctx.writer[].recordSymbolLocation(nodeSymbolId, (fileId, node))
   discard ctx.writer[].recordSymbolScopeLocation(nodeSymbolId, (fileId, node))
+
+  return fileId
 
 proc registerTypeDef(
   ctx: SourcetrailContext, node: PNode, fileId: cint): cint =
