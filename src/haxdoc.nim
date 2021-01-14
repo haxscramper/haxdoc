@@ -2,7 +2,7 @@
 
 import std/[os, strformat, with, lenientops, strutils, sequtils]
 import hmisc/other/[colorlogger, oswrap]
-import hmisc/types/colortext
+import hmisc/types/[colortext, colorstring]
 import hmisc/algo/htree_mapping
 
 import hnimast, hnimast/obj_field_macros
@@ -93,14 +93,45 @@ converter toSourcetrailSourceRange*(
   result.endLine = arg.ranges[2].cint
   result.endColumn = arg.ranges[3].cint
 
+proc declHead(node: PNode): PNode =
+  case node.kind:
+    of nkTypeDef, nkRecCase, nkIdentDefs:
+      result = declHead(node[0])
+
+    of nkSym, nkIdent:
+      result = node
+
+    else:
+      debug node.kind
+      debug node.treeRepr()
+      raiseImplementError("")
+
 converter toSourcetrailSourceRange*(
   arg: tuple[file: cint, name: PNode]): SourcetrailSourceRange =
-  toSourcetrailSourcerange((arg.file, [
+  let head = arg.name.declHead()
+  var loc = [
     arg.name.info.line.int16,
     arg.name.info.col + 1,
     arg.name.info.line.int16,
-    arg.name.info.col + len($arg.name).int16
-  ]))
+    arg.name.info.col + len($head).int16
+  ]
+
+
+  # info arg.name.kind
+  if head.kind in {nkSym, nkIdent}:
+    if arg.name.kind == nkTypeDef:
+      loc[1] -= len($head).int16 + 1
+      loc[3] -= len($head).int16 + 1
+
+    elif arg.name.kind == nkRecCase:
+      warn "Adjust case field"
+      loc[1] += 5
+      loc[3] += 5
+
+
+  info "Location for", toRed($head), loc, head.kind, arg.name.kind
+
+  toSourcetrailSourcerange((arg.file, loc))
 
 const
   nkStrKinds* = { nkStrLit .. nkTripleStrLit }
@@ -111,10 +142,9 @@ const
 proc registerProc(writer: var SourcetrailDBWriter, procDef: PNode): cint =
   [@name, _, _, [@returnType, all @arguments], .._] := procDef
 
-  result = writer.recordSymbol(
-        ("::", @[($returnType,
-                  $name,
-                  "(" & arguments.mapIt($it).join(", ") & ")")]), sskFunction)
+  result = writer.recordSymbol(sskFunction,
+    ($returnType, $name, "(" & arguments.mapIt($it).join(", ") & ")"))
+        # ("::", @[]), sskFunction)
 
 template debug(node: PNode) {.dirty.} =
   log(lvlDebug, @[
@@ -176,26 +206,40 @@ proc recordNodeLocation(
 proc registerTypeDef(
   ctx: SourcetrailContext, node: PNode, fileId: cint): cint =
 
-  let objDecl: PObjectDecl = parseObject(node, parsePPragma)
+  if node[2].kind == nkObjectTy:
+    let objectDecl: PObjectDecl = parseObject(node, parsePPragma)
+    info "Found object declaration", objectDecl.name.head
 
-  let name = objDecl.name
+    let objNameHierarchy = ("", objectDecl.name.head, "")
+    let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
+    discard ctx.recordNodeLocation(objectSymbol, objectDecl.declNode.get())
 
-  info "Found type declaration"
-  debug name.toNNode()
+    for fld in iterateFields(objectDecl):
+      # info "Found field"
+      # debug fld.declNode.get()
+      let fieldSymbol = ctx.writer[].recordSymbol(
+        sskField, objNameHierarchy, ("", fld.name, ""))
 
-  let objNameHierarchy = @[("", name.head, "")]
+      discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
 
-  let objectSymbol = ctx.writer[].recordSymbol(("::", objNameHierarchy), sskStruct)
+  elif node[2].kind == nkEnumTy:
+    let enumDecl: PEnumDecl = parseEnum(node)
+    info "Found eunm declaration", enumDecl.name
 
-  discard ctx.recordNodeLocation(objectSymbol, objDecl.declNode.get())
+    let enumName = ("", enumDecl.name, "")
+    let enumSymbol = ctx.writer[].recordSymbol(sskEnum, enumName)
+    discard ctx.recordNodeLocation(enumSymbol, enumDecl.declNode.get())
+    for fld in enumDecl.values:
+      let valueSymbol = ctx.writer[].recordSymbol(
+        sskEnumConstant,
+        enumName, ("", fld.name, ""))
 
-  for fld in iterateFields(objDecl):
-    info "Found field"
-    debug fld.declNode
-    let fieldSymbol = ctx.writer[].recordSymbol(
-      ("::", objNameHierarchy & @[("", fld.name, "")]), sskField)
+      discard ctx.recordNodeLocation(valueSymbol, fld.declNode.get())
 
-    discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
+  elif node[2].kind in {nkDistinctTy, nkSym}:
+    info "Found type alias"
+    let aliasSymbol = ctx.writer[].recordSymbol(sskTypedef, ("", $node[0], ""))
+    discard ctx.recordNodeLocation(aliasSymbol, node)
 
 
 
@@ -275,15 +319,22 @@ when isMainModule:
   file.writeFile("""
 
 type
- Obj = object
-   fld1: int
-   case isRaw: bool
-     of true:
-       fld2: float
+  Obj = object
+    fld1: int
+    case isRaw: bool
+      of true:
+        fld2: float
 
-     of false:
-       fld3: string
+      of false:
+        fld3: string
 
+  Enum = enum
+    enFirst
+    enSecond
+
+
+  DistinctAlias = distinct int
+  Alias = int
 
 proc hello(): int =
   ## Documentation comment 1
