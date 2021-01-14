@@ -1,7 +1,8 @@
 {.experimental: "caseStmtMacros".}
 
-import std/[os, strformat, with, lenientops, strutils, sequtils]
+import std/[os, strformat, with, lenientops, strutils, sequtils, macros]
 import hmisc/other/[colorlogger, oswrap]
+import hmisc/helpers
 import hmisc/types/[colortext, colorstring]
 import hmisc/algo/htree_mapping
 
@@ -99,7 +100,7 @@ converter toSourcetrailSourceRange*(
 
 proc declHead(node: PNode): PNode =
   case node.kind:
-    of nkTypeDef, nkRecCase, nkIdentDefs:
+    of nkTypeDef, nkRecCase, nkIdentDefs, nkProcDef:
       result = declHead(node[0])
 
     of nkSym, nkIdent:
@@ -133,69 +134,84 @@ converter toSourcetrailSourceRange*(
       loc[3] += 5
 
 
-  info "Location for", toRed($head), loc, head.kind, arg.name.kind
+  # info "Location for", toRed($head), loc, head.kind, arg.name.kind
 
   toSourcetrailSourcerange((arg.file, loc))
 
-const
-  nkStrKinds* = { nkStrLit .. nkTripleStrLit }
-  nkIntKinds* = { nkCharLit .. nkUInt64Lit }
-  nkFloatKinds* = { nkFloatLit .. nkFloat128Lit }
-  nkLiteralKinds* = nkStrKinds + nkIntKinds + nkFloatKinds
+proc parseNidentDefs(node: PNode): NIdentDefs[PNode] =
+  for arg in node[0..^3]:
+    result.idents.add arg
 
-proc registerProc(writer: var SourcetrailDBWriter, procDef: PNode): cint =
-  [@name, _, _, [@returnType, all @arguments], .._] := procDef
+proc `arguments=`(procDecl: var PProcDecl, arguments: seq[NIdentDefs[PNode]]) =
+  procDecl.signature.arguments = arguments
 
-  result = writer.recordSymbol(sskFunction,
-    ($returnType, $name, "(" & arguments.mapIt($it).join(", ") & ")"))
-        # ("::", @[]), sskFunction)
+proc `arguments`(procDecl: var PProcDecl): var seq[NIdentDefs[PNode]] =
+  procDecl.signature.arguments
 
-template debug(node: PNode) {.dirty.} =
-  log(lvlDebug, @[
-    $instantiationInfo(),
-    "\n",
-    colorizeToStr($node, "nim")
-    # "\n"
-  ])
+iterator argumentIdents*[N](procDecl: ProcDecl[N]): N =
+  for argument in procDecl.signature.arguments:
+    for ident in argument.idents:
+      yield ident
 
-proc registerCalls(
-    writer: var SourcetrailDBWriter,
-    node: PNode,
-    fileId, callerId: cint
-  ) =
-  assert fileId > 0
+proc parseProc*(node: PNode): PProcDecl =
+  result = newPProcDecl(":tmp")
 
   case node.kind:
-    of nkSym:
-      if node.sym.kind in routineKinds:
-        debug "found proc call '", $node, "' "
-        debug node.sym.ast
-        let referencedSymbol = writer.registerProc(node.sym.ast)
+    of nkProcDef:
+      case node[0]:
+        of (kind: in {nkSym, nkIdent}, getStrVal: @name):
+          result.name = name
 
-        let referenceId = writer.recordReference(callerId, referencedSymbol, srkCall)
-        discard writer.recordReferenceLocation(referenceId, (fileId, node))
+        else:
+          # err "Unexpected node structure"
+          raiseImplementError("")
 
 
-    of nkLiteralKinds:
-      discard
+      case node[1]:
+        of Empty():
+          discard
+
+        else:
+          raiseImplementError("Term rewriting arguments")
+
+      case node[2]:
+        of Empty():
+          discard
+
+        else:
+          raiseImplementError("Generic params parsing")
+
+      for arg in node[3][1..^1]:
+        result.arguments.add parseNidentDefs(arg)
+
+      result.impl = node[6]
 
     else:
-      for subnode in mitems(node.sons):
-        writer.registerCalls(subnode, fileId, callerId)
+      err "Unexpected node kind", node.kind
+      raiseImplementError("")
 
-iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
-  proc getSubfields(field: PObjectField): seq[PObjectField] =
-    for branch in field.branches:
-      for field in branch.flds:
-        result.add field
+proc returnType*[N](ntype: NType[N]): Option[NType[N]] =
+  if ntype.rtype.isSome():
+    return some ntype.rType.get().getIt()
 
-  for field in objDecl.flds:
-    iterateItDFS(field, it.getSubfields(), it.isKind, dfsPostorder):
-      yield it
+proc arguments*[N](procDecl: ProcDecl[N]): seq[NIdentDefs[N]] =
+  procDecl.signature.arguments
+
+proc returnType*[N](procDecl: ProcDecl[N]): Option[NType[N]] =
+  procDecl.signature.returnType()
+
+proc toNNode*[N](ntype: Option[NType[N]]): N =
+  if ntype.isNone():
+    newNTree[N](nnkEmpty)
+
+  else:
+    toNNode[N](ntype.get())
 
 proc getFilePath(graph: ModuleGraph, node: PNode): AbsoluteFile =
   ## Get absolute file path for declaration location of `node`
   graph.config.m.fileInfos[node.info.fileIndex.int32].fullPath
+
+
 
 proc recordNodeLocation(
   ctx: SourcetrailContext, nodeSymbolId: cint, node: PNode): cint =
@@ -209,6 +225,75 @@ proc recordNodeLocation(
   discard ctx.writer[].recordSymbolScopeLocation(nodeSymbolId, (fileId, node))
 
   return fileId
+
+
+
+proc getProcId(writer: var SourcetrailDBWriter, procDecl: PProcDecl): cint =
+  let returnType = procDecl.returnType().toNNode()
+  let arguments = procDecl.arguments.mapIt($it.toNNode()).join(", ").wrap("()")
+  return writer.recordSymbol(sskFunction, ($returnType, procDecl.name, arguments))
+
+proc registerCalls(
+    ctx: SourcetrailContext,
+    node: PNode,
+    fileId, callerId: cint
+  ) =
+  assert fileId > 0
+
+  case node.kind:
+    of nkSym:
+      if node.sym.kind in routineKinds:
+        let referencedSymbol = ctx.writer[].getProcId(parseProc(node.sym.ast))
+
+        let referenceId = ctx.writer[].recordReference(callerId, referencedSymbol, srkCall)
+        discard ctx.writer[].recordReferenceLocation(referenceId, (fileId, node))
+
+      elif node.sym.kind in {skParam}:
+        info "Found symbol", node.sym, "of kind", node.sym.kind
+
+        let localId = ctx.writer[].recordLocalSymbol($node.sym)
+        discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, node))
+
+
+    of nkLiteralKinds:
+      discard
+
+    else:
+      for subnode in mitems(node.sons):
+        ctx.registerCalls(subnode, fileId, callerId)
+
+
+
+proc registerProcDef(ctx: SourcetrailContext, fileId: cint, procDef: PNode): cint =
+  let procDecl = parseProc(procDef)
+  result = ctx.writer[].getProcId(procDecl)
+
+  let fileId = ctx.recordNodeLocation(result, procDef)
+
+  for argument in argumentIdents(procDecl):
+    let localId = ctx.writer[].recordLocalSymbol($argument.sym)
+    discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, argument))
+
+  logIndented:
+    ctx.registerCalls(procDecl.impl, fileId, result)
+
+template debug(node: PNode) {.dirty.} =
+  log(lvlDebug, @[
+    $instantiationInfo(),
+    "\n",
+    colorizeToStr($node, "nim")
+    # "\n"
+  ])
+
+iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
+  proc getSubfields(field: PObjectField): seq[PObjectField] =
+    for branch in field.branches:
+      for field in branch.flds:
+        result.add field
+
+  for field in objDecl.flds:
+    iterateItDFS(field, it.getSubfields(), it.isKind, dfsPostorder):
+      yield it
 
 proc registerTypeDef(
   ctx: SourcetrailContext, node: PNode, fileId: cint): cint =
@@ -251,14 +336,13 @@ proc registerTypeDef(
 
 
 proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
+  const procDecls = {nkProcDef}
   case node:
-    of ProcDef[@name, _, _, _, _, _, @implementation, .._]:
-      let symbolId = ctx.writer[].registerProc(node)
-      let fileId = ctx.recordNodeLocation(symbolId, name)
+    of (kind: in procDecls, [@name, _, _, _, _, _, @implementation, .._]):
+      let filePath = ctx.graph.getFilePath(node).string
+      let fileId = ctx.writer[].recordFile(filePath)
 
-      logIndented:
-        ctx.writer[].registerCalls(implementation, fileId, symbolId)
-
+      discard ctx.registerProcDef(fileId, node)
     of TypeSection():
       for typeDecl in node:
         registerToplevel(ctx, typeDecl)
@@ -269,7 +353,7 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
       discard ctx.registerTypeDef(node, fileId)
 
     else:
-      info node.kind
+      warn "Unmatched node", node.kind
       debug node
 
 
@@ -303,7 +387,7 @@ proc symFromInfo(graph: ModuleGraph; trackPos: TLineInfo): PSym =
 
 proc annotateAst(graph: ModuleGraph, node: PNode) =
   case node.kind:
-    of nkStrKinds, nkIntKinds, nkFloatKinds:
+    of nkLiteralKinds:
       discard
 
     of nkIdent:
@@ -356,6 +440,14 @@ proc hello2(arg: int): int =
 
 proc hello3(obj: Obj): int =
   return obj.fld1
+
+proc hello4(arg1, arg2: int, arg3: string): int =
+  result = arg1 + hello3(Obj(fld1: arg2)) + hello2(arg3.len)
+  if result > 10:
+    echo "result > 10"
+
+  else:
+    result += hello4(arg1, arg2, arg3)
 
 """)
 
