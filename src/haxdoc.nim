@@ -35,6 +35,10 @@ proc parsePNode(file: AbsFile): PNode =
   let config: ConfigRef = newConfigRef()
   var pars: Parser
 
+  pars.lex.errorHandler =
+    proc(conf: ConfigRef; info: TLineInfo; msg: TMsgKind; arg: string) =
+      warn msg
+
   openParser(
     p = pars,
     filename = file,
@@ -46,6 +50,22 @@ proc parsePNode(file: AbsFile): PNode =
   result = parseAll(pars)
   closeParser(pars)
 
+proc getFilePath(graph: ModuleGraph, node: PNode): AbsoluteFile =
+  ## Get absolute file path for declaration location of `node`
+  graph.config.m.fileInfos[node.info.fileIndex.int32].fullPath
+
+
+proc getFilePath(config: ConfigRef, info: TLineInfo): AbsoluteFile =
+  ## Get absolute file path for declaration location of `node`
+  config.m.fileInfos[info.fileIndex.int32].fullPath
+
+template excludeAllNotes(config: ConfigRef; n: typed) =
+  config.notes.excl n
+  when compiles(config.mainPackageNotes):
+    config.mainPackageNotes.excl n
+  when compiles(config.foreignPackageNotes):
+    config.foreignPackageNotes.excl n
+
 proc newModuleGraph(file: AbsFile): ModuleGraph =
   var
     cache: IdentCache = newIdentCache()
@@ -54,11 +74,12 @@ proc newModuleGraph(file: AbsFile): ModuleGraph =
   let path = ~".choosenim/toolchains/nim-1.4.0/lib"
 
   with config:
-    verbosity = 0
     libpath = AbsoluteDir(path)
     cmd = cmdIdeTools
 
+  config.verbosity = 0
   config.options -= optHints
+  echo config.options
 
   config.searchPaths.add @[
     config.libpath,
@@ -71,7 +92,13 @@ proc newModuleGraph(file: AbsFile): ModuleGraph =
   ]
 
   config.projectFull = file
+  # config.excludeAllNotes(hintLineTooLong)
 
+  config.structuredErrorHook =
+    proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
+      info level
+      err msg
+      err info, config.getFilePath(info)
 
   wantMainModule(config)
 
@@ -207,9 +234,6 @@ proc toNNode*[N](ntype: Option[NType[N]]): N =
   else:
     toNNode[N](ntype.get())
 
-proc getFilePath(graph: ModuleGraph, node: PNode): AbsoluteFile =
-  ## Get absolute file path for declaration location of `node`
-  graph.config.m.fileInfos[node.info.fileIndex.int32].fullPath
 
 
 
@@ -360,6 +384,7 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
 proc passNode(c: PPassContext, n: PNode): PNode =
   result = n
   if sfMainModule in SourcetrailContext(c).module.flags:
+    info "Node in mainlevel"
     registerToplevel(SourcetrailContext(c), n)
 
 proc passClose(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
@@ -405,9 +430,11 @@ proc trailAst(writer: var SourcetrailDBWriter, ast: PNode) =
 
 when isMainModule:
   startColorLogger()
-  let file = AbsFile("/tmp/file.nim")
+  let file = AbsFile("file.nim")
 
   file.writeFile("""
+
+import std/strutils
 
 type
   Obj = object
@@ -479,3 +506,5 @@ proc hello4(arg1, arg2: int, arg3: string): int =
     compileProject(graph)
 
     discard context.writer[].close()
+
+    info "Finished source analysis"
