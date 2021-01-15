@@ -96,9 +96,10 @@ proc newModuleGraph(file: AbsFile): ModuleGraph =
 
   config.structuredErrorHook =
     proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
-      info level
-      err msg
-      err info, config.getFilePath(info)
+      discard
+      # info level
+      # err msg
+      # err info, config.getFilePath(info)
 
   wantMainModule(config)
 
@@ -125,13 +126,21 @@ converter toSourcetrailSourceRange*(
 
   # debug result
 
+
+const procDecls = {nkProcDef, nkFuncDef, nkIteratorDef,
+                    nkTemplateDef, nkMacroDef, nkMethodDef} # REFACTOR
+
 proc declHead(node: PNode): PNode =
+  # debug node.treeRepr(indexed = true)
   case node.kind:
-    of nkTypeDef, nkRecCase, nkIdentDefs, nkProcDef:
+    of nkTypeDef, nkRecCase, nkIdentDefs, procDecls, nkPragmaExpr:
       result = declHead(node[0])
 
-    of nkSym, nkIdent:
+    of nkSym, nkIdent, nkEnumFieldDef:
       result = node
+
+    of nkPostfix:
+      result = node[1]
 
     else:
       debug node.kind
@@ -184,7 +193,7 @@ proc parseProc*(node: PNode): PProcDecl =
   result = newPProcDecl(":tmp")
 
   case node.kind:
-    of nkProcDef:
+    of procDecls:
       case node[0]:
         of (kind: in {nkSym, nkIdent}, getStrVal: @name):
           result.name = name
@@ -194,19 +203,20 @@ proc parseProc*(node: PNode): PProcDecl =
           raiseImplementError("")
 
 
-      case node[1]:
-        of Empty():
+      case node[1].kind:
+        of nkEmpty:
           discard
 
         else:
-          raiseImplementError("Term rewriting arguments")
+          warn "Term rewriting arguments"
 
-      case node[2]:
-        of Empty():
+      # echo node.treeRepr(indexed = true)
+      case node[2].kind:
+        of nkEmpty:
           discard
 
         else:
-          raiseImplementError("Generic params parsing")
+          warn "Generic params parsing"
 
       for arg in node[3][1..^1]:
         result.arguments.add parseNidentDefs(arg)
@@ -282,7 +292,11 @@ proc registerCalls(
     of nkLiteralKinds:
       discard
 
+    of nkIdent:
+      discard
+
     else:
+      echo node.kind
       for subnode in mitems(node.sons):
         ctx.registerCalls(subnode, fileId, callerId)
 
@@ -360,7 +374,6 @@ proc registerTypeDef(
 
 
 proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
-  const procDecls = {nkProcDef}
   case node:
     of (kind: in procDecls, [@name, _, _, _, _, _, @implementation, .._]):
       let filePath = ctx.graph.getFilePath(node).string
@@ -376,6 +389,14 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
       let fileId = ctx.writer[].recordFile(filePath)
       discard ctx.registerTypeDef(node, fileId)
 
+
+    of ConstSection():
+      discard
+
+    of StmtList():
+      for subnode in node:
+        registerTopLevel(ctx, subnode)
+
     else:
       warn "Unmatched node", node.kind
       debug node
@@ -383,9 +404,13 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
 
 proc passNode(c: PPassContext, n: PNode): PNode =
   result = n
-  if sfMainModule in SourcetrailContext(c).module.flags:
+  # debug "Sourcetrail pass node", n
+  var ctx = SourcetrailContext(c)
+  # debug ctx.module.flags
+
+  if sfMainModule in ctx.module.flags:
     info "Node in mainlevel"
-    registerToplevel(SourcetrailContext(c), n)
+    registerToplevel(ctx, n)
 
 proc passClose(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
   discard
@@ -430,53 +455,54 @@ proc trailAst(writer: var SourcetrailDBWriter, ast: PNode) =
 
 when isMainModule:
   startColorLogger()
-  let file = AbsFile("file.nim")
+  # let file = AbsFile("file.nim")
+  let file = AbsFile("/home/test/tmp/Nim/compiler/ast.nim")
 
-  file.writeFile("""
+#   file.writeFile("""
 
-import std/strutils
+# import std/strutils
 
-type
-  Obj = object
-    fld1: int
-    case isRaw: bool
-      of true:
-        fld2: float
+# type
+#   Obj = object
+#     fld1: int
+#     case isRaw: bool
+#       of true:
+#         fld2: float
 
-      of false:
-        fld3: string
+#       of false:
+#         fld3: string
 
-  Enum = enum
-    enFirst
-    enSecond
+#   Enum = enum
+#     enFirst
+#     enSecond
 
 
-  DistinctAlias = distinct int
-  Alias = int
+#   DistinctAlias = distinct int
+#   Alias = int
 
-proc hello(): int =
-  ## Documentation comment 1
-  return 12
+# proc hello(): int =
+#   ## Documentation comment 1
+#   return 12
 
-proc nice(): int =
-  ## Documentation comment 2
-  return 200
+# proc nice(): int =
+#   ## Documentation comment 2
+#   return 200
 
-proc hello2(arg: int): int =
-  return hello() + arg + nice()
+# proc hello2(arg: int): int =
+#   return hello() + arg + nice()
 
-proc hello3(obj: Obj): int =
-  return obj.fld1
+# proc hello3(obj: Obj): int =
+#   return obj.fld1
 
-proc hello4(arg1, arg2: int, arg3: string): int =
-  result = arg1 + hello3(Obj(fld1: arg2)) + hello2(arg3.len)
-  if result > 10:
-    echo "result > 10"
+# proc hello4(arg1, arg2: int, arg3: string): int =
+#   result = arg1 + hello3(Obj(fld1: arg2)) + hello2(arg3.len)
+#   if result > 10:
+#     echo "result > 10"
 
-  else:
-    result += hello4(arg1, arg2, arg3)
+#   else:
+#     result += hello4(arg1, arg2, arg3)
 
-""")
+# """)
 
   var graph: ModuleGraph = newModuleGraph(file)
   let fileAst: PNode = parsePNode(file)
@@ -488,14 +514,17 @@ proc hello4(arg1, arg2: int, arg3: string): int =
 
   else:
     var writer: SourcetrailDBWriter
-    var context = SourcetrailContext(writer: addr writer)
+    var ptrWriter = addr writer
     let file = "/tmp/test.srctrldb"
     rmFile AbsFile(file)
-    discard context.writer[].open(file)
+    discard writer.open(file)
 
     registerPass(graph, makePass(
       (
         proc(graph: ModuleGraph, module: PSym): PPassContext =
+          var context = SourcetrailContext(writer: ptrWriter)
+          # info "Sourcetrail pass open"
+          # debug module
           context.module = module
           context.graph = graph
           return context
@@ -505,6 +534,6 @@ proc hello4(arg1, arg2: int, arg3: string): int =
 
     compileProject(graph)
 
-    discard context.writer[].close()
+    discard writer.close()
 
     info "Finished source analysis"
