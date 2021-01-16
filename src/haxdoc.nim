@@ -13,8 +13,10 @@ import cxxstd/cxx_common
 
 import compiler /
   [ idents, options, modulegraphs, passes, lineinfos, sem, pathutils, ast,
-    astalgo, modules, condsyms, passaux, llstream, parser
+    modules, condsyms, passaux, llstream, parser
   ]
+
+import compiler/astalgo except debug
 
 {.push inline.}
 
@@ -295,8 +297,6 @@ proc registerCalls(
         discard ctx.writer[].recordReferenceLocation(referenceId, (fileId, node))
 
       elif node.sym.kind in {skParam}:
-        info "Found symbol", node.sym, "of kind", node.sym.kind
-
         let localId = ctx.writer[].recordLocalSymbol($node.sym)
         discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, node))
 
@@ -308,7 +308,6 @@ proc registerCalls(
       discard
 
     else:
-      echo node.kind
       for subnode in mitems(node.sons):
         ctx.registerCalls(subnode, fileId, callerId)
 
@@ -342,23 +341,39 @@ proc registerTypeDef(
 
   if node[2].kind == nkObjectTy:
     let objectDecl: PObjectDecl = parseObject(node, parsePPragma)
-    info "Found object declaration", objectDecl.name.head
 
     let objNameHierarchy = ("", objectDecl.name.head, "")
     let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
     discard ctx.recordNodeLocation(objectSymbol, objectDecl.declNode.get())
 
     for fld in iterateFields(objectDecl):
-      # info "Found field"
-      # debug fld.declNode.get()
+      let fldType = fld.fldType.declNode.get()
+      info "Found field", fld.declNode.get(), "of type", toGreen($fldType)
+
       let fieldSymbol = ctx.writer[].recordSymbol(
         sskField, objNameHierarchy, ("", fld.name, ""))
+
+      if fldType.kind == nkSym:
+        let targetHead: string =
+          if fldType.sym.ast.isNil:
+             $fldType
+
+          else:
+            $declHead(fldType.sym.ast)
+
+        var targetType: cint = ctx.writer[].recordSymbol(
+          sskStruct, ("", targetHead, ""))
+
+        let referenceId = ctx.writer[].recordReference(
+          fieldSymbol, targetType, srkTypeUsage)
+
+        discard ctx.writer[].recordReferenceLocation(
+          referenceId, (fileId, fldType))
 
       discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
 
   elif node[2].kind == nkEnumTy:
     let enumDecl: PEnumDecl = parseEnum(node)
-    info "Found eunm declaration", enumDecl.name
 
     let enumName = ("", enumDecl.name, "")
     let enumSymbol = ctx.writer[].recordSymbol(sskEnum, enumName)
@@ -371,35 +386,39 @@ proc registerTypeDef(
       discard ctx.recordNodeLocation(valueSymbol, fld.declNode.get())
 
   elif node[2].kind in {nkDistinctTy, nkSym}:
-    info "Found type alias"
     let aliasSymbol = ctx.writer[].recordSymbol(sskTypedef, ("", $node[0], ""))
     discard ctx.recordNodeLocation(aliasSymbol, node)
 
 
 
 proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
-  case node:
-    of (kind: in procDecls, [@name, _, _, _, _, _, @implementation, .._]):
+  case node.kind:
+    of procDecls:
+      # [@name, _, _, _, _, _, @implementation, .._] :=
+    # of (kind: in procDecls, ):
       let filePath = ctx.graph.getFilePath(node).string
       let fileId = ctx.writer[].recordFile(filePath)
 
       discard ctx.registerProcDef(fileId, node)
-    of TypeSection():
+    of nkTypeSection:
       for typeDecl in node:
         registerToplevel(ctx, typeDecl)
 
-    of TypeDef():
+    of nkTypeDef:
       let filePath = ctx.graph.getFilePath(node).string
       let fileId = ctx.writer[].recordFile(filePath)
       discard ctx.registerTypeDef(node, fileId)
 
 
-    of ConstSection():
+    of nkConstSection:
       discard
 
-    of StmtList():
+    of nkStmtList:
       for subnode in node:
         registerTopLevel(ctx, subnode)
+
+    of nkEmpty:
+      discard
 
     else:
       warn "Unmatched node", node.kind
@@ -413,7 +432,6 @@ proc passNode(c: PPassContext, n: PNode): PNode =
   # debug ctx.module.flags
 
   if sfMainModule in ctx.module.flags:
-    info "Node in mainlevel"
     registerToplevel(ctx, n)
 
 proc passClose(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
