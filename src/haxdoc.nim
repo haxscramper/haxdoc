@@ -23,6 +23,13 @@ func `-=`*[E](s1: var set[E], v: E | set[E]) = (s1 = s1 - {v})
 
 {.pop.}
 
+template debug(node: PNode) {.dirty.} =
+  log(lvlDebug, @[
+    $instantiationInfo(),
+    "\n",
+    colorizeToStr($node, "nim")
+    # "\n"
+  ])
 
 converter toAbsoluteDir*(dir: AbsDir): AbsoluteDir =
   AbsoluteDir(dir.string)
@@ -273,13 +280,18 @@ proc registerCalls(
     fileId, callerId: cint
   ) =
   assert fileId > 0
+  # debug "", node.info
+  # debug node.treeRepr()
 
   case node.kind:
     of nkSym:
-      if node.sym.kind in routineKinds:
+      if node.sym.kind in routineKinds and
+         not node.sym.ast.isNil:
         let referencedSymbol = ctx.writer[].getProcId(parseProc(node.sym.ast))
 
-        let referenceId = ctx.writer[].recordReference(callerId, referencedSymbol, srkCall)
+        let referenceId = ctx.writer[].recordReference(
+          callerId, referencedSymbol, srkCall)
+
         discard ctx.writer[].recordReferenceLocation(referenceId, (fileId, node))
 
       elif node.sym.kind in {skParam}:
@@ -314,14 +326,6 @@ proc registerProcDef(ctx: SourcetrailContext, fileId: cint, procDef: PNode): cin
 
   logIndented:
     ctx.registerCalls(procDecl.impl, fileId, result)
-
-template debug(node: PNode) {.dirty.} =
-  log(lvlDebug, @[
-    $instantiationInfo(),
-    "\n",
-    colorizeToStr($node, "nim")
-    # "\n"
-  ])
 
 iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
   proc getSubfields(field: PObjectField): seq[PObjectField] =
