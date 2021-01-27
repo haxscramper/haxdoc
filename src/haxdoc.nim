@@ -88,8 +88,6 @@ proc newModuleGraph(file: AbsFile): ModuleGraph =
 
   config.verbosity = 0
   config.options -= optHints
-  echo config.options
-
   config.searchPaths.add @[
     config.libpath,
     path / "pure",
@@ -136,13 +134,10 @@ converter toSourcetrailSourceRange*(
   # debug result
 
 
-const procDecls = {nkProcDef, nkFuncDef, nkIteratorDef,
-                    nkTemplateDef, nkMacroDef, nkMethodDef} # REFACTOR
-
 proc declHead(node: PNode): PNode =
   # debug node.treeRepr(indexed = true)
   case node.kind:
-    of nkTypeDef, nkRecCase, nkIdentDefs, procDecls, nkPragmaExpr:
+    of nkTypeDef, nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr:
       result = declHead(node[0])
 
     of nkSym, nkIdent, nkEnumFieldDef:
@@ -182,59 +177,6 @@ converter toSourcetrailSourceRange*(
   # info "Location for", toRed($head), loc, head.kind, arg.name.kind
 
   toSourcetrailSourcerange((arg.file, loc))
-
-proc parseNidentDefs(node: PNode): NIdentDefs[PNode] =
-  for arg in node[0..^3]:
-    result.idents.add arg
-
-proc `arguments=`(procDecl: var PProcDecl, arguments: seq[NIdentDefs[PNode]]) =
-  procDecl.signature.arguments = arguments
-
-proc `arguments`(procDecl: var PProcDecl): var seq[NIdentDefs[PNode]] =
-  procDecl.signature.arguments
-
-iterator argumentIdents*[N](procDecl: ProcDecl[N]): N =
-  for argument in procDecl.signature.arguments:
-    for ident in argument.idents:
-      yield ident
-
-proc parseProc*(node: PNode): PProcDecl =
-  result = newPProcDecl(":tmp")
-
-  case node.kind:
-    of procDecls:
-      case node[0]:
-        of (kind: in {nkSym, nkIdent}, getStrVal: @name):
-          result.name = name
-
-        else:
-          # err "Unexpected node structure"
-          raiseImplementError("")
-
-
-      case node[1].kind:
-        of nkEmpty:
-          discard
-
-        else:
-          warn "Term rewriting arguments"
-
-      # echo node.treeRepr(indexed = true)
-      case node[2].kind:
-        of nkEmpty:
-          discard
-
-        else:
-          warn "Generic params parsing"
-
-      for arg in node[3][1..^1]:
-        result.arguments.add parseNidentDefs(arg)
-
-      result.impl = node[6]
-
-    else:
-      err "Unexpected node kind", node.kind
-      raiseImplementError("")
 
 proc returnType*[N](ntype: NType[N]): Option[NType[N]] =
   if ntype.rtype.isSome():
@@ -288,8 +230,19 @@ proc registerCalls(
   case node.kind:
     of nkSym:
       if node.sym.kind in routineKinds and
-         not node.sym.ast.isNil:
-        let referencedSymbol = ctx.writer[].getProcId(parseProc(node.sym.ast))
+         (not node.sym.ast.isNil) and
+         (not (node.sym.ast.kind == nkDo)):
+        let parsed =
+          try:
+            parseProc(node.sym.ast)
+          except ImplementError:
+            echo node.sym.ast.treeRepr
+            echo node.kind
+            echo node.sym.kind
+            echo node.sym.ast
+            raise
+
+        let referencedSymbol = ctx.writer[].getProcId(parsed)
 
         let referenceId = ctx.writer[].recordReference(
           callerId, referencedSymbol, srkCall)
@@ -340,7 +293,13 @@ proc registerTypeDef(
   ctx: SourcetrailContext, node: PNode, fileId: cint): cint =
 
   if node[2].kind == nkObjectTy:
-    let objectDecl: PObjectDecl = parseObject(node, parsePPragma)
+    let objectDecl: PObjectDecl =
+      try:
+        parseObject(node, parsePPragma)
+
+      except:
+        echo node
+        raise
 
     let objNameHierarchy = ("", objectDecl.name.head, "")
     let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
@@ -348,7 +307,7 @@ proc registerTypeDef(
 
     for fld in iterateFields(objectDecl):
       let fldType = fld.fldType.declNode.get()
-      info "Found field", fld.declNode.get(), "of type", toGreen($fldType)
+      # info "Found field", fld.declNode.get(), "of type", toGreen($fldType)
 
       let fieldSymbol = ctx.writer[].recordSymbol(
         sskField, objNameHierarchy, ("", fld.name, ""))
@@ -393,9 +352,7 @@ proc registerTypeDef(
 
 proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
   case node.kind:
-    of procDecls:
-      # [@name, _, _, _, _, _, @implementation, .._] :=
-    # of (kind: in procDecls, ):
+    of nkProcDeclKinds:
       let filePath = ctx.graph.getFilePath(node).string
       let fileId = ctx.writer[].recordFile(filePath)
 
@@ -427,9 +384,7 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
 
 proc passNode(c: PPassContext, n: PNode): PNode =
   result = n
-  # debug "Sourcetrail pass node", n
   var ctx = SourcetrailContext(c)
-  # debug ctx.module.flags
 
   if sfMainModule in ctx.module.flags:
     registerToplevel(ctx, n)
@@ -477,76 +432,34 @@ proc trailAst(writer: var SourcetrailDBWriter, ast: PNode) =
 
 when isMainModule:
   startColorLogger()
-  # let file = AbsFile("file.nim")
-  let file = AbsFile("/home/test/tmp/Nim/compiler/ast.nim")
 
-#   file.writeFile("""
+  var writer: SourcetrailDBWriter
+  var ptrWriter = addr writer
+  let file = "/tmp/test.srctrldb"
+  rmFile AbsFile(file)
+  discard writer.open(file)
 
-# import std/strutils
+  for file in walkDir(AbsDir "/home/test/tmp/Nim/compiler", AbsFile, recurse = false):
+    if file.ext() != "nim" or
+       file.name() in [
+         "lambdalifting",
+         "nimconf",
+         "semfields",
+         "ccgstmts",
+         "semobjconstr"
+       ]:
+      continue
 
-# type
-#   Obj = object
-#     fld1: int
-#     case isRaw: bool
-#       of true:
-#         fld2: float
+    info "Processing file", file
 
-#       of false:
-#         fld3: string
-
-#   Enum = enum
-#     enFirst
-#     enSecond
-
-
-#   DistinctAlias = distinct int
-#   Alias = int
-
-# proc hello(): int =
-#   ## Documentation comment 1
-#   return 12
-
-# proc nice(): int =
-#   ## Documentation comment 2
-#   return 200
-
-# proc hello2(arg: int): int =
-#   return hello() + arg + nice()
-
-# proc hello3(obj: Obj): int =
-#   return obj.fld1
-
-# proc hello4(arg1, arg2: int, arg3: string): int =
-#   result = arg1 + hello3(Obj(fld1: arg2)) + hello2(arg3.len)
-#   if result > 10:
-#     echo "result > 10"
-
-#   else:
-#     result += hello4(arg1, arg2, arg3)
-
-# """)
-
-  var graph: ModuleGraph = newModuleGraph(file)
-  let fileAst: PNode = parsePNode(file)
-  registerPass(graph, semPass)
-
-  if false:
-    compileProject(graph)
-    annotateAst(graph, fileAst)
-
-  else:
-    var writer: SourcetrailDBWriter
-    var ptrWriter = addr writer
-    let file = "/tmp/test.srctrldb"
-    rmFile AbsFile(file)
-    discard writer.open(file)
+    var graph: ModuleGraph = newModuleGraph(file)
+    let fileAst: PNode = parsePNode(file)
+    registerPass(graph, semPass)
 
     registerPass(graph, makePass(
       (
         proc(graph: ModuleGraph, module: PSym): PPassContext =
           var context = SourcetrailContext(writer: ptrWriter)
-          # info "Sourcetrail pass open"
-          # debug module
           context.module = module
           context.graph = graph
           return context
@@ -556,6 +469,7 @@ when isMainModule:
 
     compileProject(graph)
 
-    discard writer.close()
 
-    info "Finished source analysis"
+    info "Finished source analysis for file", file
+
+  discard writer.close()
