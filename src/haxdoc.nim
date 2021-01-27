@@ -92,6 +92,7 @@ proc newModuleGraph(file: AbsFile): ModuleGraph =
     config.libpath,
     path / "pure",
     path / "pure" / "collections",
+    path / "pure" / "concurrency",
     path / "impure",
     path / "std",
     path / "core",
@@ -104,13 +105,12 @@ proc newModuleGraph(file: AbsFile): ModuleGraph =
   config.structuredErrorHook =
     proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
       discard
-      # info level
       # err msg
-      # err info, config.getFilePath(info)
 
   wantMainModule(config)
 
   initDefines(config.symbols)
+  defineSymbol(config.symbols, "nimcore")
 
   return newModuleGraph(cache, config)
 
@@ -140,11 +140,17 @@ proc declHead(node: PNode): PNode =
     of nkTypeDef, nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr:
       result = declHead(node[0])
 
-    of nkSym, nkIdent, nkEnumFieldDef:
+    of nkSym, nkIdent, nkEnumFieldDef, nkDotExpr,
+       nkExprColonExpr, nkCall,
+       nkRange # WARNING
+         :
       result = node
 
     of nkPostfix:
       result = node[1]
+
+    of nkInfix:
+      result = node[0]
 
     else:
       debug node.kind
@@ -221,11 +227,10 @@ proc getProcId(writer: var SourcetrailDBWriter, procDecl: PProcDecl): cint =
 proc registerCalls(
     ctx: SourcetrailContext,
     node: PNode,
-    fileId, callerId: cint
+    fileId, callerId: cint,
+    parent: PNode
   ) =
   assert fileId > 0
-  # debug "", node.info
-  # debug node.treeRepr()
 
   case node.kind:
     of nkSym:
@@ -249,9 +254,38 @@ proc registerCalls(
 
         discard ctx.writer[].recordReferenceLocation(referenceId, (fileId, node))
 
-      elif node.sym.kind in {skParam}:
+      elif node.sym.kind in {skParam, skForVar, skVar, skResult, skLet}:
         let localId = ctx.writer[].recordLocalSymbol($node.sym)
         discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, node))
+
+      elif node.sym.kind in {skField, skEnumField}:
+        if node.sym.owner.notNil:
+          let path = [("", split($node.sym.owner, '@')[0], ""), ("", $node, "")]
+          let referencedSymbol = ctx.writer[].recordSymbol(
+            tern(node.sym.kind == skField, sskField, sskEnumConstant),
+            path
+          )
+
+          if node.sym.kind == skEnumField:
+            debug "Record usage of field", $node, "at path", path
+
+          let referenceId = ctx.writer[].recordReference(
+            callerId, referencedSymbol, srkUsage)
+
+          discard ctx.writer[].recordReferenceLocation(
+            referenceId,
+            (fileId, tern(node.sym.kind == skField, parent, node))
+          )
+
+        else:
+          warn "No owner for node ", node
+
+
+      # elif node.sym.kind == {skEnumField}:
+      #   if node.sym.owner.notNil:
+
+      else:
+        warn "Skipping symbol of kind", node.sym.kind
 
 
     of nkLiteralKinds:
@@ -262,7 +296,7 @@ proc registerCalls(
 
     else:
       for subnode in mitems(node.sons):
-        ctx.registerCalls(subnode, fileId, callerId)
+        ctx.registerCalls(subnode, fileId, callerId, node)
 
 
 
@@ -277,7 +311,7 @@ proc registerProcDef(ctx: SourcetrailContext, fileId: cint, procDef: PNode): cin
     discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, argument))
 
   logIndented:
-    ctx.registerCalls(procDecl.impl, fileId, result)
+    ctx.registerCalls(procDecl.impl, fileId, result, nil)
 
 iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
   proc getSubfields(field: PObjectField): seq[PObjectField] =
@@ -367,15 +401,18 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
       discard ctx.registerTypeDef(node, fileId)
 
 
-    of nkConstSection:
-      discard
-
     of nkStmtList:
       for subnode in node:
         registerTopLevel(ctx, subnode)
 
     of nkEmpty:
       discard
+
+    of nkDiscardStmt, nkCommentStmt, nkIncludeStmt, nkImportStmt:
+      discard
+
+    of nkVarSection, nkLetSection, nkConstSection:
+      warn "Global define"
 
     else:
       warn "Unmatched node", node.kind
@@ -396,77 +433,9 @@ when isMainModule:
   #   AbsDir "/home/test/tmp/Nim/compiler", AbsFile, recurse = false):
 
   for file in @[
+    AbsFile("/home/test/tmp/Nim/compiler/sem.nim"),
     AbsFile("/home/test/tmp/Nim/compiler/ast.nim"),
-    AbsFile("/home/test/tmp/Nim/compiler/semmagic.nim"),
   ]:
-
-
-
-    # if file.ext() != "nim" or
-    #    file.name() in [
-    #      "optimizer",
-    #      "lineinfos",
-    #      "ccgexprs",
-    #      "gorgeimpl",
-    #      "debuginfo",
-    #      "tccgen",
-    #      "cmdlinehelper",
-    #      "seminst",
-    #      "transf",
-    #      "ccgcalls",
-    #      "index",
-    #      "jstypes",
-    #      "ccgthreadvars",
-    #      "vmhooks",
-    #      "semtempl",
-    #      "vmgen",
-    #      "ccgtypes",
-    #      "docgen2",
-    #      "ccgtrav",
-    #      "semcall",
-    #      "canonicalizer",
-    #      "lambdalifting",
-    #      "nimconf",
-    #      "semfields",
-    #      "ccgstmts",
-    #      "semobjconstr",
-    #      "liftlocals",
-    #      "sinkparameter_inference",
-    #      "main",
-    #      "semmagic",
-    #      "hlo",
-    #      "cgmeth",
-    #      "evalffi",
-    #      "ccgliterals",
-    #      "docgen",
-    #      "sem",
-    #      "cgen",
-    #      "vmops",
-    #      "semstmts",
-    #      "vm",
-    #      "scriptconfig",
-    #      "sempass2",
-    #      "nim",
-    #      "commands",
-    #      "layouter",
-    #      "semtypes",
-    #      "ccgreset",
-    #      "extccomp",
-    #      "jsgen",
-    #      "closureiters",
-    #      "semexprs",
-    #      "semfold",
-    #      "nimeval",
-    #      "semgnrc",
-    #      "sizealignoffsetimpl",
-    #      "suggest",
-    #      "pragmas",
-    #      "packagehandling",
-    #      "spawn",
-    #      "rodimpl"
-    #    ]:
-    #   info "Skipping", file
-    #   continue
 
     info "Processing file", file
 
@@ -476,19 +445,14 @@ when isMainModule:
       graph, makePass(
         (
           proc(graph: ModuleGraph, module: PSym): PPassContext =
-            info "Sempass open", module
-            indentLog()
             semPass.open(graph, module)
         ),
         (
           proc(c: PPassContext, n: PNode): PNode =
-            debug "Sempass process", split($n, '\n')[0]
             result = semPass.process(c, n)
         ),
         (
           proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
-            dedentLog()
-            info "Sempass close", split($n, '\n')[0]
             semPass.close(graph, p, n)
         )
       )
@@ -502,9 +466,6 @@ when isMainModule:
             context.module = module
             context.graph = graph
 
-            info "Trail open", module
-            indentLog()
-
             return context
         ),
         (
@@ -514,13 +475,10 @@ when isMainModule:
 
             if sfMainModule in ctx.module.flags:
               registerToplevel(ctx, n)
-
-            debug "Trail ok"
         ),
         (
           proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
-            dedentLog()
-            info "Trail close", split($n, '\n')[0]
+            discard
         )
       )
     )
