@@ -231,7 +231,7 @@ proc registerCalls(
     of nkSym:
       if node.sym.kind in routineKinds and
          (not node.sym.ast.isNil) and
-         (not (node.sym.ast.kind == nkDo)):
+         (node.sym.ast.kind notin {nkDo, nkLambda}):
         let parsed =
           try:
             parseProc(node.sym.ast)
@@ -381,55 +381,6 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
       warn "Unmatched node", node.kind
       debug node
 
-
-proc passNode(c: PPassContext, n: PNode): PNode =
-  result = n
-  var ctx = SourcetrailContext(c)
-
-  if sfMainModule in ctx.module.flags:
-    registerToplevel(ctx, n)
-
-proc passClose(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
-  discard
-
-proc findNode*(n: PNode; trackPos: TLineInfo): PSym =
-  if n.kind == nkSym:
-    if n.info.fileIndex == trackPos.fileIndex and
-       n.info.line == trackPos.line:
-
-      if trackPos.col in (n.info.col .. n.info.col + n.sym.name.s.len - 1):
-        return n.sym
-
-  else:
-    for i in 0 ..< safeLen(n):
-      let res = findNode(n[i], trackPos)
-      if res != nil:
-        return res
-
-proc symFromInfo(graph: ModuleGraph; trackPos: TLineInfo): PSym =
-  let m = graph.getModule(trackPos.fileIndex)
-  if m != nil and m.ast != nil:
-    result = findNode(m.ast, trackPos)
-
-
-proc annotateAst(graph: ModuleGraph, node: PNode) =
-  case node.kind:
-    of nkLiteralKinds:
-      discard
-
-    of nkIdent:
-      let sym = graph.symFromInfo(node.info)
-      info "------"
-      if not sym.isNil:
-        echo sym.ast
-
-    else:
-      for subnode in items(node):
-        annotateAst(graph, subnode)
-
-proc trailAst(writer: var SourcetrailDBWriter, ast: PNode) =
-  discard
-
 when isMainModule:
   startColorLogger()
 
@@ -439,37 +390,145 @@ when isMainModule:
   rmFile AbsFile(file)
   discard writer.open(file)
 
-  for file in walkDir(AbsDir "/home/test/tmp/Nim/compiler", AbsFile, recurse = false):
-    if file.ext() != "nim" or
-       file.name() in [
-         "lambdalifting",
-         "nimconf",
-         "semfields",
-         "ccgstmts",
-         "semobjconstr"
-       ]:
-      continue
+  var tmp = false
+
+  # for file in walkDir(
+  #   AbsDir "/home/test/tmp/Nim/compiler", AbsFile, recurse = false):
+
+  for file in @[
+    AbsFile("/home/test/tmp/Nim/compiler/ast.nim"),
+    AbsFile("/home/test/tmp/Nim/compiler/semmagic.nim"),
+  ]:
+
+
+
+    # if file.ext() != "nim" or
+    #    file.name() in [
+    #      "optimizer",
+    #      "lineinfos",
+    #      "ccgexprs",
+    #      "gorgeimpl",
+    #      "debuginfo",
+    #      "tccgen",
+    #      "cmdlinehelper",
+    #      "seminst",
+    #      "transf",
+    #      "ccgcalls",
+    #      "index",
+    #      "jstypes",
+    #      "ccgthreadvars",
+    #      "vmhooks",
+    #      "semtempl",
+    #      "vmgen",
+    #      "ccgtypes",
+    #      "docgen2",
+    #      "ccgtrav",
+    #      "semcall",
+    #      "canonicalizer",
+    #      "lambdalifting",
+    #      "nimconf",
+    #      "semfields",
+    #      "ccgstmts",
+    #      "semobjconstr",
+    #      "liftlocals",
+    #      "sinkparameter_inference",
+    #      "main",
+    #      "semmagic",
+    #      "hlo",
+    #      "cgmeth",
+    #      "evalffi",
+    #      "ccgliterals",
+    #      "docgen",
+    #      "sem",
+    #      "cgen",
+    #      "vmops",
+    #      "semstmts",
+    #      "vm",
+    #      "scriptconfig",
+    #      "sempass2",
+    #      "nim",
+    #      "commands",
+    #      "layouter",
+    #      "semtypes",
+    #      "ccgreset",
+    #      "extccomp",
+    #      "jsgen",
+    #      "closureiters",
+    #      "semexprs",
+    #      "semfold",
+    #      "nimeval",
+    #      "semgnrc",
+    #      "sizealignoffsetimpl",
+    #      "suggest",
+    #      "pragmas",
+    #      "packagehandling",
+    #      "spawn",
+    #      "rodimpl"
+    #    ]:
+    #   info "Skipping", file
+    #   continue
 
     info "Processing file", file
 
     var graph: ModuleGraph = newModuleGraph(file)
     let fileAst: PNode = parsePNode(file)
-    registerPass(graph, semPass)
+    registerPass(
+      graph, makePass(
+        (
+          proc(graph: ModuleGraph, module: PSym): PPassContext =
+            info "Sempass open", module
+            indentLog()
+            semPass.open(graph, module)
+        ),
+        (
+          proc(c: PPassContext, n: PNode): PNode =
+            debug "Sempass process", split($n, '\n')[0]
+            result = semPass.process(c, n)
+        ),
+        (
+          proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
+            dedentLog()
+            info "Sempass close", split($n, '\n')[0]
+            semPass.close(graph, p, n)
+        )
+      )
+    )
 
-    registerPass(graph, makePass(
-      (
-        proc(graph: ModuleGraph, module: PSym): PPassContext =
-          var context = SourcetrailContext(writer: ptrWriter)
-          context.module = module
-          context.graph = graph
-          return context
-      ),
-      passNode,
-      passClose))
+    registerPass(
+      graph, makePass(
+        (
+          proc(graph: ModuleGraph, module: PSym): PPassContext =
+            var context = SourcetrailContext(writer: ptrWriter)
+            context.module = module
+            context.graph = graph
+
+            info "Trail open", module
+            indentLog()
+
+            return context
+        ),
+        (
+          proc(c: PPassContext, n: PNode): PNode =
+            result = n
+            var ctx = SourcetrailContext(c)
+
+            if sfMainModule in ctx.module.flags:
+              registerToplevel(ctx, n)
+
+            debug "Trail ok"
+        ),
+        (
+          proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
+            dedentLog()
+            info "Trail close", split($n, '\n')[0]
+        )
+      )
+    )
 
     compileProject(graph)
 
 
     info "Finished source analysis for file", file
 
+  info "Done total"
   discard writer.close()
