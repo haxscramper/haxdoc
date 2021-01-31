@@ -44,14 +44,12 @@ const
   }
 
 type
-  DocText* = ref object of SemOrg
-
   DocType* = object
 
   DocEntry* = ref object
     plainName*: string
     genParams*: seq[DocType]
-    doctext*: DocText
+    doctext*: SemOrg
     case kind*: DocEntryKind
       of dekProcKinds:
         arguments*: seq[DocEntry]

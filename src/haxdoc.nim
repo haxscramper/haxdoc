@@ -1,5 +1,6 @@
 import haxdoc/[docentry, compiler_aux]
 import std/[streams, json]
+import haxorg/[semorg, exporter_json, parser, ast]
 
 import hmisc/other/[colorlogger, oswrap, hjson]
 import hmisc/helpers
@@ -17,8 +18,8 @@ type
 proc toJson*(doctype: DocType): JsonNode =
   %1
 
-proc toJson*(doctext: DocText): JsonNode =
-  %1
+# proc toJson*(doctext: DocText): JsonNode =
+#   toJson(SemOrg(doctext))
 
 proc toJson*(entry: DocEntry): JsonNode =
   result = newJObject()
@@ -39,12 +40,22 @@ proc registerTopLevel(ctx: DocContext, n: PNode) =
 
   case n.kind:
     of nkProcDef:
+      echo treeRepr(n)
+
       let parsed = parseProc(n)
+
+
+      let node = parseOrg(parsed.docComment)
+      echo treeRepr(node)
+      var semNode = toSemOrgDocument(node)
 
       ctx.db.entries.add DocEntry(
         plainName: parsed.name,
-        kind: dekProc
+        kind: dekProc,
+        doctext: semNode
       )
+
+
 
     else:
       discard
@@ -56,7 +67,7 @@ when isMainModule:
   file.writeFile("""
 
 proc hhh() =
-  ## Documentation
+  ## Documentation for
   echo "123"
 
 hhh()

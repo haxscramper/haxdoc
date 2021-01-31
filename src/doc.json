@@ -1,7 +1,26 @@
 {
   "plainName": "hhh",
   "genParams": [],
-  "doctext": 1,
+  "doctext": {
+    "subnodes": [
+      {
+        "node": {
+          "kind": "StmtList",
+          "ranges": [],
+          "str": "",
+          "subnodes": [],
+          "type": "OrgNodeObj"
+        },
+        "subnodes": [],
+        "properties": [],
+        "kind": "StmtList",
+        "type": "SemOrg:ObjectType"
+      }
+    ],
+    "properties": [],
+    "kind": "Document",
+    "type": "SemOrg:ObjectType"
+  },
   "kind": "dekProc",
   "arguments": [],
   "prReturn": 1
