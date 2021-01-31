@@ -105,7 +105,7 @@ proc newModuleGraph(file: AbsFile): ModuleGraph =
   config.structuredErrorHook =
     proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
       discard
-      # err msg
+      err msg
 
   wantMainModule(config)
 
@@ -231,7 +231,6 @@ proc registerCalls(
     parent: PNode
   ) =
   assert fileId > 0
-
   case node.kind:
     of nkSym:
       if node.sym.kind in routineKinds and
@@ -259,15 +258,13 @@ proc registerCalls(
         discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, node))
 
       elif node.sym.kind in {skField, skEnumField}:
+        info "Found enum symbol"
         if node.sym.owner.notNil:
           let path = [("", split($node.sym.owner, '@')[0], ""), ("", $node, "")]
           let referencedSymbol = ctx.writer[].recordSymbol(
             tern(node.sym.kind == skField, sskField, sskEnumConstant),
             path
           )
-
-          if node.sym.kind == skEnumField:
-            debug "Record usage of field", $node, "at path", path
 
           let referenceId = ctx.writer[].recordReference(
             callerId, referencedSymbol, srkUsage)
@@ -281,17 +278,20 @@ proc registerCalls(
           warn "No owner for node ", node
 
 
-      # elif node.sym.kind == {skEnumField}:
-      #   if node.sym.owner.notNil:
+      elif node.sym.kind in {skType}:
+        let reference = ctx.writer[].recordReference(
+          callerId,
+          ctx.writer[].recordSymbol(sskType, [("", $node, "")]),
+          srkTypeUsage
+        )
+
+        discard ctx.writer[].recordReferenceLocation(reference, (fileId, node))
 
       else:
-        warn "Skipping symbol of kind", node.sym.kind
+        warn "Skipping symbol of kind", node.sym.kind, "at", node.getInfo()
 
 
-    of nkLiteralKinds:
-      discard
-
-    of nkIdent:
+    of nkLiteralKinds, nkIdent:
       discard
 
     else:
@@ -384,6 +384,12 @@ proc registerTypeDef(
 
 
 
+proc getFileId(ctx: SourcetrailContext, node: PNode): cint =
+  let filePath = ctx.graph.getFilePath(node).string
+  info filePath
+  return ctx.writer[].recordFile(filePath)
+
+
 proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
   case node.kind:
     of nkProcDeclKinds:
@@ -391,15 +397,13 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
       let fileId = ctx.writer[].recordFile(filePath)
 
       discard ctx.registerProcDef(fileId, node)
+
     of nkTypeSection:
       for typeDecl in node:
         registerToplevel(ctx, typeDecl)
 
     of nkTypeDef:
-      let filePath = ctx.graph.getFilePath(node).string
-      let fileId = ctx.writer[].recordFile(filePath)
-      discard ctx.registerTypeDef(node, fileId)
-
+      discard ctx.registerTypeDef(node, ctx.getFileId(node))
 
     of nkStmtList:
       for subnode in node:
@@ -408,11 +412,12 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
     of nkEmpty:
       discard
 
-    of nkDiscardStmt, nkCommentStmt, nkIncludeStmt, nkImportStmt:
+    of nkCommentStmt, nkIncludeStmt, nkImportStmt:
       discard
 
-    of nkVarSection, nkLetSection, nkConstSection:
-      warn "Global define"
+    of nkDiscardStmt, nkVarSection, nkLetSection, nkConstSection, nkCommand:
+      let fileId = ctx.getFileId(node)
+      ctx.registerCalls(node, fileId, fileId, nil)
 
     else:
       warn "Unmatched node", node.kind
@@ -429,35 +434,61 @@ when isMainModule:
 
   var tmp = false
 
+  "/tmp/ast.nim".writeFile("""
+type
+  En* = enum
+    enDotDot
+""")
+
+  "/tmp/semmagic.nim".writeFile("""
+let val = enDotDot
+""")
+
+  "/tmp/sem.nim".writeFIle("""
+import ast
+include semmagic
+
+type ZZ = object
+
+let test = ZZ()
+""")
+
+  for file in @[
+    AbsFile("/tmp/sem.nim"),
+    AbsFile("/tmp/ast.nim"),
+
+    # AbsFile("/home/test/tmp/Nim/compiler/ast.nim"),
+    # AbsFile("/home/test/tmp/Nim/compiler/sem.nim"),
+  ]:
+
   # for file in walkDir(
   #   AbsDir "/home/test/tmp/Nim/compiler", AbsFile, recurse = false):
 
-  for file in @[
-    AbsFile("/home/test/tmp/Nim/compiler/sem.nim"),
-    AbsFile("/home/test/tmp/Nim/compiler/ast.nim"),
-  ]:
+  #   if file.ext() != "nim" or
+  #      file.name() in [
+
+  #        "optimizer", "lineinfos", "ccgexprs", "gorgeimpl", "debuginfo",
+  #        "tccgen", "cmdlinehelper", "seminst", "transf", "ccgcalls",
+  #        "index", "jstypes", "ccgthreadvars", "vmhooks", "semtempl",
+  #        "vmgen", "ccgtypes", "docgen2", "ccgtrav", "semcall",
+  #        "canonicalizer", "lambdalifting", "nimconf", "semfields",
+  #        "ccgstmts", "semobjconstr", "liftlocals",
+  #        "sinkparameter_inference", "main", "semmagic", "hlo", "cgmeth",
+  #        "evalffi", "ccgliterals", "docgen", "sem", "cgen", "vmops",
+  #        "semstmts", "vm", "scriptconfig", "sempass2", "nim", "commands",
+  #        "layouter", "semtypes", "ccgreset", "extccomp", "jsgen",
+  #        "closureiters", "semexprs", "semfold", "nimeval", "semgnrc",
+  #        "sizealignoffsetimpl", "suggest", "pragmas", "packagehandling",
+  #        "spawn", "rodimpl"
+
+  #      ]:
+  #     info "Skipping", file
+  #     continue
 
     info "Processing file", file
 
     var graph: ModuleGraph = newModuleGraph(file)
-    let fileAst: PNode = parsePNode(file)
-    registerPass(
-      graph, makePass(
-        (
-          proc(graph: ModuleGraph, module: PSym): PPassContext =
-            semPass.open(graph, module)
-        ),
-        (
-          proc(c: PPassContext, n: PNode): PNode =
-            result = semPass.process(c, n)
-        ),
-        (
-          proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
-            semPass.close(graph, p, n)
-        )
-      )
-    )
-
+    registerPass(graph, semPass)
     registerPass(
       graph, makePass(
         (
@@ -483,7 +514,8 @@ when isMainModule:
       )
     )
 
-    compileProject(graph)
+    logIndented:
+      compileProject(graph)
 
 
     info "Finished source analysis for file", file
