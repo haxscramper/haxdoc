@@ -11,27 +11,6 @@ import fusion/matching
 import nimtrail/nimtrail_common
 import cxxstd/cxx_common
 
-import compiler /
-  [ idents, options, modulegraphs, passes, lineinfos, sem, pathutils, ast,
-    modules, condsyms, passaux, llstream, parser
-  ]
-
-import compiler/astalgo except debug
-
-{.push inline.}
-
-func `-`*[E](s1: set[E], s2: E): set[E] = s1 - {s2}
-func `-=`*[E](s1: var set[E], v: E | set[E]) = (s1 = s1 - {v})
-
-{.pop.}
-
-template debug(node: PNode) {.dirty.} =
-  log(lvlDebug, @[
-    $instantiationInfo(),
-    "\n",
-    colorizeToStr($node, "nim")
-    # "\n"
-  ])
 
 converter toAbsoluteDir*(dir: AbsDir): AbsoluteDir =
   AbsoluteDir(dir.string)
@@ -74,45 +53,6 @@ template excludeAllNotes(config: ConfigRef; n: typed) =
     config.mainPackageNotes.excl n
   when compiles(config.foreignPackageNotes):
     config.foreignPackageNotes.excl n
-
-proc newModuleGraph(file: AbsFile): ModuleGraph =
-  var
-    cache: IdentCache = newIdentCache()
-    config: ConfigRef = newConfigRef()
-
-  let path = ~".choosenim/toolchains/nim-1.4.0/lib"
-
-  with config:
-    libpath = AbsoluteDir(path)
-    cmd = cmdIdeTools
-
-  config.verbosity = 0
-  config.options -= optHints
-  config.searchPaths.add @[
-    config.libpath,
-    path / "pure",
-    path / "pure" / "collections",
-    path / "pure" / "concurrency",
-    path / "impure",
-    path / "std",
-    path / "core",
-    path / "posix"
-  ]
-
-  config.projectFull = file
-  # config.excludeAllNotes(hintLineTooLong)
-
-  config.structuredErrorHook =
-    proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
-      discard
-      err msg
-
-  wantMainModule(config)
-
-  initDefines(config.symbols)
-  defineSymbol(config.symbols, "nimcore")
-
-  return newModuleGraph(cache, config)
 
 type
   SourcetrailContext = ref object of PPassContext

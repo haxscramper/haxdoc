@@ -1,7 +1,7 @@
 import haxorg/semorg
 
 type
-  DocEntryKind = enum
+  DocEntryKind* = enum
     dekProc
     dekFunc
     dekMacro
@@ -44,11 +44,11 @@ const
   }
 
 type
-  DocText = ref object of SemOrg
+  DocText* = ref object of SemOrg
 
-  DocType = object
+  DocType* = object
 
-  DocEntry = ref object
+  DocEntry* = ref object
     plainName*: string
     genParams*: seq[DocType]
     doctext*: DocText
@@ -73,3 +73,6 @@ type
 
       else:
         discard
+
+  DocDB* = ref object
+    entries*: seq[DocEntry]
