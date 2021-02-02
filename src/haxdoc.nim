@@ -1,6 +1,6 @@
 import haxdoc/[docentry, compiler_aux]
 import std/[streams, json, strformat, strutils, sequtils, sugar]
-import haxorg/[semorg, exporter_json, parser, ast]
+import haxorg/[semorg, exporter_json, parser, ast, exporter_plaintext]
 
 import hmisc/other/[colorlogger, oswrap, hjson]
 import hmisc/helpers
@@ -22,17 +22,18 @@ proc toJson*(doctype: DocType): JsonNode =
 #   toJson(SemOrg(doctext))
 
 proc toJson*(entry: DocEntry): JsonNode =
-  toJson(entry[])
-
-proc writeJson*(entry: DocEntry, s: Stream) =
-  let j = toPretty(toJson(entry), 100)
-  echo j
-  s.writeLine(j)
+  result = toJson(entry[], @["doctextBriefPlain"])
+  result["doctextBriefPlain"] = newJString(entry.doctextBriefPlain)
 
 proc writeJson*(db: DocDB, target: AnyFile) =
-  let file = openFileStream(target.getStr(), fmWrite)
+  var buf: JsonNode = newJArray()
   for entry in db.entries:
-    writeJson(entry, file)
+    buf.add toJson(entry)
+
+  let res = toPretty(buf, 100)
+  echo res
+
+  target.writeFile(res)
 
 
 proc toDocType*(nt: NType[PNode]): DocType
@@ -72,12 +73,12 @@ proc toDocType*(nt: NType[PNode]): DocType =
     of ntkNone:
       discard
 
-proc toSigText*(nt: DocType): string
+proc toSigText*(nt: DocType, procPrefix: string = "proc"): string
 
 proc toSigText*(nt: DocIdent): string =
   &"{nt.ident}: {toSigText(nt.vtype)}"
 
-proc toSigText*(nt: DocType): string =
+proc toSigText*(nt: DocType, procPrefix: string = "proc"): string =
   case nt.kind:
     of ntkNone:
       result = ""
@@ -113,7 +114,7 @@ proc toSigText*(nt: DocType): string =
         let pragma: string = tern(nt.pragma.len > 0, nt.pragma & " ", "")
         let args: string = nt.arguments.mapIt(toSigText(it)).join(", ")
         let rtype: string = nt.returnType.getSomeIt(toSigText(it) & ": ", "")
-        result = &"proc({args}){pragma}{rtype}"
+        result = &"{procPrefix}({args}){pragma}{rtype}"
 
     of ntkAnonTuple:
       result = nt.genParams.mapIt(toSigText(it)).join(", ").wrap("()")
@@ -140,7 +141,7 @@ proc registerTopLevel(ctx: DocContext, n: PNode) =
 
       var admonitions: seq[(OrgBigIdentKind, SemOrg)]
       var metatags: seq[(SemMetaTag, SemOrg)]
-      var doctext = onkStmtList.newSemOrg()
+      var doctext: seq[SemOrg]
 
       for elem in items(semNode[0]):
         case elem.kind:
@@ -173,14 +174,44 @@ proc registerTopLevel(ctx: DocContext, n: PNode) =
 
 
       let sign = toDocType(parsed.signature)
-      ctx.db.entries.add DocEntry(
+      var decl = DocEntry(
         plainName: parsed.name,
         kind: dekProc,
-        doctext: onkStmtList.newSemOrg(doctext),
+        doctextBrief: tern(
+          doctext.len > 0,
+          onkStmtList.newSemOrg(doctext[0]),
+          onkemptyNode.newSemorg()
+        ),
+        doctextBody: tern(
+          doctext.len > 1,
+          onkStmtList.newSemOrg(doctext[1..^1]),
+          onkEmptyNode.newSemorg()
+        ),
         admonitions: admonitions,
-        prSigText: toSigText(sign),
+        prSigText: toSigText(
+          sign,
+          (
+            case parsed.declType:
+              of ptkProc: "proc"
+              of ptkFunc: "func"
+              of ptkIterator: "iterator"
+              of ptkConverter: "converter"
+              of ptkMethod: "method"
+              of ptkTemplate: "template"
+              of ptkMacro: "macro"
+
+          ) & " " & parsed.name
+        ),
         prSigTree: sign
       )
+
+      exportTo(OrgPlaintextExporter(),
+               decl.doctextBrief,
+               decl.doctextBriefPlain)
+
+      ctx[].db.entries.add decl
+
+
 
     else:
       discard
@@ -195,6 +226,10 @@ proc hhh(arg: int) =
   ## Documentation for hhh
   ## - NOTE :: prints out "123"
   ## - @effect{IOEffect} :: Use stdout
+  echo "123"
+
+proc secondProc() =
+  ## Brief documentation for proc
   echo "123"
 
 hhh(123)

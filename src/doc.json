@@ -1,47 +1,62 @@
-{
-"plainName": "hhh",
-"doctext": {
-  "tree": [
-    "onkStmtList",
-    [{
+[{
+  "plainName": "hhh",
+  "doctextBody": {},
+  "doctextBrief": {
+    "tree": [
+      "onkStmtList",
+      [{"tree": ["onkParagraph", [{"text": "Documentation"}, {"text": "for"}, {"text": "hhh"}]]}]
+    ]
+  },
+  "admonitions": [{
+      "kind": "obiNote",
+      "body": {
         "tree": [
           "onkStmtList",
-          [
-            {"tree": ["onkParagraph", [{"text": "Documentation"}, {"text": "for"}, {"text": "hhh"}]]}
+          [{
+              "tree": [
+                "onkParagraph",
+                [
+                  {"text": "prints"},
+                  {"text": "out"},
+                  {"mark": "", "str": "\""},
+                  {"text": "123"},
+                  {"text": "\""}
+                ]]
+            },
+            {}
           ]]
-      }]]
-},
-"admonitions": [{
-    "kind": "obiNote",
-    "body": {
-      "tree": [
-        "onkStmtList",
-        [{
-            "tree": [
-              "onkParagraph",
-              [
-                {"text": "prints"},
-                {"text": "out"},
-                {"mark": "", "str": "\""},
-                {"text": "123"},
-                {"text": "\""}
-              ]]
-          },
-          {}
-        ]]
-    }
-  }],
-"kind": "dekProc",
-"prSigText": "proc(arg: int)",
-"prSigTree": {
-  "doctext": null,
-  "kind": "ntkProc",
-  "arguments": [{
-      "ident": "arg",
-      "kind": "nvdLet",
-      "doctext": null,
-      "vtype": {"doctext": null, "kind": "ntkIdent", "head": "int"}
+      }
     }],
-  "pragma": ""
-}
-}
+  "kind": "dekProc",
+  "prSigText": "proc hhh(arg: int)",
+  "prSigTree": {
+    "doctextBody": null,
+    "doctextBrief": null,
+    "kind": "ntkProc",
+    "arguments": [{
+        "ident": "arg",
+        "kind": "nvdLet",
+        "doctext": null,
+        "vtype": {"doctextBody": null, "doctextBrief": null, "kind": "ntkIdent", "head": "int"}
+      }],
+    "pragma": ""
+  },
+  "doctextBriefPlain": "Documentation for hhh  "
+},{
+  "plainName": "secondProc",
+  "doctextBody": {},
+  "doctextBrief": {
+    "tree": [
+      "onkStmtList",
+      [{
+          "tree": [
+            "onkParagraph",
+            [{"text": "Brief"}, {"text": "documentation"}, {"text": "for"}, {"text": "proc"}]
+          ]
+        }]]
+  },
+  "kind": "dekProc",
+  "prSigText": "proc secondProc()",
+  "prSigTree": {"doctextBody": null, "doctextBrief": null, "kind": "ntkProc", "pragma": ""},
+  "doctextBriefPlain": "Brief documentation for proc  "
+}]

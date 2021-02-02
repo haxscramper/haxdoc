@@ -53,7 +53,8 @@ type
     value*: Option[string]
 
   DocType* = ref object
-    doctext*: SemOrg
+    doctextBody*: SemOrg
+    doctextBrief*: SemOrg
     case kind*: NTypeKind
       of ntkIdent, ntkGenericSpec, ntkAnonTuple:
         head*: string
@@ -80,7 +81,9 @@ type
   DocEntry* = ref object
     plainName*: string
     genParams*: seq[DocType]
-    doctext*: SemOrg
+    doctextBody*: SemOrg
+    doctextBrief*: SemOrg
+    doctextBriefPlain*: string
 
     admonitions*: seq[tuple[kind: OrgBigIdentKind, body:SemOrg]]
     metatags*: seq[(SemMetaTag, SemOrg)]
