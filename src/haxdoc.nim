@@ -1,5 +1,5 @@
 import haxdoc/[docentry, compiler_aux]
-import std/[streams, json]
+import std/[streams, json, strformat, strutils, sequtils, sugar]
 import haxorg/[semorg, exporter_json, parser, ast]
 
 import hmisc/other/[colorlogger, oswrap, hjson]
@@ -16,46 +16,171 @@ type
     graph*: ModuleGraph
 
 proc toJson*(doctype: DocType): JsonNode =
-  %1
+  toJson(doctype[])
 
 # proc toJson*(doctext: DocText): JsonNode =
 #   toJson(SemOrg(doctext))
 
 proc toJson*(entry: DocEntry): JsonNode =
-  result = newJObject()
-  for name, val in fieldPairs(entry[]):
-    result[name] = toJson(val)
+  toJson(entry[])
 
 proc writeJson*(entry: DocEntry, s: Stream) =
-  s.writeLine(pretty(toJson(entry)))
+  let j = toPretty(toJson(entry), 100)
+  echo j
+  s.writeLine(j)
 
 proc writeJson*(db: DocDB, target: AnyFile) =
   let file = openFileStream(target.getStr(), fmWrite)
   for entry in db.entries:
     writeJson(entry, file)
 
-proc registerTopLevel(ctx: DocContext, n: PNode) =
-  debug n
-  debug n.kind
 
+proc toDocType*(nt: NType[PNode]): DocType
+
+proc toDocIdents*(idents: seq[NIdentDefs[PNode]]): seq[DocIdent] =
+  for group in idents:
+    for ident in group.idents:
+      result.add DocIdent(
+        ident: $ident,
+        kind: group.kind,
+        vtype: toDocType(group.vtype)
+      )
+
+proc toDocType*(nt: NType[PNode]): DocType =
+  result = DocType(kind: nt.kind)
+  case nt.kind:
+    of ntkIdent, ntkGenericSpec, ntkAnonTuple:
+      result.head = $nt.head
+      result.genParams = nt.genParams.mapIt(toDocType(it))
+
+    of ntkProc, ntkNamedTuple:
+      result.returnType = nt.returnType.mapSomeIt(toDocType(it))
+      result.arguments = nt.arguments.toDocIdents()
+      result.pragma = $nt.pragma.toNNode()
+
+    of ntkRange:
+      result.rngStart = $nt.rngStart
+      result.rngEnd = $nt.rngEnd
+
+    of ntkValue:
+      result.value = $nt.value
+
+    of ntkVarargs:
+      result.vaType = toDocType(nt.vaType)
+      result.vaConverter = nt.vaConverter.mapSomeIt($it)
+
+    of ntkNone:
+      discard
+
+proc toSigText*(nt: DocType): string
+
+proc toSigText*(nt: DocIdent): string =
+  &"{nt.ident}: {toSigText(nt.vtype)}"
+
+proc toSigText*(nt: DocType): string =
+  case nt.kind:
+    of ntkNone:
+      result = ""
+
+    of ntkValue:
+      result = $nt.value
+
+    of ntkVarargs:
+      result = "varargs[" & toSigText(nt.vaType)
+      if nt.vaConverter.isSome():
+        result &= ", " & nt.vaConverter.get()
+
+      result &= "]"
+
+
+    of ntkIdent:
+      if nt.genParams.len > 0:
+        result = nt.head & "[" & nt.genParams.mapIt(
+          toSigText(it)).join(", ") & "]"
+
+      else:
+        result = nt.head
+
+    of ntkGenericSpec:
+      if nt.genParams.len > 0:
+        result = nt.head & ": " & nt.genParams.mapIt(
+          toSigText(it)).join(" | ")
+
+      else:
+        result = nt.head
+
+    of ntkProc:
+        let pragma: string = tern(nt.pragma.len > 0, nt.pragma & " ", "")
+        let args: string = nt.arguments.mapIt(toSigText(it)).join(", ")
+        let rtype: string = nt.returnType.getSomeIt(toSigText(it) & ": ", "")
+        result = &"proc({args}){pragma}{rtype}"
+
+    of ntkAnonTuple:
+      result = nt.genParams.mapIt(toSigText(it)).join(", ").wrap("()")
+
+    of ntkNamedTuple:
+      let args = collect(newSeq):
+        for arg in nt.arguments:
+          arg.ident & ": " & toSigText(arg.vtype)
+
+      result = args.join(", ").wrap(("tuple[", "]"))
+
+    of ntkRange:
+      result = &"range[{nt.rngStart}..{nt.rngEnd}]"
+
+proc registerTopLevel(ctx: DocContext, n: PNode) =
   case n.kind:
     of nkProcDef:
       echo treeRepr(n)
-
       let parsed = parseProc(n)
-
-
       let node = parseOrg(parsed.docComment)
+
       echo treeRepr(node)
       var semNode = toSemOrgDocument(node)
 
+      var admonitions: seq[(OrgBigIdentKind, SemOrg)]
+      var metatags: seq[(SemMetaTag, SemOrg)]
+      var doctext = onkStmtList.newSemOrg()
+
+      for elem in items(semNode[0]):
+        case elem.kind:
+          of onkList:
+            var otherItems: seq[SemOrg]
+            for item in items(elem):
+              if item.itemTag.isSome():
+                let itemTag = item.itemTag.get()
+                case itemTag.kind:
+                  of sitMeta:
+                    metatags.add (itemTag.meta, onkStmtList.newSemOrg(
+                      item["header"], item["body"]))
+
+                  of sitBigIdent:
+                    admonitions.add (itemTag.idKind, onkStmtList.newSemOrg(
+                      item["header"], item["body"]))
+
+                  of sitText:
+                    otherItems.add item
+
+              else:
+                otherItems.add item
+
+            if otherItems.len > 0:
+              doctext.add onkList.newSemOrg(otherItems)
+
+          else:
+            doctext.add elem
+
+
+
+      let sign = toDocType(parsed.signature)
       ctx.db.entries.add DocEntry(
         plainName: parsed.name,
         kind: dekProc,
-        doctext: semNode
+        doctext: onkStmtList.newSemOrg(doctext),
+        admonitions: admonitions,
+        prSigText: toSigText(sign),
+        prSigTree: sign
       )
-
-
 
     else:
       discard
@@ -66,11 +191,13 @@ when isMainModule:
   let file = AbsFile("/tmp/intest.nim")
   file.writeFile("""
 
-proc hhh() =
-  ## Documentation for
+proc hhh(arg: int) =
+  ## Documentation for hhh
+  ## - NOTE :: prints out "123"
+  ## - @effect{IOEffect} :: Use stdout
   echo "123"
 
-hhh()
+hhh(123)
 
 """)
 

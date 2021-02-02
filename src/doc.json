@@ -1,27 +1,47 @@
 {
-  "plainName": "hhh",
-  "genParams": [],
-  "doctext": {
-    "subnodes": [
-      {
-        "node": {
-          "kind": "StmtList",
-          "ranges": [],
-          "str": "",
-          "subnodes": [],
-          "type": "OrgNodeObj"
-        },
-        "subnodes": [],
-        "properties": [],
-        "kind": "StmtList",
-        "type": "SemOrg:ObjectType"
-      }
-    ],
-    "properties": [],
-    "kind": "Document",
-    "type": "SemOrg:ObjectType"
-  },
-  "kind": "dekProc",
-  "arguments": [],
-  "prReturn": 1
+"plainName": "hhh",
+"doctext": {
+  "tree": [
+    "onkStmtList",
+    [{
+        "tree": [
+          "onkStmtList",
+          [
+            {"tree": ["onkParagraph", [{"text": "Documentation"}, {"text": "for"}, {"text": "hhh"}]]}
+          ]]
+      }]]
+},
+"admonitions": [{
+    "kind": "obiNote",
+    "body": {
+      "tree": [
+        "onkStmtList",
+        [{
+            "tree": [
+              "onkParagraph",
+              [
+                {"text": "prints"},
+                {"text": "out"},
+                {"mark": "", "str": "\""},
+                {"text": "123"},
+                {"text": "\""}
+              ]]
+          },
+          {}
+        ]]
+    }
+  }],
+"kind": "dekProc",
+"prSigText": "proc(arg: int)",
+"prSigTree": {
+  "doctext": null,
+  "kind": "ntkProc",
+  "arguments": [{
+      "ident": "arg",
+      "kind": "nvdLet",
+      "doctext": null,
+      "vtype": {"doctext": null, "kind": "ntkIdent", "head": "int"}
+    }],
+  "pragma": ""
+}
 }
