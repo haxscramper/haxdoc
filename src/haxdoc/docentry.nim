@@ -78,6 +78,10 @@ type
       of ntkNone:
         discard
 
+      of ntkCurly:
+        # IMPLEMENT
+        discard
+
   DocEntry* = ref object
     plainName*: string
     genParams*: seq[DocType]

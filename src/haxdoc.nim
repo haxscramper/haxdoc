@@ -1,4 +1,4 @@
-import haxdoc/[docentry, compiler_aux]
+import haxdoc/[docentry, compiler_aux, sourcetrail_nim]
 import std/[streams, json, strformat, strutils, sequtils, sugar]
 import haxorg/[semorg, exporter_json, parser, ast, exporter_plaintext]
 
@@ -73,6 +73,9 @@ proc toDocType*(nt: NType[PNode]): DocType =
     of ntkNone:
       discard
 
+    of ntkCurly:
+      raiseImplementError("")
+
 proc toSigText*(nt: DocType, procPrefix: string = "proc"): string
 
 proc toSigText*(nt: DocIdent): string =
@@ -128,6 +131,9 @@ proc toSigText*(nt: DocType, procPrefix: string = "proc"): string =
 
     of ntkRange:
       result = &"range[{nt.rngStart}..{nt.rngEnd}]"
+
+    of ntkCurly:
+      raiseImplementError("")
 
 proc registerTopLevel(ctx: DocContext, n: PNode) =
   case n.kind:
@@ -234,14 +240,16 @@ hhh(123)
 """)
 
 
-  var graph = newModuleGraph(file)
+  var graph {.global.}: ModuleGraph
+  graph = newModuleGraph(file, ~".choosenim/toolchains/nim-1.4.0/lib")
+
   graph.registerPass(semPass)
 
-  var db = DocDB()
+  var db {.global.} = DocDB()
 
   graph.registerPass(makePass(
     (
-      proc(graph: ModuleGraph, module: PSym): PPassContext =
+      proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
         var context = DocContext(db: db)
 
         context.module = module
@@ -250,7 +258,7 @@ hhh(123)
         return context
     ),
     (
-      proc(c: PPassContext, n: PNode): PNode =
+      proc(c: PPassContext, n: PNode): PNode {.nimcall.} =
         result = n
         var ctx = DocContext(c)
 
@@ -258,7 +266,7 @@ hhh(123)
           registerToplevel(ctx, n)
     ),
     (
-      proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
+      proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode {.nimcall.} =
         discard
     )
   ))
@@ -272,10 +280,15 @@ when isMainModule:
   startColorLogger()
 
   if paramCount() == 0:
-    docCompile()
+    # docCompile()
+    trailCompile(
+      AbsFile("/home/test/tmp/Nim/compiler/nim.nim"),
+      AbsDir("/home/test/tmp/Nim/lib")
+    )
 
   else:
-    dispatchMulti(
-      [docCompile],
-      [trailCompile]
-    )
+    discard
+    # dispatchMulti(
+    #   [docCompile],
+    #   [trailCompile]
+    # )

@@ -1,9 +1,9 @@
 {.experimental: "caseStmtMacros".}
 
+import compiler_aux
 import std/[os, strformat, with, lenientops, strutils, sequtils, macros]
 import hmisc/other/[colorlogger, oswrap]
 import hmisc/helpers
-import hmisc/types/[colortext, colorstring]
 import hmisc/algo/htree_mapping
 
 import hnimast, hnimast/obj_field_macros
@@ -124,22 +124,9 @@ converter toSourcetrailSourceRange*(
 
   toSourcetrailSourcerange((arg.file, loc))
 
-proc returnType*[N](ntype: NType[N]): Option[NType[N]] =
-  if ntype.rtype.isSome():
-    return some ntype.rType.get().getIt()
-
-proc arguments*[N](procDecl: ProcDecl[N]): seq[NIdentDefs[N]] =
-  procDecl.signature.arguments
-
-proc returnType*[N](procDecl: ProcDecl[N]): Option[NType[N]] =
-  procDecl.signature.returnType()
-
-proc toNNode*[N](ntype: Option[NType[N]]): N =
-  if ntype.isNone():
-    newNTree[N](nnkEmpty)
-
-  else:
-    toNNode[N](ntype.get())
+# proc returnType*[N](ntype: NType[N]): Option[NType[N]] =
+#   if ntype.rtype.isSome():
+#     return some ntype.rType.get().getIt()
 
 
 
@@ -198,7 +185,6 @@ proc registerCalls(
         discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, node))
 
       elif node.sym.kind in {skField, skEnumField}:
-        info "Found enum symbol"
         if node.sym.owner.notNil:
           let path = [("", split($node.sym.owner, '@')[0], ""), ("", $node, "")]
           let referencedSymbol = ctx.writer[].recordSymbol(
@@ -280,30 +266,30 @@ proc registerTypeDef(
     discard ctx.recordNodeLocation(objectSymbol, objectDecl.declNode.get())
 
     for fld in iterateFields(objectDecl):
-      let fldType = fld.fldType.declNode.get()
-      # info "Found field", fld.declNode.get(), "of type", toGreen($fldType)
+      if fld.fldType.declNode.isSome():
+        let fldType = fld.fldType.declNode.get()
 
-      let fieldSymbol = ctx.writer[].recordSymbol(
-        sskField, objNameHierarchy, ("", fld.name, ""))
+        let fieldSymbol = ctx.writer[].recordSymbol(
+          sskField, objNameHierarchy, ("", fld.name, ""))
 
-      if fldType.kind == nkSym:
-        let targetHead: string =
-          if fldType.sym.ast.isNil:
-             $fldType
+        if fldType.kind == nkSym:
+          let targetHead: string =
+            if fldType.sym.ast.isNil:
+               $fldType
 
-          else:
-            $declHead(fldType.sym.ast)
+            else:
+              $declHead(fldType.sym.ast)
 
-        var targetType: cint = ctx.writer[].recordSymbol(
-          sskStruct, ("", targetHead, ""))
+          var targetType: cint = ctx.writer[].recordSymbol(
+            sskStruct, ("", targetHead, ""))
 
-        let referenceId = ctx.writer[].recordReference(
-          fieldSymbol, targetType, srkTypeUsage)
+          let referenceId = ctx.writer[].recordReference(
+            fieldSymbol, targetType, srkTypeUsage)
 
-        discard ctx.writer[].recordReferenceLocation(
-          referenceId, (fileId, fldType))
+          discard ctx.writer[].recordReferenceLocation(
+            referenceId, (fileId, fldType))
 
-      discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
+        discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
 
   elif node[2].kind == nkEnumTy:
     let enumDecl: PEnumDecl = parseEnum(node)
@@ -326,7 +312,6 @@ proc registerTypeDef(
 
 proc getFileId(ctx: SourcetrailContext, node: PNode): cint =
   let filePath = ctx.graph.getFilePath(node).string
-  info filePath
   return ctx.writer[].recordFile(filePath)
 
 
@@ -336,11 +321,24 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
       let filePath = ctx.graph.getFilePath(node).string
       let fileId = ctx.writer[].recordFile(filePath)
 
-      discard ctx.registerProcDef(fileId, node)
+      try:
+        discard ctx.registerProcDef(fileId, node)
+
+      except:
+        echo node
+        echo treeRepr(node, maxdepth = 4, indexed = true)
+        raise
 
     of nkTypeSection:
       for typeDecl in node:
-        registerToplevel(ctx, typeDecl)
+        try:
+          registerToplevel(ctx, typeDecl)
+
+        except:
+          echo typeDecl
+          echo treeRepr(typeDecl, indexed = true)
+          raise
+
 
     of nkTypeDef:
       discard ctx.registerTypeDef(node, ctx.getFileId(node))
@@ -363,47 +361,9 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
       warn "Unmatched node", node.kind
       debug node
 
-when false:
-  startColorLogger()
 
-  var writer: SourcetrailDBWriter
-  var ptrWriter = addr writer
-  let file = "/tmp/test.srctrldb"
-  rmFile AbsFile(file)
-  discard writer.open(file)
 
-  var tmp = false
-
-  "/tmp/ast.nim".writeFile("""
-type
-  En* = enum
-    enDotDot
-""")
-
-  "/tmp/semmagic.nim".writeFile("""
-let val = enDotDot
-""")
-
-  "/tmp/sem.nim".writeFIle("""
-import ast
-include semmagic
-
-type ZZ = object
-
-let test = ZZ()
-""")
-
-  for file in @[
-    AbsFile("/tmp/sem.nim"),
-    AbsFile("/tmp/ast.nim"),
-
-    # AbsFile("/home/test/tmp/Nim/compiler/ast.nim"),
-    # AbsFile("/home/test/tmp/Nim/compiler/sem.nim"),
-  ]:
-
-  # for file in walkDir(
-  #   AbsDir "/home/test/tmp/Nim/compiler", AbsFile, recurse = false):
-
+proc trailCompile*(file: AbsFile, path: AbsDir) =
   #   if file.ext() != "nim" or
   #      file.name() in [
 
@@ -425,40 +385,61 @@ let test = ZZ()
   #     info "Skipping", file
   #     continue
 
-    info "Processing file", file
+  info "Processing file", file
 
-    var graph: ModuleGraph = newModuleGraph(file)
-    registerPass(graph, semPass)
-    registerPass(
-      graph, makePass(
-        (
-          proc(graph: ModuleGraph, module: PSym): PPassContext =
-            var context = SourcetrailContext(writer: ptrWriter)
-            context.module = module
-            context.graph = graph
+  var writer: SourcetrailDBWriter
+  var ptrWriter {.global.}: ptr SourcetrailDBWriter
+  ptrWriter = addr writer
 
-            return context
-        ),
-        (
-          proc(c: PPassContext, n: PNode): PNode =
-            result = n
-            var ctx = SourcetrailContext(c)
+  block:
+    let file = "/tmp/test.srctrldb"
+    rmFile AbsFile(file)
+    discard writer.open(file)
 
-            if sfMainModule in ctx.module.flags:
-              registerToplevel(ctx, n)
-        ),
-        (
-          proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode =
-            discard
-        )
+  var tmp = false
+
+
+
+  var graph {.global.}: ModuleGraph
+  graph = newModuleGraph(file, path,
+    proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
+      discard
+      err msg
+      err info, config.getFilePath(info)
+  )
+
+  registerPass(graph, semPass)
+  registerPass(
+    graph, makePass(
+      (
+        proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
+          var context = SourcetrailContext(writer: ptrWriter)
+          context.module = module
+          context.graph = graph
+
+          return context
+      ),
+      (
+        proc(c: PPassContext, n: PNode): PNode {.nimcall.} =
+          result = n
+          var ctx = SourcetrailContext(c)
+
+          # if sfMainModule in ctx.module.flags:
+          registerToplevel(ctx, n)
+
+
+      ),
+      (
+        proc(
+          graph: ModuleGraph; p: PPassContext, n: PNode): PNode {.nimcall.} =
+          discard
       )
     )
+  )
 
-    logIndented:
-      compileProject(graph)
+  logIndented:
+    compileProject(graph)
 
 
-    info "Finished source analysis for file", file
-
-  info "Done total"
+  info "Finished source analysis for file", file
   discard writer.close()

@@ -1,7 +1,8 @@
 import hmisc/other/[colorlogger, oswrap]
 import hmisc/helpers
-import hmisc/types/[colortext, colorstring]
-import hmisc/algo/htree_mapping
+import hmisc/types/[colortext]
+
+export colorizeToStr
 
 export colorlogger
 
@@ -24,7 +25,6 @@ template debug*(node: PNode) {.dirty.} =
     $instantiationInfo(),
     "\n",
     colorizeToStr($node, "nim")
-    # "\n"
   ])
 
 
@@ -32,6 +32,7 @@ template debug*(node: PNode) {.dirty.} =
 
 proc newModuleGraph*(
     file: AbsFile,
+    path: AbsDir,
     structuredErrorHook: proc(
       config: ConfigRef; info: TLineInfo; msg: string; level: Severity
     ) {.closure, gcsafe.} = nil
@@ -41,7 +42,6 @@ proc newModuleGraph*(
     cache: IdentCache = newIdentCache()
     config: ConfigRef = newConfigRef()
 
-  let path = ~".choosenim/toolchains/nim-1.4.0/lib"
 
   with config:
     libpath = AbsoluteDir(path)
@@ -72,5 +72,6 @@ proc newModuleGraph*(
 
   initDefines(config.symbols)
   defineSymbol(config.symbols, "nimcore")
+  defineSymbol(config.symbols, "c")
 
   return newModuleGraph(cache, config)
