@@ -2,7 +2,7 @@ import haxdoc/[docentry, compiler_aux]
 import std/[streams, json, strformat, strutils, sequtils, sugar]
 import haxorg/[semorg, exporter_json, parser, ast, exporter_plaintext]
 
-import hmisc/other/[colorlogger, oswrap, hjson]
+import hmisc/other/[colorlogger, oswrap, hjson, hcligen]
 import hmisc/helpers
 import hmisc/types/[colortext, colorstring]
 import hmisc/algo/htree_mapping
@@ -216,10 +216,7 @@ proc registerTopLevel(ctx: DocContext, n: PNode) =
     else:
       discard
 
-when isMainModule:
-  startColorLogger()
-
-  let file = AbsFile("/tmp/intest.nim")
+proc docCompile(file: AbsFile = AbsFile("/tmp/intest.nim")) =
   file.writeFile("""
 
 proc hhh(arg: int) =
@@ -269,3 +266,16 @@ hhh(123)
   compileProject(graph)
 
   db.writeJson(RelFile("doc.json"))
+
+
+when isMainModule:
+  startColorLogger()
+
+  if paramCount() == 0:
+    docCompile()
+
+  else:
+    dispatchMulti(
+      [docCompile],
+      [trailCompile]
+    )
