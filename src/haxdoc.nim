@@ -1,11 +1,9 @@
 import haxdoc/[docentry, compiler_aux, sourcetrail_nim]
-import std/[streams, json, strformat, strutils, sequtils, sugar]
+import std/[json, strformat, strutils, sequtils, sugar]
 import haxorg/[semorg, exporter_json, parser, ast, exporter_plaintext]
 
 import hmisc/other/[colorlogger, oswrap, hjson, hcligen]
 import hmisc/helpers
-import hmisc/types/[colortext, colorstring]
-import hmisc/algo/htree_mapping
 import hnimast
 
 
@@ -276,19 +274,91 @@ hhh(123)
   db.writeJson(RelFile("doc.json"))
 
 
+proc handleTrailCmdline() =
+  var infile: AbsFile
+  var targetFile: AbsFile
+  var otherpaths: seq[AbsDir]
+  var stdpath: AbsDir
+
+  for kind, key, val, idx in getopt():
+    case kind
+      of cmdArgument:
+        if idx == 1:
+          infile = toAbsFile(val)
+
+      of cmdLongOption, cmdShortOption:
+        case key
+        of "help", "h":
+          echo """
+Usage
+
+  haxdoc trail <file.nim> [--path:<dirname>...] [--stdpath:<dirname>] [--out:<file.srctrldb>]
+
+Options
+
+  - `--path:<dirname>` additional paths for module search
+
+  - `--stdpath:<dirname>` location of stdlib. Defaults to search based on current
+    compiler location
+
+  - `--outdb:<file>` - Resulting sourcetrail database location. Defaults to original
+    file name with extension changed.
+
+
+- NOTE :: parseopt is used temporarily until `cligen` is fixed for C++ backen
+"""
+
+        of "path":
+          otherpaths.add toAbsDir(val)
+
+        of "out":
+          targetFile = toAbsFile(val)
+          if targetFile.ext != "srctrldb":
+            err "Target file must have extension 'srctrldb', but found " &
+              targetFile.ext
+
+        of "stdpath":
+          stdpath = toAbsDir(val)
+
+        else:
+          echo "Unexpected CLI argument '", key, "' use --help"
+          quit 1
+
+      of cmdEnd:
+        discard
+
+  if targetFile.string.len == 0:
+    targetFile = infile.withExt("srctrldb")
+
+  if stdpath.string.len == 0:
+    stdpath = getCurrentCompilerExe().dir() /../ RelDir("lib")
+
+  trailCompile(infile, stdpath, otherpaths, targetFile)
+
+
 when isMainModule:
   startColorLogger()
 
   if paramCount() == 0:
-    # docCompile()
-    trailCompile(
-      AbsFile("/home/test/tmp/Nim/compiler/nim.nim"),
-      AbsDir("/home/test/tmp/Nim/lib")
-    )
+    if false:
+      trailCompile(
+        AbsFile("/home/test/tmp/Nim/compiler/sempass2.nim"),
+        AbsDir("/home/test/tmp/Nim/lib"),
+        @[],
+        AbsFile("/tmp/test-1.srctrldb")
+      )
 
   else:
-    discard
-    # dispatchMulti(
-    #   [docCompile],
-    #   [trailCompile]
-    # )
+    case paramStr(0):
+      of "trail":
+        handleTrailCmdline()
+
+      of "docgen":
+        raiseImplementError("")
+
+      else:
+        echo &"""
+Unexpected haxdoc command - expected one of 'trail' or 'docgen', found
+
+haxdoc {paramStr(0)}
+"""

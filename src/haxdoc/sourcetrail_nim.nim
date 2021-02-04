@@ -5,6 +5,7 @@ import std/[os, strformat, with, lenientops, strutils, sequtils, macros]
 import hmisc/other/[colorlogger, oswrap]
 import hmisc/helpers
 import hmisc/algo/htree_mapping
+import hmisc/types/colorstring
 
 import hnimast, hnimast/obj_field_macros
 import fusion/matching
@@ -120,9 +121,8 @@ converter toSourcetrailSourceRange*(
       loc[3] += 5
 
 
-  # info "Location for", toRed($head), loc, head.kind, arg.name.kind
 
-  toSourcetrailSourcerange((arg.file, loc))
+  result = toSourcetrailSourcerange((arg.file, loc))
 
 # proc returnType*[N](ntype: NType[N]): Option[NType[N]] =
 #   if ntype.rtype.isSome():
@@ -214,7 +214,8 @@ proc registerCalls(
         discard ctx.writer[].recordReferenceLocation(reference, (fileId, node))
 
       else:
-        warn "Skipping symbol of kind", node.sym.kind, "at", node.getInfo()
+        discard
+        # warn "Skipping symbol of kind", node.sym.kind, "at", node.getInfo()
 
 
     of nkLiteralKinds, nkIdent:
@@ -350,7 +351,7 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
     of nkEmpty:
       discard
 
-    of nkCommentStmt, nkIncludeStmt, nkImportStmt:
+    of nkCommentStmt, nkIncludeStmt, nkImportStmt, nkPragma, nkExportStmt:
       discard
 
     of nkDiscardStmt, nkVarSection, nkLetSection, nkConstSection, nkCommand:
@@ -363,45 +364,31 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
 
 
 
-proc trailCompile*(file: AbsFile, path: AbsDir) =
-  #   if file.ext() != "nim" or
-  #      file.name() in [
+proc trailCompile*(
+    file: AbsFile,
+    stdpath: AbsDir,
+    otherpaths: seq[AbsDir],
+    targetFile: AbsFile
+  ) =
 
-  #        "optimizer", "lineinfos", "ccgexprs", "gorgeimpl", "debuginfo",
-  #        "tccgen", "cmdlinehelper", "seminst", "transf", "ccgcalls",
-  #        "index", "jstypes", "ccgthreadvars", "vmhooks", "semtempl",
-  #        "vmgen", "ccgtypes", "docgen2", "ccgtrav", "semcall",
-  #        "canonicalizer", "lambdalifting", "nimconf", "semfields",
-  #        "ccgstmts", "semobjconstr", "liftlocals",
-  #        "sinkparameter_inference", "main", "semmagic", "hlo", "cgmeth",
-  #        "evalffi", "ccgliterals", "docgen", "sem", "cgen", "vmops",
-  #        "semstmts", "vm", "scriptconfig", "sempass2", "nim", "commands",
-  #        "layouter", "semtypes", "ccgreset", "extccomp", "jsgen",
-  #        "closureiters", "semexprs", "semfold", "nimeval", "semgnrc",
-  #        "sizealignoffsetimpl", "suggest", "pragmas", "packagehandling",
-  #        "spawn", "rodimpl"
-
-  #      ]:
-  #     info "Skipping", file
-  #     continue
-
-  info "Processing file", file
+  info "input file:", file
+  info "stdpath:", stdpath
+  info "target file:", targetFile
 
   var writer: SourcetrailDBWriter
   var ptrWriter {.global.}: ptr SourcetrailDBWriter
   ptrWriter = addr writer
 
   block:
-    let file = "/tmp/test.srctrldb"
-    rmFile AbsFile(file)
-    discard writer.open(file)
+    rmFile targetFile
+    discard writer.open(targetFile.string)
 
   var tmp = false
 
 
 
   var graph {.global.}: ModuleGraph
-  graph = newModuleGraph(file, path,
+  graph = newModuleGraph(file, stdpath,
     proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
       discard
       err msg
@@ -437,9 +424,16 @@ proc trailCompile*(file: AbsFile, path: AbsDir) =
     )
   )
 
+  discard writer.beginTransaction()
+
   logIndented:
     compileProject(graph)
+
+  discard writer.commitTransaction()
 
 
   info "Finished source analysis for file", file
   discard writer.close()
+  info "Closed file"
+  debug "Result database:", targetFile
+  debug &"open using `sourcetrail '{targetFile.withExt(\"srctrlprj\")}'`"
