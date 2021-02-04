@@ -1,8 +1,8 @@
 import haxdoc/[docentry, compiler_aux, sourcetrail_nim]
-import std/[json, strformat, strutils, sequtils, sugar]
+import std/[json, strformat, strutils, sequtils, sugar, parseutils]
 import haxorg/[semorg, exporter_json, parser, ast, exporter_plaintext]
 
-import hmisc/other/[colorlogger, oswrap, hjson, hcligen]
+import hmisc/other/[colorlogger, oswrap, hjson, hcligen, hshell]
 import hmisc/helpers
 import hnimast
 
@@ -331,7 +331,25 @@ Options
     targetFile = infile.withExt("srctrldb")
 
   if stdpath.string.len == 0:
-    stdpath = getCurrentCompilerExe().dir() /../ RelDir("lib")
+    # var nimdump = evalShellStdout shCmd(nim, dump, libpath)
+    # debug nimdump
+    # var nimlibs = nimdump[nimdump.find("-- end of list --")+18..^2].split
+
+    # sort(nimlibs)
+
+    var version = evalShellStdout shCmd(nim, --version)
+    let start = "Nim Compiler Version ".len
+    let finish = start + version.skipWhile({'0'..'9', '.'}, start)
+    debug version
+    debug start
+    debug finish
+    version = version[start ..< finish]
+    stdpath = AbsDir(
+      ~".choosenim/toolchains" / ("nim-" & version) / "lib"
+      # nimlibs[0]
+    )
+
+  warn "Using stdlib path ", stdpath
 
   trailCompile(infile, stdpath, otherpaths, targetFile)
 
