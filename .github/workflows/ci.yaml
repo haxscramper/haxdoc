@@ -1,0 +1,21 @@
+name: Build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: alaviss/setup-nim@master
+        with:
+          path: '../nim'
+          version: 'version-1-4'
+          
+      - name: Compile binary
+        run: |
+          export PATH=$HOME/.nimble/bin:$PATH
+          nimble build -y || nimble build -y 
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: bin/haxdoc
