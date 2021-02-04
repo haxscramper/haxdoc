@@ -180,9 +180,24 @@ proc registerCalls(
 
         discard ctx.writer[].recordReferenceLocation(referenceId, (fileId, node))
 
-      elif node.sym.kind in {skParam, skForVar, skVar, skResult, skLet}:
-        let localId = ctx.writer[].recordLocalSymbol($node.sym)
-        discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, node))
+      elif node.sym.kind in {skParam, skForVar, skVar, skResult, skLet, skConst}:
+        let owner = node.sym.owner
+        if owner.isNil or owner.kind notin {skModule}:
+          let localId = ctx.writer[].recordLocalSymbol($node.sym)
+          discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, node))
+
+        else:
+          let reference = ctx.writer[].recordReference(
+            callerId,
+            ctx.writer[].recordSymbol(sskGlobalVariable, [
+              ("", split($owner, '@')[0], ""),
+              ("", $node, "")]
+            ),
+            srkUsage
+          )
+
+          discard ctx.writer[].recordReferenceLocation(reference, (fileId, node))
+
 
       elif node.sym.kind in {skField, skEnumField}:
         if node.sym.owner.notNil:
@@ -213,9 +228,11 @@ proc registerCalls(
 
         discard ctx.writer[].recordReferenceLocation(reference, (fileId, node))
 
-      else:
+      elif node.sym.kind in {skLabel}:
         discard
-        # warn "Skipping symbol of kind", node.sym.kind, "at", node.getInfo()
+
+      else:
+        warn "Skipping symbol of kind", node.sym.kind, "at", node.getInfo()
 
 
     of nkLiteralKinds, nkIdent:
@@ -354,7 +371,9 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
     of nkCommentStmt, nkIncludeStmt, nkImportStmt, nkPragma, nkExportStmt:
       discard
 
-    of nkDiscardStmt, nkVarSection, nkLetSection, nkConstSection, nkCommand:
+    of nkDiscardStmt, nkVarSection, nkLetSection, nkConstSection, nkCommand,
+       nkCall
+      :
       let fileId = ctx.getFileId(node)
       ctx.registerCalls(node, fileId, fileId, nil)
 

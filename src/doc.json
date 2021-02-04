@@ -42,21 +42,4 @@
     "pragma": ""
   },
   "doctextBriefPlain": "Documentation for hhh  "
-},{
-  "plainName": "secondProc",
-  "doctextBody": {},
-  "doctextBrief": {
-    "tree": [
-      "onkStmtList",
-      [{
-          "tree": [
-            "onkParagraph",
-            [{"text": "Brief"}, {"text": "documentation"}, {"text": "for"}, {"text": "proc"}]
-          ]
-        }]]
-  },
-  "kind": "dekProc",
-  "prSigText": "proc secondProc()",
-  "prSigTree": {"doctextBody": null, "doctextBrief": null, "kind": "ntkProc", "pragma": ""},
-  "doctextBriefPlain": "Brief documentation for proc  "
 }]

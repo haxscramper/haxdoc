@@ -2,6 +2,8 @@ name: Build
 on: [push]
 jobs:
   build:
+    if: |
+      !contains(github.event.head_commit.message, 'SKIP')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -17,5 +19,5 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: my-artifact
+          name: haxdoc
           path: bin/haxdoc

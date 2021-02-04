@@ -6,6 +6,8 @@ import hmisc/other/[colorlogger, oswrap, hjson, hcligen, hshell]
 import hmisc/helpers
 import hnimast
 
+import compiler/[trees, wordrecg]
+
 
 type
   DocContext = ref object of PPassContext
@@ -178,6 +180,12 @@ proc registerTopLevel(ctx: DocContext, n: PNode) =
 
 
       let sign = toDocType(parsed.signature)
+
+      # IMPLEMENT store effect annotations in proc declarations and link
+      # with declaration for an effect type.
+      let spec = effectSpec(n[4], wTags).toSeq()
+      debug spec
+
       var decl = DocEntry(
         plainName: parsed.name,
         kind: dekProc,
@@ -213,6 +221,8 @@ proc registerTopLevel(ctx: DocContext, n: PNode) =
                decl.doctextBrief,
                decl.doctextBriefPlain)
 
+
+
       ctx[].db.entries.add decl
 
 
@@ -223,14 +233,12 @@ proc registerTopLevel(ctx: DocContext, n: PNode) =
 proc docCompile(file: AbsFile = AbsFile("/tmp/intest.nim")) =
   file.writeFile("""
 
-proc hhh(arg: int) =
+type Eff = ref object of RootEffect
+
+proc hhh(arg: int) {.tags: Eff.} =
   ## Documentation for hhh
   ## - NOTE :: prints out "123"
   ## - @effect{IOEffect} :: Use stdout
-  echo "123"
-
-proc secondProc() =
-  ## Brief documentation for proc
   echo "123"
 
 hhh(123)
@@ -331,12 +339,6 @@ Options
     targetFile = infile.withExt("srctrldb")
 
   if stdpath.string.len == 0:
-    # var nimdump = evalShellStdout shCmd(nim, dump, libpath)
-    # debug nimdump
-    # var nimlibs = nimdump[nimdump.find("-- end of list --")+18..^2].split
-
-    # sort(nimlibs)
-
     var version = evalShellStdout shCmd(nim, --version)
     let start = "Nim Compiler Version ".len
     let finish = start + version.skipWhile({'0'..'9', '.'}, start)
@@ -358,13 +360,25 @@ when isMainModule:
   startColorLogger()
 
   if paramCount() == 0:
-    if false:
+    if true:
+      let file = AbsFile("/tmp/trail_test.nim")
+      file.writeFile("""
+let hello = 123
+
+proc useHello(): int = hello
+
+echo useHello()
+""")
+
       trailCompile(
-        AbsFile("/home/test/tmp/Nim/compiler/sempass2.nim"),
+        file,
         AbsDir("/home/test/tmp/Nim/lib"),
         @[],
-        AbsFile("/tmp/test-1.srctrldb")
+        file.withExt("srctrldb")
       )
+
+    else:
+      docCompile()
 
   else:
     case paramStr(0):
