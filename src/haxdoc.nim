@@ -233,13 +233,20 @@ proc registerTopLevel(ctx: DocContext, n: PNode) =
 proc docCompile(file: AbsFile = AbsFile("/tmp/intest.nim")) =
   file.writeFile("""
 
-type Eff = ref object of RootEffect
+type
+  Eff = ref object of RootEffect
+  En {.pure.} = enum
+    A
+
+  EnObj = object
+    case kind*: En
+      of En.A: discard
 
 proc hhh(arg: int) {.tags: Eff.} =
   ## Documentation for hhh
   ## - NOTE :: prints out "123"
   ## - @effect{IOEffect} :: Use stdout
-  echo "123"
+  echo En.A
 
 hhh(123)
 
@@ -363,11 +370,21 @@ when isMainModule:
     if true:
       let file = AbsFile("/tmp/trail_test.nim")
       file.writeFile("""
-let hello = 123
+type
+  En {.pure.} = enum
+    A
 
-proc useHello(): int = hello
+  EnObj = object
+    case kind*: En
+      of En.A: discard
+
+proc useHello(): string =
+  let user = EnObj()
+
+  return $user.kind & " " & $user
 
 echo useHello()
+
 """)
 
       trailCompile(

@@ -57,7 +57,8 @@ proc newModuleGraph*(
     path / "impure",
     path / "std",
     path / "core",
-    path / "posix"
+    path / "posix",
+    path / "wrappers"
   ]
 
   config.projectFull = file
@@ -73,5 +74,6 @@ proc newModuleGraph*(
   initDefines(config.symbols)
   defineSymbol(config.symbols, "nimcore")
   defineSymbol(config.symbols, "c")
+  defineSymbol(config.symbols, "ssl")
 
   return newModuleGraph(cache, config)

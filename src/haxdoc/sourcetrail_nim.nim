@@ -39,14 +39,15 @@ proc parsePNode(file: AbsFile): PNode =
   result = parseAll(pars)
   closeParser(pars)
 
-proc getFilePath(graph: ModuleGraph, node: PNode): AbsoluteFile =
-  ## Get absolute file path for declaration location of `node`
-  graph.config.m.fileInfos[node.info.fileIndex.int32].fullPath
-
-
 proc getFilePath(config: ConfigRef, info: TLineInfo): AbsoluteFile =
   ## Get absolute file path for declaration location of `node`
-  config.m.fileInfos[info.fileIndex.int32].fullPath
+  if info.fileIndex.int32 >= 0:
+    result = config.m.fileInfos[info.fileIndex.int32].fullPath
+
+proc getFilePath(graph: ModuleGraph, node: PNode): AbsoluteFile =
+  ## Get absolute file path for declaration location of `node`
+  graph.config.getFilePath(node.getInfo())
+
 
 template excludeAllNotes(config: ConfigRef; n: typed) =
   config.notes.excl n
@@ -60,6 +61,9 @@ type
     writer: ptr SourcetrailDBWriter
     module: PSym
     graph: ModuleGraph
+
+proc getFilePath(ctx: SourcetrailContext, node: PNode): AbsoluteFile =
+  ctx.graph.getFilePath(node)
 
 converter toSourcetrailSourceRange*(
   arg: tuple[fileId: cint, ranges: array[4, int16]]): SourcetrailSourceRange =
@@ -76,18 +80,25 @@ converter toSourcetrailSourceRange*(
 
 
 proc declHead(node: PNode): PNode =
-  # debug node.treeRepr(indexed = true)
   case node.kind:
-    of nkTypeDef, nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr:
+    of nkTypeDef, nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr,
+       nkVarTy, nkRefTy, nkPtrTy, nkPrefix
+      :
       result = declHead(node[0])
 
     of nkSym, nkIdent, nkEnumFieldDef, nkDotExpr,
        nkExprColonExpr, nkCall,
-       nkRange # WARNING
-         :
+       nkRange, # WARNING
+       nkEnumTy,
+       nkProcTy,
+       nkIteratorTy,
+       nkObjectTy,
+       nkTupleClassTy
+      :
       result = node
 
-    of nkPostfix:
+    of nkPostfix, nkBracketExpr, nkCommand
+      :
       result = node[1]
 
     of nkInfix:
@@ -95,8 +106,9 @@ proc declHead(node: PNode): PNode =
 
     else:
       debug node.kind
+      debug node
       debug node.treeRepr()
-      raiseImplementError("")
+      raiseImplementError("\n\n\n" & $node.kind & "\n\n\n")
 
 converter toSourcetrailSourceRange*(
   arg: tuple[file: cint, name: PNode]): SourcetrailSourceRange =
@@ -160,25 +172,35 @@ proc registerCalls(
   assert fileId > 0
   case node.kind:
     of nkSym:
-      if node.sym.kind in routineKinds and
+      if node.sym.kind in routineKinds:
+        if
          (not node.sym.ast.isNil) and
          (node.sym.ast.kind notin {nkDo, nkLambda}):
-        let parsed =
-          try:
-            parseProc(node.sym.ast)
-          except ImplementError:
-            echo node.sym.ast.treeRepr
-            echo node.kind
-            echo node.sym.kind
-            echo node.sym.ast
-            raise
+          let parsed =
+            try:
+              parseProc(node.sym.ast)
+            except ImplementError:
+              echo node.sym.ast.treeRepr
+              echo node.kind
+              echo node.sym.kind
+              echo node.sym.ast
+              raise
 
-        let referencedSymbol = ctx.writer[].getProcId(parsed)
+          let referencedSymbol = ctx.writer[].getProcId(parsed)
 
-        let referenceId = ctx.writer[].recordReference(
-          callerId, referencedSymbol, srkCall)
+          let referenceId = ctx.writer[].recordReference(
+            callerId, referencedSymbol, srkCall)
 
-        discard ctx.writer[].recordReferenceLocation(referenceId, (fileId, node))
+          discard ctx.writer[].recordReferenceLocation(referenceId, (fileId, node))
+
+        else:
+          if isNil(node.sym.ast):
+            warn "Proc symbol with nil ast"
+            debug node.getInfo()
+            debug ctx.graph.getFilePath(node)
+            debug node
+            debug parent
+
 
       elif node.sym.kind in {skParam, skForVar, skVar, skResult, skLet, skConst}:
         let owner = node.sym.owner
@@ -210,10 +232,25 @@ proc registerCalls(
           let referenceId = ctx.writer[].recordReference(
             callerId, referencedSymbol, srkUsage)
 
-          discard ctx.writer[].recordReferenceLocation(
-            referenceId,
-            (fileId, tern(node.sym.kind == skField, parent, node))
-          )
+          var rng = toSourcetrailSourceRange(
+            (fileId, tern(node.sym.kind == skField, parent, node)))
+
+          if node.sym.kind == skField:
+            inc rng.startColumn
+            rng.endColumn = rng.startColumn + cint(len($node))
+
+          info parent
+          debug parent.getInfo()
+          debug ctx.getFilePath(parent)
+
+
+          info node
+          debug node.getInfo()
+          debug ctx.getFilePath(node)
+
+          debug rng
+
+          discard ctx.writer[].recordReferenceLocation(referenceId, rng)
 
         else:
           warn "No owner for node ", node
@@ -244,6 +281,54 @@ proc registerCalls(
 
 
 
+
+proc directUsedTypes*[N](ntype: NType[N]): seq[NType[N]] =
+  case ntype.kind:
+    of ntkGenericSpec, ntkAnonTuple:
+      result = ntype.genParams
+
+    of ntkProc, ntkNamedTuple:
+      for arg in ntype.arguments:
+        result.add arg.vtype
+
+
+      if ntype.returnType().isSome():
+        result.add ntype.returnType().get()
+
+    of ntkVarargs:
+      result.add ntype.vaType()
+
+    else:
+      discard
+
+proc registerTypeUse(ctx: SourcetrailContext, userId, fileId: cint, ntype: NType) =
+  # info "Use of type", ntype, ntype.kind
+  if ntype.kind in {ntkIdent, ntkGenericSpec} and
+     ntype.declNode.isSome()
+    :
+    # debug "Registering"
+    # FIXME register generic arguments as local symbols intead of
+    # declaring new types like `T`
+
+    let reference = ctx.writer[].recordReference(
+      userId,
+      ctx.writer[].recordSymbol(sskType, [("", ntype.head, "")]),
+      srkTypeUsage
+    )
+
+    let node = ntype.declNode.get()
+    let rng = toSourcetrailSourceRange((fileId, node))
+    # debug rng
+    # debug ctx.getFilePath(node)
+
+    discard ctx.writer[].recordReferenceLocation(reference, rng)
+
+  for used in directUsedTypes(ntype):
+    registerTypeUse(ctx, userId, fileId, used)
+
+
+
+
 proc registerProcDef(ctx: SourcetrailContext, fileId: cint, procDef: PNode): cint =
   let procDecl = parseProc(procDef)
   result = ctx.writer[].getProcId(procDecl)
@@ -253,6 +338,8 @@ proc registerProcDef(ctx: SourcetrailContext, fileId: cint, procDef: PNode): cin
   for argument in argumentIdents(procDecl):
     let localId = ctx.writer[].recordLocalSymbol($argument.sym)
     discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, argument))
+
+  registerTypeUse(ctx, result, fileId, procDecl.signature)
 
   logIndented:
     ctx.registerCalls(procDecl.impl, fileId, result, nil)
@@ -361,7 +448,7 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
     of nkTypeDef:
       discard ctx.registerTypeDef(node, ctx.getFileId(node))
 
-    of nkStmtList:
+    of nkStmtList, nkTryStmt, nkIfStmt:
       for subnode in node:
         registerTopLevel(ctx, subnode)
 
@@ -371,15 +458,10 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
     of nkCommentStmt, nkIncludeStmt, nkImportStmt, nkPragma, nkExportStmt:
       discard
 
-    of nkDiscardStmt, nkVarSection, nkLetSection, nkConstSection, nkCommand,
-       nkCall
-      :
+    else:
       let fileId = ctx.getFileId(node)
       ctx.registerCalls(node, fileId, fileId, nil)
 
-    else:
-      warn "Unmatched node", node.kind
-      debug node
 
 
 

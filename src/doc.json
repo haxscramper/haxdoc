@@ -1,11 +1,18 @@
 [{
   "plainName": "hhh",
-  "doctextBody": {},
+  "doctextBody": {"kind": "onkEmptyNode"},
   "doctextBrief": {
     "tree": [
       "onkStmtList",
-      [{"tree": ["onkParagraph", [{"text": "Documentation"}, {"text": "for"}, {"text": "hhh"}]]}]
-    ]
+      [{
+          "tree": [
+            "onkParagraph",
+            [
+              {"kind": "onkWord", "text": "Documentation"},
+              {"kind": "onkWord", "text": "for"},
+              {"kind": "onkWord", "text": "hhh"}
+            ]]
+        }]]
   },
   "admonitions": [{
       "kind": "obiNote",
@@ -16,14 +23,14 @@
               "tree": [
                 "onkParagraph",
                 [
-                  {"text": "prints"},
-                  {"text": "out"},
-                  {"mark": "", "str": "\""},
-                  {"text": "123"},
-                  {"text": "\""}
+                  {"kind": "onkWord", "text": "prints"},
+                  {"kind": "onkWord", "text": "out"},
+                  {"mark": "", "kind": "onkMarkup", "str": "\""},
+                  {"kind": "onkWord", "text": "123"},
+                  {"kind": "onkWord", "text": "\""}
                 ]]
             },
-            {}
+            {"kind": "onkEmptyNode"}
           ]]
       }
     }],

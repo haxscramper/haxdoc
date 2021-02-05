@@ -4,6 +4,16 @@ NOTE: /very/ work-in-progress
 
 Documentation generator and source code analysis system for nim.
 
+Latest version can be downloaded from [[https://github.com/haxscramper/haxdoc/releases/tag/refs%2Fheads%2Fmaster][releases]] page
+
+To generate sourcetrail compilation database for a file use ~./haxdoc trail
+file.nim~ - it will index *all* symbols that compiler saw during
+compilation: type definitinos, procedure declarations and uses (callgraph),
+uses of global variables, type fields and enums.
+
+Generated database can be opened using [[https://www.sourcetrail.com/][sourcetrail]] - free and open-source
+cross-platform source explorer.
+
 * Planned features
 
 ** PARTIALLY IN_PROGRESS [[https://www.sourcetrail.com/][sourcetrail]] integration for code exploration [6/7]
@@ -30,8 +40,13 @@ Documentation generator and source code analysis system for nim.
   - [ ] FIX :: Field expressions - currently information for ~.field~
     access points to field *declaration*. Maybe this is a bug, maybe I'm
     just doing something wrong.
+  - [ ] FIX :: Ingore non-critical errors during compilation, reduce
+    logging output (configure using CLI switches).
+  - [ ] FIX :: Use some CLI parser library - use of cligen is blocked by
+    https://github.com/nim-lang/Nim/issues/16933.
   - [ ] IMPLEMENT :: Register global variables and consts
   - [ ] IMPLEMENT :: Show subtype relation between derived objects
+  - [ ] IMPLEMENT :: Sourcetrail GUI integration
 
 ** WIP Documentation extractor for source code [0/2]
   :PROPERTIES:
