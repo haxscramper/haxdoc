@@ -1,12 +1,17 @@
 import haxdoc/[docentry, compiler_aux, sourcetrail_nim]
-import std/[json, strformat, strutils, sequtils, sugar, parseutils]
+import std/[
+  json, strformat, strutils, sequtils, sugar, parseutils,
+  hashes, md5, sets
+]
+
 import haxorg/[semorg, exporter_json, parser, ast, exporter_plaintext]
 
 import hmisc/other/[colorlogger, oswrap, hjson, hcligen, hshell]
 import hmisc/helpers
 import hnimast
+import hasts/graphviz_ast
 
-import compiler/[trees, wordrecg]
+import compiler/[trees, wordrecg, sighashes]
 
 
 type
@@ -51,13 +56,18 @@ proc toDocType*(nt: NType[PNode]): DocType =
   result = DocType(kind: nt.kind)
   case nt.kind:
     of ntkIdent, ntkGenericSpec, ntkAnonTuple:
-      result.head = $nt.head
+      result.head = DocEntry(
+        kind: dekObject,
+        plainName: $nt.head,
+        useKind: deuReference
+      )
+
       result.genParams = nt.genParams.mapIt(toDocType(it))
 
     of ntkProc, ntkNamedTuple:
       result.returnType = nt.returnType.mapSomeIt(toDocType(it))
       result.arguments = nt.arguments.toDocIdents()
-      result.pragma = $nt.pragma.toNNode()
+      # result.pragma = $nt.pragma.toNNode()
 
     of ntkRange:
       result.rngStart = $nt.rngStart
@@ -74,7 +84,11 @@ proc toDocType*(nt: NType[PNode]): DocType =
       discard
 
     of ntkCurly:
-      raiseImplementError("")
+      discard
+
+template joinIt*(arg: typed, expr: untyped, sep: string): untyped =
+  mapIt(arg, expr).join(sep)
+
 
 proc toSigText*(nt: DocType, procPrefix: string = "proc"): string
 
@@ -99,22 +113,40 @@ proc toSigText*(nt: DocType, procPrefix: string = "proc"): string =
 
     of ntkIdent:
       if nt.genParams.len > 0:
-        result = nt.head & "[" & nt.genParams.mapIt(
-          toSigText(it)).join(", ") & "]"
+        result = nt.head.docSym.get().declLink.plain &
+          "[" & nt.genParams.mapIt(toSigText(it)).join(", ") & "]"
 
       else:
-        result = nt.head
+        result = $nt.head.docSym
 
     of ntkGenericSpec:
+      result = nt.head.docSym.get().declLink.plain
       if nt.genParams.len > 0:
-        result = nt.head & ": " & nt.genParams.mapIt(
-          toSigText(it)).join(" | ")
-
-      else:
-        result = nt.head
+        result &= ": " & nt.genParams.mapIt(toSigText(it)).join(" | ")
 
     of ntkProc:
-        let pragma: string = tern(nt.pragma.len > 0, nt.pragma & " ", "")
+        var pragma: string
+        if nt.pragmas.len > 0:
+          pragma.add nt.pragmas.joinIt(
+            it.entry.plainName & ": " & it.arg, ", ")
+
+          if nt.effects.len > 0:
+            if pragma.len > 0: pragma.add ", "
+
+            pragma.add ".tags["
+            pragma.add nt.effects.joinIt(it.plainName, ", ")
+            pragma.add "]"
+
+          if pragma.len > 0 and nt.raises.len > 0:
+            if pragma.len > 0: pragma.add ", "
+
+            pragma.add ".raises["
+            pragma.add nt.raises.joinIt(it.plainName, ", ")
+            pragma.add "]"
+
+
+          # tern(nt.pragma.len > 0, nt.pragma & " ", "")
+
         let args: string = nt.arguments.mapIt(toSigText(it)).join(", ")
         let rtype: string = nt.returnType.getSomeIt(toSigText(it) & ": ", "")
         result = &"{procPrefix}({args}){pragma}{rtype}"
@@ -133,7 +165,74 @@ proc toSigText*(nt: DocType, procPrefix: string = "proc"): string =
       result = &"range[{nt.rngStart}..{nt.rngEnd}]"
 
     of ntkCurly:
-      raiseImplementError("")
+      discard
+
+proc toDocSym*(ctx: DocContext, sym: PSym): Option[DocSym] =
+  if isNil(sym.ast):
+    return
+
+  proc aux(node: PNode): Option[DocSym] =
+    case node.kind:
+      of nkTypeDef:
+        result = some(DocSym(declLink: CodeLink(
+          plain: $node[0]
+        )))
+
+      of nkRefTy:
+        result = aux(node[0])
+
+      else:
+        raiseImplementError($node.kind)
+
+  return aux(sym.ast)
+
+proc isEffectSym*(sym: PSym): bool =
+  notNil(sym) and $sym == "RootEffect"
+
+proc isRaiseSym*(sym: PSym): bool =
+  notNil(sym) and $sym == "CatchableError"
+
+proc detectSymKind*(sym: PSym): DocEntryKind =
+
+  proc aux(node: PNode): DocEntryKind =
+    case node.kind:
+      of nkTypeDef:
+        result = aux(node[2])
+
+      of nkRefTy:
+        result = aux(node[0])
+
+      of nkObjectTy:
+        result = aux(node[1])
+
+      of nkOfInherit:
+        let sym = node[0].sym
+        if isEffectSym(sym):
+          result = dekEffect
+
+        elif isRaiseSym(sym):
+          result = dekException
+
+        else:
+          result = dekObject
+
+      else:
+        raiseImplementError("")
+
+  if isNil(sym):
+    return dekObject
+
+  else:
+    return aux(sym.ast)
+
+
+proc toDocEntry*(ctx: DocContext, node: PNode): DocEntry =
+  let sym = toDocSym(ctx, node.sym)
+  let kind = detectSymKind(node.sym)
+  result = DocEntry(
+    docSym: sym, kind: kind, plainName: $node, useKind: deuReference)
+
+
 
 proc registerTopLevel(ctx: DocContext, n: PNode) =
   case n.kind:
@@ -181,11 +280,6 @@ proc registerTopLevel(ctx: DocContext, n: PNode) =
 
       let sign = toDocType(parsed.signature)
 
-      # IMPLEMENT store effect annotations in proc declarations and link
-      # with declaration for an effect type.
-      let spec = effectSpec(n[4], wTags).toSeq()
-      debug spec
-
       var decl = DocEntry(
         plainName: parsed.name,
         kind: dekProc,
@@ -217,9 +311,26 @@ proc registerTopLevel(ctx: DocContext, n: PNode) =
         prSigTree: sign
       )
 
+      # IMPLEMENT store effect annotations in proc declarations and link
+      # with declaration for an effect type.
+      block:
+        let effectSpec = effectSpec(n[4], wTags)
+        if notNil(effectSpec):
+          for effect in effectSpec:
+            decl.prSigTree.effects.add toDocEntry(ctx, effect)
+
+      block:
+        let raiseSpec = effectSpec(n[4], wRaises)
+        if notNil(raiseSpec):
+          for rais in raiseSpec:
+            decl.prSigTree.raises.add toDocEntry(ctx, rais)
+
+
       exportTo(OrgPlaintextExporter(),
                decl.doctextBrief,
                decl.doctextBriefPlain)
+
+      decl.doctextBriefPlain = strip(decl.doctextBriefPlain)
 
 
 
@@ -289,6 +400,20 @@ hhh(123)
   db.writeJson(RelFile("doc.json"))
 
 
+proc getStdPath(): AbsDir =
+  var version = evalShellStdout shCmd(nim, --version)
+  let start = "Nim Compiler Version ".len
+  let finish = start + version.skipWhile({'0'..'9', '.'}, start)
+  # debug version
+  # debug start
+  # debug finish
+  version = version[start ..< finish]
+  result = AbsDir(
+    ~".choosenim/toolchains" / ("nim-" & version) / "lib"
+    # nimlibs[0]
+  )
+
+
 proc handleTrailCmdline() =
   var infile: AbsFile
   var targetFile: AbsFile
@@ -346,30 +471,91 @@ Options
     targetFile = infile.withExt("srctrldb")
 
   if stdpath.string.len == 0:
-    var version = evalShellStdout shCmd(nim, --version)
-    let start = "Nim Compiler Version ".len
-    let finish = start + version.skipWhile({'0'..'9', '.'}, start)
-    debug version
-    debug start
-    debug finish
-    version = version[start ..< finish]
-    stdpath = AbsDir(
-      ~".choosenim/toolchains" / ("nim-" & version) / "lib"
-      # nimlibs[0]
-    )
+    stdpath = getStdPath()
 
   warn "Using stdlib path ", stdpath
 
   trailCompile(infile, stdpath, otherpaths, targetFile)
+
+proc createCallgraph(infile: AbsFile, stdpath: AbsDir, outfile: AbsFile) =
+  debug "Creating callgrahp"
+  var graph {.global.}: ModuleGraph
+  graph = newModuleGraph(infile, stdpath,
+    proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
+      err msg
+      err info, config.getFilePath(info)
+  )
+  graph.registerPass(semPass)
+
+  var dotGraph {.global.}: DotGraph
+  var knownSyms {.global.}: HashSet[Hash]
+  var knownPairs {.global.}: HashSet[(Hash, Hash)]
+
+  dotGraph.styleNode = makeRectConsolasNode()
+  dotGraph.rankdir = grdLeftRight
+
+  proc registerSym(sym: PSym): Hash {.nimcall.} =
+    result = hash(sigHash(sym).MD5Digest)
+    if result notin knownSyms:
+      knownSyms.incl result
+
+      let procDecl = parseProc(sym.ast)
+      let sigText = toDocType(procDecl.signature).toSigText(procDecl.name)
+      dotGraph.addNode makeDotNode(result, sigText)
+
+  proc registerCalls(topId: Hash, node: PNode) {.nimcall.} =
+    case node.kind:
+      of nkProcDeclKinds:
+        registerCalls(topId, node[6])
+
+      of nkSym:
+        if notNil(node.sym.ast) and
+           node.sym.ast.kind in nkProcDeclKinds:
+          let toHash = registerSym(node.sym)
+
+          if (topId, toHash) notin knownPairs:
+            dotGraph.addEdge makeDotEdge(topId, toHash)
+            knownPairs.incl (topId, toHash)
+
+      of nkTokenKinds - {nkSym}:
+        discard
+
+      else:
+        for subnode in items(node):
+          registerCalls(topId, subnode)
+
+  graph.registerPass(makePass(
+    (
+      proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
+        return PPassContext()
+    ),
+    (
+      proc(c: PPassContext, n: PNode): PNode {.nimcall.} =
+        result = n
+        if n.kind in nkProcDeclKinds:
+          registerCalls(registerSym(n[0].sym), n)
+    ),
+    (
+      proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode {.nimcall.} =
+        discard
+    )
+  ))
+
+  compileProject(graph)
+  info "Callgraph compilation ok"
+
+  let target = outfile.withExt("xdot")
+  dotGraph.toXDot(target)
+  info "Graphviz compilation ok"
+  debug "Image saved to", target
 
 
 when isMainModule:
   startColorLogger()
 
   if paramCount() == 0:
-    if true:
-      let file = AbsFile("/tmp/trail_test.nim")
-      file.writeFile("""
+    let file = AbsFile("/tmp/trail_test.nim")
+    file.writeFile("""
 type
   En {.pure.} = enum
     A
@@ -387,15 +573,22 @@ echo useHello()
 
 """)
 
-      trailCompile(
-        file,
-        AbsDir("/home/test/tmp/Nim/lib"),
-        @[],
-        file.withExt("srctrldb")
-      )
 
-    else:
-      docCompile()
+
+    case 1:
+      of 0:
+        trailCompile(
+          file,
+          AbsDir("/home/test/tmp/Nim/lib"),
+          @[],
+          file.withExt("srctrldb")
+        )
+
+      of 1:
+        docCompile()
+
+      else:
+        discard
 
   else:
     case paramStr(0):
@@ -404,6 +597,10 @@ echo useHello()
 
       of "docgen":
         raiseImplementError("")
+
+      of "callgraph":
+        let file = toAbsFile(paramStr(1))
+        createCallgraph(file, getStdPath(), file.withExt("png"))
 
       else:
         echo &"""

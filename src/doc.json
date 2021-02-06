@@ -14,6 +14,7 @@
             ]]
         }]]
   },
+  "useKind": "deuDeclaration",
   "admonitions": [{
       "kind": "obiNote",
       "body": {
@@ -35,18 +36,24 @@
       }
     }],
   "kind": "dekProc",
-  "prSigText": "proc hhh(arg: int)",
+  "prSigText": "proc hhh(arg: None[DocSym])",
   "prSigTree": {
-    "doctextBody": null,
-    "doctextBrief": null,
     "kind": "ntkProc",
     "arguments": [{
         "ident": "arg",
         "kind": "nvdLet",
-        "doctext": null,
-        "vtype": {"doctextBody": null, "doctextBrief": null, "kind": "ntkIdent", "head": "int"}
+        "vtype": {
+          "kind": "ntkIdent",
+          "head": {"plainName": "int", "doctextBriefPlain": "", "useKind": "deuReference", "kind": "dekObject"}
+        }
       }],
-    "pragma": ""
+    "effects": [{
+        "plainName": "Eff",
+        "doctextBriefPlain": "",
+        "docSym": {"declLink": {"plain": "Eff"}},
+        "useKind": "deuReference",
+        "kind": "dekObject"
+      }]
   },
-  "doctextBriefPlain": "Documentation for hhh  "
+  "doctextBriefPlain": "Documentation for hhh"
 }]

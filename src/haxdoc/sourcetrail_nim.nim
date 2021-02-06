@@ -39,7 +39,7 @@ proc parsePNode(file: AbsFile): PNode =
   result = parseAll(pars)
   closeParser(pars)
 
-proc getFilePath(config: ConfigRef, info: TLineInfo): AbsoluteFile =
+proc getFilePath*(config: ConfigRef, info: TLineInfo): AbsoluteFile =
   ## Get absolute file path for declaration location of `node`
   if info.fileIndex.int32 >= 0:
     result = config.m.fileInfos[info.fileIndex.int32].fullPath
@@ -239,16 +239,16 @@ proc registerCalls(
             inc rng.startColumn
             rng.endColumn = rng.startColumn + cint(len($node))
 
-          info parent
-          debug parent.getInfo()
-          debug ctx.getFilePath(parent)
+          # info parent
+          # debug parent.getInfo()
+          # debug ctx.getFilePath(parent)
 
 
-          info node
-          debug node.getInfo()
-          debug ctx.getFilePath(node)
+          # info node
+          # debug node.getInfo()
+          # debug ctx.getFilePath(node)
 
-          debug rng
+          # debug rng
 
           discard ctx.writer[].recordReferenceLocation(referenceId, rng)
 
