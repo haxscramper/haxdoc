@@ -82,7 +82,7 @@ converter toSourcetrailSourceRange*(
 proc declHead(node: PNode): PNode =
   case node.kind:
     of nkTypeDef, nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr,
-       nkVarTy, nkRefTy, nkPtrTy, nkPrefix
+       nkVarTy, nkRefTy, nkPtrTy, nkBracketExpr, nkPrefix
       :
       result = declHead(node[0])
 
@@ -97,7 +97,7 @@ proc declHead(node: PNode): PNode =
       :
       result = node
 
-    of nkPostfix, nkBracketExpr, nkCommand
+    of nkPostfix, nkCommand
       :
       result = node[1]
 
@@ -301,7 +301,8 @@ proc directUsedTypes*[N](ntype: NType[N]): seq[NType[N]] =
     else:
       discard
 
-proc registerTypeUse(ctx: SourcetrailContext, userId, fileId: cint, ntype: NType) =
+proc registerTypeUse(
+    ctx: SourcetrailContext, userId, fileId: cint, ntype: NType) =
   # info "Use of type", ntype, ntype.kind
   if ntype.kind in {ntkIdent, ntkGenericSpec} and
      ntype.declNode.isSome()
@@ -316,10 +317,13 @@ proc registerTypeUse(ctx: SourcetrailContext, userId, fileId: cint, ntype: NType
       srkTypeUsage
     )
 
-    let node = ntype.declNode.get()
+    let node = declHead(ntype.declNode.get())
     let rng = toSourcetrailSourceRange((fileId, node))
-    # debug rng
-    # debug ctx.getFilePath(node)
+    info "-------------"
+    debug node
+    debug rng
+    debug treeRepr(node)
+    debug ctx.getFilePath(node)
 
     discard ctx.writer[].recordReferenceLocation(reference, rng)
 
@@ -372,29 +376,14 @@ proc registerTypeDef(
 
     for fld in iterateFields(objectDecl):
       if fld.fldType.declNode.isSome():
-        let fldType = fld.fldType.declNode.get()
+        # let fldType = fld.fldType.declNode.get()
 
         let fieldSymbol = ctx.writer[].recordSymbol(
           sskField, objNameHierarchy, ("", fld.name, ""))
 
-        if fldType.kind == nkSym:
-          let targetHead: string =
-            if fldType.sym.ast.isNil:
-               $fldType
-
-            else:
-              $declHead(fldType.sym.ast)
-
-          var targetType: cint = ctx.writer[].recordSymbol(
-            sskStruct, ("", targetHead, ""))
-
-          let referenceId = ctx.writer[].recordReference(
-            fieldSymbol, targetType, srkTypeUsage)
-
-          discard ctx.writer[].recordReferenceLocation(
-            referenceId, (fileId, fldType))
-
         discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
+
+        registerTypeUse(ctx, fieldSymbol, fileId, fld.fldType)
 
   elif node[2].kind == nkEnumTy:
     let enumDecl: PEnumDecl = parseEnum(node)

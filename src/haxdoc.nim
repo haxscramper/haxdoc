@@ -562,7 +562,8 @@ type
 
   EnObj = object
     case kind*: En
-      of En.A: discard
+      of En.A:
+        otherFld: seq[En]
 
 proc useHello(): string =
   let user = EnObj()
@@ -575,7 +576,7 @@ echo useHello()
 
 
 
-    case 1:
+    case 0:
       of 0:
         trailCompile(
           file,
