@@ -47,6 +47,12 @@ cross-platform source explorer.
   - [ ] IMPLEMENT :: Register global variables and consts
   - [ ] IMPLEMENT :: Show subtype relation between derived objects
   - [ ] IMPLEMENT :: Sourcetrail GUI integration
+  - [ ] IMPLEMENT :: Write expanded (pos-semcheck) files to explicitly show
+    all function calls (right now macro expansions can produce blobs of
+    tightly packed calls that are almost impossible to click on. Ideally
+    source code ranges should be tagged somewhere in the middle of semcheck
+    (after symbol resolution, but before actual macro expansion) to be as
+    useful as possible).
 
 ** WIP Documentation extractor for source code [0/2]
   :PROPERTIES:

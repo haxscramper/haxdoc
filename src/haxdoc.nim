@@ -549,6 +549,10 @@ proc createCallgraph(infile: AbsFile, stdpath: AbsDir, outfile: AbsFile) =
   info "Graphviz compilation ok"
   debug "Image saved to", target
 
+# import nimble
+
+import nimblepkg/[packageparser, options, cli]
+
 proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
   var nimbleDir: Option[AbsDir]
 
@@ -559,27 +563,61 @@ proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
           nimbleDir = some(dir)
           break mainSearch
 
-  if nimbleDir.isSome():
-    info "Found nimble file in directory"
-    debug nimbleDir.get()
+  proc getDeps(dir: AbsDir, options: Options): seq[AbsDir] =
+    let info = getPkgInfo(dir.string, options)
+    echo info.requires
 
-  else:
-    info "No nimble file found in parent directories"
+  if nimbleDir.isSome():
+    var opts = initOptions()
+    setNimBin(opts)
+    setVerbosity(DebugPriority)
+    result = getDeps(nimbleDir.get(), opts)
+
+  # if nimbleDir.isSome():
+  #   info "Found nimble file in directory"
+  #   debug nimbleDir.get()
+
+  # else:
+  #   info "No nimble file found in parent directories"
 
 when isMainModule:
   startColorLogger()
 
   if paramCount() == 0:
-#     let file = AbsFile("/tmp/trail_test.nim")
-#     file.writeFile("""
+    let file = AbsFile("/tmp/trail_test.nim")
+    "/tmp/trail_test.nimble".writeFile(
+      """
+version       = "0.9.18"
+author        = "haxscramper"
+description   = "Collection of helper utilities"
+license       = "Apache-2.0"
+srcDir        = "src"
+packageName   = "trail_test"
+binDir        = "bin"
 
-# import hmisc/algo/clformat123
+requires "hmisc >= 0.9.17"
+"""
+    )
+    file.writeFile("""
 
-# echo toRomanNumeral(1230)
+import hmisc/algo/clformat
 
-# """)
+echo toRomanNumeral(1230)
 
-    let file = AbsFile(~"tmp/Nim/compiler/nim.nim")
+""")
+
+    # let file = AbsFile(~"tmp/Nim/compiler/nim.nim")
+
+    let nimblePaths = getNimblePaths(file)
+
+    if nimblePaths.len > 0:
+      info "Found nibmle file, resolved dependency paths"
+      logIndented:
+        for path in nimblePaths:
+          debug path
+
+    else:
+      warn "Found no nimble files"
 
     case 0:
       of 0:
@@ -587,7 +625,7 @@ when isMainModule:
           file,
           ~"tmp/Nim/lib",
           # getStdPath(),
-          @[],
+          nimblePaths,
           # getNimblePaths(file),
           file.withExt("srctrldb")
         )

@@ -78,4 +78,14 @@ proc newModuleGraph*(
   defineSymbol(config.symbols, "ssl")
   nimblePath(config, ~".nimble/pkgs", TLineInfo())
 
+  info "Module import paths"
+  logIndented:
+    for path in items(config.searchPaths):
+      debug path
+
+  info "Nimble paths"
+  logIndented:
+    for path in items(config.nimblePaths):
+      debug path
+
   return newModuleGraph(cache, config)
