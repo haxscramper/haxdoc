@@ -570,22 +570,23 @@ when isMainModule:
   startColorLogger()
 
   if paramCount() == 0:
-    let file = AbsFile("/tmp/trail_test.nim")
-    file.writeFile("""
+#     let file = AbsFile("/tmp/trail_test.nim")
+#     file.writeFile("""
 
-import hmisc/algo/clformat
+# import hmisc/algo/clformat123
 
-echo toRomanNumeral(1230)
+# echo toRomanNumeral(1230)
 
-""")
+# """)
 
-
+    let file = AbsFile(~"tmp/Nim/compiler/nim.nim")
 
     case 0:
       of 0:
         trailCompile(
           file,
-          getStdPath(),
+          ~"tmp/Nim/lib",
+          # getStdPath(),
           @[],
           # getNimblePaths(file),
           file.withExt("srctrldb")

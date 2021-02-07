@@ -101,7 +101,7 @@ proc declHead(node: PNode): PNode =
       :
       result = node[1]
 
-    of nkInfix:
+    of nkInfix, nkPar:
       result = node[0]
 
     else:
@@ -195,11 +195,12 @@ proc registerCalls(
 
         else:
           if isNil(node.sym.ast):
-            warn "Proc symbol with nil ast"
-            debug node.getInfo()
-            debug ctx.graph.getFilePath(node)
-            debug node
-            debug parent
+            discard
+            # warn "Proc symbol with nil ast"
+            # debug node.getInfo()
+            # debug ctx.graph.getFilePath(node)
+            # debug node
+            # debug parent
 
 
       elif node.sym.kind in {skParam, skForVar, skVar, skResult, skLet, skConst}:
@@ -473,7 +474,7 @@ proc trailCompile*(
   var graph {.global.}: ModuleGraph
   graph = newModuleGraph(file, stdpath,
     proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
-      discard
+      info level
       err msg
       err info, config.getFilePath(info)
   )
