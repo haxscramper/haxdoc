@@ -1,4 +1,4 @@
-name: Build
+name: release
 on:
   push:
     tags:
@@ -22,10 +22,6 @@ jobs:
           nimble build -y || nimble build -y
           zip --junk-paths haxdoc.zip bin/haxdoc
 
-      # - uses: actions/upload-artifact@v2
-      #   with:
-      #     name: haxdoc
-      #     path: bin/haxdoc
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -46,3 +42,4 @@ jobs:
           asset_path: ./haxdoc.zip
           asset_name: haxdoc.zip
           asset_content_type: application/zip
+

@@ -1,0 +1,39 @@
+name: test
+on: [push]
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: alaviss/setup-nim@master
+        with:
+          path: '../nim'
+          version: 'version-1-4'
+
+      - name: Compile binary
+        run: |
+          export PATH=$HOME/.nimble/bin:$PATH
+          nimble build -y || nimble build -y
+
+      - name: Upload math result for job 2
+        uses: actions/upload-artifact@v2
+        with:
+          name: haxdoc
+          path: bin/haxdoc
+
+  trailCompiler:
+    name: Trail compiler callgraph
+    needs: compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: haxdoc
+      - run: |
+          git clone https://github.com/nim-lang/Nim.git
+          cd Nim/compiler
+          ./haxdoc trail nim.nim
+      - uses: actions/upload-artifact@v2
+        with:
+          name: compierTrail
+          path: nim.*
