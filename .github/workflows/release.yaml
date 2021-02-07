@@ -1,5 +1,9 @@
-name: Build
-on: [push]
+name: release
+on:
+  push:
+    tags:
+      - 'v*' 
+
 jobs:
   build:
     if: |
@@ -17,11 +21,6 @@ jobs:
           export PATH=$HOME/.nimble/bin:$PATH
           nimble build -y || nimble build -y
           zip --junk-paths haxdoc.zip bin/haxdoc
-
-      # - uses: actions/upload-artifact@v2
-      #   with:
-      #     name: haxdoc
-      #     path: bin/haxdoc
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1

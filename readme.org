@@ -65,6 +65,12 @@ cross-platform source explorer.
   documentation for comments, fields and so on).
 - [ ] User-defined higlighting logic (special side effects, exceptions that
   developer might want to make accent on)
+- [ ] Show resolved links in documentation in sourcetrail tool. Index
+  ~.org~ documents as well to allow full interoperability between source
+  code in documentation. It is somewhat annoying that =sourcetrail= does
+  not allow to open two split panes, or edit source code directly in the
+  same window, but this could be mitigated with support for suchronization
+  between editors and sourcetrail viewers.
 
 ** TODO Static site generator for documentation
    :PROPERTIES:

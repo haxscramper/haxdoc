@@ -549,6 +549,22 @@ proc createCallgraph(infile: AbsFile, stdpath: AbsDir, outfile: AbsFile) =
   info "Graphviz compilation ok"
   debug "Image saved to", target
 
+proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
+  var nimbleDir: Option[AbsDir]
+
+  block mainSearch:
+    for dir in parentDirs(file):
+      for file in walkDir(dir, AbsFile):
+        if ext(file) == "nimble":
+          nimbleDir = some(dir)
+          break mainSearch
+
+  if nimbleDir.isSome():
+    info "Found nimble file in directory"
+    debug nimbleDir.get()
+
+  else:
+    info "No nimble file found in parent directories"
 
 when isMainModule:
   startColorLogger()
@@ -556,21 +572,10 @@ when isMainModule:
   if paramCount() == 0:
     let file = AbsFile("/tmp/trail_test.nim")
     file.writeFile("""
-type
-  En {.pure.} = enum
-    A
 
-  EnObj = object
-    case kind*: En
-      of En.A:
-        otherFld: seq[En]
+import hmisc/algo/clformat
 
-proc useHello(): string =
-  let user = EnObj()
-
-  return $user.kind & " " & $user
-
-echo useHello()
+echo toRomanNumeral(1230)
 
 """)
 
@@ -580,8 +585,9 @@ echo useHello()
       of 0:
         trailCompile(
           file,
-          AbsDir("/home/test/tmp/Nim/lib"),
+          getStdPath(),
           @[],
+          # getNimblePaths(file),
           file.withExt("srctrldb")
         )
 

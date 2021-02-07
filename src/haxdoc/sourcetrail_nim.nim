@@ -307,10 +307,8 @@ proc registerTypeUse(
   if ntype.kind in {ntkIdent, ntkGenericSpec} and
      ntype.declNode.isSome()
     :
-    # debug "Registering"
     # FIXME register generic arguments as local symbols intead of
     # declaring new types like `T`
-
     let reference = ctx.writer[].recordReference(
       userId,
       ctx.writer[].recordSymbol(sskType, [("", ntype.head, "")]),
@@ -319,11 +317,6 @@ proc registerTypeUse(
 
     let node = declHead(ntype.declNode.get())
     let rng = toSourcetrailSourceRange((fileId, node))
-    info "-------------"
-    debug node
-    debug rng
-    debug treeRepr(node)
-    debug ctx.getFilePath(node)
 
     discard ctx.writer[].recordReferenceLocation(reference, rng)
 

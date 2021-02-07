@@ -10,7 +10,7 @@ import std/[with]
 
 import compiler /
   [ idents, options, modulegraphs, passes, lineinfos, sem, pathutils, ast,
-    modules, condsyms, passaux, llstream, parser
+    modules, condsyms, passaux, llstream, parser, nimblecmd
   ]
 
 export idents, options, modulegraphs, passes, lineinfos, sem, pathutils,
@@ -64,6 +64,7 @@ proc newModuleGraph*(
   config.projectFull = file
   # config.excludeAllNotes(hintLineTooLong)
 
+
   config.structuredErrorHook = structuredErrorHook
     # proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
     #   discard
@@ -75,5 +76,6 @@ proc newModuleGraph*(
   defineSymbol(config.symbols, "nimcore")
   defineSymbol(config.symbols, "c")
   defineSymbol(config.symbols, "ssl")
+  nimblePath(config, ~".nimble/pkgs", TLineInfo())
 
   return newModuleGraph(cache, config)
