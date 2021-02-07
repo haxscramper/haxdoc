@@ -15,7 +15,7 @@ jobs:
           export PATH=$HOME/.nimble/bin:$PATH
           nimble build -y || nimble build -y
 
-      - name: Upload math result for job 2
+      - name: Upload compiled binary
         uses: actions/upload-artifact@v2
         with:
           name: haxdoc
@@ -30,11 +30,10 @@ jobs:
         with:
           name: haxdoc
       - run: |
+          chmod +x haxdoc
           git clone https://github.com/nim-lang/Nim.git
-          cd Nim/compiler
-          ls -R
-          ./haxdoc trail nim.nim
+          ./haxdoc trail Nim/compiler/nim.nim
       - uses: actions/upload-artifact@v2
         with:
           name: compierTrail
-          path: nim.*
+          path: Nim/compiler/nim.*
