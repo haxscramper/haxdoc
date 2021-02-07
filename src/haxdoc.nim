@@ -4,9 +4,12 @@ import std/[
   hashes, md5, sets
 ]
 
+import hpprint
+
 import haxorg/[semorg, exporter_json, parser, ast, exporter_plaintext]
 
-import hmisc/other/[colorlogger, oswrap, hjson, hcligen, hshell]
+import hmisc/other/[colorlogger, hjson, hcligen, hshell]
+import hmisc/other/oswrap except paramCount, getAppFilename, paramStr
 import hmisc/helpers
 import hnimast
 import hasts/graphviz_ast
@@ -413,6 +416,25 @@ proc getStdPath(): AbsDir =
     # nimlibs[0]
   )
 
+import nimble
+
+proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
+  var nimbleDir: Option[AbsDir]
+
+  block mainSearch:
+    for dir in parentDirs(file):
+      for file in walkDir(dir, AbsFile):
+        if ext(file) == "nimble":
+          nimbleDir = some(dir)
+          break mainSearch
+
+  if nimbleDir.isSome():
+    info "Found nimble file in directory"
+    debug nimbleDir.get()
+
+  else:
+    info "No nimble file found in parent directories"
+
 
 proc handleTrailCmdline() =
   var infile: AbsFile
@@ -549,13 +571,24 @@ proc createCallgraph(infile: AbsFile, stdpath: AbsDir, outfile: AbsFile) =
   info "Graphviz compilation ok"
   debug "Image saved to", target
 
+import argparse
 
 when isMainModule:
   startColorLogger()
+  var optParse = newParser:
+    command("trail"):
+      help("Generate sourcetrail database")
+      arg("file", help = "Input nim file to generate database for")
+      option("--path", multiple = true, help = "Add module search path")
+      option("--stdpath", help =
+        "Location of the stdlib. Defaults")
 
-  if paramCount() == 0:
-    let file = AbsFile("/tmp/trail_test.nim")
-    file.writeFile("""
+  try:
+    var opts =
+      if paramCount() == 0  and shellHaxOn():
+        let file = AbsFile("/tmp/trail_test.nim")
+
+        file.writeFile("""
 type
   En {.pure.} = enum
     A
@@ -574,38 +607,50 @@ echo useHello()
 
 """)
 
-
-
-    case 0:
-      of 0:
-        trailCompile(
-          file,
-          AbsDir("/home/test/tmp/Nim/lib"),
-          @[],
-          file.withExt("srctrldb")
-        )
-
-      of 1:
-        docCompile()
+        optParse.parse(@["trail", $file])
 
       else:
-        discard
+        optParse.parse(paramStrs())
 
-  else:
-    case paramStr(0):
+
+    # if opts.stdpath.len == 0:
+    #   opts.stdpath = $getStdPath()
+
+    case opts.argparseCommand:
       of "trail":
-        handleTrailCmdline()
+        var opts = opts.argparseTrailOpts.get()
+        let file = toAbsFile(opts.file)
+        if opts.stdpath.len == 0:
+          opts.stdpath = $getStdPath()
 
-      of "docgen":
-        raiseImplementError("")
+        for file in getNimblePaths(file):
+          opts.path.add $file
 
-      of "callgraph":
-        let file = toAbsFile(paramStr(1))
-        createCallgraph(file, getStdPath(), file.withExt("png"))
 
-      else:
-        echo &"""
-Unexpected haxdoc command - expected one of 'trail' or 'docgen', found
+  except ShortCircuit as e:
+    if e.flag == "argparse_help":
+      echo optParse.help
+      quit(1)
 
-haxdoc {paramStr(0)}
-"""
+  except UsageError as e:
+    stderr.writeLine getCurrentExceptionMsg()
+    quit(1)
+
+
+#     case paramStr(0):
+#       of "trail":
+#         handleTrailCmdline()
+
+#       of "docgen":
+#         raiseImplementError("")
+
+#       of "callgraph":
+#         let file = toAbsFile(paramStr(1))
+#         createCallgraph(file, getStdPath(), file.withExt("png"))
+
+#       else:
+#         echo &"""
+# Unexpected haxdoc command - expected one of 'trail' or 'docgen', found
+
+# haxdoc {paramStr(0)}
+# """

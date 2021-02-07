@@ -195,11 +195,12 @@ proc registerCalls(
 
         else:
           if isNil(node.sym.ast):
-            warn "Proc symbol with nil ast"
-            debug node.getInfo()
-            debug ctx.graph.getFilePath(node)
-            debug node
-            debug parent
+            discard
+            # warn "Proc symbol with nil ast"
+            # debug node.getInfo()
+            # debug ctx.graph.getFilePath(node)
+            # debug node
+            # debug parent
 
 
       elif node.sym.kind in {skParam, skForVar, skVar, skResult, skLet, skConst}:
@@ -319,11 +320,11 @@ proc registerTypeUse(
 
     let node = declHead(ntype.declNode.get())
     let rng = toSourcetrailSourceRange((fileId, node))
-    info "-------------"
-    debug node
-    debug rng
-    debug treeRepr(node)
-    debug ctx.getFilePath(node)
+    # info "-------------"
+    # debug node
+    # debug rng
+    # debug treeRepr(node)
+    # debug ctx.getFilePath(node)
 
     discard ctx.writer[].recordReferenceLocation(reference, rng)
 
@@ -452,7 +453,7 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
       ctx.registerCalls(node, fileId, fileId, nil)
 
 
-
+# import nimble/nimblepkg/packageparser
 
 proc trailCompile*(
     file: AbsFile,
