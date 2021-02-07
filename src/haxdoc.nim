@@ -10,7 +10,7 @@ import haxorg/[semorg, exporter_json, parser, ast, exporter_plaintext]
 
 import hmisc/other/[colorlogger, hjson, hcligen, hshell]
 import hmisc/other/oswrap except paramCount, getAppFilename, paramStr
-import hmisc/helpers
+import hmisc/[helpers, hexceptions]
 import hnimast
 import hasts/graphviz_ast
 
@@ -240,11 +240,8 @@ proc toDocEntry*(ctx: DocContext, node: PNode): DocEntry =
 proc registerTopLevel(ctx: DocContext, n: PNode) =
   case n.kind:
     of nkProcDef:
-      echo treeRepr(n)
       let parsed = parseProc(n)
       let node = parseOrg(parsed.docComment)
-
-      echo treeRepr(node)
       var semNode = toSemOrgDocument(node)
 
       var admonitions: seq[(OrgBigIdentKind, SemOrg)]
@@ -416,7 +413,7 @@ proc getStdPath(): AbsDir =
     # nimlibs[0]
   )
 
-import nimble
+# import- nimble
 
 proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
   var nimbleDir: Option[AbsDir]
@@ -435,222 +432,107 @@ proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
   else:
     info "No nimble file found in parent directories"
 
+# import argparse
 
-proc handleTrailCmdline() =
-  var infile: AbsFile
-  var targetFile: AbsFile
-  var otherpaths: seq[AbsDir]
-  var stdpath: AbsDir
+# type
+#   FFIException* = ref object of CatchableError
+#   FFIUnknownException* = ref object of FFIException
 
-  for kind, key, val, idx in getopt():
-    case kind
-      of cmdArgument:
-        if idx == 1:
-          infile = toAbsFile(val)
+# template tryCpp*(code: untyped): untyped =
+#   {.emit: "try {".}
+#   code
+#   {.emit: "} catch (std::exception& e) {".}
+#   var msg{.importcpp: "msg".}: cstring 
+#   {.emit: "const char *`msg` = e.what();".}
+#   echo "Std-derived exception"
+#   proc ex1(msg: cstring) =
+#     raise FFIException(msg: $msg)
+#   ex1(msg)
+#   {.emit: "} catch (...) {".}
+#   echo "Unknown exception"
+#   raise newException(FFIUnknownException, "<UNKNOWN EXCEPTION>")
+#   {.emit: "}".}
 
-      of cmdLongOption, cmdShortOption:
-        case key
-        of "help", "h":
-          echo """
-Usage
-
-  haxdoc trail <file.nim> [--path:<dirname>...] [--stdpath:<dirname>] [--out:<file.srctrldb>]
-
-Options
-
-  - `--path:<dirname>` additional paths for module search
-
-  - `--stdpath:<dirname>` location of stdlib. Defaults to search based on current
-    compiler location
-
-  - `--outdb:<file>` - Resulting sourcetrail database location. Defaults to original
-    file name with extension changed.
-
-
-- NOTE :: parseopt is used temporarily until `cligen` is fixed for C++ backen
-"""
-
-        of "path":
-          otherpaths.add toAbsDir(val)
-
-        of "out":
-          targetFile = toAbsFile(val)
-          if targetFile.ext != "srctrldb":
-            err "Target file must have extension 'srctrldb', but found " &
-              targetFile.ext
-
-        of "stdpath":
-          stdpath = toAbsDir(val)
-
-        else:
-          echo "Unexpected CLI argument '", key, "' use --help"
-          quit 1
-
-      of cmdEnd:
-        discard
-
-  if targetFile.string.len == 0:
-    targetFile = infile.withExt("srctrldb")
-
-  if stdpath.string.len == 0:
-    stdpath = getStdPath()
-
-  warn "Using stdlib path ", stdpath
-
-  trailCompile(infile, stdpath, otherpaths, targetFile)
-
-proc createCallgraph(infile: AbsFile, stdpath: AbsDir, outfile: AbsFile) =
-  debug "Creating callgrahp"
-  var graph {.global.}: ModuleGraph
-  graph = newModuleGraph(infile, stdpath,
-    proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
-      err msg
-      err info, config.getFilePath(info)
-  )
-  graph.registerPass(semPass)
-
-  var dotGraph {.global.}: DotGraph
-  var knownSyms {.global.}: HashSet[Hash]
-  var knownPairs {.global.}: HashSet[(Hash, Hash)]
-
-  dotGraph.styleNode = makeRectConsolasNode()
-  dotGraph.rankdir = grdLeftRight
-
-  proc registerSym(sym: PSym): Hash {.nimcall.} =
-    result = hash(sigHash(sym).MD5Digest)
-    if result notin knownSyms:
-      knownSyms.incl result
-
-      let procDecl = parseProc(sym.ast)
-      let sigText = toDocType(procDecl.signature).toSigText(procDecl.name)
-      dotGraph.addNode makeDotNode(result, sigText)
-
-  proc registerCalls(topId: Hash, node: PNode) {.nimcall.} =
-    case node.kind:
-      of nkProcDeclKinds:
-        registerCalls(topId, node[6])
-
-      of nkSym:
-        if notNil(node.sym.ast) and
-           node.sym.ast.kind in nkProcDeclKinds:
-          let toHash = registerSym(node.sym)
-
-          if (topId, toHash) notin knownPairs:
-            dotGraph.addEdge makeDotEdge(topId, toHash)
-            knownPairs.incl (topId, toHash)
-
-      of nkTokenKinds - {nkSym}:
-        discard
-
-      else:
-        for subnode in items(node):
-          registerCalls(topId, subnode)
-
-  graph.registerPass(makePass(
-    (
-      proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
-        return PPassContext()
-    ),
-    (
-      proc(c: PPassContext, n: PNode): PNode {.nimcall.} =
-        result = n
-        if n.kind in nkProcDeclKinds:
-          registerCalls(registerSym(n[0].sym), n)
-    ),
-    (
-      proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode {.nimcall.} =
-        discard
-    )
-  ))
-
-  compileProject(graph)
-  info "Callgraph compilation ok"
-
-  let target = outfile.withExt("xdot")
-  dotGraph.toXDot(target)
-  info "Graphviz compilation ok"
-  debug "Image saved to", target
-
-import argparse
-
-when isMainModule:
+proc main() =
   startColorLogger()
-  var optParse = newParser:
-    command("trail"):
-      help("Generate sourcetrail database")
-      arg("file", help = "Input nim file to generate database for")
-      option("--path", multiple = true, help = "Add module search path")
-      option("--stdpath", help =
-        "Location of the stdlib. Defaults")
+#   var optParse = newParser:
+#     command("trail"):
+#       help("Generate sourcetrail database")
+#       arg("file", help = "Input nim file to generate database for")
+#       option("--path", multiple = true, help = "Add module search path")
+#       option("--out", help = "Output database file")
+#       option("--stdpath", help =
+#         "Location of the stdlib. Defaults")
 
-  try:
-    var opts =
-      if paramCount() == 0  and shellHaxOn():
-        let file = AbsFile("/tmp/trail_test.nim")
+#   try:
+#     var opts =
+#       if paramCount() == 0  and shellHaxOn():
+#         let file = AbsFile("/tmp/trail_test.nim")
 
-        file.writeFile("""
-type
-  En {.pure.} = enum
-    A
+#         file.writeFile("""
+# type
+#   En {.pure.} = enum
+#     A
 
-  EnObj = object
-    case kind*: En
-      of En.A:
-        otherFld: seq[En]
+#   EnObj = object
+#     case kind*: En
+#       of En.A:
+#         otherFld: seq[En]
 
-proc useHello(): string =
-  let user = EnObj()
+# proc useHello(): string =
+#   let user = EnObj()
 
-  return $user.kind & " " & $user
+#   return $user.kind & " " & $user
 
-echo useHello()
+# echo useHello()
 
-""")
+# """)
 
-        optParse.parse(@["trail", $file])
-
-      else:
-        optParse.parse(paramStrs())
-
-
-    # if opts.stdpath.len == 0:
-    #   opts.stdpath = $getStdPath()
-
-    case opts.argparseCommand:
-      of "trail":
-        var opts = opts.argparseTrailOpts.get()
-        let file = toAbsFile(opts.file)
-        if opts.stdpath.len == 0:
-          opts.stdpath = $getStdPath()
-
-        for file in getNimblePaths(file):
-          opts.path.add $file
-
-
-  except ShortCircuit as e:
-    if e.flag == "argparse_help":
-      echo optParse.help
-      quit(1)
-
-  except UsageError as e:
-    stderr.writeLine getCurrentExceptionMsg()
-    quit(1)
-
-
-#     case paramStr(0):
-#       of "trail":
-#         handleTrailCmdline()
-
-#       of "docgen":
-#         raiseImplementError("")
-
-#       of "callgraph":
-#         let file = toAbsFile(paramStr(1))
-#         createCallgraph(file, getStdPath(), file.withExt("png"))
+#         optParse.parse(@["trail", $file])
 
 #       else:
-#         echo &"""
-# Unexpected haxdoc command - expected one of 'trail' or 'docgen', found
+#         optParse.parse(paramStrs())
 
-# haxdoc {paramStr(0)}
-# """
+#     case opts.argparseCommand:
+#       of "trail":
+#         var opts = opts.argparseTrailOpts.get()
+#         let file: AbsFile = toAbsFile(opts.file)
+#         if opts.stdpath.len == 0:
+#           opts.stdpath = $getStdPath()
+
+#         for file in getNimblePaths(file):
+#           opts.path.add $file
+
+#         if opts.`out`.len == 0:
+#           opts.`out` = $file.withExt("srctrlprj")
+
+#         try:
+#           rmFile AbsFile(opts.`out`)
+  trailCompile(
+    # AbsFile(file),
+    AbsFile("/tmp/trail_test.nim"),
+    # AbsDir(opts.stdpath),
+    AbsDir("/home/test/.choosenim/toolchains/nim-1.4.2/lib"),
+    # mapIt(opts.path, AbsDir(it)),
+    @[],
+    # AbsFile(opts.`out`)
+    AbsFile("/tmp/trail_test.srctrlprj")
+  )
+
+#         except:
+#           pprintErr()
+#           echo "Fucking shit"
+#           quit(1)
+
+
+#   except ShortCircuit as e:
+#     if e.flag == "argparse_help":
+#       echo optParse.help
+#       quit(1)
+
+#   except UsageError as e:
+#     stderr.writeLine getCurrentExceptionMsg()
+#     quit(1)
+
+when isMainModule:
+  main()

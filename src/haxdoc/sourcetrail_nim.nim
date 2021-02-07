@@ -361,15 +361,10 @@ iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
 
 proc registerTypeDef(
   ctx: SourcetrailContext, node: PNode, fileId: cint): cint =
-
+  debug "Call to typedef register"
+  debug node[2].kind
   if node[2].kind == nkObjectTy:
-    let objectDecl: PObjectDecl =
-      try:
-        parseObject(node, parsePPragma)
-
-      except:
-        echo node
-        raise
+    let objectDecl: PObjectDecl = parseObject(node, parsePPragma)
 
     let objNameHierarchy = ("", objectDecl.name.head, "")
     let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
@@ -377,8 +372,6 @@ proc registerTypeDef(
 
     for fld in iterateFields(objectDecl):
       if fld.fldType.declNode.isSome():
-        # let fldType = fld.fldType.declNode.get()
-
         let fieldSymbol = ctx.writer[].recordSymbol(
           sskField, objNameHierarchy, ("", fld.name, ""))
 
@@ -407,10 +400,24 @@ proc registerTypeDef(
 
 proc getFileId(ctx: SourcetrailContext, node: PNode): cint =
   let filePath = ctx.graph.getFilePath(node).string
-  return ctx.writer[].recordFile(filePath)
+
+  info isNil(ctx.writer)
+  debug "Get file id ", filePath
+  {.emit: "try {".}
+  result = ctx.writer[].recordFile(filePath)
+  {.emit: """
+} catch (std::exception& e) {
+  puts(e.what());
+} catch (...) {
+""".}
+  err "CXX Shit died, no idea why"
+  raise
+  {.emit: "}"}
+  debug "Record file ok"
 
 
 proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
+  info node.kind
   case node.kind:
     of nkProcDeclKinds:
       let filePath = ctx.graph.getFilePath(node).string
@@ -436,7 +443,10 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
 
 
     of nkTypeDef:
+      debug "Start type def register"
+      debug isNil(ctx)
       discard ctx.registerTypeDef(node, ctx.getFileId(node))
+      debug "End type def register"
 
     of nkStmtList, nkTryStmt, nkIfStmt:
       for subnode in node:
@@ -475,9 +485,6 @@ proc trailCompile*(
     discard writer.open(targetFile.string)
 
   var tmp = false
-
-
-
   var graph {.global.}: ModuleGraph
   graph = newModuleGraph(file, stdpath,
     proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
