@@ -93,7 +93,8 @@ proc declHead(node: PNode): PNode =
        nkProcTy,
        nkIteratorTy,
        nkObjectTy,
-       nkTupleClassTy
+       nkTupleClassTy,
+       nkLiteralKinds
       :
       result = node
 
@@ -170,6 +171,8 @@ proc registerCalls(
     parent: PNode
   ) =
   assert fileId > 0
+
+
   case node.kind:
     of nkSym:
       if node.sym.kind in routineKinds:
@@ -240,17 +243,6 @@ proc registerCalls(
             inc rng.startColumn
             rng.endColumn = rng.startColumn + cint(len($node))
 
-          # info parent
-          # debug parent.getInfo()
-          # debug ctx.getFilePath(parent)
-
-
-          # info node
-          # debug node.getInfo()
-          # debug ctx.getFilePath(node)
-
-          # debug rng
-
           discard ctx.writer[].recordReferenceLocation(referenceId, rng)
 
         else:
@@ -273,9 +265,20 @@ proc registerCalls(
         warn "Skipping symbol of kind", node.sym.kind, "at", node.getInfo()
 
 
-    of nkLiteralKinds, nkIdent:
+    of nkLiteralKinds - {nkIntLit}, nkIdent:
       discard
 
+    of nkIntLit:
+      if notNil(node.typ) and
+         notNil(node.typ.sym) and
+         notNil(node.typ.sym.ast):
+
+        let path = [("", $node.typ.sym.ast[0], ""), ("", $node, "")]
+        let referencedSymbol = ctx.writer[].recordSymbol(sskEnumConstant, path)
+        let referenceId = ctx.writer[].recordReference(
+          callerId, referencedSymbol, srkUsage)
+
+        discard ctx.writer[].recordReferenceLocation(referenceId, (fileId, node))
     else:
       for subnode in mitems(node.sons):
         ctx.registerCalls(subnode, fileId, callerId, node)
@@ -431,7 +434,7 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
     of nkTypeDef:
       discard ctx.registerTypeDef(node, ctx.getFileId(node))
 
-    of nkStmtList, nkTryStmt, nkIfStmt:
+    of nkStmtList:
       for subnode in node:
         registerTopLevel(ctx, subnode)
 

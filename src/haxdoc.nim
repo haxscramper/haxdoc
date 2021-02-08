@@ -584,29 +584,43 @@ when isMainModule:
   startColorLogger()
 
   if paramCount() == 0:
-#     let file = AbsFile("/tmp/trail_test.nim")
-#     "/tmp/trail_test.nimble".writeFile(
-#       """
-# version       = "0.9.18"
-# author        = "haxscramper"
-# description   = "Collection of helper utilities"
-# license       = "Apache-2.0"
-# srcDir        = "src"
-# packageName   = "trail_test"
-# binDir        = "bin"
+    when true:
+      let file = AbsFile("/tmp/trail_test.nim")
+      "/tmp/trail_test.nimble".writeFile(
+        """
+version       = "0.9.18"
+author        = "haxscramper"
+description   = "Collection of helper utilities"
+license       = "Apache-2.0"
+srcDir        = "src"
+packageName   = "trail_test"
+binDir        = "bin"
 
-# requires "hmisc >= 0.9.17"
-# """
-#     )
-#     file.writeFile("""
+requires "hmisc >= 0.9.17"
+"""
+      )
+      file.writeFile("""
 
 # import hmisc/algo/clformat
 
 # echo toRomanNumeral(1230)
 
-# """)
+type
+  EnuDecl = enum
+    edFirst
+    edSecond
 
-    let file = AbsFile("/tmp/Nim/compiler/nim.nim")
+
+case edFirst:
+  of edFirst: echo "Hello"
+  of edSecond: echo "Second"
+""")
+
+      let stdpath = ~"/tmp/Nim/lib"
+
+    else:
+      let file = AbsFile("/tmp/Nim/compiler/nim.nim")
+      let stdpath = AbsDir("/tmp/Nim/lib")
 
     let nimblePaths = getNimblePaths(file)
 
@@ -623,10 +637,8 @@ when isMainModule:
       of 0:
         trailCompile(
           file,
-          AbsDir("/tmp/Nim/lib"),
-          # getStdPath(),
+          stdpath,
           nimblePaths,
-          # getNimblePaths(file),
           file.withExt("srctrldb")
         )
 
