@@ -9,14 +9,15 @@ installExt    = @["nim"]
 binDir        = "bin"
 backend       = "cpp"
 
+requires "https://github.com/haxscramper/hnimast.git#head"
+requires "https://github.com/haxscramper/haxorg.git#head"
+requires "https://github.com/haxscramper/nimtrail.git#head"
 requires "nim >= 1.4.0"
 requires "hmisc >= 0.9.0"
 requires "hpprint >= 0.2.12"
 requires "nimble"
-requires "https://github.com/haxscramper/haxorg.git#head"
-requires "https://github.com/haxscramper/nimtrail.git#head"
-requires "https://github.com/haxscramper/cxxstd.git"
 requires "https://github.com/haxscramper/fusion.git#matching-fixup"
+requires "https://github.com/haxscramper/cxxstd.git"
 
 
 task dockertest, "Run test in docker container":
