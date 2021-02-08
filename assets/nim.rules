@@ -113,7 +113,7 @@
   {
     "type": "type",
     "patterns": [
-      "\\b[A-Z][A-Za-z_]*\\b"
+      "\\b[A-Z][A-Za-z0-9_]*\\b"
     ]
   },
   {

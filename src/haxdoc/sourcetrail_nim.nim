@@ -82,9 +82,17 @@ converter toSourcetrailSourceRange*(
 proc declHead(node: PNode): PNode =
   case node.kind:
     of nkTypeDef, nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr,
-       nkVarTy, nkRefTy, nkPtrTy, nkBracketExpr, nkPrefix
+       nkVarTy, nkBracketExpr, nkPrefix,
+       nkDistinctTy
       :
       result = declHead(node[0])
+
+    of nkRefTy, nkPtrTy:
+      if node.len > 0:
+        result = declHead(node[0])
+
+      else:
+        result = node
 
     of nkSym, nkIdent, nkEnumFieldDef, nkDotExpr,
        nkExprColonExpr, nkCall,
@@ -288,7 +296,7 @@ proc registerCalls(
 
 proc directUsedTypes*[N](ntype: NType[N]): seq[NType[N]] =
   case ntype.kind:
-    of ntkGenericSpec, ntkAnonTuple:
+    of ntkGenericSpec, ntkAnonTuple, ntkIdent:
       result = ntype.genParams
 
     of ntkProc, ntkNamedTuple:
@@ -307,15 +315,19 @@ proc directUsedTypes*[N](ntype: NType[N]): seq[NType[N]] =
 
 proc registerTypeUse(
     ctx: SourcetrailContext, userId, fileId: cint, ntype: NType) =
-  # info "Use of type", ntype, ntype.kind
   if ntype.kind in {ntkIdent, ntkGenericSpec} and
-     ntype.declNode.isSome()
+     ntype.declNode.isSome() and
+     (
+       (ntype.head notin ["ref", "ptr", "sink", "owned", "out", "distinct"]) or
+       (ntype.genParams.len == 0)
+     )
     :
     # FIXME register generic arguments as local symbols intead of
     # declaring new types like `T`
+    let path = [("", ntype.head, "")]
     let reference = ctx.writer[].recordReference(
       userId,
-      ctx.writer[].recordSymbol(sskType, [("", ntype.head, "")]),
+      ctx.writer[].recordSymbol(sskType, path),
       srkTypeUsage
     )
 
@@ -324,7 +336,8 @@ proc registerTypeUse(
 
     discard ctx.writer[].recordReferenceLocation(reference, rng)
 
-  for used in directUsedTypes(ntype):
+  let direct = directUsedTypes(ntype)
+  for used in direct:
     registerTypeUse(ctx, userId, fileId, used)
 
 
@@ -395,9 +408,31 @@ proc registerTypeDef(
 
       discard ctx.recordNodeLocation(valueSymbol, fld.declNode.get())
 
-  elif node[2].kind in {nkDistinctTy, nkSym}:
-    let aliasSymbol = ctx.writer[].recordSymbol(sskTypedef, ("", $node[0], ""))
+  elif node[2].kind in {
+      nkDistinctTy, nkSym, nkPtrTy, nkRefTy, nkProcTy, nkTupleTy,
+      nkBracketExpr, nkInfix, nkVarTy
+    }:
+
+    let path = ("", $node[0], "")
+    let aliasSymbol = ctx.writer[].recordSymbol(sskTypedef, path)
     discard ctx.recordNodeLocation(aliasSymbol, node)
+    # debug ""
+    # info path
+    # logIndented:
+    registerTypeUse(ctx, aliasSymbol, fileId, parseNType(node[2]))
+
+  elif node[0].kind in {nkPragmaExpr}:
+    # err "Unhandled pragma expression"
+    # debug treeRepr(node)
+
+    let path = ("", $node[0][0], "")
+    let sym = ctx.writer[].recordSymbol(sskBuiltinType, path)
+    discard ctx.recordNodeLocation(sym, node[0][0])
+
+  else:
+    warn node[2].kind
+    debug node
+    debug treeRepr(node)
 
 
 
@@ -417,7 +452,7 @@ proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
 
       except:
         echo node
-        echo treeRepr(node, maxdepth = 4, indexed = true)
+        echo treeRepr(node, maxdepth = 6, indexed = true)
         raise
 
     of nkTypeSection:

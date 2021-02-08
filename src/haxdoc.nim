@@ -610,6 +610,16 @@ type
     edFirst
     edSecond
 
+  EnuAlias = EnuDecl
+  EnuAlias1 = var EnuDecl
+  EnuAlias2 = distinct EnuAlias
+  EnuAlias3 = ref EnuAlias
+  EnuTuple = distinct ref (EnuAlias, seq[(float, EnuAlias3)])
+  SomePointer = ref | ptr | pointer | proc
+
+proc `==`(x: string; y: typeof(nil) | typeof(nil)): bool =
+  discard
+
 
 case edFirst:
   of edFirst: echo "Hello"
