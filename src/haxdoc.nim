@@ -49,7 +49,7 @@ proc toDocIdents*(idents: seq[NIdentDefs[PNode]]): seq[DocIdent] =
       result.add DocIdent(
         ident: $ident,
         kind: group.kind,
-        vtype: toDocType(group.vtype)
+        identType: toDocType(group.vtype)
       )
 
 proc toDocType*(nt: NType[PNode]): DocType =
@@ -80,7 +80,7 @@ proc toDocType*(nt: NType[PNode]): DocType =
       result.vaType = toDocType(nt.vaType)
       result.vaConverter = nt.vaConverter.mapSomeIt($it)
 
-    of ntkNone:
+    of ntkNone, ntkTypeofExpr:
       discard
 
     of ntkCurly:
@@ -93,14 +93,14 @@ template joinIt*(arg: typed, expr: untyped, sep: string): untyped =
 proc toSigText*(nt: DocType, procPrefix: string = "proc"): string
 
 proc toSigText*(nt: DocIdent): string =
-  &"{nt.ident}: {toSigText(nt.vtype)}"
+  &"{nt.ident}: {toSigText(nt.identType)}"
 
 proc toSigText*(nt: DocType, procPrefix: string = "proc"): string =
   case nt.kind:
     of ntkNone:
       result = ""
 
-    of ntkValue:
+    of ntkValue, ntkTypeofExpr:
       result = $nt.value
 
     of ntkVarargs:
@@ -157,7 +157,7 @@ proc toSigText*(nt: DocType, procPrefix: string = "proc"): string =
     of ntkNamedTuple:
       let args = collect(newSeq):
         for arg in nt.arguments:
-          arg.ident & ": " & toSigText(arg.vtype)
+          arg.ident & ": " & toSigText(arg.identType)
 
       result = args.join(", ").wrap(("tuple[", "]"))
 
@@ -584,29 +584,29 @@ when isMainModule:
   startColorLogger()
 
   if paramCount() == 0:
-    let file = AbsFile("/tmp/trail_test.nim")
-    "/tmp/trail_test.nimble".writeFile(
-      """
-version       = "0.9.18"
-author        = "haxscramper"
-description   = "Collection of helper utilities"
-license       = "Apache-2.0"
-srcDir        = "src"
-packageName   = "trail_test"
-binDir        = "bin"
+#     let file = AbsFile("/tmp/trail_test.nim")
+#     "/tmp/trail_test.nimble".writeFile(
+#       """
+# version       = "0.9.18"
+# author        = "haxscramper"
+# description   = "Collection of helper utilities"
+# license       = "Apache-2.0"
+# srcDir        = "src"
+# packageName   = "trail_test"
+# binDir        = "bin"
 
-requires "hmisc >= 0.9.17"
-"""
-    )
-    file.writeFile("""
+# requires "hmisc >= 0.9.17"
+# """
+#     )
+#     file.writeFile("""
 
-import hmisc/algo/clformat
+# import hmisc/algo/clformat
 
-echo toRomanNumeral(1230)
+# echo toRomanNumeral(1230)
 
-""")
+# """)
 
-    # let file = AbsFile(~"tmp/Nim/compiler/nim.nim")
+    let file = AbsFile("/tmp/Nim/compiler/nim.nim")
 
     let nimblePaths = getNimblePaths(file)
 
@@ -623,7 +623,7 @@ echo toRomanNumeral(1230)
       of 0:
         trailCompile(
           file,
-          ~"tmp/Nim/lib",
+          AbsDir("/tmp/Nim/lib"),
           # getStdPath(),
           nimblePaths,
           # getNimblePaths(file),

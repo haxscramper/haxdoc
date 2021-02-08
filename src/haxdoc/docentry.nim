@@ -54,8 +54,13 @@ type
     ident*: string ## Identifier name
     kind*: NVarDeclKind
     doctext*: SemOrg ## Documentation text
-    vtype*: DocType ## Identifier type
+    identType*: DocType ## Identifier type
     value*: Option[string] ## Optional expression for initialization value
+
+  DocTypeIdentKind* = enum
+    dtiGenericParam ## Unresolved generic parameter
+    dtiTypeclass ## Typeclass
+    dtiConcreteType ## Concrete resolved class
 
   DocPragma = object
 
@@ -69,6 +74,7 @@ type
     case kind*: NTypeKind
       of ntkIdent, ntkGenericSpec, ntkAnonTuple:
         head*: DocEntry ## Documentation entry
+        identKind*: DocTypeIdentKind ## `head` ident kind
         genParams*: seq[DocType]
 
       of ntkProc, ntkNamedTuple:
@@ -88,7 +94,7 @@ type
       of ntkValue:
         value*: string
 
-      of ntkNone:
+      of ntkNone, ntkTypeofExpr:
         discard
 
       of ntkCurly:
@@ -99,6 +105,19 @@ type
     deuDeclaration
     deuReference
 
+  DocReferenceKind* = enum
+    drkTypeUsage
+    drkUsage
+    drkCall
+    drkInheritance
+    drkOverride
+    drkTypeArgument
+    drkTemplateSpecialization
+    drkInclude
+    drkImport
+    drkMacroUsage
+    drkAnnotationUsage
+
   DocEntry* = ref object
     plainName*: string
     genParams*: seq[DocType]
@@ -106,7 +125,12 @@ type
     doctextBrief*: SemOrg
     doctextBriefPlain*: string ## Plaintext brief documentation
     docSym*: Option[DocSym] ## Full link to documentable entry
-    useKind*: DocEntryUseKind
+    case useKind*: DocEntryUseKind
+      of deuDeclaration:
+        discard
+
+      of deuReference:
+        refKind*: DocReferenceKind
 
     admonitions*: seq[tuple[kind: OrgBigIdentKind, body:SemOrg]]
     metatags*: seq[(SemMetaTag, SemOrg)]
