@@ -89,3 +89,216 @@ proc newModuleGraph*(
       debug path
 
   return newModuleGraph(cache, config)
+
+import nimblepkg/[common, packageinfo, version]
+import std/[parsecfg, streams, tables, sets]
+from std/options as std_opt import Option, none, some
+import std/os as std_os
+
+proc multiSplit(s: string): seq[string] =
+  for chunk in split(s, {char(0x0A), char(0x0D), ','}):
+    result.add chunk.strip()
+
+  for i in countdown(result.len()-1, 0):
+    if len(result[i]) < 1:
+      result.del(i)
+
+  if len(result) < 1:
+    if s.strip().len != 0:
+      return @[s]
+
+    else:
+      return @[]
+
+# proc parseBinValue(str: string): string =
+import fusion/matching
+
+{.experimental: "caseStmtMacros".}
+
+proc packageInfoParseCfg*(text: string, path: string = "<file>"): Option[PackageInfo] =
+  var fs = newStringStream(text)
+  var p: CfgParser
+  open(p, fs, path)
+  defer: close(p)
+  var currentSection = ""
+  var res = initPackageInfo(path)
+  while true:
+    var ev = next(p)
+    case ev.kind
+      of cfgEof: return some(res)
+      of cfgSectionStart: currentSection = ev.section
+      of cfgKeyValuePair:
+        case currentSection.normalize
+          of "package":
+            case ev.key.normalize
+              of "name":         res.name        = ev.value
+              of "version":      res.version     = ev.value
+              of "author":       res.author      = ev.value
+              of "description":  res.description = ev.value
+              of "license":      res.license     = ev.value
+              of "srcdir":       res.srcDir      = ev.value
+              of "bindir":       res.binDir      = ev.value
+              of "skipdirs":     res.skipDirs.add(ev.value.multiSplit)
+              of "skipfiles":    res.skipFiles.add(ev.value.multiSplit)
+              of "skipext":      res.skipExt.add(ev.value.multiSplit)
+              of "installdirs":  res.installDirs.add(ev.value.multiSplit)
+              of "installfiles": res.installFiles.add(ev.value.multiSplit)
+              of "installext":   res.installExt.add(ev.value.multiSplit)
+              of "bin":
+                for i in ev.value.multiSplit:
+                  var (src, bin) = if '=' notin i: (i, i) else:
+                    let spl = i.split('=', 1)
+                    (spl[0], spl[1])
+
+                  if std_os.splitFile(src).ext == ".nim":
+                    return
+
+                  if res.backend == "js":
+                    bin = bin.addFileExt(".js")
+
+                  else:
+                    bin = bin.addFileExt(ExeExt)
+
+                  res.bin[bin] = src
+
+              of "backend":
+                res.backend = ev.value.toLowerAscii()
+                case res.backend.normalize
+                  of "javascript":
+                    res.backend = "js"
+
+                  else:
+                    discard
+
+              of "nimbletasks":
+                for i in ev.value.multiSplit:
+                  res.nimbleTasks.incl(i.normalize)
+
+              of "beforehooks":
+                for i in ev.value.multiSplit:
+                  res.preHooks.incl(i.normalize)
+
+              of "afterhooks":
+                for i in ev.value.multiSplit:
+                  res.postHooks.incl(i.normalize)
+
+              else:
+                return
+
+          of "deps", "dependencies":
+            case ev.key.normalize
+              of "requires":
+                for v in ev.value.multiSplit:
+                  res.requires.add(parseRequires(v.strip))
+
+              else:
+                return
+          else:
+            return
+
+      of cfgOption:
+        return
+
+      of cfgError:
+        return
+
+
+import hnimast/[pnode_parse], hnimast
+
+proc packageInfoParseNims*(
+    text: string, path: string = "<file>"): Option[PackageInfo] =
+
+  proc parseStmts(node: PNode, res: var PackageInfo) =
+    case node.kind:
+      of nkCommand, nkCall:
+        case node[0].getStrVal().normalize:
+          of "requires":
+            for arg in node[1 ..^ 1]:
+              case arg.kind:
+                of hnimast.nkStrKinds:
+                  res.requires.add parseRequires(arg.getStrVal())
+
+                of nkStmtList:
+                  for dep in arg:
+                    res.requires.add parseRequires(dep.getStrVal())
+
+                else:
+                  raiseImplementError(
+                    "Unhandled node kind for requires argument: \n" &
+                      treeRepr(arg))
+
+          of "task": res.nimbleTasks.incl node[1].getStrVal()
+          of "after": res.postHooks.incl node[1].getStrVal()
+          of "before": res.postHooks.incl node[1].getStrVal()
+
+
+
+          else:
+            raiseImplementError(
+              "Unhandled command node kind: \n" & treeRepr(node))
+
+      of nkAsgn:
+        let property = node[0].getStrVal().normalize
+        case property:
+          of "version": res.version         = node[1].getStrVal()
+          of "license": res.license         = node[1].getStrVal()
+          of "description": res.description = node[1].getStrVal()
+          of "srcdir": res.srcDir           = node[1].getStrVal()
+          of "packagename": res.name        = node[1].getStrVal()
+          of "bindir": res.name             = node[1].getStrVal()
+          of "author": res.author           = node[1].getStrVal()
+          of "bin", "installext", "skipdirs":
+            echo treeRepr(node, indexed = true)
+            var values: seq[string]
+            for arg in node[1][1]:
+              values.add arg.getStrVal()
+
+            case property:
+              of "bin": res.bin[values[0]] = values[0]
+              of "installext": res.installExt = values
+              of "skipdirs": res.skipDirs = values
+
+          of "namedbin":
+            var maps: seq[tuple[key, value: string]]
+
+            case node[1]:
+              of Call[DotExpr[TableConstr[ExprColonExpr[all @args], _]]]:
+                for pair in args:
+                  echo treeRepr(pair)
+                  res.bin[pair[0].getStrVal()] = pair[1].getStrVal()
+
+          else:
+            raiseImplementError(
+              "Assignment to unknown property: " &
+                property & "\n" & treeRepr(node))
+
+      else:
+        raiseImplementError(
+          "Unhandled configuration file element: \n" & treeRepr(node))
+
+
+
+
+  var res = initPackageInfo(path)
+
+  for stmt in parsePNodeStr(text):
+    parseStmts(stmt, res)
+
+  return some(res)
+
+proc getPackageInfo*(path: AbsFile): PackageInfo =
+  let configText = readFile(path)
+  var parseRes = packageInfoParseCfg(configText)
+  if parseRes.isSome():
+    return parseRes.get()
+
+
+  parseRes = packageInfoParseNims(configText)
+  if parseRes.isSome():
+    return parseRes.get()
+
+  else:
+    raise newException(
+      NimbleError,
+      "Cannot parse package at path: " & $path
+    )

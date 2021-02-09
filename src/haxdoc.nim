@@ -551,27 +551,64 @@ proc createCallgraph(infile: AbsFile, stdpath: AbsDir, outfile: AbsFile) =
 
 # import nimble
 
-import nimblepkg/[packageparser, options, cli]
+import nimblepkg/[packageparser, options, cli, version, packageinfo, common]
+import std/[with]
+import hpprint
+
+proc getRequires*(file: AbsFile): seq[PkgTuple] =
+  getPackageInfo(file).requires
+
+proc resolvePackage*(pkg: PkgTuple): AbsDir =
+  ## Resolve package `pkg` constraints to absolute directory
+  discard
+
+proc resolveNimbleDeps*(file: AbsFile, options: Options): seq[AbsDir] =
+  let info = getPackageInfo(file)
+  var pkgList {.global.}: seq[tuple[pkginfo: PackageInfo, meta: MetaData]] = @[]
+  once:
+    pkgList = getInstalledPkgsMin(getPkgsDir(options), options)
+
+  var reverseDeps: seq[tuple[name, version: string]] = @[]
+
+  for dep in info.requires:
+    let resolvedDep = dep.resolveAlias(options)
+    var pkg: PackageInfo
+    var found = findPkg(pkgList, resolvedDep, pkg)
+    if not found and resolvedDep.name != dep.name:
+      found = findPkg(pkgList, dep, pkg)
+
+    if not found:
+      err "Cannot find ", $resolvedDep
+
+    else:
+      info pkg.getRealDir()
+      result.add(AbsDir(pkg.getRealDir()))
+      result.add(resolveNimbleDeps(AbsFile(pkg.myPath), options))
+
+    # reverseDeps.add((pkg.name, pkg.specialVersion))
+
+
 
 proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
-  var nimbleDir: Option[AbsDir]
-
+  var nimbleFile: Option[AbsFile]
   block mainSearch:
     for dir in parentDirs(file):
+      info dir
       for file in walkDir(dir, AbsFile):
-        if ext(file) == "nimble":
-          nimbleDir = some(dir)
+        debug file
+        if ext(file) in ["nimble", "babel"]:
+          nimbleFile = some(file)
           break mainSearch
 
-  proc getDeps(dir: AbsDir, options: Options): seq[AbsDir] =
-    let info = getPkgInfo(dir.string, options)
-    echo info.requires
 
-  if nimbleDir.isSome():
-    var opts = initOptions()
-    setNimBin(opts)
-    setVerbosity(DebugPriority)
-    result = getDeps(nimbleDir.get(), opts)
+  if nimbleFile.isSome():
+    var options = initOptions()
+    with options:
+      nimbleDir = $(~".nimble")
+      verbosity = HighPriority
+
+    debug options.nimbleDir
+    result = resolveNimbleDeps(nimbleFile.get(), options)
 
   # if nimbleDir.isSome():
   #   info "Found nimble file in directory"
