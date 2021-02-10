@@ -578,10 +578,11 @@ proc resolveNimbleDeps*(file: AbsFile, options: Options): seq[AbsDir] =
       found = findPkg(pkgList, dep, pkg)
 
     if not found:
-      err "Cannot find ", $resolvedDep
+      if dep.name != "nim":
+        err "Cannot find ", $resolvedDep
 
     else:
-      info pkg.getRealDir()
+      # info pkg.getRealDir()
       result.add(AbsDir(pkg.getRealDir()))
       result.add(resolveNimbleDeps(AbsFile(pkg.myPath), options))
 
@@ -593,9 +594,7 @@ proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
   var nimbleFile: Option[AbsFile]
   block mainSearch:
     for dir in parentDirs(file):
-      info dir
       for file in walkDir(dir, AbsFile):
-        debug file
         if ext(file) in ["nimble", "babel"]:
           nimbleFile = some(file)
           break mainSearch
@@ -605,10 +604,12 @@ proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
     var options = initOptions()
     with options:
       nimbleDir = $(~".nimble")
-      verbosity = HighPriority
+      verbosity = SilentPriority
+
+    setVerbosity(SilentPriority)
 
     debug options.nimbleDir
-    result = resolveNimbleDeps(nimbleFile.get(), options)
+    result = resolveNimbleDeps(nimbleFile.get(), options).deduplicate()
 
   # if nimbleDir.isSome():
   #   info "Found nimble file in directory"
@@ -622,48 +623,51 @@ when isMainModule:
 
   if paramCount() == 0:
     when true:
-      let file = AbsFile("/tmp/trail_test.nim")
-      "/tmp/trail_test.nimble".writeFile(
-        """
-version       = "0.9.18"
-author        = "haxscramper"
-description   = "Collection of helper utilities"
-license       = "Apache-2.0"
-srcDir        = "src"
-packageName   = "trail_test"
-binDir        = "bin"
+      let file = toAbsFile RelFile("../../nimbullet/src/nimbullet/make_wrap.nim")
+      assertExists(file)
+#       let file = AbsFile("/tmp/trail_test.nim")
+#       "/tmp/trail_test.nimble".writeFile(
+#         """
+# version       = "0.9.18"
+# author        = "haxscramper"
+# description   = "Collection of helper utilities"
+# license       = "Apache-2.0"
+# srcDir        = "src"
+# packageName   = "trail_test"
+# binDir        = "bin"
 
-requires "hmisc >= 0.9.17"
-"""
-      )
-      file.writeFile("""
+# requires "hmisc >= 0.9.17"
+# """
+#       )
+#       file.writeFile("""
 
-# import hmisc/algo/clformat
+# # import hmisc/algo/clformat
 
-# echo toRomanNumeral(1230)
+# # echo toRomanNumeral(1230)
 
-type
-  EnuDecl = enum
-    edFirst
-    edSecond
+# type
+#   EnuDecl = enum
+#     edFirst
+#     edSecond
 
-  EnuAlias = EnuDecl
-  EnuAlias1 = var EnuDecl
-  EnuAlias2 = distinct EnuAlias
-  EnuAlias3 = ref EnuAlias
-  EnuTuple = distinct ref (EnuAlias, seq[(float, EnuAlias3)])
-  SomePointer = ref | ptr | pointer | proc
+#   EnuAlias = EnuDecl
+#   EnuAlias1 = var EnuDecl
+#   EnuAlias2 = distinct EnuAlias
+#   EnuAlias3 = ref EnuAlias
+#   EnuTuple = distinct ref (EnuAlias, seq[(float, EnuAlias3)])
+#   SomePointer = ref | ptr | pointer | proc
 
-proc `==`(x: string; y: typeof(nil) | typeof(nil)): bool =
-  discard
+# proc `==`(x: string; y: typeof(nil) | typeof(nil)): bool =
+#   discard
 
 
-case edFirst:
-  of edFirst: echo "Hello"
-  of edSecond: echo "Second"
-""")
+# case edFirst:
+#   of edFirst: echo "Hello"
+#   of edSecond: echo "Second"
+# """)
 
-      let stdpath = ~"/tmp/Nim/lib"
+      # let stdpath = ~"/tmp/Nim/lib"
+      let stdpath = getStdPath()
 
     else:
       let file = AbsFile("/tmp/Nim/compiler/nim.nim")

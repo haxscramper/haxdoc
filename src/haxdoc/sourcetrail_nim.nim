@@ -1,7 +1,7 @@
 {.experimental: "caseStmtMacros".}
 
 import compiler_aux
-import std/[os, strformat, with, lenientops, strutils, sequtils, macros]
+import std/[os, strformat, strutils, sequtils, macros]
 import hmisc/other/[colorlogger, oswrap]
 import hmisc/helpers
 import hmisc/algo/htree_mapping
@@ -83,7 +83,7 @@ proc declHead(node: PNode): PNode =
   case node.kind:
     of nkTypeDef, nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr,
        nkVarTy, nkBracketExpr, nkPrefix,
-       nkDistinctTy
+       nkDistinctTy, nkBracket
       :
       result = declHead(node[0])
 
@@ -266,7 +266,7 @@ proc registerCalls(
 
         discard ctx.writer[].recordReferenceLocation(reference, (fileId, node))
 
-      elif node.sym.kind in {skLabel}:
+      elif node.sym.kind in {skLabel, skUnknown, skModule}:
         discard
 
       else:
@@ -429,6 +429,14 @@ proc registerTypeDef(
     let sym = ctx.writer[].recordSymbol(sskBuiltinType, path)
     discard ctx.recordNodeLocation(sym, node[0][0])
 
+  elif node[2].kind in {nkCall}:
+    # `Type = typeof(expr())`
+    discard
+
+  elif node[2].kind in {nkTypeClassTy}:
+    # IMPLEMENT concept indexing
+    discard
+
   else:
     warn node[2].kind
     debug node
@@ -512,9 +520,9 @@ proc trailCompile*(
   var graph {.global.}: ModuleGraph
   graph = newModuleGraph(file, stdpath,
     proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
-      info level
-      err msg
-      err info, config.getFilePath(info)
+      if config.errorCounter >= config.errorMax:
+        err msg
+        err info, config.getFilePath(info)
   )
 
   registerPass(graph, semPass)

@@ -247,7 +247,24 @@ proc parsePackageInfoNims*(
       of nkAsgn:
         let property = node[0].getStrVal().normalize
         case property:
-          of "version": res.version         = node[1].getStrVal()
+          of "version":
+            case node[1].kind:
+              of hnimast.nkStrKinds:
+                res.version = node[1].getStrVal()
+
+              of nkDotExpr:
+                if node[1][1].getStrVal() == "NimVersion":
+                  res.version = NimVersion
+
+                else:
+                  raiseImplementError(
+                    "Unhandled node structure: " & treeRepr(node[1]))
+
+              else:
+                raiseImplementError(
+                  "Unhandled node structure: " & treeRepr(node[1]))
+
+
           of "license": res.license         = node[1].getStrVal()
           of "description": res.description = node[1].getStrVal()
           of "srcdir": res.srcDir           = node[1].getStrVal()
@@ -279,10 +296,7 @@ proc parsePackageInfoNims*(
             var maps: seq[tuple[key, value: string]]
 
             case node[1]:
-              of Call[DotExpr[TableConstr[all @args], _]]
-                :
-
-                echo treeRepr(node[1], indexed = true)
+              of Call[DotExpr[TableConstr[all @args], _]]:
                 for pair in args:
                   res.bin[pair[0].getStrVal()] = pair[1].getStrVal()
 
