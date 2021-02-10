@@ -115,7 +115,9 @@ import fusion/matching
 
 {.experimental: "caseStmtMacros".}
 
-proc packageInfoParseCfg*(text: string, path: string = "<file>"): Option[PackageInfo] =
+proc parsePackageInfoCfg*(
+  text: string, path: string = "<file>"): Option[PackageInfo] =
+
   var fs = newStringStream(text)
   var p: CfgParser
   open(p, fs, path)
@@ -205,7 +207,7 @@ proc packageInfoParseCfg*(text: string, path: string = "<file>"): Option[Package
 
 import hnimast/[pnode_parse], hnimast
 
-proc packageInfoParseNims*(
+proc parsePackageInfoNims*(
     text: string, path: string = "<file>"): Option[PackageInfo] =
 
   proc parseStmts(node: PNode, res: var PackageInfo) =
@@ -216,11 +218,13 @@ proc packageInfoParseNims*(
             for arg in node[1 ..^ 1]:
               case arg.kind:
                 of hnimast.nkStrKinds:
-                  res.requires.add parseRequires(arg.getStrVal())
+                  for req in arg.getStrVal().multiSplit():
+                    res.requires.add parseRequires(req)
 
                 of nkStmtList:
                   for dep in arg:
-                    res.requires.add parseRequires(dep.getStrVal())
+                    for req in arg.getStrVal().multiSplit():
+                      res.requires.add parseRequires(req)
 
                 else:
                   raiseImplementError(
@@ -230,6 +234,9 @@ proc packageInfoParseNims*(
           of "task": res.nimbleTasks.incl node[1].getStrVal()
           of "after": res.postHooks.incl node[1].getStrVal()
           of "before": res.postHooks.incl node[1].getStrVal()
+          of "foreigndep": res.foreignDeps.add node[1].getStrVal()
+          of "switch", "mkdir", "hint":
+            discard
 
 
 
@@ -247,30 +254,74 @@ proc packageInfoParseNims*(
           of "packagename": res.name        = node[1].getStrVal()
           of "bindir": res.name             = node[1].getStrVal()
           of "author": res.author           = node[1].getStrVal()
-          of "bin", "installext", "skipdirs":
-            echo treeRepr(node, indexed = true)
+          of "backend": res.backend         = node[1].getStrVal()
+          of "name": res.name               = node[1].getStrVal()
+          of "bin", "installext", "skipdirs", "installdirs", "skipext",
+             "skipfiles", "installfiles"
+               :
             var values: seq[string]
             for arg in node[1][1]:
               values.add arg.getStrVal()
 
             case property:
-              of "bin": res.bin[values[0]] = values[0]
-              of "installext": res.installExt = values
-              of "skipdirs": res.skipDirs = values
+              of "bin":
+                if values.len > 0:
+                  res.bin[values[0]] = values[0]
+
+              of "installext":   res.installExt   = values
+              of "skipdirs":     res.skipDirs     = values
+              of "installdirs":  res.installDirs  = values
+              of "skipext":      res.skipExt      = values
+              of "skipfiles":    res.skipFiles    = values
+              of "installfiles": res.installFiles = values
 
           of "namedbin":
             var maps: seq[tuple[key, value: string]]
 
             case node[1]:
-              of Call[DotExpr[TableConstr[ExprColonExpr[all @args], _]]]:
+              of Call[DotExpr[TableConstr[all @args], _]]
+                :
+
+                echo treeRepr(node[1], indexed = true)
                 for pair in args:
-                  echo treeRepr(pair)
                   res.bin[pair[0].getStrVal()] = pair[1].getStrVal()
 
+              else:
+                echo node[1]
+                raiseImplementError(
+                  "Unhandled node structure: \n" &
+                    treeRepr(node[1], indexed = true))
+
+          of "mode":
+            discard
           else:
             raiseImplementError(
               "Assignment to unknown property: " &
                 property & "\n" & treeRepr(node))
+
+      of nkWhenStmt:
+        for branch in node:
+          case branch.kind:
+            of nkElifBranch, nkElifExpr: parseStmts(branch[1], res)
+            of nkElseExpr, nkElse: parseStmts(branch[0], res)
+            else: raiseImplementError("Unhandled node structure: " & treeRepr(branch))
+
+      of nkCommentStmt, nkImportStmt, nkFromStmt, nkIncludeStmt,
+         nkConstSection, nkVarSection, nkLetSection, nkTypeSection,
+         nkProcDeclKinds, nkLiteralKinds, nkDiscardStmt
+           :
+        discard
+
+      of nkStmtList:
+        for stmt in node:
+          parseStmts(stmt, res)
+
+      of nkIfStmt:
+        # Information about foreign dependencies
+        discard
+
+      of nkPrefix:
+        discard
 
       else:
         raiseImplementError(
@@ -281,19 +332,25 @@ proc packageInfoParseNims*(
 
   var res = initPackageInfo(path)
 
-  for stmt in parsePNodeStr(text):
+  let node = parsePNodeStr(text)
+
+  if isNil(node):
+    return none(PackageInfo)
+
+  for stmt in node:
     parseStmts(stmt, res)
 
   return some(res)
 
-proc getPackageInfo*(path: AbsFile): PackageInfo =
-  let configText = readFile(path)
-  var parseRes = packageInfoParseCfg(configText)
+proc parsePackageInfo*(
+    configText: string, path: AbsFile = AbsFile("<file>")): PackageInfo =
+
+  var parseRes = parsePackageInfoCfg(configText)
   if parseRes.isSome():
     return parseRes.get()
 
 
-  parseRes = packageInfoParseNims(configText)
+  parseRes = parsePackageInfoNims(configText)
   if parseRes.isSome():
     return parseRes.get()
 
@@ -302,3 +359,8 @@ proc getPackageInfo*(path: AbsFile): PackageInfo =
       NimbleError,
       "Cannot parse package at path: " & $path
     )
+
+
+proc getPackageInfo*(path: AbsFile): PackageInfo =
+  let configText = readFile(path)
+  return parsePackageInfo(configText, path)
