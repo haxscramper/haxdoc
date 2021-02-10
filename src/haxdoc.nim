@@ -622,52 +622,58 @@ when isMainModule:
   startColorLogger()
 
   if paramCount() == 0:
-    when true:
+    const selector = 1
+    when selector == 0:
       let file = toAbsFile RelFile("../../nimbullet/src/nimbullet/make_wrap.nim")
       assertExists(file)
-#       let file = AbsFile("/tmp/trail_test.nim")
-#       "/tmp/trail_test.nimble".writeFile(
-#         """
-# version       = "0.9.18"
-# author        = "haxscramper"
-# description   = "Collection of helper utilities"
-# license       = "Apache-2.0"
-# srcDir        = "src"
-# packageName   = "trail_test"
-# binDir        = "bin"
-
-# requires "hmisc >= 0.9.17"
-# """
-#       )
-#       file.writeFile("""
-
-# # import hmisc/algo/clformat
-
-# # echo toRomanNumeral(1230)
-
-# type
-#   EnuDecl = enum
-#     edFirst
-#     edSecond
-
-#   EnuAlias = EnuDecl
-#   EnuAlias1 = var EnuDecl
-#   EnuAlias2 = distinct EnuAlias
-#   EnuAlias3 = ref EnuAlias
-#   EnuTuple = distinct ref (EnuAlias, seq[(float, EnuAlias3)])
-#   SomePointer = ref | ptr | pointer | proc
-
-# proc `==`(x: string; y: typeof(nil) | typeof(nil)): bool =
-#   discard
-
-
-# case edFirst:
-#   of edFirst: echo "Hello"
-#   of edSecond: echo "Second"
-# """)
-
-      # let stdpath = ~"/tmp/Nim/lib"
       let stdpath = getStdPath()
+
+    elif selector == 1:
+      let file = AbsFile("/tmp/trail_test.nim")
+      "/tmp/trail_test.nimble".writeFile(
+        """
+version       = "0.9.18"
+author        = "haxscramper"
+description   = "Collection of helper utilities"
+license       = "Apache-2.0"
+srcDir        = "src"
+packageName   = "trail_test"
+binDir        = "bin"
+
+requires "hmisc >= 0.9.17"
+"""
+      )
+      file.writeFile("""
+
+# import hmisc/algo/clformat
+
+# echo toRomanNumeral(1230)
+
+type
+  EnuDecl = enum
+    edFirst
+    edSecond
+
+  EnuAlias = EnuDecl
+  EnuAlias1 = var EnuDecl
+  EnuAlias2 = distinct EnuAlias
+  EnuAlias3 = ref EnuAlias
+  EnuTuple = distinct ref (EnuAlias, seq[(float, EnuAlias3)])
+  SomePointer = ref | ptr | pointer | proc
+
+proc forward(): bool
+
+proc `==`(x: string; y: typeof(nil) | typeof(nil)): bool =
+  discard
+""" & repeat("\n", 1000) & """
+proc forward(): bool = false
+
+case edFirst:
+  of edFirst: echo "Hello"
+  of edSecond: echo "Second"
+""")
+
+      let stdpath = ~"/tmp/Nim/lib"
 
     else:
       let file = AbsFile("/tmp/Nim/compiler/nim.nim")

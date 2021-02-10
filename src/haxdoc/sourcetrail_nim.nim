@@ -266,7 +266,7 @@ proc registerCalls(
 
         discard ctx.writer[].recordReferenceLocation(reference, (fileId, node))
 
-      elif node.sym.kind in {skLabel, skUnknown, skModule}:
+      elif node.sym.kind in {skLabel, skUnknown, skModule, skTemp}:
         discard
 
       else:
@@ -345,6 +345,9 @@ proc registerTypeUse(
 
 proc registerProcDef(ctx: SourcetrailContext, fileId: cint, procDef: PNode): cint =
   let procDecl = parseProc(procDef)
+  if isNil(procDecl.impl) or procDecl.impl.kind == nkEmpty:
+    return
+
   result = ctx.writer[].getProcId(procDecl)
 
   let fileId = ctx.recordNodeLocation(result, procDef)
