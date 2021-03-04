@@ -231,7 +231,8 @@ proc registerCalls(
             # debug parent
 
 
-      elif node.sym.kind in {skParam, skForVar, skVar, skResult, skLet, skConst}:
+      elif node.sym.kind in {skParam, skForVar, skVar, skResult,
+                              skLet, skConst}:
         let owner = node.sym.owner
         if owner.isNil or owner.kind notin {skModule}:
           let localId = ctx.writer[].recordLocalSymbol($node.sym)
@@ -247,12 +248,15 @@ proc registerCalls(
             srkUsage
           )
 
-          discard ctx.writer[].recordReferenceLocation(reference, (fileId, node))
+          discard ctx.writer[].recordReferenceLocation(
+            reference, (fileId, node))
 
 
       elif node.sym.kind in {skField, skEnumField}:
         if node.sym.owner.notNil:
-          let path = [("", split($node.sym.owner, '@')[0], ""), ("", $node, "")]
+          let path = [
+            ("", split($node.sym.owner, '@')[0], ""), ("", $node, "")]
+
           let referencedSymbol = ctx.writer[].recordSymbol(
             tern(node.sym.kind == skField, sskField, sskEnumConstant),
             path
@@ -303,7 +307,8 @@ proc registerCalls(
         let referenceId = ctx.writer[].recordReference(
           callerId, referencedSymbol, srkUsage)
 
-        discard ctx.writer[].recordReferenceLocation(referenceId, (fileId, node))
+        discard ctx.writer[].recordReferenceLocation(
+          referenceId, (fileId, node))
     else:
       for subnode in mitems(node.sons):
         ctx.registerCalls(subnode, fileId, callerId, node)
@@ -390,13 +395,14 @@ iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
     iterateItDFS(field, it.getSubfields(), it.isKind, dfsPostorder):
       yield it
 
-proc getBranchValues*(objDecl: PObjectDecl): seq[PNode] =
+proc getBranchFields*(objDecl: PObjectDecl): seq[PObjectField] =
   for field in objDecl.flds:
     iterateItDFS(field, it.getSubfields(), it.isKind, dfsPostorder):
       if it.isKind:
-        for branch in it.branches:
-          if not branch.isElse:
-            result.add branch.ofValue
+        result.add it
+        # for branch in it.branches:
+        #   if not branch.isElse:
+        #     result.add branch.ofValue
 
 proc isObjectDecl(node: PNode): bool =
   node.kind == nkTypeDef and
@@ -407,6 +413,16 @@ proc isObjectDecl(node: PNode): bool =
       node[2][0].kind == nkObjectTy
     )
   )
+
+proc setValues(node: PNode): seq[PNode] =
+  case node.kind:
+    of nkIdent: return @[node]
+    of nkCurly:
+      for sub in node:
+        result.add sub
+
+    else:
+      raiseImplementKindError(node)
 
 proc registerTypeDef(
   ctx: SourcetrailContext, node: PNode, fileId: cint): cint =
@@ -425,11 +441,24 @@ proc registerTypeDef(
     let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
     discard ctx.recordNodeLocation(objectSymbol, objectDecl.declNode.get())
 
-    debug treeRepr(node)
+    for fld in getBranchFields(objectDecl):
+      let switchType = fld.fldType
+      debug switchType
+      let typeName = $switchType.declNode.get()
+      for branch in fld.branches:
+        if not branch.isElse:
+          for value in branch.ofValue.setValues():
+            let referencedSymbol = ctx.writer[].recordSymbol(
+              sskEnumConstant, [("", typeName, ""), ("", $value, "")])
 
-    for value in getBranchValues(objectDecl):
-      debug "Field branch value", value.treeRepr()
-      registerCalls(ctx, value, fileId, objectSymbol, nil)
+            let referenceId = ctx.writer[].recordReference(
+              objectSymbol, referencedSymbol, srkUsage)
+
+            discard ctx.writer[].recordReferenceLocation(
+              referenceId, (fileId, value))
+
+      # debug "Field branch value", value.treeRepr()
+      # registerCalls(ctx, value, fileId, objectSymbol, nil)
 
     for fld in iterateFields(objectDecl):
       if fld.fldType.declNode.isSome():
