@@ -1,6 +1,7 @@
-import hmisc/other/[colorlogger, oswrap]
+import hmisc/other/[colorlogger, oswrap, hshell]
 import hmisc/helpers
 import hmisc/types/[colortext]
+import std/[parseutils]
 
 export colorizeToStr
 
@@ -13,7 +14,7 @@ import compiler /
     modules, condsyms, passaux, llstream, parser, nimblecmd
   ]
 
-export idents, options, modulegraphs, passes, lineinfos, sem, pathutils,
+export idents, options, modulegraphs, passes, lineinfos, pathutils, sem,
     ast, modules, condsyms, passaux, llstream, parser
 
 import compiler/astalgo except debug
@@ -28,6 +29,20 @@ template debug*(node: PNode) {.dirty.} =
   ])
 
 
+
+
+proc getStdPath*(): AbsDir =
+  var version = evalShellStdout shCmd(nim, --version)
+  let start = "Nim Compiler Version ".len
+  let finish = start + version.skipWhile({'0'..'9', '.'}, start)
+  # debug version
+  # debug start
+  # debug finish
+  version = version[start ..< finish]
+  result = AbsDir(
+    ~".choosenim/toolchains" / ("nim-" & version) / "lib"
+    # nimlibs[0]
+  )
 
 
 proc newModuleGraph*(
@@ -58,7 +73,8 @@ proc newModuleGraph*(
     path / "std",
     path / "core",
     path / "posix",
-    path / "wrappers"
+    path / "wrappers",
+    path / "wrappers" / "linenoise"
   ]
 
   config.projectFull = file
@@ -210,6 +226,36 @@ import hnimast/[pnode_parse], hnimast
 proc parsePackageInfoNims*(
     text: string, path: string = "<file>"): Option[PackageInfo] =
 
+  ##[
+* TODO edge cases
+
+
+#+begin_src nim
+  namedBin["name"] = "expr" # nwnt
+  version       = pkgVersion # fae
+
+  # paravim
+  installExt    = @[
+    "nim", "txt", "ttf", "glsl", "c", "h",
+    when defined(windows):
+      "dll"
+    elif defined(macosx):
+      "dylib"
+    elif defined(linux):
+      "so"
+  ]
+
+  # metar
+  include metar/version
+
+  version = metarVersion
+
+  # plz
+  version     = CompileDate.replace("-", ".")
+#+end_src
+
+]##
+
   proc parseStmts(node: PNode, res: var PackageInfo) =
     case node.kind:
       of nkCommand, nkCall:
@@ -223,7 +269,7 @@ proc parsePackageInfoNims*(
 
                 of nkStmtList:
                   for dep in arg:
-                    for req in arg.getStrVal().multiSplit():
+                    for req in dep.getStrVal().multiSplit():
                       res.requires.add parseRequires(req)
 
                 else:

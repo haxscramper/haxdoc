@@ -11,7 +11,7 @@ import hmisc/helpers
 import hnimast
 import hasts/graphviz_ast
 
-import compiler/[trees, wordrecg, sighashes]
+import compiler/[trees, wordrecg, sighashes, sem]
 
 
 type
@@ -400,20 +400,6 @@ hhh(123)
   db.writeJson(RelFile("doc.json"))
 
 
-proc getStdPath(): AbsDir =
-  var version = evalShellStdout shCmd(nim, --version)
-  let start = "Nim Compiler Version ".len
-  let finish = start + version.skipWhile({'0'..'9', '.'}, start)
-  # debug version
-  # debug start
-  # debug finish
-  version = version[start ..< finish]
-  result = AbsDir(
-    ~".choosenim/toolchains" / ("nim-" & version) / "lib"
-    # nimlibs[0]
-  )
-
-
 proc handleTrailCmdline() =
   var infile: AbsFile
   var targetFile: AbsFile
@@ -562,32 +548,50 @@ proc resolvePackage*(pkg: PkgTuple): AbsDir =
   ## Resolve package `pkg` constraints to absolute directory
   discard
 
-proc resolveNimbleDeps*(file: AbsFile, options: Options): seq[AbsDir] =
-  let info = getPackageInfo(file)
-  var pkgList {.global.}: seq[tuple[pkginfo: PackageInfo, meta: MetaData]] = @[]
+proc findPackage*(
+    name: string,
+    version: VersionRange,
+    options: Options
+  ): Option[PackageInfo] =
+
+  var pkgList {.global.}: seq[tuple[
+    pkginfo: PackageInfo, meta: MetaData]] = @[]
+
   once:
     pkgList = getInstalledPkgsMin(getPkgsDir(options), options)
 
-  var reverseDeps: seq[tuple[name, version: string]] = @[]
+  let dep: PkgTuple = (name: name, ver: version)
 
+  let resolvedDep = resolveAlias(dep, options)
+  var pkg: PackageInfo
+  var found = findPkg(pkgList, resolvedDep, pkg)
+  if not found and resolvedDep.name != dep.name:
+    found = findPkg(pkgList, dep, pkg)
+
+  if found:
+    return some(pkg)
+
+
+
+
+proc resolveNimbleDeps*(file: AbsFile, options: Options): seq[AbsDir] =
+  let info = getPackageInfo(file)
   for dep in info.requires:
-    let resolvedDep = dep.resolveAlias(options)
-    var pkg: PackageInfo
-    var found = findPkg(pkgList, resolvedDep, pkg)
-    if not found and resolvedDep.name != dep.name:
-      found = findPkg(pkgList, dep, pkg)
+    let pkg = findPackage(dep.name, dep.ver, options)
 
-    if not found:
+    if pkg.isNone():
       if dep.name != "nim":
-        err "Cannot find ", $resolvedDep
+        err "Cannot find ", dep
 
     else:
-      # info pkg.getRealDir()
-      result.add(AbsDir(pkg.getRealDir()))
-      result.add(resolveNimbleDeps(AbsFile(pkg.myPath), options))
+      result.add(AbsDir(pkg.get().getRealDir()))
+      result.add(resolveNimbleDeps(AbsFile(pkg.get().myPath), options))
 
-    # reverseDeps.add((pkg.name, pkg.specialVersion))
 
+proc initDefaultOptions*(): Options =
+  result = initOptions()
+  result.nimbleDir = $(~".nimble")
+  result.verbosity = SilentPriority
 
 
 proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
@@ -601,11 +605,7 @@ proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
 
 
   if nimbleFile.isSome():
-    var options = initOptions()
-    with options:
-      nimbleDir = $(~".nimble")
-      verbosity = SilentPriority
-
+    let options = initDefaultOptions()
     setVerbosity(SilentPriority)
 
     debug options.nimbleDir
@@ -622,7 +622,7 @@ when isMainModule:
   startColorLogger()
 
   if paramCount() == 0:
-    const selector = 1
+    const selector = 2
     when selector == 0:
       let file = toAbsFile RelFile("../../nimbullet/src/nimbullet/make_wrap.nim")
       assertExists(file)
@@ -674,6 +674,39 @@ case edFirst:
 """)
 
       let stdpath = ~"/tmp/Nim/lib"
+
+    elif selector == 2:
+      let file = AbsFile("/tmp/trail_test.nim")
+      file.writeFile("""
+type
+  MalTypeKind* = enum Nil, True, False, Number, Symbol, String,
+    List, Vector, HashMap, Fun, MalFun, Atom
+
+  FunType = proc(a: varargs[MalType]): MalType
+
+  MalFunType* = ref object
+    fn*:       FunType
+    ast*:      MalType
+    params*:   MalType
+    is_macro*: bool
+
+  MalType* = ref object
+    case kind*: MalTypeKind
+    of Nil, True, False: nil
+    of Number:           number*:   int
+    of String, Symbol:   str*:      string
+    of List, Vector:     list*:     seq[MalType]
+    of HashMap:          hash_map*: int
+    of Fun:
+                         fun*:      FunType
+                         is_macro*: bool
+    of MalFun:           malfun*:   MalFunType
+    of Atom:             val*:      MalType
+
+    meta*: MalType
+""")
+
+      let stdpath = getStdPath()
 
     else:
       let file = AbsFile("/tmp/Nim/compiler/nim.nim")

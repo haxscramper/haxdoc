@@ -78,10 +78,17 @@ converter toSourcetrailSourceRange*(
 
   # debug result
 
+proc typeHead(node: PNode): PNode =
+  case node.kind:
+    of nkSym: node
+    of nkTypeDef: typeHead(node[0])
+    of nkPragmaExpr: typeHead(node[0])
+    else:
+      raiseImplementKindError(node)
 
 proc declHead(node: PNode): PNode =
   case node.kind:
-    of nkTypeDef, nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr,
+    of nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr,
        nkVarTy, nkBracketExpr, nkPrefix,
        nkDistinctTy, nkBracket
       :
@@ -100,7 +107,6 @@ proc declHead(node: PNode): PNode =
        nkEnumTy,
        nkProcTy,
        nkIteratorTy,
-       nkObjectTy,
        nkTupleClassTy,
        nkLiteralKinds
       :
@@ -113,11 +119,16 @@ proc declHead(node: PNode): PNode =
     of nkInfix, nkPar:
       result = node[0]
 
+    of nkTypeDef:
+      let head = typeHead(node)
+      doAssert head.kind == nkSym, head.treeRepr()
+      result = head
+
     else:
       debug node.kind
       debug node
-      debug node.treeRepr()
-      raiseImplementError("\n\n\n" & $node.kind & "\n\n\n")
+      err node.treeRepr()
+      raiseImplementKindError(node)
 
 converter toSourcetrailSourceRange*(
   arg: tuple[file: cint, name: PNode]): SourcetrailSourceRange =
@@ -142,6 +153,12 @@ converter toSourcetrailSourceRange*(
       loc[3] += 5
 
 
+
+  # if loc[3] > loc[1] + 30:
+  #   info loc
+  #   info arg.name.info.line
+  #   info head
+  #   debug head.treeRepr()
 
   result = toSourcetrailSourcerange((arg.file, loc))
 
@@ -361,31 +378,58 @@ proc registerProcDef(ctx: SourcetrailContext, fileId: cint, procDef: PNode): cin
   logIndented:
     ctx.registerCalls(procDecl.impl, fileId, result, nil)
 
-iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
-  proc getSubfields(field: PObjectField): seq[PObjectField] =
-    for branch in field.branches:
-      for field in branch.flds:
-        result.add field
+proc getSubfields*(field: PObjectField): seq[PObjectField] =
+  for branch in field.branches:
+    for field in branch.flds:
+      result.add field
 
+
+
+iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
   for field in objDecl.flds:
     iterateItDFS(field, it.getSubfields(), it.isKind, dfsPostorder):
       yield it
 
+proc getBranchValues*(objDecl: PObjectDecl): seq[PNode] =
+  for field in objDecl.flds:
+    iterateItDFS(field, it.getSubfields(), it.isKind, dfsPostorder):
+      if it.isKind:
+        for branch in it.branches:
+          if not branch.isElse:
+            result.add branch.ofValue
+
+proc isObjectDecl(node: PNode): bool =
+  node.kind == nkTypeDef and
+  (
+    node[2].kind == nkObjectTy or
+    (
+      node[2].kind in {nkPtrTy, nkRefTy} and
+      node[2][0].kind == nkObjectTy
+    )
+  )
+
 proc registerTypeDef(
   ctx: SourcetrailContext, node: PNode, fileId: cint): cint =
 
-  if node[2].kind == nkObjectTy:
+  if isObjectDecl(node):
     let objectDecl: PObjectDecl =
       try:
         parseObject(node, parsePPragma)
 
       except:
-        echo node
+        err "Failed to register type def"
+        debug node
         raise
 
     let objNameHierarchy = ("", objectDecl.name.head, "")
     let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
     discard ctx.recordNodeLocation(objectSymbol, objectDecl.declNode.get())
+
+    debug treeRepr(node)
+
+    for value in getBranchValues(objectDecl):
+      debug "Field branch value", value.treeRepr()
+      registerCalls(ctx, value, fileId, objectSymbol, nil)
 
     for fld in iterateFields(objectDecl):
       if fld.fldType.declNode.isSome():
@@ -422,6 +466,7 @@ proc registerTypeDef(
     # debug ""
     # info path
     # logIndented:
+    # debug node.treeRepr()
     registerTypeUse(ctx, aliasSymbol, fileId, parseNType(node[2]))
 
   elif node[0].kind in {nkPragmaExpr}:
