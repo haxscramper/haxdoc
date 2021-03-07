@@ -4,7 +4,7 @@ NOTE: /very/ work-in-progress
 
 Documentation generator and source code analysis system for nim.
 
-Latest version can be downloaded from [[https://github.com/haxscramper/haxdoc/releases/tag/refs%2Fheads%2Fmaster][releases]] page
+# Latest version can be downloaded from [[https://github.com/haxscramper/haxdoc/releases/tag/refs%2Fheads%2Fmaster][releases]] page
 
 To generate sourcetrail compilation database for a file use ~./haxdoc trail
 file.nim~ - it will index *all* symbols that compiler saw during
