@@ -15,8 +15,8 @@ requires "https://github.com/haxscramper/nimtrail.git#head"
 requires "nim >= 1.4.0"
 requires "hmisc >= 0.9.0"
 requires "hpprint >= 0.2.12"
-requires "nimble"
-requires "https://github.com/haxscramper/fusion.git#matching-fixup"
+requires "nimble >= 0.13.1"
+requires "fusion"
 requires "https://github.com/haxscramper/cxxstd.git"
 
 
