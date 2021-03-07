@@ -124,6 +124,9 @@ proc declHead(node: PNode): PNode =
       doAssert head.kind == nkSym, head.treeRepr()
       result = head
 
+    of nkObjectTy:
+      result = node
+
     else:
       debug node.kind
       debug node
@@ -420,6 +423,10 @@ proc setValues(node: PNode): seq[PNode] =
     of nkCurly:
       for sub in node:
         result.add sub
+
+    of nkInfix:
+      result.add setValues(node[1])
+      result.add setValues(node[2])
 
     else:
       raiseImplementKindError(node)
