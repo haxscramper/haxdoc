@@ -9,7 +9,7 @@ import haxorg/[semorg, exporter_json, parser, ast, exporter_plaintext]
 import hmisc/other/[colorlogger, oswrap, hjson, hcligen, hshell]
 import hmisc/helpers
 import hnimast
-import hasts/graphviz_ast
+import hmisc/hasts/graphviz_ast
 
 import compiler/[trees, wordrecg, sighashes, sem]
 
