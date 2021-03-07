@@ -586,7 +586,13 @@ proc trailCompile*(
   ) =
 
   info "input file:", file
-  info "stdpath:", stdpath
+  if exists(stdpath):
+    info "stdpath:", stdpath
+  else:
+    err "Could not find stdlib at ", stdpath
+    debug "Either explicitly specify library path via `--stdpath`"
+    debug "Or run trail analysis with choosenim toolchain for correct version"
+
   info "target file:", targetFile
 
   var writer: SourcetrailDBWriter

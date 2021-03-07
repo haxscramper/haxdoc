@@ -9,9 +9,9 @@ installExt    = @["nim"]
 binDir        = "bin"
 backend       = "cpp"
 
-requires "https://github.com/haxscramper/hnimast.git#head"
-requires "https://github.com/haxscramper/haxorg.git#head"
-requires "https://github.com/haxscramper/nimtrail.git#head"
+requires "hnimast >= 0.3.19"
+requires "https://github.com/haxscramper/haxorg.git >= 0.1.1"
+requires "https://github.com/haxscramper/nimtrail.git >= 0.1.1"
 requires "nim >= 1.4.0"
 requires "hmisc >= 0.10.4"
 requires "hpprint >= 0.2.12"
