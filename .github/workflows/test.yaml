@@ -13,7 +13,7 @@ jobs:
       - name: Compile binary
         run: |
           export PATH=$HOME/.nimble/bin:$PATH
-          nimble build -y -d:ssl -d:nimcore || nimble build -y -d:ssl -d:nimcore
+          nimble build -y
           git clone https://github.com/nim-lang/Nim.git
           ./bin/haxdoc trail Nim/compiler/nim.nim --stdpath:Nim/lib
       - name: Upload haxdoc binary
