@@ -16,3 +16,8 @@ jobs:
           nimble build -y -d:ssl -d:nimcore || nimble build -y -d:ssl -d:nimcore
           git clone https://github.com/nim-lang/Nim.git
           ./bin/haxdoc trail Nim/compiler/nim.nim --stdpath:Nim/lib
+      - name: Upload haxdoc binary
+        uses: actions/upload-artifact@v2
+        with:
+          path: |
+            bin/haxdoc
