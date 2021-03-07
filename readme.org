@@ -16,7 +16,14 @@ uses of global variables, type fields and enums.
 Generated database can be opened using [[https://www.sourcetrail.com/][sourcetrail]] - free and open-source
 cross-platform source explorer.
 
-** Troubleshooting
+** Troubleshooting and additional setup
+
+*** Syntax highlighting
+
+Sourcetrail does not come with built-in syntax highlighting for nim, so it
+is necessary to install it manually by putting ~assets/nim.rules~ in
+~$HOME/.config/sourcetrail/syntax_highlighting_rules~ or
+~/opt/sourcetrail/share/data/syntax_highlighting_rules~
 
 *** compilation errors
 
