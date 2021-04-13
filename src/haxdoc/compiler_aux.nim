@@ -223,6 +223,38 @@ proc parsePackageInfoCfg*(
 
 import hnimast/[pnode_parse], hnimast
 
+type
+  NimsParseFail* = ref object of ArgumentError
+
+proc getStrValues(node: PNode): seq[string] =
+  var values: seq[string]
+  if (node.kind == nkPrefix and node[1].kind == nkBracket) or
+     node.kind == nkBracket:
+
+    let node = (if node.kind == nkPrefix: node[1] else: node)
+
+    for arg in node:
+      if arg.kind in ast.nkStrKinds:
+        values.add arg.getStrVal()
+
+      else:
+        raise NimsParseFail(
+          msg: "Cannot get item value from " & $node.kind)
+
+  elif node.kind in ast.nkStrKinds:
+    values.add node.getStrVal()
+
+  elif node.kind in {nkIdent, nkCall, nkWhenStmt}:
+    raise NimsParseFail(
+      msg: "Cannot get property value from " & $node.kind)
+
+  else:
+    raiseImplementKindError(node, node.treeRepr())
+
+  return values
+
+
+
 proc parsePackageInfoNims*(
     text: string, path: string = "<file>"): Option[PackageInfo] =
 
@@ -259,105 +291,145 @@ proc parsePackageInfoNims*(
   proc parseStmts(node: PNode, res: var PackageInfo) =
     case node.kind:
       of nkCommand, nkCall:
-        case node[0].getStrVal().normalize:
-          of "requires":
-            for arg in node[1 ..^ 1]:
-              case arg.kind:
-                of hnimast.nkStrKinds:
-                  for req in arg.getStrVal().multiSplit():
-                    res.requires.add parseRequires(req)
-
-                of nkStmtList:
-                  for dep in arg:
-                    for req in dep.getStrVal().multiSplit():
-                      res.requires.add parseRequires(req)
-
-                else:
-                  raiseImplementError(
-                    "Unhandled node kind for requires argument: \n" &
-                      treeRepr(arg))
-
-          of "task": res.nimbleTasks.incl node[1].getStrVal()
-          of "after": res.postHooks.incl node[1].getStrVal()
-          of "before": res.postHooks.incl node[1].getStrVal()
-          of "foreigndep": res.foreignDeps.add node[1].getStrVal()
-          of "switch", "mkdir", "hint":
-            discard
-
-
+        if node[0].kind == nkDotExpr:
+          if node[0][1].getStrVal() == "add":
+            let values = node[1].getStrValues()
+            case node[0][0].getStrVal().normalize:
+              of "installext":   res.installExt.add   values
+              of "skipdirs":     res.skipDirs.add     values
+              of "installdirs":  res.installDirs.add  values
+              of "skipext":      res.skipExt.add      values
+              of "skipfiles":    res.skipFiles.add    values
+              of "installfiles": res.installFiles.add values
 
           else:
-            raiseImplementError(
-              "Unhandled command node kind: \n" & treeRepr(node))
+            discard
+
+        else:
+          case node[0].getStrVal().normalize:
+            of "requires":
+              for arg in node[1 ..^ 1]:
+                case arg.kind:
+                  of hnimast.nkStrKinds:
+                    for req in arg.getStrVal().multiSplit():
+                      res.requires.add parseRequires(req)
+
+                  of nkStmtList:
+                    for dep in arg:
+                      for req in dep.getStrVal().multiSplit():
+                        res.requires.add parseRequires(req)
+
+                  of nkIdent, nkExprEqExpr, nkInfix:
+                    # Expr eq expr first encountered in `fision`
+                    raise NimsParseFail(
+                      msg: "Cannot get property requires from " & $arg.kind)
+
+                  of nkPrefix:
+                    for req1 in arg.getStrValues():
+                      for req2 in req1.multiSplit():
+                        res.requires.add parseRequires(req2)
+
+
+                  else:
+                    raiseImplementError(
+                      "Unhandled node kind for requires argument: \n" &
+                        treeRepr(arg))
+
+            of "task": res.nimbleTasks.incl node[1].getStrVal()
+            of "after": res.postHooks.incl node[1].getStrVal()
+            of "before": res.postHooks.incl node[1].getStrVal()
+            of "foreigndep": res.foreignDeps.add node[1].getStrVal()
+            of "switch", "mkdir", "hint", "writefile", "exec":
+              discard
+
+            else:
+              discard
 
       of nkAsgn:
-        let property = node[0].getStrVal().normalize
-        case property:
-          of "version":
-            case node[1].kind:
-              of hnimast.nkStrKinds:
-                res.version = node[1].getStrVal()
+        if node[0].kind == nkBracketExpr:
+          let property = node[0][0].getStrVal().normalize
+          case property:
+            of "namedbin":
+              res.bin[node[0][1].getStrVal()] = node[1].getStrValues()[0]
 
-              of nkDotExpr:
-                if node[1][1].getStrVal() == "NimVersion":
-                  res.version = NimVersion
+            else:
+              discard
+
+        elif node[0].kind == nkIdent:
+          let property = node[0].getStrVal().normalize
+          case property:
+            of "version":
+              case node[1].kind:
+                of hnimast.nkStrKinds:
+                  res.version = node[1].getStrVal()
+
+                of nkDotExpr:
+                  if node[1][1].getStrVal() == "NimVersion":
+                    res.version = NimVersion
+
+                  else:
+                    raiseImplementError(
+                      "Unhandled node structure: " & treeRepr(node[1]))
+
+                of nkIdent, nkBracketExpr, nkCall, nkCommand:
+                  raise NimsParseFail(
+                    msg: "Cannot get version value from " &
+                      $node[1].kind
+                  )
 
                 else:
                   raiseImplementError(
                     "Unhandled node structure: " & treeRepr(node[1]))
 
-              else:
-                raiseImplementError(
-                  "Unhandled node structure: " & treeRepr(node[1]))
 
+            of "license": res.license         = node[1].getStrValues()[0]
+            of "description": res.description = node[1].getStrValues()[0]
+            of "srcdir": res.srcDir           = node[1].getStrValues()[0]
+            of "packagename": res.name        = node[1].getStrValues()[0]
+            of "bindir": res.name             = node[1].getStrValues()[0]
+            of "author": res.author           = node[1].getStrValues()[0]
+            of "backend": res.backend         = node[1].getStrValues()[0]
+            of "name": res.name               = node[1].getStrValues()[0]
+            of "bin", "installext", "skipdirs", "installdirs", "skipext",
+               "skipfiles", "installfiles"
+                 :
 
-          of "license": res.license         = node[1].getStrVal()
-          of "description": res.description = node[1].getStrVal()
-          of "srcdir": res.srcDir           = node[1].getStrVal()
-          of "packagename": res.name        = node[1].getStrVal()
-          of "bindir": res.name             = node[1].getStrVal()
-          of "author": res.author           = node[1].getStrVal()
-          of "backend": res.backend         = node[1].getStrVal()
-          of "name": res.name               = node[1].getStrVal()
-          of "bin", "installext", "skipdirs", "installdirs", "skipext",
-             "skipfiles", "installfiles"
-               :
-            var values: seq[string]
-            for arg in node[1][1]:
-              values.add arg.getStrVal()
+              let values = node[1].getStrValues()
 
-            case property:
-              of "bin":
-                if values.len > 0:
-                  res.bin[values[0]] = values[0]
+              case property:
+                of "bin":
+                  if values.len > 0:
+                    res.bin[values[0]] = values[0]
 
-              of "installext":   res.installExt   = values
-              of "skipdirs":     res.skipDirs     = values
-              of "installdirs":  res.installDirs  = values
-              of "skipext":      res.skipExt      = values
-              of "skipfiles":    res.skipFiles    = values
-              of "installfiles": res.installFiles = values
+                of "installext":   res.installExt   = values
+                of "skipdirs":     res.skipDirs     = values
+                of "installdirs":  res.installDirs  = values
+                of "skipext":      res.skipExt      = values
+                of "skipfiles":    res.skipFiles    = values
+                of "installfiles": res.installFiles = values
 
-          of "namedbin":
-            var maps: seq[tuple[key, value: string]]
+            of "namedbin":
+              var maps: seq[tuple[key, value: string]]
 
-            case node[1]:
-              of Call[DotExpr[TableConstr[all @args], _]]:
-                for pair in args:
-                  res.bin[pair[0].getStrVal()] = pair[1].getStrVal()
+              case node[1]:
+                of Call[DotExpr[TableConstr[all @args], _]]:
+                  for pair in args:
+                    res.bin[pair[0].getStrVal()] = pair[1].getStrVal()
 
-              else:
-                echo node[1]
-                raiseImplementError(
-                  "Unhandled node structure: \n" &
-                    treeRepr(node[1], indexed = true))
+                else:
+                  echo node[1]
+                  raiseImplementError(
+                    "Unhandled node structure: \n" &
+                      treeRepr(node[1], indexed = true))
 
-          of "mode":
-            discard
-          else:
-            raiseImplementError(
-              "Assignment to unknown property: " &
-                property & "\n" & treeRepr(node))
+            of "mode":
+              discard
+            else:
+              err "Assignment to unknown property: " &
+                  property & "\n" & treeRepr(node)
+
+              raise NimsParseFail(
+                msg: "Assignment to unknown property: " & property)
 
       of nkWhenStmt:
         for branch in node:
@@ -380,7 +452,11 @@ proc parsePackageInfoNims*(
         # Information about foreign dependencies
         discard
 
-      of nkPrefix:
+      of nkPrefix, nkIdent, nkPragma:
+        discard
+
+      of nkBracket:
+        # First found in https://github.com/h3rald/litestore/blob/b47f906761bf98c768d814ff124379ada24af6f6/litestore.nimble#L1
         discard
 
       else:

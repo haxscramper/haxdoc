@@ -319,25 +319,6 @@ proc registerCalls(
 
 
 
-proc directUsedTypes*[N](ntype: NType[N]): seq[NType[N]] =
-  case ntype.kind:
-    of ntkGenericSpec, ntkAnonTuple, ntkIdent:
-      result = ntype.genParams
-
-    of ntkProc, ntkNamedTuple:
-      for arg in ntype.arguments:
-        result.add arg.vtype
-
-
-      if ntype.returnType().isSome():
-        result.add ntype.returnType().get()
-
-    of ntkVarargs:
-      result.add ntype.vaType()
-
-    else:
-      discard
-
 proc registerTypeUse(
     ctx: SourcetrailContext, userId, fileId: cint, ntype: NType) =
   if ntype.kind in {ntkIdent, ntkGenericSpec} and
@@ -386,23 +367,6 @@ proc registerProcDef(ctx: SourcetrailContext, fileId: cint, procDef: PNode): cin
   logIndented:
     ctx.registerCalls(procDecl.impl, fileId, result, nil)
 
-proc getSubfields*(field: PObjectField): seq[PObjectField] =
-  for branch in field.branches:
-    for field in branch.flds:
-      result.add field
-
-
-
-iterator iterateFields*(objDecl: PObjectDecl): PObjectField =
-  for field in objDecl.flds:
-    iterateItDFS(field, it.getSubfields(), it.isKind, dfsPostorder):
-      yield it
-
-proc getBranchFields*(objDecl: PObjectDecl): seq[PObjectField] =
-  for field in objDecl.flds:
-    iterateItDFS(field, it.getSubfields(), it.isKind, dfsPostorder):
-      if it.isKind:
-        result.add it
         # for branch in it.branches:
         #   if not branch.isElse:
         #     result.add branch.ofValue
