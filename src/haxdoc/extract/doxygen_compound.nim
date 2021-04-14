@@ -960,7 +960,7 @@ proc parseDoxVerticalAlign*(target: var (
 proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
     Option[DoxygenType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -972,6 +972,8 @@ proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
       parseDoxygenType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1013,13 +1015,13 @@ proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseCompounddefType*(target: var (seq[CompounddefType] | CompounddefType |
     Option[CompounddefType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1031,6 +1033,8 @@ proc parseCompounddefType*(target: var (seq[CompounddefType] | CompounddefType |
       parseCompounddefType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1169,14 +1173,14 @@ proc parseCompounddefType*(target: var (seq[CompounddefType] | CompounddefType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseListofallmembersType*(target: var (seq[ListofallmembersType] |
     ListofallmembersType |
     Option[ListofallmembersType]); parser: var HXmlParser; tag: string;
                                 inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1188,6 +1192,8 @@ proc parseListofallmembersType*(target: var (seq[ListofallmembersType] |
       parseListofallmembersType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1227,13 +1233,13 @@ proc parseListofallmembersType*(target: var (seq[ListofallmembersType] |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseMemberRefType*(target: var (seq[MemberRefType] | MemberRefType |
     Option[MemberRefType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1245,6 +1251,8 @@ proc parseMemberRefType*(target: var (seq[MemberRefType] | MemberRefType |
       parseMemberRefType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1299,13 +1307,13 @@ proc parseMemberRefType*(target: var (seq[MemberRefType] | MemberRefType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocHtmlOnlyType*(target: var (seq[DocHtmlOnlyType] | DocHtmlOnlyType |
     Option[DocHtmlOnlyType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1317,6 +1325,8 @@ proc parseDocHtmlOnlyType*(target: var (seq[DocHtmlOnlyType] | DocHtmlOnlyType |
       parseDocHtmlOnlyType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1354,13 +1364,13 @@ proc parseDocHtmlOnlyType*(target: var (seq[DocHtmlOnlyType] | DocHtmlOnlyType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseCompoundRefType*(target: var (seq[CompoundRefType] | CompoundRefType |
     Option[CompoundRefType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1372,6 +1382,8 @@ proc parseCompoundRefType*(target: var (seq[CompoundRefType] | CompoundRefType |
       parseCompoundRefType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1413,13 +1425,13 @@ proc parseCompoundRefType*(target: var (seq[CompoundRefType] | CompoundRefType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseReimplementType*(target: var (seq[ReimplementType] | ReimplementType |
     Option[ReimplementType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1431,6 +1443,8 @@ proc parseReimplementType*(target: var (seq[ReimplementType] | ReimplementType |
       parseReimplementType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1468,12 +1482,12 @@ proc parseReimplementType*(target: var (seq[ReimplementType] | ReimplementType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseIncType*(target: var (seq[IncType] | IncType | Option[IncType]);
                    parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1485,6 +1499,8 @@ proc parseIncType*(target: var (seq[IncType] | IncType | Option[IncType]);
       parseIncType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1524,12 +1540,12 @@ proc parseIncType*(target: var (seq[IncType] | IncType | Option[IncType]);
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseRefType*(target: var (seq[RefType] | RefType | Option[RefType]);
                    parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1541,6 +1557,8 @@ proc parseRefType*(target: var (seq[RefType] | RefType | Option[RefType]);
       parseRefType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1582,13 +1600,13 @@ proc parseRefType*(target: var (seq[RefType] | RefType | Option[RefType]);
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseRefTextType*(target: var (seq[RefTextType] | RefTextType |
     Option[RefTextType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1600,6 +1618,8 @@ proc parseRefTextType*(target: var (seq[RefTextType] | RefTextType |
       parseRefTextType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1643,13 +1663,13 @@ proc parseRefTextType*(target: var (seq[RefTextType] | RefTextType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseSectiondefType*(target: var (seq[SectiondefType] | SectiondefType |
     Option[SectiondefType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1661,6 +1681,8 @@ proc parseSectiondefType*(target: var (seq[SectiondefType] | SectiondefType |
       parseSectiondefType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1710,13 +1732,13 @@ proc parseSectiondefType*(target: var (seq[SectiondefType] | SectiondefType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseMemberdefType*(target: var (seq[MemberdefType] | MemberdefType |
     Option[MemberdefType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1728,6 +1750,8 @@ proc parseMemberdefType*(target: var (seq[MemberdefType] | MemberdefType |
       parseMemberdefType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1926,13 +1950,13 @@ proc parseMemberdefType*(target: var (seq[MemberdefType] | MemberdefType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
     Option[DescriptionType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -1944,6 +1968,8 @@ proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
       parseDescriptionType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -1994,13 +2020,13 @@ proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseEnumvalueType*(target: var (seq[EnumvalueType] | EnumvalueType |
     Option[EnumvalueType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2012,6 +2038,8 @@ proc parseEnumvalueType*(target: var (seq[EnumvalueType] | EnumvalueType |
       parseEnumvalueType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2068,14 +2096,14 @@ proc parseEnumvalueType*(target: var (seq[EnumvalueType] | EnumvalueType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseTemplateparamlistType*(target: var (seq[TemplateparamlistType] |
     TemplateparamlistType |
     Option[TemplateparamlistType]); parser: var HXmlParser; tag: string;
                                  inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2087,6 +2115,8 @@ proc parseTemplateparamlistType*(target: var (seq[TemplateparamlistType] |
       parseTemplateparamlistType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2126,12 +2156,12 @@ proc parseTemplateparamlistType*(target: var (seq[TemplateparamlistType] |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseParamType*(target: var (seq[ParamType] | ParamType | Option[ParamType]);
                      parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2143,6 +2173,8 @@ proc parseParamType*(target: var (seq[ParamType] | ParamType | Option[ParamType]
       parseParamType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2213,13 +2245,13 @@ proc parseParamType*(target: var (seq[ParamType] | ParamType | Option[ParamType]
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseLinkedTextType*(target: var (seq[LinkedTextType] | LinkedTextType |
     Option[LinkedTextType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2231,6 +2263,8 @@ proc parseLinkedTextType*(target: var (seq[LinkedTextType] | LinkedTextType |
       parseLinkedTextType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2270,12 +2304,12 @@ proc parseLinkedTextType*(target: var (seq[LinkedTextType] | LinkedTextType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseGraphType*(target: var (seq[GraphType] | GraphType | Option[GraphType]);
                      parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2287,6 +2321,8 @@ proc parseGraphType*(target: var (seq[GraphType] | GraphType | Option[GraphType]
       parseGraphType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2326,12 +2362,12 @@ proc parseGraphType*(target: var (seq[GraphType] | GraphType | Option[GraphType]
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseNodeType*(target: var (seq[NodeType] | NodeType | Option[NodeType]);
                     parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2343,6 +2379,8 @@ proc parseNodeType*(target: var (seq[NodeType] | NodeType | Option[NodeType]);
       parseNodeType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2392,13 +2430,13 @@ proc parseNodeType*(target: var (seq[NodeType] | NodeType | Option[NodeType]);
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseChildnodeType*(target: var (seq[ChildnodeType] | ChildnodeType |
     Option[ChildnodeType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2410,6 +2448,8 @@ proc parseChildnodeType*(target: var (seq[ChildnodeType] | ChildnodeType |
       parseChildnodeType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2455,12 +2495,12 @@ proc parseChildnodeType*(target: var (seq[ChildnodeType] | ChildnodeType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseLinkType*(target: var (seq[LinkType] | LinkType | Option[LinkType]);
                     parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2472,6 +2512,8 @@ proc parseLinkType*(target: var (seq[LinkType] | LinkType | Option[LinkType]);
       parseLinkType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2509,13 +2551,13 @@ proc parseLinkType*(target: var (seq[LinkType] | LinkType | Option[LinkType]);
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseListingType*(target: var (seq[ListingType] | ListingType |
     Option[ListingType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2527,6 +2569,8 @@ proc parseListingType*(target: var (seq[ListingType] | ListingType |
       parseListingType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2568,13 +2612,13 @@ proc parseListingType*(target: var (seq[ListingType] | ListingType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseCodelineType*(target: var (seq[CodelineType] | CodelineType |
     Option[CodelineType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2586,6 +2630,8 @@ proc parseCodelineType*(target: var (seq[CodelineType] | CodelineType |
       parseCodelineType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2633,13 +2679,13 @@ proc parseCodelineType*(target: var (seq[CodelineType] | CodelineType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseHighlightType*(target: var (seq[HighlightType] | HighlightType |
     Option[HighlightType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2651,6 +2697,8 @@ proc parseHighlightType*(target: var (seq[HighlightType] | HighlightType |
       parseHighlightType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2714,12 +2762,12 @@ proc parseHighlightType*(target: var (seq[HighlightType] | HighlightType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseSpType*(target: var (seq[SpType] | SpType | Option[SpType]);
                   parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2731,6 +2779,8 @@ proc parseSpType*(target: var (seq[SpType] | SpType | Option[SpType]);
       parseSpType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2766,13 +2816,13 @@ proc parseSpType*(target: var (seq[SpType] | SpType | Option[SpType]);
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseReferenceType*(target: var (seq[ReferenceType] | ReferenceType |
     Option[ReferenceType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2784,6 +2834,8 @@ proc parseReferenceType*(target: var (seq[ReferenceType] | ReferenceType |
       parseReferenceType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2825,13 +2877,13 @@ proc parseReferenceType*(target: var (seq[ReferenceType] | ReferenceType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseLocationType*(target: var (seq[LocationType] | LocationType |
     Option[LocationType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2843,6 +2895,8 @@ proc parseLocationType*(target: var (seq[LocationType] | LocationType |
       parseLocationType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2894,13 +2948,13 @@ proc parseLocationType*(target: var (seq[LocationType] | LocationType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocSect1Type*(target: var (seq[DocSect1Type] | DocSect1Type |
     Option[DocSect1Type]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2912,6 +2966,8 @@ proc parseDocSect1Type*(target: var (seq[DocSect1Type] | DocSect1Type |
       parseDocSect1Type(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -2955,13 +3011,13 @@ proc parseDocSect1Type*(target: var (seq[DocSect1Type] | DocSect1Type |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocSect2Type*(target: var (seq[DocSect2Type] | DocSect2Type |
     Option[DocSect2Type]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2973,6 +3029,8 @@ proc parseDocSect2Type*(target: var (seq[DocSect2Type] | DocSect2Type |
       parseDocSect2Type(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3016,13 +3074,13 @@ proc parseDocSect2Type*(target: var (seq[DocSect2Type] | DocSect2Type |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocSect3Type*(target: var (seq[DocSect3Type] | DocSect3Type |
     Option[DocSect3Type]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3034,6 +3092,8 @@ proc parseDocSect3Type*(target: var (seq[DocSect3Type] | DocSect3Type |
       parseDocSect3Type(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3077,13 +3137,13 @@ proc parseDocSect3Type*(target: var (seq[DocSect3Type] | DocSect3Type |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocSect4Type*(target: var (seq[DocSect4Type] | DocSect4Type |
     Option[DocSect4Type]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3095,6 +3155,8 @@ proc parseDocSect4Type*(target: var (seq[DocSect4Type] | DocSect4Type |
       parseDocSect4Type(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3138,13 +3200,13 @@ proc parseDocSect4Type*(target: var (seq[DocSect4Type] | DocSect4Type |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocInternalType*(target: var (seq[DocInternalType] | DocInternalType |
     Option[DocInternalType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3156,6 +3218,8 @@ proc parseDocInternalType*(target: var (seq[DocInternalType] | DocInternalType |
       parseDocInternalType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3198,14 +3262,14 @@ proc parseDocInternalType*(target: var (seq[DocInternalType] | DocInternalType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocInternalS1Type*(target: var (
     seq[DocInternalS1Type] | DocInternalS1Type | Option[DocInternalS1Type]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3217,6 +3281,8 @@ proc parseDocInternalS1Type*(target: var (
       parseDocInternalS1Type(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3259,14 +3325,14 @@ proc parseDocInternalS1Type*(target: var (
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocInternalS2Type*(target: var (
     seq[DocInternalS2Type] | DocInternalS2Type | Option[DocInternalS2Type]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3278,6 +3344,8 @@ proc parseDocInternalS2Type*(target: var (
       parseDocInternalS2Type(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3320,14 +3388,14 @@ proc parseDocInternalS2Type*(target: var (
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocInternalS3Type*(target: var (
     seq[DocInternalS3Type] | DocInternalS3Type | Option[DocInternalS3Type]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3339,6 +3407,8 @@ proc parseDocInternalS3Type*(target: var (
       parseDocInternalS3Type(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3381,14 +3451,14 @@ proc parseDocInternalS3Type*(target: var (
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocInternalS4Type*(target: var (
     seq[DocInternalS4Type] | DocInternalS4Type | Option[DocInternalS4Type]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3400,6 +3470,8 @@ proc parseDocInternalS4Type*(target: var (
       parseDocInternalS4Type(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3439,13 +3511,13 @@ proc parseDocInternalS4Type*(target: var (
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
     Option[DocTitleType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3457,6 +3529,8 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
       parseDocTitleType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3490,13 +3564,13 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
     Option[DocParaType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3508,6 +3582,8 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
       parseDocParaType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3541,13 +3617,13 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
     Option[DocMarkupType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3559,6 +3635,8 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
       parseDocMarkupType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3592,13 +3670,13 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
     Option[DocURLLink]); parser: var HXmlParser; tag: string;
                       inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3610,6 +3688,8 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
       parseDocURLLink(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3645,13 +3725,13 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocAnchorType*(target: var (seq[DocAnchorType] | DocAnchorType |
     Option[DocAnchorType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3663,6 +3743,8 @@ proc parseDocAnchorType*(target: var (seq[DocAnchorType] | DocAnchorType |
       parseDocAnchorType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3698,13 +3780,13 @@ proc parseDocAnchorType*(target: var (seq[DocAnchorType] | DocAnchorType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocFormulaType*(target: var (seq[DocFormulaType] | DocFormulaType |
     Option[DocFormulaType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3716,6 +3798,8 @@ proc parseDocFormulaType*(target: var (seq[DocFormulaType] | DocFormulaType |
       parseDocFormulaType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3751,14 +3835,14 @@ proc parseDocFormulaType*(target: var (seq[DocFormulaType] | DocFormulaType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocIndexEntryType*(target: var (
     seq[DocIndexEntryType] | DocIndexEntryType | Option[DocIndexEntryType]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3770,6 +3854,8 @@ proc parseDocIndexEntryType*(target: var (
       parseDocIndexEntryType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3816,13 +3902,13 @@ proc parseDocIndexEntryType*(target: var (
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocListType*(target: var (seq[DocListType] | DocListType |
     Option[DocListType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3834,6 +3920,8 @@ proc parseDocListType*(target: var (seq[DocListType] | DocListType |
       parseDocListType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3873,13 +3961,13 @@ proc parseDocListType*(target: var (seq[DocListType] | DocListType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocListItemType*(target: var (seq[DocListItemType] | DocListItemType |
     Option[DocListItemType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3891,6 +3979,8 @@ proc parseDocListItemType*(target: var (seq[DocListItemType] | DocListItemType |
       parseDocListItemType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3930,14 +4020,14 @@ proc parseDocListItemType*(target: var (seq[DocListItemType] | DocListItemType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocSimpleSectType*(target: var (
     seq[DocSimpleSectType] | DocSimpleSectType | Option[DocSimpleSectType]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3949,6 +4039,8 @@ proc parseDocSimpleSectType*(target: var (
       parseDocSimpleSectType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -3990,14 +4082,14 @@ proc parseDocSimpleSectType*(target: var (
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocVarListEntryType*(target: var (seq[DocVarListEntryType] |
     DocVarListEntryType |
     Option[DocVarListEntryType]); parser: var HXmlParser; tag: string;
                                inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4009,6 +4101,8 @@ proc parseDocVarListEntryType*(target: var (seq[DocVarListEntryType] |
       parseDocVarListEntryType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4048,14 +4142,14 @@ proc parseDocVarListEntryType*(target: var (seq[DocVarListEntryType] |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocVariableListType*(target: var (seq[DocVariableListType] |
     DocVariableListType |
     Option[DocVariableListType]); parser: var HXmlParser; tag: string;
                                inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4067,6 +4161,8 @@ proc parseDocVariableListType*(target: var (seq[DocVariableListType] |
       parseDocVariableListType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4100,13 +4196,13 @@ proc parseDocVariableListType*(target: var (seq[DocVariableListType] |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
     Option[DocRefTextType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4118,6 +4214,8 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
       parseDocRefTextType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4157,13 +4255,13 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocTableType*(target: var (seq[DocTableType] | DocTableType |
     Option[DocTableType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4175,6 +4273,8 @@ proc parseDocTableType*(target: var (seq[DocTableType] | DocTableType |
       parseDocTableType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4223,13 +4323,13 @@ proc parseDocTableType*(target: var (seq[DocTableType] | DocTableType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocRowType*(target: var (seq[DocRowType] | DocRowType |
     Option[DocRowType]); parser: var HXmlParser; tag: string;
                       inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4241,6 +4341,8 @@ proc parseDocRowType*(target: var (seq[DocRowType] | DocRowType |
       parseDocRowType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4280,13 +4382,13 @@ proc parseDocRowType*(target: var (seq[DocRowType] | DocRowType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocEntryType*(target: var (seq[DocEntryType] | DocEntryType |
     Option[DocEntryType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4298,6 +4400,8 @@ proc parseDocEntryType*(target: var (seq[DocEntryType] | DocEntryType |
       parseDocEntryType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4351,13 +4455,13 @@ proc parseDocEntryType*(target: var (seq[DocEntryType] | DocEntryType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
     Option[DocCaptionType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4369,6 +4473,8 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
       parseDocCaptionType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4402,13 +4508,13 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
     Option[DocHeadingType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4420,6 +4526,8 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
       parseDocHeadingType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4455,13 +4563,13 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
     Option[DocImageType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4473,6 +4581,8 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
       parseDocImageType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4520,13 +4630,13 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
     Option[DocTocItemType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4538,6 +4648,8 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
       parseDocTocItemType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4573,13 +4685,13 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocTocListType*(target: var (seq[DocTocListType] | DocTocListType |
     Option[DocTocListType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4591,6 +4703,8 @@ proc parseDocTocListType*(target: var (seq[DocTocListType] | DocTocListType |
       parseDocTocListType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4630,13 +4744,13 @@ proc parseDocTocListType*(target: var (seq[DocTocListType] | DocTocListType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocLanguageType*(target: var (seq[DocLanguageType] | DocLanguageType |
     Option[DocLanguageType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4648,6 +4762,8 @@ proc parseDocLanguageType*(target: var (seq[DocLanguageType] | DocLanguageType |
       parseDocLanguageType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4689,14 +4805,14 @@ proc parseDocLanguageType*(target: var (seq[DocLanguageType] | DocLanguageType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocParamListType*(target: var (
     seq[DocParamListType] | DocParamListType | Option[DocParamListType]);
                             parser: var HXmlParser; tag: string;
                             inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4708,6 +4824,8 @@ proc parseDocParamListType*(target: var (
       parseDocParamListType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4750,14 +4868,14 @@ proc parseDocParamListType*(target: var (
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocParamListItem*(target: var (
     seq[DocParamListItem] | DocParamListItem | Option[DocParamListItem]);
                             parser: var HXmlParser; tag: string;
                             inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4769,6 +4887,8 @@ proc parseDocParamListItem*(target: var (
       parseDocParamListItem(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4813,14 +4933,14 @@ proc parseDocParamListItem*(target: var (
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocParamNameList*(target: var (
     seq[DocParamNameList] | DocParamNameList | Option[DocParamNameList]);
                             parser: var HXmlParser; tag: string;
                             inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4832,6 +4952,8 @@ proc parseDocParamNameList*(target: var (
       parseDocParamNameList(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4874,13 +4996,13 @@ proc parseDocParamNameList*(target: var (
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocParamType*(target: var (seq[DocParamType] | DocParamType |
     Option[DocParamType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4892,6 +5014,8 @@ proc parseDocParamType*(target: var (seq[DocParamType] | DocParamType |
       parseDocParamType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4931,13 +5055,13 @@ proc parseDocParamType*(target: var (seq[DocParamType] | DocParamType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocParamName*(target: var (seq[DocParamName] | DocParamName |
     Option[DocParamName]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4949,6 +5073,8 @@ proc parseDocParamName*(target: var (seq[DocParamName] | DocParamName |
       parseDocParamName(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -4990,13 +5116,13 @@ proc parseDocParamName*(target: var (seq[DocParamName] | DocParamName |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocXRefSectType*(target: var (seq[DocXRefSectType] | DocXRefSectType |
     Option[DocXRefSectType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -5008,6 +5134,8 @@ proc parseDocXRefSectType*(target: var (seq[DocXRefSectType] | DocXRefSectType |
       parseDocXRefSectType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -5055,13 +5183,13 @@ proc parseDocXRefSectType*(target: var (seq[DocXRefSectType] | DocXRefSectType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocCopyType*(target: var (seq[DocCopyType] | DocCopyType |
     Option[DocCopyType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -5073,6 +5201,8 @@ proc parseDocCopyType*(target: var (seq[DocCopyType] | DocCopyType |
       parseDocCopyType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -5120,14 +5250,14 @@ proc parseDocCopyType*(target: var (seq[DocCopyType] | DocCopyType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocBlockQuoteType*(target: var (
     seq[DocBlockQuoteType] | DocBlockQuoteType | Option[DocBlockQuoteType]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -5139,6 +5269,8 @@ proc parseDocBlockQuoteType*(target: var (
       parseDocBlockQuoteType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -5178,13 +5310,13 @@ proc parseDocBlockQuoteType*(target: var (
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocParBlockType*(target: var (seq[DocParBlockType] | DocParBlockType |
     Option[DocParBlockType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -5196,6 +5328,8 @@ proc parseDocParBlockType*(target: var (seq[DocParBlockType] | DocParBlockType |
       parseDocParBlockType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -5235,13 +5369,13 @@ proc parseDocParBlockType*(target: var (seq[DocParBlockType] | DocParBlockType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocEmptyType*(target: var (seq[DocEmptyType] | DocEmptyType |
     Option[DocEmptyType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -5253,6 +5387,8 @@ proc parseDocEmptyType*(target: var (seq[DocEmptyType] | DocEmptyType |
       parseDocEmptyType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -5286,14 +5422,14 @@ proc parseDocEmptyType*(target: var (seq[DocEmptyType] | DocEmptyType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseTableofcontentsType*(target: var (seq[TableofcontentsType] |
     TableofcontentsType |
     Option[TableofcontentsType]); parser: var HXmlParser; tag: string;
                                inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -5305,6 +5441,8 @@ proc parseTableofcontentsType*(target: var (seq[TableofcontentsType] |
       parseTableofcontentsType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -5344,14 +5482,14 @@ proc parseTableofcontentsType*(target: var (seq[TableofcontentsType] |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseTableofcontentsKindType*(target: var (seq[TableofcontentsKindType] |
     TableofcontentsKindType |
     Option[TableofcontentsKindType]); parser: var HXmlParser; tag: string;
                                    inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -5363,6 +5501,8 @@ proc parseTableofcontentsKindType*(target: var (seq[TableofcontentsKindType] |
       parseTableofcontentsKindType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -5413,13 +5553,13 @@ proc parseTableofcontentsKindType*(target: var (seq[TableofcontentsKindType] |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDocEmojiType*(target: var (seq[DocEmojiType] | DocEmojiType |
     Option[DocEmojiType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 694:4:xml_to_types.nim
+  ## 693:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -5431,6 +5571,8 @@ proc parseDocEmojiType*(target: var (seq[DocEmojiType] | DocEmojiType |
       parseDocEmojiType(res, parser, tag)
       target = some(res)
   else:
+    if parser.elementName() != tag:
+      raiseUnexpectedElement(parser, tag)
     next(parser)
     var inAttributes = false
     while true:
@@ -5468,12 +5610,12 @@ proc parseDocEmojiType*(target: var (seq[DocEmojiType] | DocEmojiType |
           parser.next()
           break
         else:
-          discard
+          raiseUnexpectedElement(parser)
 
 
 proc parseDoxBool*(target: var (seq[DoxBool] | DoxBool | Option[DoxBool]);
                    parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxBool(res, parser, tag)
@@ -5493,7 +5635,7 @@ proc parseDoxBool*(target: var (seq[DoxBool] | DoxBool | Option[DoxBool]);
 proc parseDoxGraphRelation*(target: var (
     seq[DoxGraphRelation] | DoxGraphRelation | Option[DoxGraphRelation]);
                             parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxGraphRelation(res, parser, tag)
@@ -5522,7 +5664,7 @@ proc parseDoxGraphRelation*(target: var (
 
 proc parseDoxRefKind*(target: var (seq[DoxRefKind] | DoxRefKind |
     Option[DoxRefKind]); parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxRefKind(res, parser, tag)
@@ -5541,7 +5683,7 @@ proc parseDoxRefKind*(target: var (seq[DoxRefKind] | DoxRefKind |
 
 proc parseDoxMemberKind*(target: var (seq[DoxMemberKind] | DoxMemberKind |
     Option[DoxMemberKind]); parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxMemberKind(res, parser, tag)
@@ -5585,7 +5727,7 @@ proc parseDoxMemberKind*(target: var (seq[DoxMemberKind] | DoxMemberKind |
 proc parseDoxProtectionKind*(target: var (
     seq[DoxProtectionKind] | DoxProtectionKind | Option[DoxProtectionKind]);
                              parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxProtectionKind(res, parser, tag)
@@ -5609,7 +5751,7 @@ proc parseDoxProtectionKind*(target: var (
 proc parseDoxRefQualifierKind*(target: var (seq[DoxRefQualifierKind] |
     DoxRefQualifierKind |
     Option[DoxRefQualifierKind]); parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxRefQualifierKind(res, parser, tag)
@@ -5628,7 +5770,7 @@ proc parseDoxRefQualifierKind*(target: var (seq[DoxRefQualifierKind] |
 
 proc parseDoxLanguage*(target: var (seq[DoxLanguage] | DoxLanguage |
     Option[DoxLanguage]); parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxLanguage(res, parser, tag)
@@ -5673,7 +5815,7 @@ proc parseDoxLanguage*(target: var (seq[DoxLanguage] | DoxLanguage |
 
 proc parseDoxVirtualKind*(target: var (seq[DoxVirtualKind] | DoxVirtualKind |
     Option[DoxVirtualKind]); parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxVirtualKind(res, parser, tag)
@@ -5694,7 +5836,7 @@ proc parseDoxVirtualKind*(target: var (seq[DoxVirtualKind] | DoxVirtualKind |
 
 proc parseDoxCompoundKind*(target: var (seq[DoxCompoundKind] | DoxCompoundKind |
     Option[DoxCompoundKind]); parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxCompoundKind(res, parser, tag)
@@ -5743,7 +5885,7 @@ proc parseDoxCompoundKind*(target: var (seq[DoxCompoundKind] | DoxCompoundKind |
 
 proc parseDoxSectionKind*(target: var (seq[DoxSectionKind] | DoxSectionKind |
     Option[DoxSectionKind]); parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxSectionKind(res, parser, tag)
@@ -5831,7 +5973,7 @@ proc parseDoxSectionKind*(target: var (seq[DoxSectionKind] | DoxSectionKind |
 proc parseDoxHighlightClass*(target: var (
     seq[DoxHighlightClass] | DoxHighlightClass | Option[DoxHighlightClass]);
                              parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxHighlightClass(res, parser, tag)
@@ -5871,7 +6013,7 @@ proc parseDoxHighlightClass*(target: var (
 proc parseDoxSimpleSectKind*(target: var (
     seq[DoxSimpleSectKind] | DoxSimpleSectKind | Option[DoxSimpleSectKind]);
                              parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxSimpleSectKind(res, parser, tag)
@@ -5921,7 +6063,7 @@ proc parseDoxSimpleSectKind*(target: var (
 proc parseDoxVersionNumber*(target: var (
     seq[DoxVersionNumber] | DoxVersionNumber | Option[DoxVersionNumber]);
                             parser: var HXmlParser; tag: string) =
-  ## 792:10:xml_to_types.nim
+  ## 791:10:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxVersionNumber(res, parser, tag)
@@ -5938,7 +6080,7 @@ proc parseDoxVersionNumber*(target: var (
 
 proc parseDoxImageKind*(target: var (seq[DoxImageKind] | DoxImageKind |
     Option[DoxImageKind]); parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxImageKind(res, parser, tag)
@@ -5962,7 +6104,7 @@ proc parseDoxImageKind*(target: var (seq[DoxImageKind] | DoxImageKind |
 proc parseDoxParamListKind*(target: var (
     seq[DoxParamListKind] | DoxParamListKind | Option[DoxParamListKind]);
                             parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxParamListKind(res, parser, tag)
@@ -5985,7 +6127,7 @@ proc parseDoxParamListKind*(target: var (
 
 proc parseDoxCharRange*(target: var (seq[DoxCharRange] | DoxCharRange |
     Option[DoxCharRange]); parser: var HXmlParser; tag: string) =
-  ## 792:10:xml_to_types.nim
+  ## 791:10:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxCharRange(res, parser, tag)
@@ -6002,7 +6144,7 @@ proc parseDoxCharRange*(target: var (seq[DoxCharRange] | DoxCharRange |
 
 proc parseDoxParamDir*(target: var (seq[DoxParamDir] | DoxParamDir |
     Option[DoxParamDir]); parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxParamDir(res, parser, tag)
@@ -6023,7 +6165,7 @@ proc parseDoxParamDir*(target: var (seq[DoxParamDir] | DoxParamDir |
 
 proc parseDoxAccessor*(target: var (seq[DoxAccessor] | DoxAccessor |
     Option[DoxAccessor]); parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxAccessor(res, parser, tag)
@@ -6050,7 +6192,7 @@ proc parseDoxAccessor*(target: var (seq[DoxAccessor] | DoxAccessor |
 
 proc parseDoxAlign*(target: var (seq[DoxAlign] | DoxAlign | Option[DoxAlign]);
                     parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxAlign(res, parser, tag)
@@ -6072,7 +6214,7 @@ proc parseDoxAlign*(target: var (seq[DoxAlign] | DoxAlign | Option[DoxAlign]);
 proc parseDoxVerticalAlign*(target: var (
     seq[DoxVerticalAlign] | DoxVerticalAlign | Option[DoxVerticalAlign]);
                             parser: var HXmlParser; tag: string) =
-  ## 752:4:xml_to_types.nim
+  ## 751:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxVerticalAlign(res, parser, tag)
