@@ -365,12 +365,27 @@ proc doxygenXmlForDir*(
     discard
     # rmFile doxFile
 
-proc listGeneratedFiles*(toDir: AbsDir): seq[AbsFile] =
-  discard
-
-proc parseDoxygenXml*(xml: AbsFile): DoxIndex.DoxygenType =
+proc parseDoxygenIndex*(xml: AbsFile): DoxIndex.DoxygenType =
   var parser = newHXmlParser(xml)
   parseDoxygenType(result, parser, "doxygenindex")
+
+proc parseDoxygenFile*(xml: AbsFile): DoxCompound.DoxygenType =
+  var parser = newHXmlParser(xml, true)
+  parseDoxygenType(result, parser, "doxygen")
+
+const
+  allDoxIndexKinds* = {low(DoxIndex.CompoundKind) .. high(DoxIndex.CompoundKind)}
+
+proc listGeneratedFiles*(
+    toDir: AbsDir,
+    filter: set[CompoundKind] = allDoxIndexKinds - {ckFile, ckDir}
+  ): seq[AbsFile] =
+
+  let index = parseDoxygenIndex(toDir / "xml" /. "index.xml")
+  for item in index.compound:
+    if item.kind in filter:
+      result.add toDir / "xml" /. (item.refid & ".xml")
+
 
 import hpprint
 
@@ -398,7 +413,10 @@ class Cpp {};
 
   let toDir = dir / "doxygen_xml"
   doxygenXmlForDir(dir, toDir, doxyfilePattern = "Doxyfile")
-  let index = parseDoxygenXml(toDir / "xml" /. "index.xml")
-  pprint index
+  let files = listGeneratedFiles(toDir)
+  for file in files:
+    echo file
+    let parsed = parseDoxygenFile(file)
+    pprint parsed
 
   echo "ok"

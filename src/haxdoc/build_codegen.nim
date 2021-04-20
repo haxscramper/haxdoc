@@ -19,8 +19,11 @@ proc doxygenXmlGenerate() =
 
   echo "Doxygen generate done"
 
+  # execShell shellCmd(
+  #   nim, check, errormax = 1, "extract/from_doxygen_xml.nim")
+  # echo "Compilation ok"
+
   execShell shellCmd(nim, r, "extract/from_doxygen_xml.nim")
-  echo "Compilation ok"
 
 
 

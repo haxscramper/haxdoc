@@ -71,7 +71,7 @@ proc parseMemberKind*(target: var (seq[MemberKind] | MemberKind |
 proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
     Option[DoxygenType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 693:4:xml_to_types.nim
+  ## 643:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -83,10 +83,7 @@ proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
       parseDoxygenType(res, parser, tag)
       target = some(res)
   else:
-    if parser.elementName() != tag:
-      raiseUnexpectedElement(parser, tag)
     next(parser)
-    var inAttributes = false
     while true:
       case parser.kind
       of xmlAttribute:
@@ -94,31 +91,21 @@ proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
         of "version":
           parseXsdString(target.version, parser, "version")
         else:
-          ## 485:4:xml_to_types.nim
+          ## 508:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
-        if parser.kind == xmlElementOpen:
-          inAttributes = true
         case parser.elementName()
         of "compound":
-          ## 521:26:xml_to_types.nim
+          ## 607:48:xml_to_types.nim
           parseCompoundType(target.compound, parser, "compound", false)
         else:
-          ## 618:4:xml_to_types.nim
+          ## 612:4:xml_to_types.nim
           if inMixed:
             return
           else:
             raiseUnexpectedElement(parser)
-      of xmlCharData:
-        ## 649:10:xml_to_types.nim
-        parseCompoundType(target.compound, parser, tag)
-      of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
-          xmlEntity, xmlSpecial}:
-        ## 667:6:xml_to_types.nim
-        echo parser.displayAt()
-        assert false
       of xmlElementClose:
         parser.next()
       of xmlElementEnd:
@@ -127,12 +114,17 @@ proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
           break
         else:
           raiseUnexpectedElement(parser)
+      of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
+          xmlCData, xmlEntity, xmlSpecial}:
+        ## 636:6:xml_to_types.nim
+        echo parser.displayAt()
+        assert false
 
 
 proc parseCompoundType*(target: var (seq[CompoundType] | CompoundType |
     Option[CompoundType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 693:4:xml_to_types.nim
+  ## 643:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -144,10 +136,7 @@ proc parseCompoundType*(target: var (seq[CompoundType] | CompoundType |
       parseCompoundType(res, parser, tag)
       target = some(res)
   else:
-    if parser.elementName() != tag:
-      raiseUnexpectedElement(parser, tag)
     next(parser)
-    var inAttributes = false
     while true:
       case parser.kind
       of xmlAttribute:
@@ -157,36 +146,26 @@ proc parseCompoundType*(target: var (seq[CompoundType] | CompoundType |
         of "kind":
           parseCompoundKind(target.kind, parser, "kind")
         else:
-          ## 485:4:xml_to_types.nim
+          ## 508:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
-        if parser.kind == xmlElementOpen:
-          inAttributes = true
         case parser.elementName()
         of "name":
-          ## 521:26:xml_to_types.nim
+          ## 607:48:xml_to_types.nim
           skipElementStart(parser, "name")
-          parseXsdString(target.name, parser)
+          parseXsdString(target.name, parser, "name")
           skipElementEnd(parser, "name")
         of "member":
-          ## 521:26:xml_to_types.nim
+          ## 607:48:xml_to_types.nim
           parseMemberType(target.member, parser, "member", false)
         else:
-          ## 618:4:xml_to_types.nim
+          ## 612:4:xml_to_types.nim
           if inMixed:
             return
           else:
             raiseUnexpectedElement(parser)
-      of xmlCharData:
-        ## 649:10:xml_to_types.nim
-        parseXsdString(target.name, parser, tag)
-      of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
-          xmlEntity, xmlSpecial}:
-        ## 667:6:xml_to_types.nim
-        echo parser.displayAt()
-        assert false
       of xmlElementClose:
         parser.next()
       of xmlElementEnd:
@@ -195,12 +174,17 @@ proc parseCompoundType*(target: var (seq[CompoundType] | CompoundType |
           break
         else:
           raiseUnexpectedElement(parser)
+      of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
+          xmlCData, xmlEntity, xmlSpecial}:
+        ## 636:6:xml_to_types.nim
+        echo parser.displayAt()
+        assert false
 
 
 proc parseMemberType*(target: var (seq[MemberType] | MemberType |
     Option[MemberType]); parser: var HXmlParser; tag: string;
                       inMixed: bool = false) =
-  ## 693:4:xml_to_types.nim
+  ## 643:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -212,10 +196,7 @@ proc parseMemberType*(target: var (seq[MemberType] | MemberType |
       parseMemberType(res, parser, tag)
       target = some(res)
   else:
-    if parser.elementName() != tag:
-      raiseUnexpectedElement(parser, tag)
     next(parser)
-    var inAttributes = false
     while true:
       case parser.kind
       of xmlAttribute:
@@ -225,33 +206,23 @@ proc parseMemberType*(target: var (seq[MemberType] | MemberType |
         of "kind":
           parseMemberKind(target.kind, parser, "kind")
         else:
-          ## 485:4:xml_to_types.nim
+          ## 508:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
-        if parser.kind == xmlElementOpen:
-          inAttributes = true
         case parser.elementName()
         of "name":
-          ## 521:26:xml_to_types.nim
+          ## 607:48:xml_to_types.nim
           skipElementStart(parser, "name")
-          parseXsdString(target.name, parser)
+          parseXsdString(target.name, parser, "name")
           skipElementEnd(parser, "name")
         else:
-          ## 618:4:xml_to_types.nim
+          ## 612:4:xml_to_types.nim
           if inMixed:
             return
           else:
             raiseUnexpectedElement(parser)
-      of xmlCharData:
-        ## 649:10:xml_to_types.nim
-        parseXsdString(target.name, parser, tag)
-      of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
-          xmlEntity, xmlSpecial}:
-        ## 667:6:xml_to_types.nim
-        echo parser.displayAt()
-        assert false
       of xmlElementClose:
         parser.next()
       of xmlElementEnd:
@@ -260,11 +231,16 @@ proc parseMemberType*(target: var (seq[MemberType] | MemberType |
           break
         else:
           raiseUnexpectedElement(parser)
+      of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
+          xmlCData, xmlEntity, xmlSpecial}:
+        ## 636:6:xml_to_types.nim
+        echo parser.displayAt()
+        assert false
 
 
 proc parseCompoundKind*(target: var (seq[CompoundKind] | CompoundKind |
     Option[CompoundKind]); parser: var HXmlParser; tag: string) =
-  ## 751:4:xml_to_types.nim
+  ## 689:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseCompoundKind(res, parser, tag)
@@ -307,7 +283,7 @@ proc parseCompoundKind*(target: var (seq[CompoundKind] | CompoundKind |
 
 proc parseMemberKind*(target: var (seq[MemberKind] | MemberKind |
     Option[MemberKind]); parser: var HXmlParser; tag: string) =
-  ## 751:4:xml_to_types.nim
+  ## 689:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseMemberKind(res, parser, tag)
