@@ -13,12 +13,6 @@ import nimtrail/nimtrail_common
 import cxxstd/cxx_common
 
 
-converter toAbsoluteDir*(dir: AbsDir): AbsoluteDir =
-  AbsoluteDir(dir.string)
-
-converter toAbsoluteFile*(file: AbsFile): AbsoluteFile =
-  AbsoluteFile(file.string)
-
 proc parsePNode(file: AbsFile): PNode =
   let cache: IdentCache = newIdentCache()
   let config: ConfigRef = newConfigRef()
@@ -39,14 +33,6 @@ proc parsePNode(file: AbsFile): PNode =
   result = parseAll(pars)
   closeParser(pars)
 
-proc getFilePath*(config: ConfigRef, info: TLineInfo): AbsoluteFile =
-  ## Get absolute file path for declaration location of `node`
-  if info.fileIndex.int32 >= 0:
-    result = config.m.fileInfos[info.fileIndex.int32].fullPath
-
-proc getFilePath(graph: ModuleGraph, node: PNode): AbsoluteFile =
-  ## Get absolute file path for declaration location of `node`
-  graph.config.getFilePath(node.getInfo())
 
 
 template excludeAllNotes(config: ConfigRef; n: typed) =
@@ -75,8 +61,6 @@ converter toSourcetrailSourceRange*(
   result.startColumn = arg.ranges[1].cint
   result.endLine = arg.ranges[2].cint
   result.endColumn = arg.ranges[3].cint
-
-  # debug result
 
 proc typeHead(node: PNode): PNode =
   case node.kind:
@@ -143,8 +127,6 @@ converter toSourcetrailSourceRange*(
     arg.name.info.col + len($head).int16
   ]
 
-
-  # info arg.name.kind
   if head.kind in {nkSym, nkIdent}:
     if arg.name.kind == nkTypeDef:
       loc[1] -= len($head).int16 + 1
@@ -157,20 +139,7 @@ converter toSourcetrailSourceRange*(
 
 
 
-  # if loc[3] > loc[1] + 30:
-  #   info loc
-  #   info arg.name.info.line
-  #   info head
-  #   debug head.treeRepr()
-
   result = toSourcetrailSourcerange((arg.file, loc))
-
-# proc returnType*[N](ntype: NType[N]): Option[NType[N]] =
-#   if ntype.rtype.isSome():
-#     return some ntype.rType.get().getIt()
-
-
-
 
 proc recordNodeLocation(
   ctx: SourcetrailContext, nodeSymbolId: cint, node: PNode): cint =
@@ -227,12 +196,6 @@ proc registerCalls(
         else:
           if isNil(node.sym.ast):
             discard
-            # warn "Proc symbol with nil ast"
-            # debug node.getInfo()
-            # debug ctx.graph.getFilePath(node)
-            # debug node
-            # debug parent
-
 
       elif node.sym.kind in {skParam, skForVar, skVar, skResult,
                               skLet, skConst}:
@@ -371,16 +334,6 @@ proc registerProcDef(ctx: SourcetrailContext, fileId: cint, procDef: PNode): cin
         #   if not branch.isElse:
         #     result.add branch.ofValue
 
-proc isObjectDecl(node: PNode): bool =
-  node.kind == nkTypeDef and
-  (
-    node[2].kind == nkObjectTy or
-    (
-      node[2].kind in {nkPtrTy, nkRefTy} and
-      node[2][0].kind == nkObjectTy
-    )
-  )
-
 proc setValues(node: PNode): seq[PNode] =
   case node.kind:
     of nkIdent: return @[node]
@@ -395,149 +348,9 @@ proc setValues(node: PNode): seq[PNode] =
     else:
       raiseImplementKindError(node)
 
-proc registerTypeDef(
-  ctx: SourcetrailContext, node: PNode, fileId: cint): cint =
-
-  if isObjectDecl(node):
-    let objectDecl: PObjectDecl =
-      try:
-        parseObject(node, parsePPragma)
-
-      except:
-        err "Failed to register type def"
-        debug node
-        raise
-
-    let objNameHierarchy = ("", objectDecl.name.head, "")
-    let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
-    discard ctx.recordNodeLocation(objectSymbol, objectDecl.declNode.get())
-
-    for fld in getBranchFields(objectDecl):
-      let switchType = fld.fldType
-      debug switchType
-      let typeName = $switchType.declNode.get()
-      for branch in fld.branches:
-        if not branch.isElse:
-          for value in branch.ofValue.setValues():
-            let referencedSymbol = ctx.writer[].recordSymbol(
-              sskEnumConstant, [("", typeName, ""), ("", $value, "")])
-
-            let referenceId = ctx.writer[].recordReference(
-              objectSymbol, referencedSymbol, srkUsage)
-
-            discard ctx.writer[].recordReferenceLocation(
-              referenceId, (fileId, value))
-
-      # debug "Field branch value", value.treeRepr()
-      # registerCalls(ctx, value, fileId, objectSymbol, nil)
-
-    for fld in iterateFields(objectDecl):
-      if fld.fldType.declNode.isSome():
-        # let fldType = fld.fldType.declNode.get()
-
-        let fieldSymbol = ctx.writer[].recordSymbol(
-          sskField, objNameHierarchy, ("", fld.name, ""))
-
-        discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
-
-        registerTypeUse(ctx, fieldSymbol, fileId, fld.fldType)
-
-  elif node[2].kind == nkEnumTy:
-    let enumDecl: PEnumDecl = parseEnum(node)
-
-    let enumName = ("", enumDecl.name, "")
-    let enumSymbol = ctx.writer[].recordSymbol(sskEnum, enumName)
-    discard ctx.recordNodeLocation(enumSymbol, enumDecl.declNode.get())
-    for fld in enumDecl.values:
-      let valueSymbol = ctx.writer[].recordSymbol(
-        sskEnumConstant,
-        enumName, ("", fld.name, ""))
-
-      discard ctx.recordNodeLocation(valueSymbol, fld.declNode.get())
-
-  elif node[2].kind in {
-      nkDistinctTy, nkSym, nkPtrTy, nkRefTy, nkProcTy, nkTupleTy,
-      nkBracketExpr, nkInfix, nkVarTy
-    }:
-
-    let path = ("", $node[0], "")
-    let aliasSymbol = ctx.writer[].recordSymbol(sskTypedef, path)
-    discard ctx.recordNodeLocation(aliasSymbol, node)
-    # debug ""
-    # info path
-    # logIndented:
-    # debug node.treeRepr()
-    registerTypeUse(ctx, aliasSymbol, fileId, parseNType(node[2]))
-
-  elif node[0].kind in {nkPragmaExpr}:
-    # err "Unhandled pragma expression"
-    # debug treeRepr(node)
-
-    let path = ("", $node[0][0], "")
-    let sym = ctx.writer[].recordSymbol(sskBuiltinType, path)
-    discard ctx.recordNodeLocation(sym, node[0][0])
-
-  elif node[2].kind in {nkCall}:
-    # `Type = typeof(expr())`
-    discard
-
-  elif node[2].kind in {nkTypeClassTy}:
-    # IMPLEMENT concept indexing
-    discard
-
-  else:
-    warn node[2].kind
-    debug node
-    debug treeRepr(node)
-
-
-
 proc getFileId(ctx: SourcetrailContext, node: PNode): cint =
   let filePath = ctx.graph.getFilePath(node).string
   return ctx.writer[].recordFile(filePath)
-
-
-proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
-  case node.kind:
-    of nkProcDeclKinds:
-      let filePath = ctx.graph.getFilePath(node).string
-      let fileId = ctx.writer[].recordFile(filePath)
-
-      try:
-        discard ctx.registerProcDef(fileId, node)
-
-      except:
-        echo node
-        echo treeRepr(node, maxdepth = 6, indexed = true)
-        raise
-
-    of nkTypeSection:
-      for typeDecl in node:
-        try:
-          registerToplevel(ctx, typeDecl)
-
-        except:
-          echo typeDecl
-          echo treeRepr(typeDecl, indexed = true)
-          raise
-
-
-    of nkTypeDef:
-      discard ctx.registerTypeDef(node, ctx.getFileId(node))
-
-    of nkStmtList:
-      for subnode in node:
-        registerTopLevel(ctx, subnode)
-
-    of nkEmpty:
-      discard
-
-    of nkCommentStmt, nkIncludeStmt, nkImportStmt, nkPragma, nkExportStmt:
-      discard
-
-    else:
-      let fileId = ctx.getFileId(node)
-      ctx.registerCalls(node, fileId, fileId, nil)
 
 
 

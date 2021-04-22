@@ -12,12 +12,12 @@ type
   CompounddefType* = object
     id*: string
     kind*: DoxCompoundKind
-    language*: DoxLanguage
+    language*: Option[DoxLanguage]
     prot*: DoxProtectionKind
-    final*: DoxBool
-    inline*: DoxBool
-    sealed*: DoxBool
-    abstract*: DoxBool
+    final*: Option[DoxBool]
+    inline*: Option[DoxBool]
+    sealed*: Option[DoxBool]
+    abstract*: Option[DoxBool]
     compoundname*: string
     title*: Option[string]
     basecompoundref*: seq[CompoundRefType]
@@ -59,7 +59,7 @@ type
     baseExt*: string
 
   CompoundRefType* = object
-    refid*: string
+    refid*: Option[string]
     prot*: DoxProtectionKind
     virt*: DoxVirtualKind
     baseExt*: string
@@ -75,66 +75,66 @@ type
 
   RefType* = object
     refid*: string
-    prot*: DoxProtectionKind
-    inline*: DoxBool
+    prot*: Option[DoxProtectionKind]
+    inline*: Option[DoxBool]
     baseExt*: string
 
   RefTextType* = object
     refid*: string
     kindref*: DoxRefKind
-    external*: string
-    tooltip*: string
+    external*: Option[string]
+    tooltip*: Option[string]
     baseExt*: string
 
   SectiondefType* = object
     kind*: DoxSectionKind
     header*: Option[string]
     description*: Option[DescriptionType]
-    memberdef*: MemberdefType
+    memberdef*: seq[MemberdefType]
 
   MemberdefType* = object
     kind*: DoxMemberKind
     id*: string
     prot*: DoxProtectionKind
     fStatic*: DoxBool
-    strong*: DoxBool
-    fConst*: DoxBool
-    explicit*: DoxBool
-    inline*: DoxBool
-    refqual*: DoxRefQualifierKind
-    virt*: DoxVirtualKind
-    volatile*: DoxBool
-    mutable*: DoxBool
-    noexcept*: DoxBool
-    constexpr*: DoxBool
-    readable*: DoxBool
-    writable*: DoxBool
-    initonly*: DoxBool
-    settable*: DoxBool
-    privatesettable*: DoxBool
-    protectedsettable*: DoxBool
-    gettable*: DoxBool
-    privategettable*: DoxBool
-    protectedgettable*: DoxBool
-    final*: DoxBool
-    sealed*: DoxBool
-    new*: DoxBool
-    add*: DoxBool
-    remove*: DoxBool
-    fRaise*: DoxBool
-    optional*: DoxBool
-    required*: DoxBool
-    accessor*: DoxAccessor
-    attribute*: DoxBool
-    property*: DoxBool
-    readonly*: DoxBool
-    bound*: DoxBool
-    removable*: DoxBool
-    constrained*: DoxBool
-    transient*: DoxBool
-    maybevoid*: DoxBool
-    maybedefault*: DoxBool
-    maybeambiguous*: DoxBool
+    strong*: Option[DoxBool]
+    fConst*: Option[DoxBool]
+    explicit*: Option[DoxBool]
+    inline*: Option[DoxBool]
+    refqual*: Option[DoxRefQualifierKind]
+    virt*: Option[DoxVirtualKind]
+    volatile*: Option[DoxBool]
+    mutable*: Option[DoxBool]
+    noexcept*: Option[DoxBool]
+    constexpr*: Option[DoxBool]
+    readable*: Option[DoxBool]
+    writable*: Option[DoxBool]
+    initonly*: Option[DoxBool]
+    settable*: Option[DoxBool]
+    privatesettable*: Option[DoxBool]
+    protectedsettable*: Option[DoxBool]
+    gettable*: Option[DoxBool]
+    privategettable*: Option[DoxBool]
+    protectedgettable*: Option[DoxBool]
+    final*: Option[DoxBool]
+    sealed*: Option[DoxBool]
+    new*: Option[DoxBool]
+    add*: Option[DoxBool]
+    remove*: Option[DoxBool]
+    fRaise*: Option[DoxBool]
+    optional*: Option[DoxBool]
+    required*: Option[DoxBool]
+    accessor*: Option[DoxAccessor]
+    attribute*: Option[DoxBool]
+    property*: Option[DoxBool]
+    readonly*: Option[DoxBool]
+    bound*: Option[DoxBool]
+    removable*: Option[DoxBool]
+    constrained*: Option[DoxBool]
+    transient*: Option[DoxBool]
+    maybevoid*: Option[DoxBool]
+    maybedefault*: Option[DoxBool]
+    maybeambiguous*: Option[DoxBool]
     templateparamlist*: Option[TemplateparamlistType]
     fType*: Option[LinkedTextType]
     definition*: Option[XmlNode]
@@ -230,7 +230,7 @@ type
     xsdChoice*: seq[LinkedTextTypeBody]
 
   GraphType* = object
-    node*: NodeType
+    node*: seq[NodeType]
 
   NodeType* = object
     id*: string
@@ -245,10 +245,10 @@ type
 
   LinkType* = object
     refid*: string
-    external*: string
+    external*: Option[string]
 
   ListingType* = object
-    filename*: string
+    filename*: Option[string]
     codeline*: seq[CodelineType]
 
   CodelineType* = object
@@ -285,7 +285,7 @@ type
 
   
   SpType* = object
-    value*: int
+    value*: Option[int]
     xsdChoice*: seq[SpTypeBody]
 
   ReferenceTypeKind* = enum
@@ -298,7 +298,7 @@ type
   
   ReferenceType* = object
     refid*: string
-    compoundref*: string
+    compoundref*: Option[string]
     startline*: int
     endline*: int
     xsdChoice*: seq[ReferenceTypeBody]
@@ -306,10 +306,10 @@ type
   LocationType* = object
     file*: string
     line*: int
-    column*: int
-    declfile*: string
-    declline*: int
-    declcolumn*: int
+    column*: Option[int]
+    declfile*: Option[string]
+    declline*: Option[int]
+    declcolumn*: Option[int]
     bodyfile*: string
     bodystart*: int
     bodyend*: int
@@ -872,7 +872,7 @@ type
     secondaryie*: string
 
   DocListType* = object
-    listitem*: DocListItemType
+    listitem*: seq[DocListItemType]
 
   DocListItemType* = object
     para*: seq[DocParaType]
@@ -1427,13 +1427,13 @@ type
 
   
   DocImageType* = object
-    fType*: DoxImageKind
-    name*: string
-    width*: string
-    height*: string
-    alt*: string
-    inline*: DoxBool
-    caption*: string
+    fType*: Option[DoxImageKind]
+    name*: Option[string]
+    width*: Option[string]
+    height*: Option[string]
+    alt*: Option[string]
+    inline*: Option[DoxBool]
+    caption*: Option[string]
     xsdChoice*: seq[DocImageTypeBody]
 
   DocTocItemTypeKind* = enum
@@ -1619,7 +1619,7 @@ type
 
   
   DocParamName* = object
-    direction*: DoxParamDir
+    direction*: Option[DoxParamDir]
     xsdChoice*: seq[DocParamNameBody]
 
   DocXRefSectType* = object
@@ -1642,7 +1642,7 @@ type
   DocEmptyType* = object
   
   TableofcontentsType* = object
-    tocsect*: TableofcontentsKindType
+    tocsect*: seq[TableofcontentsKindType]
 
   TableofcontentsKindType* = object
     name*: string
@@ -2192,7 +2192,7 @@ proc parseDoxVerticalAlign*(target: var (
 proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
     Option[DoxygenType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2212,17 +2212,17 @@ proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
         of "version":
           parseDoxVersionNumber(target.version, parser, "version")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "compounddef":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseCompounddefType(target.compounddef, parser, "compounddef", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2237,7 +2237,7 @@ proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -2245,7 +2245,7 @@ proc parseDoxygenType*(target: var (seq[DoxygenType] | DoxygenType |
 proc parseCompounddefType*(target: var (seq[CompounddefType] | CompounddefType |
     Option[CompounddefType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2279,100 +2279,100 @@ proc parseCompounddefType*(target: var (seq[CompounddefType] | CompounddefType |
         of "abstract":
           parseDoxBool(target.abstract, parser, "abstract")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "compoundname":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "compoundname")
           parseXsdString(target.compoundname, parser, "compoundname")
           skipElementEnd(parser, "compoundname")
         of "title":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "title")
           parseXsdString(target.title, parser, "title")
           skipElementEnd(parser, "title")
         of "basecompoundref":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseCompoundRefType(target.basecompoundref, parser,
                                "basecompoundref", false)
         of "derivedcompoundref":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseCompoundRefType(target.derivedcompoundref, parser,
                                "derivedcompoundref", false)
         of "includes":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseIncType(target.includes, parser, "includes", false)
         of "includedby":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseIncType(target.includedby, parser, "includedby", false)
         of "incdepgraph":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseGraphType(target.incdepgraph, parser, "incdepgraph", false)
         of "invincdepgraph":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseGraphType(target.invincdepgraph, parser, "invincdepgraph", false)
         of "innerdir":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseRefType(target.innerdir, parser, "innerdir", false)
         of "innerfile":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseRefType(target.innerfile, parser, "innerfile", false)
         of "innerclass":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseRefType(target.innerclass, parser, "innerclass", false)
         of "innernamespace":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseRefType(target.innernamespace, parser, "innernamespace", false)
         of "innerpage":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseRefType(target.innerpage, parser, "innerpage", false)
         of "innergroup":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseRefType(target.innergroup, parser, "innergroup", false)
         of "templateparamlist":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseTemplateparamlistType(target.templateparamlist, parser,
                                      "templateparamlist", false)
         of "sectiondef":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseSectiondefType(target.sectiondef, parser, "sectiondef", false)
         of "tableofcontents":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseTableofcontentsType(target.tableofcontents, parser,
                                    "tableofcontents", false)
         of "briefdescription":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDescriptionType(target.briefdescription, parser,
                                "briefdescription", false)
         of "detaileddescription":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDescriptionType(target.detaileddescription, parser,
                                "detaileddescription", false)
         of "inheritancegraph":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseGraphType(target.inheritancegraph, parser, "inheritancegraph",
                          false)
         of "collaborationgraph":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseGraphType(target.collaborationgraph, parser,
                          "collaborationgraph", false)
         of "programlisting":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseListingType(target.programlisting, parser, "programlisting",
                            false)
         of "location":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseLocationType(target.location, parser, "location", false)
         of "listofallmembers":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseListofallmembersType(target.listofallmembers, parser,
                                     "listofallmembers", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2387,7 +2387,7 @@ proc parseCompounddefType*(target: var (seq[CompounddefType] | CompounddefType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -2396,7 +2396,7 @@ proc parseListofallmembersType*(target: var (seq[ListofallmembersType] |
     ListofallmembersType |
     Option[ListofallmembersType]); parser: var HXmlParser; tag: string;
                                 inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2414,17 +2414,17 @@ proc parseListofallmembersType*(target: var (seq[ListofallmembersType] |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "member":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseMemberRefType(target.member, parser, "member", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2439,7 +2439,7 @@ proc parseListofallmembersType*(target: var (seq[ListofallmembersType] |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -2447,7 +2447,7 @@ proc parseListofallmembersType*(target: var (seq[ListofallmembersType] |
 proc parseMemberRefType*(target: var (seq[MemberRefType] | MemberRefType |
     Option[MemberRefType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2473,24 +2473,24 @@ proc parseMemberRefType*(target: var (seq[MemberRefType] | MemberRefType |
         of "ambiguityscope":
           parseXsdString(target.ambiguityscope, parser, "ambiguityscope")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "scope":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "scope")
           parseXsdAnytype(target.scope, parser, "scope")
           skipElementEnd(parser, "scope")
         of "name":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "name")
           parseXsdAnytype(target.name, parser, "name")
           skipElementEnd(parser, "name")
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2505,7 +2505,7 @@ proc parseMemberRefType*(target: var (seq[MemberRefType] | MemberRefType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -2513,7 +2513,7 @@ proc parseMemberRefType*(target: var (seq[MemberRefType] | MemberRefType |
 proc parseDocHtmlOnlyType*(target: var (seq[DocHtmlOnlyType] | DocHtmlOnlyType |
     Option[DocHtmlOnlyType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2533,19 +2533,19 @@ proc parseDocHtmlOnlyType*(target: var (seq[DocHtmlOnlyType] | DocHtmlOnlyType |
         of "block":
           parseXsdString(target.fBlock, parser, "block")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
+      of xmlCharData:
+        ## 540:8:xml_to_types.nim
+        var tmp: string
+        parseXsdString(tmp, parser, "")
+        target.baseExt = tmp
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
-        of "":
-          ## 607:48:xml_to_types.nim
-          skipElementStart(parser, "")
-          parseXsdString(target.baseExt, parser, "")
-          skipElementEnd(parser, "")
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2558,9 +2558,9 @@ proc parseDocHtmlOnlyType*(target: var (seq[DocHtmlOnlyType] | DocHtmlOnlyType |
           break
         else:
           raiseUnexpectedElement(parser)
-      of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
-          xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+      of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
+          xmlEntity, xmlSpecial}:
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -2568,7 +2568,7 @@ proc parseDocHtmlOnlyType*(target: var (seq[DocHtmlOnlyType] | DocHtmlOnlyType |
 proc parseCompoundRefType*(target: var (seq[CompoundRefType] | CompoundRefType |
     Option[CompoundRefType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2592,19 +2592,19 @@ proc parseCompoundRefType*(target: var (seq[CompoundRefType] | CompoundRefType |
         of "virt":
           parseDoxVirtualKind(target.virt, parser, "virt")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
+      of xmlCharData:
+        ## 540:8:xml_to_types.nim
+        var tmp: string
+        parseXsdString(tmp, parser, "")
+        target.baseExt = tmp
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
-        of "":
-          ## 607:48:xml_to_types.nim
-          skipElementStart(parser, "")
-          parseXsdString(target.baseExt, parser, "")
-          skipElementEnd(parser, "")
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2617,9 +2617,9 @@ proc parseCompoundRefType*(target: var (seq[CompoundRefType] | CompoundRefType |
           break
         else:
           raiseUnexpectedElement(parser)
-      of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
-          xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+      of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
+          xmlEntity, xmlSpecial}:
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -2627,7 +2627,7 @@ proc parseCompoundRefType*(target: var (seq[CompoundRefType] | CompoundRefType |
 proc parseReimplementType*(target: var (seq[ReimplementType] | ReimplementType |
     Option[ReimplementType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2647,19 +2647,19 @@ proc parseReimplementType*(target: var (seq[ReimplementType] | ReimplementType |
         of "refid":
           parseXsdString(target.refid, parser, "refid")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
+      of xmlCharData:
+        ## 540:8:xml_to_types.nim
+        var tmp: string
+        parseXsdString(tmp, parser, "")
+        target.baseExt = tmp
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
-        of "":
-          ## 607:48:xml_to_types.nim
-          skipElementStart(parser, "")
-          parseXsdString(target.baseExt, parser, "")
-          skipElementEnd(parser, "")
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2672,16 +2672,16 @@ proc parseReimplementType*(target: var (seq[ReimplementType] | ReimplementType |
           break
         else:
           raiseUnexpectedElement(parser)
-      of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
-          xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+      of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
+          xmlEntity, xmlSpecial}:
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
 
 proc parseIncType*(target: var (seq[IncType] | IncType | Option[IncType]);
                    parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2703,19 +2703,19 @@ proc parseIncType*(target: var (seq[IncType] | IncType | Option[IncType]);
         of "local":
           parseDoxBool(target.local, parser, "local")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
+      of xmlCharData:
+        ## 540:8:xml_to_types.nim
+        var tmp: string
+        parseXsdString(tmp, parser, "")
+        target.baseExt = tmp
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
-        of "":
-          ## 607:48:xml_to_types.nim
-          skipElementStart(parser, "")
-          parseXsdString(target.baseExt, parser, "")
-          skipElementEnd(parser, "")
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2728,16 +2728,16 @@ proc parseIncType*(target: var (seq[IncType] | IncType | Option[IncType]);
           break
         else:
           raiseUnexpectedElement(parser)
-      of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
-          xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+      of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
+          xmlEntity, xmlSpecial}:
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
 
 proc parseRefType*(target: var (seq[RefType] | RefType | Option[RefType]);
                    parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2761,19 +2761,19 @@ proc parseRefType*(target: var (seq[RefType] | RefType | Option[RefType]);
         of "inline":
           parseDoxBool(target.inline, parser, "inline")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
+      of xmlCharData:
+        ## 540:8:xml_to_types.nim
+        var tmp: string
+        parseXsdString(tmp, parser, "")
+        target.baseExt = tmp
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
-        of "":
-          ## 607:48:xml_to_types.nim
-          skipElementStart(parser, "")
-          parseXsdString(target.baseExt, parser, "")
-          skipElementEnd(parser, "")
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2786,9 +2786,9 @@ proc parseRefType*(target: var (seq[RefType] | RefType | Option[RefType]);
           break
         else:
           raiseUnexpectedElement(parser)
-      of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
-          xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+      of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
+          xmlEntity, xmlSpecial}:
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -2796,7 +2796,7 @@ proc parseRefType*(target: var (seq[RefType] | RefType | Option[RefType]);
 proc parseRefTextType*(target: var (seq[RefTextType] | RefTextType |
     Option[RefTextType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2822,19 +2822,19 @@ proc parseRefTextType*(target: var (seq[RefTextType] | RefTextType |
         of "tooltip":
           parseXsdString(target.tooltip, parser, "tooltip")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
+      of xmlCharData:
+        ## 540:8:xml_to_types.nim
+        var tmp: string
+        parseXsdString(tmp, parser, "")
+        target.baseExt = tmp
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
-        of "":
-          ## 607:48:xml_to_types.nim
-          skipElementStart(parser, "")
-          parseXsdString(target.baseExt, parser, "")
-          skipElementEnd(parser, "")
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2847,9 +2847,9 @@ proc parseRefTextType*(target: var (seq[RefTextType] | RefTextType |
           break
         else:
           raiseUnexpectedElement(parser)
-      of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
-          xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+      of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
+          xmlEntity, xmlSpecial}:
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -2857,7 +2857,7 @@ proc parseRefTextType*(target: var (seq[RefTextType] | RefTextType |
 proc parseSectiondefType*(target: var (seq[SectiondefType] | SectiondefType |
     Option[SectiondefType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -2877,25 +2877,25 @@ proc parseSectiondefType*(target: var (seq[SectiondefType] | SectiondefType |
         of "kind":
           parseDoxSectionKind(target.kind, parser, "kind")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "header":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "header")
           parseXsdString(target.header, parser, "header")
           skipElementEnd(parser, "header")
         of "description":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDescriptionType(target.description, parser, "description", false)
         of "memberdef":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseMemberdefType(target.memberdef, parser, "memberdef", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -2910,7 +2910,7 @@ proc parseSectiondefType*(target: var (seq[SectiondefType] | SectiondefType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -2918,7 +2918,7 @@ proc parseSectiondefType*(target: var (seq[SectiondefType] | SectiondefType |
 proc parseMemberdefType*(target: var (seq[MemberdefType] | MemberdefType |
     Option[MemberdefType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3020,92 +3020,92 @@ proc parseMemberdefType*(target: var (seq[MemberdefType] | MemberdefType |
         of "maybeambiguous":
           parseDoxBool(target.maybeambiguous, parser, "maybeambiguous")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "templateparamlist":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseTemplateparamlistType(target.templateparamlist, parser,
                                      "templateparamlist", false)
         of "type":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseLinkedTextType(target.fType, parser, "type", false)
         of "definition":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "definition")
           parseXsdAnytype(target.definition, parser, "definition")
           skipElementEnd(parser, "definition")
         of "argsstring":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "argsstring")
           parseXsdAnytype(target.argsstring, parser, "argsstring")
           skipElementEnd(parser, "argsstring")
         of "name":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "name")
           parseXsdAnytype(target.name, parser, "name")
           skipElementEnd(parser, "name")
         of "read":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "read")
           parseXsdAnytype(target.read, parser, "read")
           skipElementEnd(parser, "read")
         of "write":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "write")
           parseXsdAnytype(target.write, parser, "write")
           skipElementEnd(parser, "write")
         of "bitfield":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "bitfield")
           parseXsdAnytype(target.bitfield, parser, "bitfield")
           skipElementEnd(parser, "bitfield")
         of "reimplements":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseReimplementType(target.reimplements, parser, "reimplements",
                                false)
         of "reimplementedby":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseReimplementType(target.reimplementedby, parser,
                                "reimplementedby", false)
         of "param":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseParamType(target.param, parser, "param", false)
         of "enumvalue":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseEnumvalueType(target.enumvalue, parser, "enumvalue", false)
         of "initializer":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseLinkedTextType(target.initializer, parser, "initializer", false)
         of "exceptions":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseLinkedTextType(target.exceptions, parser, "exceptions", false)
         of "briefdescription":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDescriptionType(target.briefdescription, parser,
                                "briefdescription", false)
         of "detaileddescription":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDescriptionType(target.detaileddescription, parser,
                                "detaileddescription", false)
         of "inbodydescription":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDescriptionType(target.inbodydescription, parser,
                                "inbodydescription", false)
         of "location":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseLocationType(target.location, parser, "location", false)
         of "references":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseReferenceType(target.references, parser, "references", false)
         of "referencedby":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseReferenceType(target.referencedby, parser, "referencedby", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3120,7 +3120,7 @@ proc parseMemberdefType*(target: var (seq[MemberdefType] | MemberdefType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -3128,7 +3128,7 @@ proc parseMemberdefType*(target: var (seq[MemberdefType] | MemberdefType |
 proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
     Option[DescriptionType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3146,12 +3146,12 @@ proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -3159,7 +3159,7 @@ proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "title":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "title":
             dtTitle1
@@ -3171,7 +3171,7 @@ proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         of "para":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "para":
             dtPara
@@ -3183,7 +3183,7 @@ proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
           tmp2.docParaType = tmp
           add(target.xsdChoice, tmp2)
         of "internal":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "internal":
             dtInternal
@@ -3195,7 +3195,7 @@ proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
           tmp2.docInternalType = tmp
           add(target.xsdChoice, tmp2)
         of "sect1":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "sect1":
             dtSect1
@@ -3207,7 +3207,7 @@ proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
           tmp2.docSect1Type = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3222,7 +3222,7 @@ proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -3230,7 +3230,7 @@ proc parseDescriptionType*(target: var (seq[DescriptionType] | DescriptionType |
 proc parseEnumvalueType*(target: var (seq[EnumvalueType] | EnumvalueType |
     Option[EnumvalueType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3252,12 +3252,12 @@ proc parseEnumvalueType*(target: var (seq[EnumvalueType] | EnumvalueType |
         of "prot":
           parseDoxProtectionKind(target.prot, parser, "prot")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -3265,7 +3265,7 @@ proc parseEnumvalueType*(target: var (seq[EnumvalueType] | EnumvalueType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "name":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "name":
             etName2
@@ -3277,7 +3277,7 @@ proc parseEnumvalueType*(target: var (seq[EnumvalueType] | EnumvalueType |
           tmp2.xmlNode = tmp
           add(target.xsdChoice, tmp2)
         of "initializer":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "initializer":
             etInitializer1
@@ -3289,7 +3289,7 @@ proc parseEnumvalueType*(target: var (seq[EnumvalueType] | EnumvalueType |
           tmp2.linkedTextType = tmp
           add(target.xsdChoice, tmp2)
         of "briefdescription", "detaileddescription":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "briefdescription":
             etBriefdescription2
@@ -3303,7 +3303,7 @@ proc parseEnumvalueType*(target: var (seq[EnumvalueType] | EnumvalueType |
           tmp2.descriptionType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3318,7 +3318,7 @@ proc parseEnumvalueType*(target: var (seq[EnumvalueType] | EnumvalueType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -3327,7 +3327,7 @@ proc parseTemplateparamlistType*(target: var (seq[TemplateparamlistType] |
     TemplateparamlistType |
     Option[TemplateparamlistType]); parser: var HXmlParser; tag: string;
                                  inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3345,17 +3345,17 @@ proc parseTemplateparamlistType*(target: var (seq[TemplateparamlistType] |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "param":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseParamType(target.param, parser, "param", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3370,14 +3370,14 @@ proc parseTemplateparamlistType*(target: var (seq[TemplateparamlistType] |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
 
 proc parseParamType*(target: var (seq[ParamType] | ParamType | Option[ParamType]);
                      parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3395,48 +3395,48 @@ proc parseParamType*(target: var (seq[ParamType] | ParamType | Option[ParamType]
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "attributes":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "attributes")
           parseXsdAnytype(target.attributes, parser, "attributes")
           skipElementEnd(parser, "attributes")
         of "type":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseLinkedTextType(target.fType, parser, "type", false)
         of "declname":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "declname")
           parseXsdAnytype(target.declname, parser, "declname")
           skipElementEnd(parser, "declname")
         of "defname":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "defname")
           parseXsdAnytype(target.defname, parser, "defname")
           skipElementEnd(parser, "defname")
         of "array":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "array")
           parseXsdAnytype(target.array, parser, "array")
           skipElementEnd(parser, "array")
         of "defval":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseLinkedTextType(target.defval, parser, "defval", false)
         of "typeconstraint":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseLinkedTextType(target.typeconstraint, parser, "typeconstraint",
                               false)
         of "briefdescription":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDescriptionType(target.briefdescription, parser,
                                "briefdescription", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3451,7 +3451,7 @@ proc parseParamType*(target: var (seq[ParamType] | ParamType | Option[ParamType]
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -3459,7 +3459,7 @@ proc parseParamType*(target: var (seq[ParamType] | ParamType | Option[ParamType]
 proc parseLinkedTextType*(target: var (seq[LinkedTextType] | LinkedTextType |
     Option[LinkedTextType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3477,12 +3477,12 @@ proc parseLinkedTextType*(target: var (seq[LinkedTextType] | LinkedTextType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -3490,7 +3490,7 @@ proc parseLinkedTextType*(target: var (seq[LinkedTextType] | LinkedTextType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             lttRef
@@ -3502,7 +3502,7 @@ proc parseLinkedTextType*(target: var (seq[LinkedTextType] | LinkedTextType |
           tmp2.refTextType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3517,14 +3517,14 @@ proc parseLinkedTextType*(target: var (seq[LinkedTextType] | LinkedTextType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
 
 proc parseGraphType*(target: var (seq[GraphType] | GraphType | Option[GraphType]);
                      parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3542,17 +3542,17 @@ proc parseGraphType*(target: var (seq[GraphType] | GraphType | Option[GraphType]
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "node":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseNodeType(target.node, parser, "node", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3567,14 +3567,14 @@ proc parseGraphType*(target: var (seq[GraphType] | GraphType | Option[GraphType]
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
 
 proc parseNodeType*(target: var (seq[NodeType] | NodeType | Option[NodeType]);
                     parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3594,25 +3594,25 @@ proc parseNodeType*(target: var (seq[NodeType] | NodeType | Option[NodeType]);
         of "id":
           parseXsdString(target.id, parser, "id")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "label":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "label")
           parseXsdAnytype(target.label, parser, "label")
           skipElementEnd(parser, "label")
         of "link":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseLinkType(target.link, parser, "link", false)
         of "childnode":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseChildnodeType(target.childnode, parser, "childnode", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3627,7 +3627,7 @@ proc parseNodeType*(target: var (seq[NodeType] | NodeType | Option[NodeType]);
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -3635,7 +3635,7 @@ proc parseNodeType*(target: var (seq[NodeType] | NodeType | Option[NodeType]);
 proc parseChildnodeType*(target: var (seq[ChildnodeType] | ChildnodeType |
     Option[ChildnodeType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3657,19 +3657,19 @@ proc parseChildnodeType*(target: var (seq[ChildnodeType] | ChildnodeType |
         of "relation":
           parseDoxGraphRelation(target.relation, parser, "relation")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "edgelabel":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "edgelabel")
           parseXsdAnytype(target.edgelabel, parser, "edgelabel")
           skipElementEnd(parser, "edgelabel")
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3684,14 +3684,14 @@ proc parseChildnodeType*(target: var (seq[ChildnodeType] | ChildnodeType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
 
 proc parseLinkType*(target: var (seq[LinkType] | LinkType | Option[LinkType]);
                     parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3713,14 +3713,14 @@ proc parseLinkType*(target: var (seq[LinkType] | LinkType | Option[LinkType]);
         of "external":
           parseXsdString(target.external, parser, "external")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3735,7 +3735,7 @@ proc parseLinkType*(target: var (seq[LinkType] | LinkType | Option[LinkType]);
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -3743,7 +3743,7 @@ proc parseLinkType*(target: var (seq[LinkType] | LinkType | Option[LinkType]);
 proc parseListingType*(target: var (seq[ListingType] | ListingType |
     Option[ListingType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3763,17 +3763,17 @@ proc parseListingType*(target: var (seq[ListingType] | ListingType |
         of "filename":
           parseXsdString(target.filename, parser, "filename")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "codeline":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseCodelineType(target.codeline, parser, "codeline", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3788,7 +3788,7 @@ proc parseListingType*(target: var (seq[ListingType] | ListingType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -3796,7 +3796,7 @@ proc parseListingType*(target: var (seq[ListingType] | ListingType |
 proc parseCodelineType*(target: var (seq[CodelineType] | CodelineType |
     Option[CodelineType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3822,17 +3822,17 @@ proc parseCodelineType*(target: var (seq[CodelineType] | CodelineType |
         of "external":
           parseDoxBool(target.external, parser, "external")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "highlight":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseHighlightType(target.highlight, parser, "highlight", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3847,7 +3847,7 @@ proc parseCodelineType*(target: var (seq[CodelineType] | CodelineType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -3855,7 +3855,7 @@ proc parseCodelineType*(target: var (seq[CodelineType] | CodelineType |
 proc parseHighlightType*(target: var (seq[HighlightType] | HighlightType |
     Option[HighlightType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3875,12 +3875,12 @@ proc parseHighlightType*(target: var (seq[HighlightType] | HighlightType |
         of "class":
           parseDoxHighlightClass(target.class, parser, "class")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -3888,7 +3888,7 @@ proc parseHighlightType*(target: var (seq[HighlightType] | HighlightType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "sp":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "sp":
             htSp
@@ -3900,7 +3900,7 @@ proc parseHighlightType*(target: var (seq[HighlightType] | HighlightType |
           tmp2.spType = tmp
           add(target.xsdChoice, tmp2)
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             htRef1
@@ -3912,7 +3912,7 @@ proc parseHighlightType*(target: var (seq[HighlightType] | HighlightType |
           tmp2.refTextType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3927,14 +3927,14 @@ proc parseHighlightType*(target: var (seq[HighlightType] | HighlightType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
 
 proc parseSpType*(target: var (seq[SpType] | SpType | Option[SpType]);
                   parser: var HXmlParser; tag: string; inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -3954,19 +3954,19 @@ proc parseSpType*(target: var (seq[SpType] | SpType | Option[SpType]);
         of "value":
           parseXsdInteger(target.value, parser, "value")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice, SpTypeBody(kind: stMixedStr4, mixedStr: tmp))
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -3981,7 +3981,7 @@ proc parseSpType*(target: var (seq[SpType] | SpType | Option[SpType]);
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -3989,7 +3989,7 @@ proc parseSpType*(target: var (seq[SpType] | SpType | Option[SpType]);
 proc parseReferenceType*(target: var (seq[ReferenceType] | ReferenceType |
     Option[ReferenceType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4015,12 +4015,12 @@ proc parseReferenceType*(target: var (seq[ReferenceType] | ReferenceType |
         of "endline":
           parseXsdInteger(target.endline, parser, "endline")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4028,7 +4028,7 @@ proc parseReferenceType*(target: var (seq[ReferenceType] | ReferenceType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4043,7 +4043,7 @@ proc parseReferenceType*(target: var (seq[ReferenceType] | ReferenceType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4051,7 +4051,7 @@ proc parseReferenceType*(target: var (seq[ReferenceType] | ReferenceType |
 proc parseLocationType*(target: var (seq[LocationType] | LocationType |
     Option[LocationType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4087,14 +4087,14 @@ proc parseLocationType*(target: var (seq[LocationType] | LocationType |
         of "bodyend":
           parseXsdInteger(target.bodyend, parser, "bodyend")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4109,7 +4109,7 @@ proc parseLocationType*(target: var (seq[LocationType] | LocationType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4117,7 +4117,7 @@ proc parseLocationType*(target: var (seq[LocationType] | LocationType |
 proc parseDocSect1Type*(target: var (seq[DocSect1Type] | DocSect1Type |
     Option[DocSect1Type]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4137,12 +4137,12 @@ proc parseDocSect1Type*(target: var (seq[DocSect1Type] | DocSect1Type |
         of "id":
           parseXsdString(target.id, parser, "id")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4150,7 +4150,7 @@ proc parseDocSect1Type*(target: var (seq[DocSect1Type] | DocSect1Type |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "title":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "title":
             dstTitle2
@@ -4162,7 +4162,7 @@ proc parseDocSect1Type*(target: var (seq[DocSect1Type] | DocSect1Type |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4177,7 +4177,7 @@ proc parseDocSect1Type*(target: var (seq[DocSect1Type] | DocSect1Type |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4185,7 +4185,7 @@ proc parseDocSect1Type*(target: var (seq[DocSect1Type] | DocSect1Type |
 proc parseDocSect2Type*(target: var (seq[DocSect2Type] | DocSect2Type |
     Option[DocSect2Type]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4205,12 +4205,12 @@ proc parseDocSect2Type*(target: var (seq[DocSect2Type] | DocSect2Type |
         of "id":
           parseXsdString(target.id, parser, "id")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4218,7 +4218,7 @@ proc parseDocSect2Type*(target: var (seq[DocSect2Type] | DocSect2Type |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "title":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "title":
             dostTitle3
@@ -4230,7 +4230,7 @@ proc parseDocSect2Type*(target: var (seq[DocSect2Type] | DocSect2Type |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4245,7 +4245,7 @@ proc parseDocSect2Type*(target: var (seq[DocSect2Type] | DocSect2Type |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4253,7 +4253,7 @@ proc parseDocSect2Type*(target: var (seq[DocSect2Type] | DocSect2Type |
 proc parseDocSect3Type*(target: var (seq[DocSect3Type] | DocSect3Type |
     Option[DocSect3Type]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4273,12 +4273,12 @@ proc parseDocSect3Type*(target: var (seq[DocSect3Type] | DocSect3Type |
         of "id":
           parseXsdString(target.id, parser, "id")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4286,7 +4286,7 @@ proc parseDocSect3Type*(target: var (seq[DocSect3Type] | DocSect3Type |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "title":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "title":
             docstTitle4
@@ -4298,7 +4298,7 @@ proc parseDocSect3Type*(target: var (seq[DocSect3Type] | DocSect3Type |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4313,7 +4313,7 @@ proc parseDocSect3Type*(target: var (seq[DocSect3Type] | DocSect3Type |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4321,7 +4321,7 @@ proc parseDocSect3Type*(target: var (seq[DocSect3Type] | DocSect3Type |
 proc parseDocSect4Type*(target: var (seq[DocSect4Type] | DocSect4Type |
     Option[DocSect4Type]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4341,12 +4341,12 @@ proc parseDocSect4Type*(target: var (seq[DocSect4Type] | DocSect4Type |
         of "id":
           parseXsdString(target.id, parser, "id")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4354,7 +4354,7 @@ proc parseDocSect4Type*(target: var (seq[DocSect4Type] | DocSect4Type |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "title":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "title":
             docsetTitle5
@@ -4366,7 +4366,7 @@ proc parseDocSect4Type*(target: var (seq[DocSect4Type] | DocSect4Type |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4381,7 +4381,7 @@ proc parseDocSect4Type*(target: var (seq[DocSect4Type] | DocSect4Type |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4389,7 +4389,7 @@ proc parseDocSect4Type*(target: var (seq[DocSect4Type] | DocSect4Type |
 proc parseDocInternalType*(target: var (seq[DocInternalType] | DocInternalType |
     Option[DocInternalType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4407,12 +4407,12 @@ proc parseDocInternalType*(target: var (seq[DocInternalType] | DocInternalType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4420,7 +4420,7 @@ proc parseDocInternalType*(target: var (seq[DocInternalType] | DocInternalType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "para":
             ditPara1
@@ -4432,7 +4432,7 @@ proc parseDocInternalType*(target: var (seq[DocInternalType] | DocInternalType |
           tmp2.docParaType = tmp
           add(target.xsdChoice, tmp2)
         of "sect1":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "sect1":
             ditSect11
@@ -4444,7 +4444,7 @@ proc parseDocInternalType*(target: var (seq[DocInternalType] | DocInternalType |
           tmp2.docSect1Type = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4459,7 +4459,7 @@ proc parseDocInternalType*(target: var (seq[DocInternalType] | DocInternalType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4468,7 +4468,7 @@ proc parseDocInternalS1Type*(target: var (
     seq[DocInternalS1Type] | DocInternalS1Type | Option[DocInternalS1Type]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4486,12 +4486,12 @@ proc parseDocInternalS1Type*(target: var (
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4499,7 +4499,7 @@ proc parseDocInternalS1Type*(target: var (
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "para":
             distPara2
@@ -4511,7 +4511,7 @@ proc parseDocInternalS1Type*(target: var (
           tmp2.docParaType = tmp
           add(target.xsdChoice, tmp2)
         of "sect2":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "sect2":
             distSect2
@@ -4523,7 +4523,7 @@ proc parseDocInternalS1Type*(target: var (
           tmp2.docSect2Type = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4538,7 +4538,7 @@ proc parseDocInternalS1Type*(target: var (
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4547,7 +4547,7 @@ proc parseDocInternalS2Type*(target: var (
     seq[DocInternalS2Type] | DocInternalS2Type | Option[DocInternalS2Type]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4565,12 +4565,12 @@ proc parseDocInternalS2Type*(target: var (
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4578,7 +4578,7 @@ proc parseDocInternalS2Type*(target: var (
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "para":
             dis2tPara3
@@ -4590,7 +4590,7 @@ proc parseDocInternalS2Type*(target: var (
           tmp2.docParaType = tmp
           add(target.xsdChoice, tmp2)
         of "sect3":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "sect3":
             dis2tSect3
@@ -4602,7 +4602,7 @@ proc parseDocInternalS2Type*(target: var (
           tmp2.docSect3Type = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4617,7 +4617,7 @@ proc parseDocInternalS2Type*(target: var (
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4626,7 +4626,7 @@ proc parseDocInternalS3Type*(target: var (
     seq[DocInternalS3Type] | DocInternalS3Type | Option[DocInternalS3Type]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4644,12 +4644,12 @@ proc parseDocInternalS3Type*(target: var (
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4657,7 +4657,7 @@ proc parseDocInternalS3Type*(target: var (
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "para":
             dis3tPara4
@@ -4669,7 +4669,7 @@ proc parseDocInternalS3Type*(target: var (
           tmp2.docParaType = tmp
           add(target.xsdChoice, tmp2)
         of "sect3":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "sect3":
             dis3tSect31
@@ -4681,7 +4681,7 @@ proc parseDocInternalS3Type*(target: var (
           tmp2.docSect4Type = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4696,7 +4696,7 @@ proc parseDocInternalS3Type*(target: var (
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4705,7 +4705,7 @@ proc parseDocInternalS4Type*(target: var (
     seq[DocInternalS4Type] | DocInternalS4Type | Option[DocInternalS4Type]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4723,12 +4723,12 @@ proc parseDocInternalS4Type*(target: var (
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4736,7 +4736,7 @@ proc parseDocInternalS4Type*(target: var (
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "para":
             dis4tPara5
@@ -4748,7 +4748,7 @@ proc parseDocInternalS4Type*(target: var (
           tmp2.docParaType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -4763,7 +4763,7 @@ proc parseDocInternalS4Type*(target: var (
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -4771,7 +4771,7 @@ proc parseDocInternalS4Type*(target: var (
 proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
     Option[DocTitleType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -4789,12 +4789,12 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -4802,7 +4802,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "ulink":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ulink":
             dttUlink
@@ -4815,7 +4815,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           add(target.xsdChoice, tmp2)
         of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
            "subscript", "superscript", "center", "small", "del", "ins":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "bold":
             dttBold
@@ -4849,7 +4849,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           tmp2.docMarkupType = tmp
           add(target.xsdChoice, tmp2)
         of "htmlonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "htmlonly":
             dttHtmlonly
@@ -4861,7 +4861,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           tmp2.docHtmlOnlyType = tmp
           add(target.xsdChoice, tmp2)
         of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "manonly":
             dttManonly
@@ -4881,7 +4881,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         of "image", "dot", "msc", "plantuml":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "image":
             dttImage
@@ -4899,7 +4899,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           tmp2.docImageType = tmp
           add(target.xsdChoice, tmp2)
         of "anchor":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "anchor":
             dttAnchor
@@ -4911,7 +4911,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           tmp2.docAnchorType = tmp
           add(target.xsdChoice, tmp2)
         of "formula":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "formula":
             dttFormula
@@ -4923,7 +4923,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           tmp2.docFormulaType = tmp
           add(target.xsdChoice, tmp2)
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             dttRef2
@@ -4935,7 +4935,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           tmp2.docRefTextType = tmp
           add(target.xsdChoice, tmp2)
         of "emoji":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "emoji":
             dttEmoji
@@ -4980,7 +4980,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
            "rlm", "ndash", "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo",
            "bdquo", "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro",
            "tm":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "linebreak":
             dttLinebreak
@@ -5490,7 +5490,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           tmp2.docEmptyType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -5505,7 +5505,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -5513,7 +5513,7 @@ proc parseDocTitleType*(target: var (seq[DocTitleType] | DocTitleType |
 proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
     Option[DocParaType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -5531,12 +5531,12 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -5544,7 +5544,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "hruler":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "hruler":
             dptHruler
@@ -5556,7 +5556,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docEmptyType = tmp
           add(target.xsdChoice, tmp2)
         of "preformatted":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "preformatted":
             dptPreformatted
@@ -5568,7 +5568,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docMarkupType = tmp
           add(target.xsdChoice, tmp2)
         of "programlisting":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "programlisting":
             dptProgramlisting1
@@ -5580,7 +5580,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.listingType = tmp
           add(target.xsdChoice, tmp2)
         of "verbatim":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "verbatim":
             dptVerbatim
@@ -5592,7 +5592,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         of "indexentry":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "indexentry":
             dptIndexentry
@@ -5604,7 +5604,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docIndexEntryType = tmp
           add(target.xsdChoice, tmp2)
         of "orderedlist", "itemizedlist":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "orderedlist":
             dptOrderedlist
@@ -5618,7 +5618,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docListType = tmp
           add(target.xsdChoice, tmp2)
         of "simplesect":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "simplesect":
             dptSimplesect
@@ -5630,7 +5630,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docSimpleSectType = tmp
           add(target.xsdChoice, tmp2)
         of "title":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "title":
             dptTitle6
@@ -5642,7 +5642,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docTitleType = tmp
           add(target.xsdChoice, tmp2)
         of "variablelist":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "variablelist":
             dptVariablelist
@@ -5654,7 +5654,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docVariableListType = tmp
           add(target.xsdChoice, tmp2)
         of "table":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "table":
             dptTable
@@ -5666,7 +5666,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docTableType = tmp
           add(target.xsdChoice, tmp2)
         of "heading":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "heading":
             dptHeading
@@ -5678,7 +5678,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docHeadingType = tmp
           add(target.xsdChoice, tmp2)
         of "dotfile", "mscfile", "diafile":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "dotfile":
             dptDotfile
@@ -5694,7 +5694,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docImageType = tmp
           add(target.xsdChoice, tmp2)
         of "toclist":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "toclist":
             dptToclist
@@ -5706,7 +5706,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docTocListType = tmp
           add(target.xsdChoice, tmp2)
         of "language":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "language":
             dptLanguage
@@ -5718,7 +5718,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docLanguageType = tmp
           add(target.xsdChoice, tmp2)
         of "parameterlist":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "parameterlist":
             dptParameterlist
@@ -5730,7 +5730,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docParamListType = tmp
           add(target.xsdChoice, tmp2)
         of "xrefsect":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "xrefsect":
             dptXrefsect
@@ -5742,7 +5742,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docXRefSectType = tmp
           add(target.xsdChoice, tmp2)
         of "copydoc":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "copydoc":
             dptCopydoc
@@ -5754,7 +5754,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docCopyType = tmp
           add(target.xsdChoice, tmp2)
         of "blockquote":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "blockquote":
             dptBlockquote
@@ -5766,7 +5766,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docBlockQuoteType = tmp
           add(target.xsdChoice, tmp2)
         of "parblock":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "parblock":
             dptParblock
@@ -5778,7 +5778,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           tmp2.docParBlockType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -5793,7 +5793,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -5801,7 +5801,7 @@ proc parseDocParaType*(target: var (seq[DocParaType] | DocParaType |
 proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
     Option[DocMarkupType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -5819,12 +5819,12 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -5832,7 +5832,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "hruler":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "hruler":
             dmtHruler1
@@ -5844,7 +5844,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docEmptyType = tmp
           add(target.xsdChoice, tmp2)
         of "preformatted":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "preformatted":
             dmtPreformatted1
@@ -5856,7 +5856,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docMarkupType = tmp
           add(target.xsdChoice, tmp2)
         of "programlisting":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "programlisting":
             dmtProgramlisting2
@@ -5868,7 +5868,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.listingType = tmp
           add(target.xsdChoice, tmp2)
         of "verbatim":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "verbatim":
             dmtVerbatim1
@@ -5880,7 +5880,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         of "indexentry":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "indexentry":
             dmtIndexentry1
@@ -5892,7 +5892,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docIndexEntryType = tmp
           add(target.xsdChoice, tmp2)
         of "orderedlist", "itemizedlist":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "orderedlist":
             dmtOrderedlist1
@@ -5906,7 +5906,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docListType = tmp
           add(target.xsdChoice, tmp2)
         of "simplesect":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "simplesect":
             dmtSimplesect1
@@ -5918,7 +5918,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docSimpleSectType = tmp
           add(target.xsdChoice, tmp2)
         of "title":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "title":
             dmtTitle7
@@ -5930,7 +5930,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docTitleType = tmp
           add(target.xsdChoice, tmp2)
         of "variablelist":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "variablelist":
             dmtVariablelist1
@@ -5942,7 +5942,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docVariableListType = tmp
           add(target.xsdChoice, tmp2)
         of "table":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "table":
             dmtTable1
@@ -5954,7 +5954,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docTableType = tmp
           add(target.xsdChoice, tmp2)
         of "heading":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "heading":
             dmtHeading1
@@ -5966,7 +5966,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docHeadingType = tmp
           add(target.xsdChoice, tmp2)
         of "dotfile", "mscfile", "diafile":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "dotfile":
             dmtDotfile1
@@ -5982,7 +5982,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docImageType = tmp
           add(target.xsdChoice, tmp2)
         of "toclist":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "toclist":
             dmtToclist1
@@ -5994,7 +5994,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docTocListType = tmp
           add(target.xsdChoice, tmp2)
         of "language":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "language":
             dmtLanguage1
@@ -6006,7 +6006,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docLanguageType = tmp
           add(target.xsdChoice, tmp2)
         of "parameterlist":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "parameterlist":
             dmtParameterlist1
@@ -6018,7 +6018,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docParamListType = tmp
           add(target.xsdChoice, tmp2)
         of "xrefsect":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "xrefsect":
             dmtXrefsect1
@@ -6030,7 +6030,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docXRefSectType = tmp
           add(target.xsdChoice, tmp2)
         of "copydoc":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "copydoc":
             dmtCopydoc1
@@ -6042,7 +6042,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docCopyType = tmp
           add(target.xsdChoice, tmp2)
         of "blockquote":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "blockquote":
             dmtBlockquote1
@@ -6054,7 +6054,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docBlockQuoteType = tmp
           add(target.xsdChoice, tmp2)
         of "parblock":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "parblock":
             dmtParblock1
@@ -6066,7 +6066,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           tmp2.docParBlockType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -6081,7 +6081,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -6089,7 +6089,7 @@ proc parseDocMarkupType*(target: var (seq[DocMarkupType] | DocMarkupType |
 proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
     Option[DocURLLink]); parser: var HXmlParser; tag: string;
                       inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -6109,19 +6109,19 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
         of "url":
           parseXsdString(target.url, parser, "url")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice, DocURLLinkBody(kind: dulMixedStr18, mixedStr: tmp))
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "ulink":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ulink":
             dulUlink1
@@ -6134,7 +6134,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           add(target.xsdChoice, tmp2)
         of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
            "subscript", "superscript", "center", "small", "del", "ins":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "bold":
             dulBold1
@@ -6168,7 +6168,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           tmp2.docMarkupType = tmp
           add(target.xsdChoice, tmp2)
         of "htmlonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "htmlonly":
             dulHtmlonly1
@@ -6180,7 +6180,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           tmp2.docHtmlOnlyType = tmp
           add(target.xsdChoice, tmp2)
         of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "manonly":
             dulManonly1
@@ -6200,7 +6200,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         of "image", "dot", "msc", "plantuml":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "image":
             dulImage1
@@ -6218,7 +6218,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           tmp2.docImageType = tmp
           add(target.xsdChoice, tmp2)
         of "anchor":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "anchor":
             dulAnchor1
@@ -6230,7 +6230,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           tmp2.docAnchorType = tmp
           add(target.xsdChoice, tmp2)
         of "formula":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "formula":
             dulFormula1
@@ -6242,7 +6242,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           tmp2.docFormulaType = tmp
           add(target.xsdChoice, tmp2)
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             dulRef3
@@ -6254,7 +6254,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           tmp2.docRefTextType = tmp
           add(target.xsdChoice, tmp2)
         of "emoji":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "emoji":
             dulEmoji1
@@ -6299,7 +6299,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
            "rlm", "ndash", "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo",
            "bdquo", "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro",
            "tm":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "linebreak":
             dulLinebreak1
@@ -6809,7 +6809,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           tmp2.docEmptyType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -6824,7 +6824,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -6832,7 +6832,7 @@ proc parseDocURLLink*(target: var (seq[DocURLLink] | DocURLLink |
 proc parseDocAnchorType*(target: var (seq[DocAnchorType] | DocAnchorType |
     Option[DocAnchorType]); parser: var HXmlParser; tag: string;
                          inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -6852,12 +6852,12 @@ proc parseDocAnchorType*(target: var (seq[DocAnchorType] | DocAnchorType |
         of "id":
           parseXsdString(target.id, parser, "id")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -6865,7 +6865,7 @@ proc parseDocAnchorType*(target: var (seq[DocAnchorType] | DocAnchorType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -6880,7 +6880,7 @@ proc parseDocAnchorType*(target: var (seq[DocAnchorType] | DocAnchorType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -6888,7 +6888,7 @@ proc parseDocAnchorType*(target: var (seq[DocAnchorType] | DocAnchorType |
 proc parseDocFormulaType*(target: var (seq[DocFormulaType] | DocFormulaType |
     Option[DocFormulaType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -6908,12 +6908,12 @@ proc parseDocFormulaType*(target: var (seq[DocFormulaType] | DocFormulaType |
         of "id":
           parseXsdString(target.id, parser, "id")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -6921,7 +6921,7 @@ proc parseDocFormulaType*(target: var (seq[DocFormulaType] | DocFormulaType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -6936,7 +6936,7 @@ proc parseDocFormulaType*(target: var (seq[DocFormulaType] | DocFormulaType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -6945,7 +6945,7 @@ proc parseDocIndexEntryType*(target: var (
     seq[DocIndexEntryType] | DocIndexEntryType | Option[DocIndexEntryType]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -6963,24 +6963,24 @@ proc parseDocIndexEntryType*(target: var (
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "primaryie":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "primaryie")
           parseXsdString(target.primaryie, parser, "primaryie")
           skipElementEnd(parser, "primaryie")
         of "secondaryie":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "secondaryie")
           parseXsdString(target.secondaryie, parser, "secondaryie")
           skipElementEnd(parser, "secondaryie")
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -6995,7 +6995,7 @@ proc parseDocIndexEntryType*(target: var (
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -7003,7 +7003,7 @@ proc parseDocIndexEntryType*(target: var (
 proc parseDocListType*(target: var (seq[DocListType] | DocListType |
     Option[DocListType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -7021,17 +7021,17 @@ proc parseDocListType*(target: var (seq[DocListType] | DocListType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "listitem":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocListItemType(target.listitem, parser, "listitem", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -7046,7 +7046,7 @@ proc parseDocListType*(target: var (seq[DocListType] | DocListType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -7054,7 +7054,7 @@ proc parseDocListType*(target: var (seq[DocListType] | DocListType |
 proc parseDocListItemType*(target: var (seq[DocListItemType] | DocListItemType |
     Option[DocListItemType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -7072,17 +7072,17 @@ proc parseDocListItemType*(target: var (seq[DocListItemType] | DocListItemType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocParaType(target.para, parser, "para", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -7097,7 +7097,7 @@ proc parseDocListItemType*(target: var (seq[DocListItemType] | DocListItemType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -7106,7 +7106,7 @@ proc parseDocSimpleSectType*(target: var (
     seq[DocSimpleSectType] | DocSimpleSectType | Option[DocSimpleSectType]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -7126,17 +7126,17 @@ proc parseDocSimpleSectType*(target: var (
         of "kind":
           parseDoxSimpleSectKind(target.kind, parser, "kind")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "title":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocTitleType(target.title, parser, "title", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -7151,7 +7151,7 @@ proc parseDocSimpleSectType*(target: var (
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -7160,7 +7160,7 @@ proc parseDocVarListEntryType*(target: var (seq[DocVarListEntryType] |
     DocVarListEntryType |
     Option[DocVarListEntryType]); parser: var HXmlParser; tag: string;
                                inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -7178,17 +7178,17 @@ proc parseDocVarListEntryType*(target: var (seq[DocVarListEntryType] |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "term":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocTitleType(target.term, parser, "term", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -7203,7 +7203,7 @@ proc parseDocVarListEntryType*(target: var (seq[DocVarListEntryType] |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -7212,7 +7212,7 @@ proc parseDocVariableListType*(target: var (seq[DocVariableListType] |
     DocVariableListType |
     Option[DocVariableListType]); parser: var HXmlParser; tag: string;
                                inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -7230,14 +7230,14 @@ proc parseDocVariableListType*(target: var (seq[DocVariableListType] |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -7252,7 +7252,7 @@ proc parseDocVariableListType*(target: var (seq[DocVariableListType] |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -7260,7 +7260,7 @@ proc parseDocVariableListType*(target: var (seq[DocVariableListType] |
 proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
     Option[DocRefTextType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -7284,12 +7284,12 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
         of "external":
           parseXsdString(target.external, parser, "external")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -7297,7 +7297,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "ulink":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ulink":
             drttUlink2
@@ -7310,7 +7310,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           add(target.xsdChoice, tmp2)
         of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
            "subscript", "superscript", "center", "small", "del", "ins":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "bold":
             drttBold2
@@ -7344,7 +7344,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           tmp2.docMarkupType = tmp
           add(target.xsdChoice, tmp2)
         of "htmlonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "htmlonly":
             drttHtmlonly2
@@ -7356,7 +7356,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           tmp2.docHtmlOnlyType = tmp
           add(target.xsdChoice, tmp2)
         of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "manonly":
             drttManonly2
@@ -7376,7 +7376,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         of "image", "dot", "msc", "plantuml":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "image":
             drttImage2
@@ -7394,7 +7394,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           tmp2.docImageType = tmp
           add(target.xsdChoice, tmp2)
         of "anchor":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "anchor":
             drttAnchor2
@@ -7406,7 +7406,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           tmp2.docAnchorType = tmp
           add(target.xsdChoice, tmp2)
         of "formula":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "formula":
             drttFormula2
@@ -7418,7 +7418,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           tmp2.docFormulaType = tmp
           add(target.xsdChoice, tmp2)
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             drttRef4
@@ -7430,7 +7430,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           tmp2.docRefTextType = tmp
           add(target.xsdChoice, tmp2)
         of "emoji":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "emoji":
             drttEmoji2
@@ -7475,7 +7475,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
            "rlm", "ndash", "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo",
            "bdquo", "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro",
            "tm":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "linebreak":
             drttLinebreak2
@@ -7985,7 +7985,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           tmp2.docEmptyType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -8000,7 +8000,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -8008,7 +8008,7 @@ proc parseDocRefTextType*(target: var (seq[DocRefTextType] | DocRefTextType |
 proc parseDocTableType*(target: var (seq[DocTableType] | DocTableType |
     Option[DocTableType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -8032,20 +8032,20 @@ proc parseDocTableType*(target: var (seq[DocTableType] | DocTableType |
         of "width":
           parseXsdString(target.width, parser, "width")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "caption":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocCaptionType(target.caption, parser, "caption", false)
         of "row":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocRowType(target.row, parser, "row", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -8060,7 +8060,7 @@ proc parseDocTableType*(target: var (seq[DocTableType] | DocTableType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -8068,7 +8068,7 @@ proc parseDocTableType*(target: var (seq[DocTableType] | DocTableType |
 proc parseDocRowType*(target: var (seq[DocRowType] | DocRowType |
     Option[DocRowType]); parser: var HXmlParser; tag: string;
                       inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -8086,17 +8086,17 @@ proc parseDocRowType*(target: var (seq[DocRowType] | DocRowType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "entry":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocEntryType(target.entry, parser, "entry", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -8111,7 +8111,7 @@ proc parseDocRowType*(target: var (seq[DocRowType] | DocRowType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -8119,7 +8119,7 @@ proc parseDocRowType*(target: var (seq[DocRowType] | DocRowType |
 proc parseDocEntryType*(target: var (seq[DocEntryType] | DocEntryType |
     Option[DocEntryType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -8151,17 +8151,17 @@ proc parseDocEntryType*(target: var (seq[DocEntryType] | DocEntryType |
         of "class":
           parseXsdString(target.class, parser, "class")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocParaType(target.para, parser, "para", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -8176,7 +8176,7 @@ proc parseDocEntryType*(target: var (seq[DocEntryType] | DocEntryType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -8184,7 +8184,7 @@ proc parseDocEntryType*(target: var (seq[DocEntryType] | DocEntryType |
 proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
     Option[DocCaptionType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -8202,12 +8202,12 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -8215,7 +8215,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "ulink":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ulink":
             dctUlink3
@@ -8228,7 +8228,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           add(target.xsdChoice, tmp2)
         of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
            "subscript", "superscript", "center", "small", "del", "ins":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "bold":
             dctBold3
@@ -8262,7 +8262,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           tmp2.docMarkupType = tmp
           add(target.xsdChoice, tmp2)
         of "htmlonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "htmlonly":
             dctHtmlonly3
@@ -8274,7 +8274,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           tmp2.docHtmlOnlyType = tmp
           add(target.xsdChoice, tmp2)
         of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "manonly":
             dctManonly3
@@ -8294,7 +8294,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         of "image", "dot", "msc", "plantuml":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "image":
             dctImage3
@@ -8312,7 +8312,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           tmp2.docImageType = tmp
           add(target.xsdChoice, tmp2)
         of "anchor":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "anchor":
             dctAnchor3
@@ -8324,7 +8324,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           tmp2.docAnchorType = tmp
           add(target.xsdChoice, tmp2)
         of "formula":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "formula":
             dctFormula3
@@ -8336,7 +8336,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           tmp2.docFormulaType = tmp
           add(target.xsdChoice, tmp2)
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             dctRef5
@@ -8348,7 +8348,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           tmp2.docRefTextType = tmp
           add(target.xsdChoice, tmp2)
         of "emoji":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "emoji":
             dctEmoji3
@@ -8393,7 +8393,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
            "rlm", "ndash", "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo",
            "bdquo", "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro",
            "tm":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "linebreak":
             dctLinebreak3
@@ -8903,7 +8903,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           tmp2.docEmptyType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -8918,7 +8918,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -8926,7 +8926,7 @@ proc parseDocCaptionType*(target: var (seq[DocCaptionType] | DocCaptionType |
 proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
     Option[DocHeadingType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -8946,12 +8946,12 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
         of "level":
           parseXsdInteger(target.level, parser, "level")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -8959,7 +8959,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "ulink":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ulink":
             dhtUlink4
@@ -8972,7 +8972,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           add(target.xsdChoice, tmp2)
         of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
            "subscript", "superscript", "center", "small", "del", "ins":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "bold":
             dhtBold4
@@ -9006,7 +9006,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           tmp2.docMarkupType = tmp
           add(target.xsdChoice, tmp2)
         of "htmlonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "htmlonly":
             dhtHtmlonly4
@@ -9018,7 +9018,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           tmp2.docHtmlOnlyType = tmp
           add(target.xsdChoice, tmp2)
         of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "manonly":
             dhtManonly4
@@ -9038,7 +9038,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         of "image", "dot", "msc", "plantuml":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "image":
             dhtImage4
@@ -9056,7 +9056,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           tmp2.docImageType = tmp
           add(target.xsdChoice, tmp2)
         of "anchor":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "anchor":
             dhtAnchor4
@@ -9068,7 +9068,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           tmp2.docAnchorType = tmp
           add(target.xsdChoice, tmp2)
         of "formula":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "formula":
             dhtFormula4
@@ -9080,7 +9080,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           tmp2.docFormulaType = tmp
           add(target.xsdChoice, tmp2)
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             dhtRef6
@@ -9092,7 +9092,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           tmp2.docRefTextType = tmp
           add(target.xsdChoice, tmp2)
         of "emoji":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "emoji":
             dhtEmoji4
@@ -9137,7 +9137,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
            "rlm", "ndash", "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo",
            "bdquo", "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro",
            "tm":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "linebreak":
             dhtLinebreak4
@@ -9647,7 +9647,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           tmp2.docEmptyType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -9662,7 +9662,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -9670,7 +9670,7 @@ proc parseDocHeadingType*(target: var (seq[DocHeadingType] | DocHeadingType |
 proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
     Option[DocImageType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -9702,12 +9702,12 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
         of "caption":
           parseXsdString(target.caption, parser, "caption")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -9715,7 +9715,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "ulink":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ulink":
             doitUlink5
@@ -9728,7 +9728,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           add(target.xsdChoice, tmp2)
         of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
            "subscript", "superscript", "center", "small", "del", "ins":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "bold":
             doitBold5
@@ -9762,7 +9762,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           tmp2.docMarkupType = tmp
           add(target.xsdChoice, tmp2)
         of "htmlonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "htmlonly":
             doitHtmlonly5
@@ -9774,7 +9774,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           tmp2.docHtmlOnlyType = tmp
           add(target.xsdChoice, tmp2)
         of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "manonly":
             doitManonly5
@@ -9794,7 +9794,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         of "image", "dot", "msc", "plantuml":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "image":
             doitImage5
@@ -9812,7 +9812,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           tmp2.docImageType = tmp
           add(target.xsdChoice, tmp2)
         of "anchor":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "anchor":
             doitAnchor5
@@ -9824,7 +9824,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           tmp2.docAnchorType = tmp
           add(target.xsdChoice, tmp2)
         of "formula":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "formula":
             doitFormula5
@@ -9836,7 +9836,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           tmp2.docFormulaType = tmp
           add(target.xsdChoice, tmp2)
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             doitRef7
@@ -9848,7 +9848,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           tmp2.docRefTextType = tmp
           add(target.xsdChoice, tmp2)
         of "emoji":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "emoji":
             doitEmoji5
@@ -9893,7 +9893,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
            "rlm", "ndash", "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo",
            "bdquo", "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro",
            "tm":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "linebreak":
             doitLinebreak5
@@ -10403,7 +10403,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           tmp2.docEmptyType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -10418,7 +10418,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -10426,7 +10426,7 @@ proc parseDocImageType*(target: var (seq[DocImageType] | DocImageType |
 proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
     Option[DocTocItemType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -10446,12 +10446,12 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
         of "id":
           parseXsdString(target.id, parser, "id")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -10459,7 +10459,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "ulink":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ulink":
             dtitUlink6
@@ -10472,7 +10472,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           add(target.xsdChoice, tmp2)
         of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
            "subscript", "superscript", "center", "small", "del", "ins":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "bold":
             dtitBold6
@@ -10506,7 +10506,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           tmp2.docMarkupType = tmp
           add(target.xsdChoice, tmp2)
         of "htmlonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "htmlonly":
             dtitHtmlonly6
@@ -10518,7 +10518,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           tmp2.docHtmlOnlyType = tmp
           add(target.xsdChoice, tmp2)
         of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "manonly":
             dtitManonly6
@@ -10538,7 +10538,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           tmp2.string = tmp
           add(target.xsdChoice, tmp2)
         of "image", "dot", "msc", "plantuml":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "image":
             dtitImage6
@@ -10556,7 +10556,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           tmp2.docImageType = tmp
           add(target.xsdChoice, tmp2)
         of "anchor":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "anchor":
             dtitAnchor6
@@ -10568,7 +10568,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           tmp2.docAnchorType = tmp
           add(target.xsdChoice, tmp2)
         of "formula":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "formula":
             dtitFormula6
@@ -10580,7 +10580,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           tmp2.docFormulaType = tmp
           add(target.xsdChoice, tmp2)
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             dtitRef8
@@ -10592,7 +10592,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           tmp2.docRefTextType = tmp
           add(target.xsdChoice, tmp2)
         of "emoji":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "emoji":
             dtitEmoji6
@@ -10637,7 +10637,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
            "rlm", "ndash", "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo",
            "bdquo", "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro",
            "tm":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "linebreak":
             dtitLinebreak6
@@ -11147,7 +11147,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           tmp2.docEmptyType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11162,7 +11162,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11170,7 +11170,7 @@ proc parseDocTocItemType*(target: var (seq[DocTocItemType] | DocTocItemType |
 proc parseDocTocListType*(target: var (seq[DocTocListType] | DocTocListType |
     Option[DocTocListType]); parser: var HXmlParser; tag: string;
                           inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11188,17 +11188,17 @@ proc parseDocTocListType*(target: var (seq[DocTocListType] | DocTocListType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "tocitem":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocTocItemType(target.tocitem, parser, "tocitem", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11213,7 +11213,7 @@ proc parseDocTocListType*(target: var (seq[DocTocListType] | DocTocListType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11221,7 +11221,7 @@ proc parseDocTocListType*(target: var (seq[DocTocListType] | DocTocListType |
 proc parseDocLanguageType*(target: var (seq[DocLanguageType] | DocLanguageType |
     Option[DocLanguageType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11241,17 +11241,17 @@ proc parseDocLanguageType*(target: var (seq[DocLanguageType] | DocLanguageType |
         of "langid":
           parseXsdString(target.langid, parser, "langid")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocParaType(target.para, parser, "para", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11266,7 +11266,7 @@ proc parseDocLanguageType*(target: var (seq[DocLanguageType] | DocLanguageType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11275,7 +11275,7 @@ proc parseDocParamListType*(target: var (
     seq[DocParamListType] | DocParamListType | Option[DocParamListType]);
                             parser: var HXmlParser; tag: string;
                             inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11295,18 +11295,18 @@ proc parseDocParamListType*(target: var (
         of "kind":
           parseDoxParamListKind(target.kind, parser, "kind")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "parameteritem":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocParamListItem(target.parameteritem, parser, "parameteritem",
                                 false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11321,7 +11321,7 @@ proc parseDocParamListType*(target: var (
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11330,7 +11330,7 @@ proc parseDocParamListItem*(target: var (
     seq[DocParamListItem] | DocParamListItem | Option[DocParamListItem]);
                             parser: var HXmlParser; tag: string;
                             inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11348,22 +11348,22 @@ proc parseDocParamListItem*(target: var (
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "parameternamelist":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocParamNameList(target.parameternamelist, parser,
                                 "parameternamelist", false)
         of "parameterdescription":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDescriptionType(target.parameterdescription, parser,
                                "parameterdescription", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11378,7 +11378,7 @@ proc parseDocParamListItem*(target: var (
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11387,7 +11387,7 @@ proc parseDocParamNameList*(target: var (
     seq[DocParamNameList] | DocParamNameList | Option[DocParamNameList]);
                             parser: var HXmlParser; tag: string;
                             inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11405,20 +11405,20 @@ proc parseDocParamNameList*(target: var (
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "parametertype":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocParamType(target.parametertype, parser, "parametertype", false)
         of "parametername":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocParamName(target.parametername, parser, "parametername", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11433,7 +11433,7 @@ proc parseDocParamNameList*(target: var (
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11441,7 +11441,7 @@ proc parseDocParamNameList*(target: var (
 proc parseDocParamType*(target: var (seq[DocParamType] | DocParamType |
     Option[DocParamType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11459,12 +11459,12 @@ proc parseDocParamType*(target: var (seq[DocParamType] | DocParamType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -11472,7 +11472,7 @@ proc parseDocParamType*(target: var (seq[DocParamType] | DocParamType |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             doptRef9
@@ -11484,7 +11484,7 @@ proc parseDocParamType*(target: var (seq[DocParamType] | DocParamType |
           tmp2.refTextType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11499,7 +11499,7 @@ proc parseDocParamType*(target: var (seq[DocParamType] | DocParamType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11507,7 +11507,7 @@ proc parseDocParamType*(target: var (seq[DocParamType] | DocParamType |
 proc parseDocParamName*(target: var (seq[DocParamName] | DocParamName |
     Option[DocParamName]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11527,12 +11527,12 @@ proc parseDocParamName*(target: var (seq[DocParamName] | DocParamName |
         of "direction":
           parseDoxParamDir(target.direction, parser, "direction")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of xmlCharData:
-        ## 571:10:xml_to_types.nim
+        ## 597:10:xml_to_types.nim
         var tmp: string
         parseXsdString(tmp, parser, "")
         add(target.xsdChoice,
@@ -11540,7 +11540,7 @@ proc parseDocParamName*(target: var (seq[DocParamName] | DocParamName |
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "ref":
-          ## 549:8:xml_to_types.nim
+          ## 575:8:xml_to_types.nim
           let kind = case parser.elementName()
           of "ref":
             dpnRef10
@@ -11552,7 +11552,7 @@ proc parseDocParamName*(target: var (seq[DocParamName] | DocParamName |
           tmp2.refTextType = tmp
           add(target.xsdChoice, tmp2)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11567,7 +11567,7 @@ proc parseDocParamName*(target: var (seq[DocParamName] | DocParamName |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlWhitespace, xmlComment, xmlPI, xmlCData,
           xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11575,7 +11575,7 @@ proc parseDocParamName*(target: var (seq[DocParamName] | DocParamName |
 proc parseDocXRefSectType*(target: var (seq[DocXRefSectType] | DocXRefSectType |
     Option[DocXRefSectType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11595,23 +11595,23 @@ proc parseDocXRefSectType*(target: var (seq[DocXRefSectType] | DocXRefSectType |
         of "id":
           parseXsdString(target.id, parser, "id")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "xreftitle":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "xreftitle")
           parseXsdString(target.xreftitle, parser, "xreftitle")
           skipElementEnd(parser, "xreftitle")
         of "xrefdescription":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDescriptionType(target.xrefdescription, parser,
                                "xrefdescription", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11626,7 +11626,7 @@ proc parseDocXRefSectType*(target: var (seq[DocXRefSectType] | DocXRefSectType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11634,7 +11634,7 @@ proc parseDocXRefSectType*(target: var (seq[DocXRefSectType] | DocXRefSectType |
 proc parseDocCopyType*(target: var (seq[DocCopyType] | DocCopyType |
     Option[DocCopyType]); parser: var HXmlParser; tag: string;
                        inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11654,23 +11654,23 @@ proc parseDocCopyType*(target: var (seq[DocCopyType] | DocCopyType |
         of "link":
           parseXsdString(target.link, parser, "link")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocParaType(target.para, parser, "para", false)
         of "sect1":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocSect1Type(target.sect1, parser, "sect1", false)
         of "internal":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocInternalType(target.internal, parser, "internal", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11685,7 +11685,7 @@ proc parseDocCopyType*(target: var (seq[DocCopyType] | DocCopyType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11694,7 +11694,7 @@ proc parseDocBlockQuoteType*(target: var (
     seq[DocBlockQuoteType] | DocBlockQuoteType | Option[DocBlockQuoteType]);
                              parser: var HXmlParser; tag: string;
                              inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11712,17 +11712,17 @@ proc parseDocBlockQuoteType*(target: var (
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocParaType(target.para, parser, "para", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11737,7 +11737,7 @@ proc parseDocBlockQuoteType*(target: var (
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11745,7 +11745,7 @@ proc parseDocBlockQuoteType*(target: var (
 proc parseDocParBlockType*(target: var (seq[DocParBlockType] | DocParBlockType |
     Option[DocParBlockType]); parser: var HXmlParser; tag: string;
                            inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11763,17 +11763,17 @@ proc parseDocParBlockType*(target: var (seq[DocParBlockType] | DocParBlockType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "para":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseDocParaType(target.para, parser, "para", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11788,7 +11788,7 @@ proc parseDocParBlockType*(target: var (seq[DocParBlockType] | DocParBlockType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11796,7 +11796,7 @@ proc parseDocParBlockType*(target: var (seq[DocParBlockType] | DocParBlockType |
 proc parseDocEmptyType*(target: var (seq[DocEmptyType] | DocEmptyType |
     Option[DocEmptyType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11814,14 +11814,14 @@ proc parseDocEmptyType*(target: var (seq[DocEmptyType] | DocEmptyType |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11836,7 +11836,7 @@ proc parseDocEmptyType*(target: var (seq[DocEmptyType] | DocEmptyType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11845,7 +11845,7 @@ proc parseTableofcontentsType*(target: var (seq[TableofcontentsType] |
     TableofcontentsType |
     Option[TableofcontentsType]); parser: var HXmlParser; tag: string;
                                inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11863,17 +11863,17 @@ proc parseTableofcontentsType*(target: var (seq[TableofcontentsType] |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "tocsect":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseTableofcontentsKindType(target.tocsect, parser, "tocsect", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11888,7 +11888,7 @@ proc parseTableofcontentsType*(target: var (seq[TableofcontentsType] |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11897,7 +11897,7 @@ proc parseTableofcontentsKindType*(target: var (seq[TableofcontentsKindType] |
     TableofcontentsKindType |
     Option[TableofcontentsKindType]); parser: var HXmlParser; tag: string;
                                    inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11915,28 +11915,28 @@ proc parseTableofcontentsKindType*(target: var (seq[TableofcontentsKindType] |
       of xmlAttribute:
         case parser.attrKey
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         of "name":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "name")
           parseXsdString(target.name, parser, "name")
           skipElementEnd(parser, "name")
         of "reference":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           skipElementStart(parser, "reference")
           parseXsdString(target.reference, parser, "reference")
           skipElementEnd(parser, "reference")
         of "tableofcontents":
-          ## 607:48:xml_to_types.nim
+          ## 633:48:xml_to_types.nim
           parseTableofcontentsType(target.tableofcontents, parser,
                                    "tableofcontents", false)
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -11951,7 +11951,7 @@ proc parseTableofcontentsKindType*(target: var (seq[TableofcontentsKindType] |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
@@ -11959,7 +11959,7 @@ proc parseTableofcontentsKindType*(target: var (seq[TableofcontentsKindType] |
 proc parseDocEmojiType*(target: var (seq[DocEmojiType] | DocEmojiType |
     Option[DocEmojiType]); parser: var HXmlParser; tag: string;
                         inMixed: bool = false) =
-  ## 643:4:xml_to_types.nim
+  ## 669:4:xml_to_types.nim
   when target is seq:
     while parser.elementName == tag:
       var res: typeof(target[0])
@@ -11981,14 +11981,14 @@ proc parseDocEmojiType*(target: var (seq[DocEmojiType] | DocEmojiType |
         of "unicode":
           parseXsdString(target.unicode, parser, "unicode")
         else:
-          ## 508:4:xml_to_types.nim
+          ## 520:4:xml_to_types.nim
           if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
             raiseUnexpectedAttribute(parser)
         parser.next()
       of {xmlElementStart, xmlElementOpen}:
         case parser.elementName()
         else:
-          ## 612:4:xml_to_types.nim
+          ## 638:4:xml_to_types.nim
           if inMixed:
             return
           else:
@@ -12003,14 +12003,14 @@ proc parseDocEmojiType*(target: var (seq[DocEmojiType] | DocEmojiType |
           raiseUnexpectedElement(parser)
       of {xmlError, xmlEof, xmlCharData, xmlWhitespace, xmlComment, xmlPI,
           xmlCData, xmlEntity, xmlSpecial}:
-        ## 636:6:xml_to_types.nim
+        ## 662:6:xml_to_types.nim
         echo parser.displayAt()
         assert false
 
 
 proc parseDoxBool*(target: var (seq[DoxBool] | DoxBool | Option[DoxBool]);
                    parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxBool(res, parser, tag)
@@ -12030,7 +12030,7 @@ proc parseDoxBool*(target: var (seq[DoxBool] | DoxBool | Option[DoxBool]);
 proc parseDoxGraphRelation*(target: var (
     seq[DoxGraphRelation] | DoxGraphRelation | Option[DoxGraphRelation]);
                             parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxGraphRelation(res, parser, tag)
@@ -12059,7 +12059,7 @@ proc parseDoxGraphRelation*(target: var (
 
 proc parseDoxRefKind*(target: var (seq[DoxRefKind] | DoxRefKind |
     Option[DoxRefKind]); parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxRefKind(res, parser, tag)
@@ -12078,7 +12078,7 @@ proc parseDoxRefKind*(target: var (seq[DoxRefKind] | DoxRefKind |
 
 proc parseDoxMemberKind*(target: var (seq[DoxMemberKind] | DoxMemberKind |
     Option[DoxMemberKind]); parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxMemberKind(res, parser, tag)
@@ -12122,7 +12122,7 @@ proc parseDoxMemberKind*(target: var (seq[DoxMemberKind] | DoxMemberKind |
 proc parseDoxProtectionKind*(target: var (
     seq[DoxProtectionKind] | DoxProtectionKind | Option[DoxProtectionKind]);
                              parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxProtectionKind(res, parser, tag)
@@ -12146,7 +12146,7 @@ proc parseDoxProtectionKind*(target: var (
 proc parseDoxRefQualifierKind*(target: var (seq[DoxRefQualifierKind] |
     DoxRefQualifierKind |
     Option[DoxRefQualifierKind]); parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxRefQualifierKind(res, parser, tag)
@@ -12165,7 +12165,7 @@ proc parseDoxRefQualifierKind*(target: var (seq[DoxRefQualifierKind] |
 
 proc parseDoxLanguage*(target: var (seq[DoxLanguage] | DoxLanguage |
     Option[DoxLanguage]); parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxLanguage(res, parser, tag)
@@ -12210,7 +12210,7 @@ proc parseDoxLanguage*(target: var (seq[DoxLanguage] | DoxLanguage |
 
 proc parseDoxVirtualKind*(target: var (seq[DoxVirtualKind] | DoxVirtualKind |
     Option[DoxVirtualKind]); parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxVirtualKind(res, parser, tag)
@@ -12231,7 +12231,7 @@ proc parseDoxVirtualKind*(target: var (seq[DoxVirtualKind] | DoxVirtualKind |
 
 proc parseDoxCompoundKind*(target: var (seq[DoxCompoundKind] | DoxCompoundKind |
     Option[DoxCompoundKind]); parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxCompoundKind(res, parser, tag)
@@ -12280,7 +12280,7 @@ proc parseDoxCompoundKind*(target: var (seq[DoxCompoundKind] | DoxCompoundKind |
 
 proc parseDoxSectionKind*(target: var (seq[DoxSectionKind] | DoxSectionKind |
     Option[DoxSectionKind]); parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxSectionKind(res, parser, tag)
@@ -12368,7 +12368,7 @@ proc parseDoxSectionKind*(target: var (seq[DoxSectionKind] | DoxSectionKind |
 proc parseDoxHighlightClass*(target: var (
     seq[DoxHighlightClass] | DoxHighlightClass | Option[DoxHighlightClass]);
                              parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxHighlightClass(res, parser, tag)
@@ -12408,7 +12408,7 @@ proc parseDoxHighlightClass*(target: var (
 proc parseDoxSimpleSectKind*(target: var (
     seq[DoxSimpleSectKind] | DoxSimpleSectKind | Option[DoxSimpleSectKind]);
                              parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxSimpleSectKind(res, parser, tag)
@@ -12458,7 +12458,7 @@ proc parseDoxSimpleSectKind*(target: var (
 proc parseDoxVersionNumber*(target: var (
     seq[DoxVersionNumber] | DoxVersionNumber | Option[DoxVersionNumber]);
                             parser: var HXmlParser; tag: string) =
-  ## 722:4:xml_to_types.nim
+  ## 748:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxVersionNumber(res, parser, tag)
@@ -12475,7 +12475,7 @@ proc parseDoxVersionNumber*(target: var (
 
 proc parseDoxImageKind*(target: var (seq[DoxImageKind] | DoxImageKind |
     Option[DoxImageKind]); parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxImageKind(res, parser, tag)
@@ -12499,7 +12499,7 @@ proc parseDoxImageKind*(target: var (seq[DoxImageKind] | DoxImageKind |
 proc parseDoxParamListKind*(target: var (
     seq[DoxParamListKind] | DoxParamListKind | Option[DoxParamListKind]);
                             parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxParamListKind(res, parser, tag)
@@ -12522,7 +12522,7 @@ proc parseDoxParamListKind*(target: var (
 
 proc parseDoxCharRange*(target: var (seq[DoxCharRange] | DoxCharRange |
     Option[DoxCharRange]); parser: var HXmlParser; tag: string) =
-  ## 722:4:xml_to_types.nim
+  ## 748:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxCharRange(res, parser, tag)
@@ -12539,7 +12539,7 @@ proc parseDoxCharRange*(target: var (seq[DoxCharRange] | DoxCharRange |
 
 proc parseDoxParamDir*(target: var (seq[DoxParamDir] | DoxParamDir |
     Option[DoxParamDir]); parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxParamDir(res, parser, tag)
@@ -12560,7 +12560,7 @@ proc parseDoxParamDir*(target: var (seq[DoxParamDir] | DoxParamDir |
 
 proc parseDoxAccessor*(target: var (seq[DoxAccessor] | DoxAccessor |
     Option[DoxAccessor]); parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxAccessor(res, parser, tag)
@@ -12587,7 +12587,7 @@ proc parseDoxAccessor*(target: var (seq[DoxAccessor] | DoxAccessor |
 
 proc parseDoxAlign*(target: var (seq[DoxAlign] | DoxAlign | Option[DoxAlign]);
                     parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxAlign(res, parser, tag)
@@ -12609,7 +12609,7 @@ proc parseDoxAlign*(target: var (seq[DoxAlign] | DoxAlign | Option[DoxAlign]);
 proc parseDoxVerticalAlign*(target: var (
     seq[DoxVerticalAlign] | DoxVerticalAlign | Option[DoxVerticalAlign]);
                             parser: var HXmlParser; tag: string) =
-  ## 689:4:xml_to_types.nim
+  ## 715:4:xml_to_types.nim
   when target is seq:
     var res: typeof(target[0])
     parseDoxVerticalAlign(res, parser, tag)

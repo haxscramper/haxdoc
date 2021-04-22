@@ -3,6 +3,7 @@ import ./doxygen_index as DoxIndex
 import std/strtabs
 import hmisc/hasts/[xml_ast]
 import hmisc/other/[oswrap, hshell]
+import hmisc/hdebug_misc
 
 const doxyfileText = """
 DOXYFILE_ENCODING      = UTF-8
@@ -370,53 +371,50 @@ proc parseDoxygenIndex*(xml: AbsFile): DoxIndex.DoxygenType =
   parseDoxygenType(result, parser, "doxygenindex")
 
 proc parseDoxygenFile*(xml: AbsFile): DoxCompound.DoxygenType =
-  var parser = newHXmlParser(xml, true)
+  var parser = newHXmlParser(xml)
   parseDoxygenType(result, parser, "doxygen")
 
 const
   allDoxIndexKinds* = {low(DoxIndex.CompoundKind) .. high(DoxIndex.CompoundKind)}
 
+proc indexForDir*(toDir: AbsDir): DoxIndex.DoxygenType =
+  parseDoxygenIndex(toDir / "xml" /. "index.xml")
+
+
 proc listGeneratedFiles*(
     toDir: AbsDir,
-    filter: set[CompoundKind] = allDoxIndexKinds - {ckFile, ckDir}
+    filter: set[CompoundKind] = {ckFile, ckDir}
   ): seq[AbsFile] =
 
-  let index = parseDoxygenIndex(toDir / "xml" /. "index.xml")
-  for item in index.compound:
+  # let index = parseDoxygenIndex(toDir / "xml" /. "index.xml")
+  for item in toDir.indexForDir().compound:
     if item.kind in filter:
       result.add toDir / "xml" /. (item.refid & ".xml")
 
 
 import hpprint
 
+startHax()
+
 when isMainModule:
   let dir = AbsDir("/tmp/code")
   mkDir dir
   writeFile(dir /. "file.cpp", """
 
-/// Documentation for class
-class Main {
-  /*!
-Documentation for method
-
-Example code
-\code{.cpp}
-class Cpp {};
-\endcode
-*/
-  void method() {}
-
-  void secondMethod() {}
-};
+/// \arg arg1 Documentation for second argument
+/// \arg arg2 Documentation for the first argument
+void method(int arg1, int arg2) {}
 
 """)
 
   let toDir = dir / "doxygen_xml"
   doxygenXmlForDir(dir, toDir, doxyfilePattern = "Doxyfile")
   let files = listGeneratedFiles(toDir)
+  let index = indexForDir(toDir)
+  pprint index
+  pprint files
   for file in files:
-    echo file
     let parsed = parseDoxygenFile(file)
     pprint parsed
 
-  echo "ok"
+  echo "done"
