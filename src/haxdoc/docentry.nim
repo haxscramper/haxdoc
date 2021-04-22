@@ -2,7 +2,7 @@
 
 import haxorg/[ast, semorg]
 import hmisc/other/[oswrap]
-import std/[options]
+import std/[options, tables, hashes]
 
 type
   DocOrg* = ref object of SemOrg
@@ -26,6 +26,9 @@ type
 
     dekInject ## Variable injected into the scope by template/macro
               ## instantiation.
+
+    dekPragma ## Compiler-specific directives `{.pragma.}` in nim,
+              ## `#pragma` in C++ and `#[(things)]` from rust.
 
     # new type kinds start
     dekObject ## class/structure/object definition
@@ -110,11 +113,8 @@ type
 
   DocOccur = object
     ## Single occurence of documentable entry
-    refid*: string
-    entry*: DocEntry ## Documentable entry. Possibly nil, should be
-                     ## resolved through @field{refid}
-
-    kind*: DocOccurKind
+    refid*: DocId ## Documentable entry id
+    kind*: DocOccurKind ## Type of entry occurence
 
   DocTypeHeadKind* = enum
     dthGenericParam ## Unresolved generic parameter
@@ -140,7 +140,27 @@ type
     kind*: DocIdentKind ##
     identType*: DocType ## Identifier type
     value*: Option[string] ## Optional expression for initialization value
-    entry*: DocEntry
+    entry*: DocId
+
+  DocId* = object
+    id*: Hash
+
+  DocIdentPart* = object
+    ## Part of fully scoped document identifier.
+    ##
+    ## - DESIGN :: Format closely maps to
+    ##   [[code:haxorg//semorg.CodeLinkPart]] but represents *concrete
+    ##   path* to a particular documentable entry. Code link is a pattern,
+    ##   FullIdent is a path.
+    name*: string
+    case kind*: DocEntryKind
+      else:
+        discard
+
+  DocFullIdent* = object
+    ## Full scoped identifier for an entry
+    docId*: DocId ## Cached identifier value
+    parts*: seq[DocIdentPart]
 
   DocType* = ref object
     ## Single **use** of a type in any documentable context (procedure
@@ -159,9 +179,9 @@ type
       of dtkProc, dtkNamedTuple:
         returnType*: Option[DocType]
         arguments*: seq[DocIdent]
-        pragmas*: seq[tuple[entry: DocEntry, arg: string]]
-        effects*: seq[DocEntry]
-        raises*: seq[DocEntry]
+        pragmas*: seq[tuple[entry: DocId, arg: string]]
+        effects*: seq[DocId]
+        raises*: seq[DocId]
 
       of dtkRange:
         rngStart*, rngEnd*: string
@@ -180,11 +200,13 @@ type
         strVal*: string
 
   DocEntry* = ref object
-    nested*: seq[DocEntry] ## Nested documentable entries. Not all
+    nested*: seq[DocId] ## Nested documentable entries. Not all
     ## `DocEntryKind` is guaranteed to have one.
 
+    db: DocDb ## Parent documentable entry database
+
     name*: string
-    refid*: DocOccur
+    fullIdent*: DocFullIdent ## Fully scoped identifier for a name
 
     docBrief*: DocOrg
     docBody*: DocOrg
@@ -204,5 +226,91 @@ type
     absPath: AbsFile
 
   DocDb* = ref object
-    entries*: seq[DocEntry]
-    files*: seq[DocFile]
+    ## - DESIGN ::Two-layer mapping between full entry identifiers, their
+    ##   hashes and documentable entries. Hashes are also mapped to full
+    ##   identifiers using [[code:DocEntry.fullIdent]] field.
+
+    # In order to resolve code links I must store all 'full identifiers'
+    # somewhere, and it makes it easier to serialize if all elements are
+    # resolved through iteger identifiers. This is slower but does not
+    # require expensive `ref` graph reconstruction during serialization.
+    entries*: Table[DocId, DocEntry]
+    fullIdents*: Table[DocFullIdent, DocId]
+
+
+proc hash*(id: DocId): Hash = hash(id.id)
+proc hash*(full: var DocFullIdent): Hash =
+  if full.docId.id != 0:
+    return full.docId.id
+
+  else:
+    for part in full.parts:
+      result = result !& hash(part.kind) !& hash(part.name)
+
+    result = !$result
+    full.docId.id = result
+
+proc hash*(full: DocFullIdent): Hash = full.docId.id
+proc `==`*(a, b: DocIdentPart): bool = a.kind == b.kind
+proc `==`*(a, b: DocFullIdent): bool = a.parts == b.parts
+
+proc id*(full: var DocFullIdent): DocId {.inline.} = DocId(id: hash(full))
+proc id*(de: DocEntry): DocId {.inline.} = de.fullident.id
+
+
+proc add*(de: var DocEntry, other: DocEntry) =
+  de.nested.add other.id
+
+proc `[]`*(db: DocDb, entry: DocEntry): DocEntry = db.entries[entry.id()]
+proc `[]`*(db: DocDb, id: DocId): DocEntry = db.entries[id]
+
+proc `[]`*(de: DocEntry, idx: int): DocEntry =
+  de.db.entries[de.nested[idx]]
+
+iterator items*(de: DocEntry): DocEntry =
+  for id in items(de.nested):
+    yield de.db[id]
+
+iterator pairs*(de: DocEntry): (int, DocEntry) =
+  for idx, id in pairs(de.nested):
+    yield (idx, de.db[id])
+
+proc newDocType*(kind: DocTypeKind, head: DocEntry): DocType =
+  result = DocType(kind: kind)
+  result.head = head
+
+proc initIdentPart*(kind: DocEntryKind, name: string): DocIdentPart =
+  DocIdentPart(kind: kind, name: name)
+
+proc initFullIdent*(parts: sink seq[DocIdentPart]): DocFullIdent =
+  result = DocFullIdent(parts: parts)
+  discard hash(result)
+
+proc newDocEntry*(
+    db: var DocDb, kind: DocEntryKind, name: string): DocEntry =
+  ## Create new toplevel entry (package, file, module) directly using DB.
+  result = DocEntry(
+    fullIdent: initFullIdent(@[initIdentPart(kind, name)]),
+    db: db,
+    name: name,
+    kind: kind
+  )
+
+  db.fullIdents[result.fullIdent] = result.id()
+
+proc newDocEntry*(
+    parent: var DocEntry, kind: DocEntryKind, name: string
+  ): DocEntry =
+  ## Create new nested document entry. Add it to subnode of `parent` node.
+
+
+  result = DocEntry(
+    fullIdent: initFullIdent(
+      parent.fullIdent.parts & initIdentPart(kind, name)),
+    db: parent.db,
+    name: name,
+    kind: kind
+  )
+
+  parent.db.fullIdents[result.fullIdent] = result.id()
+  parent.nested.add result.id()

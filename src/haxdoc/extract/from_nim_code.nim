@@ -1,4 +1,4 @@
-import ../docentry
+import ../docentry, ../docwriter
 import nim_compiler_aux
 import std/[strutils, strformat]
 import hnimast
@@ -8,6 +8,8 @@ import hmisc/algo/[hstring_algo, halgorithm]
 type
   DocContext = ref object of PPassContext
     db: DocDb
+    allModules: seq[DocEntry]
+    module: DocEntry
 
 using
   ctx: DocContext
@@ -15,132 +17,126 @@ using
 
 
 
-proc registerTypeUse(
-    ctx: SourcetrailContext, userId, fileId: cint, ntype: NType) =
+proc toDocType(ntype: NType): DocType =
   if ntype.kind in {ntkIdent, ntkGenericSpec} and
      ntype.declNode.isSome() and
      (
        (ntype.head notin ["ref", "ptr", "sink", "owned", "out", "distinct"]) or
        (ntype.genParams.len == 0)
-     )
-    :
-    # FIXME register generic arguments as local symbols intead of
-    # declaring new types like `T`
-    let path = [("", ntype.head, "")]
-    let reference = ctx.writer[].recordReference(
-      userId,
-      ctx.writer[].recordSymbol(sskType, path),
-      srkTypeUsage
-    )
+     ):
 
-    let node = declHead(ntype.declNode.get())
-    let rng = toSourcetrailSourceRange((fileId, node))
+    discard
+    # let doctype = newDocType
 
-    discard ctx.writer[].recordReferenceLocation(reference, rng)
+    # let reference = ctx.recordReference(
+    #   userId,
+    #   ctx.writer[].recordSymbol(sskType, path),
+    #   srkTypeUsage
+    # )
 
-  let direct = directUsedTypes(ntype)
-  for used in direct:
-    registerTypeUse(ctx, userId, fileId, used)
+    # let node = declHead(ntype.declNode.get())
+    # let rng = toSourcetrailSourceRange((fileId, node))
 
-proc registerProcDef(ctx: DocContext, procDef: PNode): cint =
+    # discard ctx.writer[].recordReferenceLocation(reference, rng)
+
+  # let direct = directUsedTypes(ntype)
+  # for used in direct:
+  #   registerTypeUse(ctx, used)
+
+proc classifiyKind(decl: PProcDecl): DocEntryKind =
+  dekProc
+
+proc registerCalls(ctx: DocContext, impl: PNode) =
+  discard
+
+proc registerProcDef(ctx: DocContext, procDef: PNode) =
   let procDecl = parseProc(procDef)
-  if isNil(procDecl.impl) or procDecl.impl.kind == nkEmpty:
-    return
 
-  result = ctx.writer[].getProcId(procDecl)
+  var entry = ctx.module.newDocEntry(procDecl.classifiyKind(), procDecl.name)
+  info procDecl.name
 
-  let fileId = ctx.recordNodeLocation(result, procDef)
+  # for argument in argumentIdents(procDecl):
+  #   discard
+    # let localId = ctx.writer[].recordLocalSymbol($argument.sym)
+    # discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, argument))
 
-  for argument in argumentIdents(procDecl):
-    let localId = ctx.writer[].recordLocalSymbol($argument.sym)
-    discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, argument))
+  let procType = procDecl.signature.toDocType()
+  # registerTypeUse(ctx, procDecl.signature)
 
-  registerTypeUse(ctx, result, fileId, procDecl.signature)
+  if not(isNil(procDecl.impl) or procDecl.impl.kind == nkEmpty):
+    logIndented:
+      ctx.registerCalls(procDecl.impl)
 
-  logIndented:
-    ctx.registerCalls(procDecl.impl, fileId, result, nil)
-
-proc registerTypeDef(
-  ctx: SourcetrailContext, node: PNode, fileId: cint): cint =
-
+proc registerTypeDef(ctx: DocContext, node: PNode) =
   if isObjectDecl(node):
-    let objectDecl: PObjectDecl =
-      try:
-        parseObject(node, parsePPragma)
+    let objectDecl: PObjectDecl = parseObject(node, parsePPragma)
+    # let objNameHierarchy = ("", objectDecl.name.head, "")
+    # let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
+    # discard ctx.recordNodeLocation(objectSymbol, objectDecl.declNode.get())
 
-      except:
-        err "Failed to register type def"
-        debug node
-        raise
+    # for fld in getBranchFields(objectDecl):
+    #   let switchType = fld.fldType
+    #   debug switchType
+    #   let typeName = $switchType.declNode.get()
+    #   for branch in fld.branches:
+    #     if not branch.isElse:
+    #       for value in branch.ofValue.setValues():
+    #         let referencedSymbol = ctx.writer[].recordSymbol(
+    #           sskEnumConstant, [("", typeName, ""), ("", $value, "")])
 
-    let objNameHierarchy = ("", objectDecl.name.head, "")
-    let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
-    discard ctx.recordNodeLocation(objectSymbol, objectDecl.declNode.get())
+    #         let referenceId = ctx.writer[].recordReference(
+    #           objectSymbol, referencedSymbol, srkUsage)
 
-    for fld in getBranchFields(objectDecl):
-      let switchType = fld.fldType
-      debug switchType
-      let typeName = $switchType.declNode.get()
-      for branch in fld.branches:
-        if not branch.isElse:
-          for value in branch.ofValue.setValues():
-            let referencedSymbol = ctx.writer[].recordSymbol(
-              sskEnumConstant, [("", typeName, ""), ("", $value, "")])
+    #         discard ctx.writer[].recordReferenceLocation(
+    #           referenceId, (fileId, value))
 
-            let referenceId = ctx.writer[].recordReference(
-              objectSymbol, referencedSymbol, srkUsage)
+    # for fld in iterateFields(objectDecl):
+    #   if fld.fldType.declNode.isSome():
+    #     # let fldType = fld.fldType.declNode.get()
 
-            discard ctx.writer[].recordReferenceLocation(
-              referenceId, (fileId, value))
+    #     let fieldSymbol = ctx.writer[].recordSymbol(
+    #       sskField, objNameHierarchy, ("", fld.name, ""))
 
-      # debug "Field branch value", value.treeRepr()
-      # registerCalls(ctx, value, fileId, objectSymbol, nil)
+    #     discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
 
-    for fld in iterateFields(objectDecl):
-      if fld.fldType.declNode.isSome():
-        # let fldType = fld.fldType.declNode.get()
-
-        let fieldSymbol = ctx.writer[].recordSymbol(
-          sskField, objNameHierarchy, ("", fld.name, ""))
-
-        discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
-
-        registerTypeUse(ctx, fieldSymbol, fileId, fld.fldType)
+    #     registerTypeUse(ctx, fieldSymbol, fileId, fld.fldType)
 
   elif node[2].kind == nkEnumTy:
     let enumDecl: PEnumDecl = parseEnum(node)
 
-    let enumName = ("", enumDecl.name, "")
-    let enumSymbol = ctx.writer[].recordSymbol(sskEnum, enumName)
-    discard ctx.recordNodeLocation(enumSymbol, enumDecl.declNode.get())
-    for fld in enumDecl.values:
-      let valueSymbol = ctx.writer[].recordSymbol(
-        sskEnumConstant,
-        enumName, ("", fld.name, ""))
+    # let enumName = ("", enumDecl.name, "")
+    # let enumSymbol = ctx.writer[].recordSymbol(sskEnum, enumName)
+    # discard ctx.recordNodeLocation(enumSymbol, enumDecl.declNode.get())
+    # for fld in enumDecl.values:
+    #   let valueSymbol = ctx.writer[].recordSymbol(
+    #     sskEnumConstant,
+    #     enumName, ("", fld.name, ""))
 
-      discard ctx.recordNodeLocation(valueSymbol, fld.declNode.get())
+    #   discard ctx.recordNodeLocation(valueSymbol, fld.declNode.get())
 
   elif node[2].kind in {
       nkDistinctTy, nkSym, nkPtrTy, nkRefTy, nkProcTy, nkTupleTy,
       nkBracketExpr, nkInfix, nkVarTy
     }:
 
-    let path = ("", $node[0], "")
-    let aliasSymbol = ctx.writer[].recordSymbol(sskTypedef, path)
-    discard ctx.recordNodeLocation(aliasSymbol, node)
-    # debug ""
-    # info path
-    # logIndented:
-    # debug node.treeRepr()
-    registerTypeUse(ctx, aliasSymbol, fileId, parseNType(node[2]))
+    # let path = ("", $node[0], "")
+    # let aliasSymbol = ctx.writer[].recordSymbol(sskTypedef, path)
+    # discard ctx.recordNodeLocation(aliasSymbol, node)
+    # # debug ""
+    # # info path
+    # # logIndented:
+    # # debug node.treeRepr()
+    let baseType = parseNType(node[2]).toDocType()
+    # registerTypeUse(ctx, )
 
   elif node[0].kind in {nkPragmaExpr}:
-    # err "Unhandled pragma expression"
-    # debug treeRepr(node)
+    # # err "Unhandled pragma expression"
+    # # debug treeRepr(node)
 
-    let path = ("", $node[0][0], "")
-    let sym = ctx.writer[].recordSymbol(sskBuiltinType, path)
-    discard ctx.recordNodeLocation(sym, node[0][0])
+    # let path = ("", $node[0][0], "")
+    # let sym = ctx.writer[].recordSymbol(sskBuiltinType, path)
+    # discard ctx.recordNodeLocation(node[0][0])
+    discard
 
   elif node[2].kind in {nkCall}:
     # `Type = typeof(expr())`
@@ -156,54 +152,34 @@ proc registerTypeDef(
     debug treeRepr(node)
 
 
-proc registerToplevel(ctx: SourcetrailContext, node: PNode) =
+proc registerToplevel(ctx: DocContext, node: PNode) =
   case node.kind:
     of nkProcDeclKinds:
-      let filePath = ctx.graph.getFilePath(node).string
-      let fileId = ctx.writer[].recordFile(filePath)
-
-      try:
-        discard ctx.registerProcDef(fileId, node)
-
-      except:
-        echo node
-        echo treeRepr(node, maxdepth = 6, indexed = true)
-        raise
+      ctx.registerProcDef(node)
 
     of nkTypeSection:
       for typeDecl in node:
-        try:
-          registerToplevel(ctx, typeDecl)
-
-        except:
-          echo typeDecl
-          echo treeRepr(typeDecl, indexed = true)
-          raise
-
+        registerToplevel(ctx, typeDecl)
 
     of nkTypeDef:
-      discard ctx.registerTypeDef(node, ctx.getFileId(node))
+      ctx.registerTypeDef(node)
 
     of nkStmtList:
       for subnode in node:
         registerTopLevel(ctx, subnode)
 
-    of nkEmpty:
-      discard
-
-    of nkCommentStmt, nkIncludeStmt, nkImportStmt, nkPragma, nkExportStmt:
+    of nkEmpty, nkCommentStmt, nkIncludeStmt, nkImportStmt,
+       nkPragma, nkExportStmt:
       discard
 
     else:
-      let fileId = ctx.getFileId(node)
-      ctx.registerCalls(node, fileId, fileId, nil)
+      ctx.registerCalls(node)
 
 
 proc generateDocDb*(
     file: AbsFile,
     stdpath: AbsDir,
     otherPaths: seq[AbsDir],
-    targetFile: AbsFile
   ): DocDb =
 
   info "input file:", file
@@ -214,9 +190,7 @@ proc generateDocDb*(
     debug "Either explicitly specify library path via `--stdpath`"
     debug "Or run trail analysis with choosenim toolchain for correct version"
 
-  info "target file:", targetFile
-
-  var db = DocDb()
+  var db {.global.} = DocDb()
   var graph {.global.}: ModuleGraph
   graph = newModuleGraph(file, stdpath,
     proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
@@ -231,6 +205,8 @@ proc generateDocDb*(
       (
         proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
           var context = DocContext(db: db)
+          context.module = db.newDocEntry(dekModule, module.getStrVal())
+          context.allModules.add context.module
           return context
       ),
       (
@@ -249,7 +225,17 @@ proc generateDocDb*(
   logIndented:
     compileProject(graph)
 
-  info "Finished source analysis for file", file
-  info "Closed file"
-  debug "Result database:", targetFile
-  debug &"open using `sourcetrail '{targetFile.withExt(\"srctrlprj\")}'`"
+  return db
+
+when isMainModule:
+  let file = AbsFile("/tmp/a.nim")
+  file.writeFile("echo 12")
+  let stdpath = getStdPath()
+
+  startColorLogger()
+
+  let db = generateDocDb(file, getStdPath(), @[])
+
+  var ctx = newWriteContext(AbsFile "/tmp/b.xml")
+  ctx.writeIdentMapXml(db)
+  echo "done"
