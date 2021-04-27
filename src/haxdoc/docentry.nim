@@ -3,6 +3,7 @@
 import haxorg/[ast, semorg]
 import hmisc/other/[oswrap]
 import std/[options, tables, hashes]
+import nimtraits
 
 type
   DocOrg* = ref object of SemOrg
@@ -30,6 +31,9 @@ type
     dekPragma ## Compiler-specific directives `{.pragma.}` in nim,
               ## `#pragma` in C++ and `#[(things)]` from rust.
 
+    dekTrait # Added both traits and concepts because in nim you can have
+             # `concept` and automatic trait-based.
+
     # new type kinds start
     dekObject ## class/structure/object definition
     dekException ## Exception object
@@ -45,22 +49,33 @@ type
     # new type kinds end
 
 
+    # variable-like entries
     dekCompileDefine ## Compile-time `define` that might affect compilation
                      ## of the program.
+
     dekGlobalConst ## Global immutable compile-time constant
     dekGlobalVar ## Global mutable variable
     dekGlobalLet ## Global immutable variable
-
     dekField ## object/struct field
+    # end
 
     dekNamespace ## Namespace
-    dekModule ## Module (C header file, nim/python/etc. module)
-    dekFile ## Global or local file
-    dekDir ## System directory
     dekGroup ## Documentable group of entries that is not otherwise grouped
              ## together by language constructs.
 
     dekTag ## Documentation tag
+
+
+    dekModule ## Module (C header file, nim/python/etc. module)
+    dekFile ## Global or local file
+    dekDir ## System directory
+    dekPackage ## System or programming language package (library). If
+               ## present used as toplevel grouping element.
+
+    dekImport ## 'modern' import semantics
+    dekInclude ## C-style text-based include
+    dekDepend ## Interpackage dependency relations
+
 
     dekEnv ## Environment variable
     dekShellCmd ## Shell command
@@ -68,8 +83,6 @@ type
     dekShellArg ## Positional shell argument
     dekShellSubCmd ## Shell subcommand
 
-    dekPackage ## System or programming language package (library). If
-               ## present used as toplevel grouping element.
 
     dekSchema ## Serialization schema
 
@@ -111,7 +124,7 @@ type
 
     dokDefinition
 
-  DocOccur = object
+  DocOccur* = object
     ## Single occurence of documentable entry
     refid*: DocId ## Documentable entry id
     kind*: DocOccurKind ## Type of entry occurence
@@ -143,7 +156,7 @@ type
     entry*: DocId
 
   DocId* = object
-    id*: Hash
+    id* {.Attr.}: Hash
 
   DocIdentPart* = object
     ## Part of fully scoped document identifier.
@@ -152,7 +165,7 @@ type
     ##   [[code:haxorg//semorg.CodeLinkPart]] but represents *concrete
     ##   path* to a particular documentable entry. Code link is a pattern,
     ##   FullIdent is a path.
-    name*: string
+    name* {.Attr.}: string
     case kind*: DocEntryKind
       else:
         discard
@@ -161,6 +174,10 @@ type
     ## Full scoped identifier for an entry
     docId*: DocId ## Cached identifier value
     parts*: seq[DocIdentPart]
+
+  DocPragma* = object
+    entry*: DocId
+    args*: string
 
   DocType* = ref object
     ## Single **use** of a type in any documentable context (procedure
@@ -179,7 +196,7 @@ type
       of dtkProc, dtkNamedTuple:
         returnType*: Option[DocType]
         arguments*: seq[DocIdent]
-        pragmas*: seq[tuple[entry: DocId, arg: string]]
+        pragmas*: seq[DocPragma]
         effects*: seq[DocId]
         raises*: seq[DocId]
 
@@ -199,19 +216,27 @@ type
       of dtkFile, dtkDir, dtkString:
         strVal*: string
 
+  DocAdmonition* = ref object
+    kind*: OrgBigIdentKind
+    body*: DocOrg
+
+  DocMetatag* = ref object
+    kind*: SemMetaTag
+    body*: DocOrg
+
   DocEntry* = ref object
     nested*: seq[DocId] ## Nested documentable entries. Not all
     ## `DocEntryKind` is guaranteed to have one.
 
     db: DocDb ## Parent documentable entry database
 
-    name*: string
+    name* {.Attr.}: string
     fullIdent*: DocFullIdent ## Fully scoped identifier for a name
 
     docBrief*: DocOrg
     docBody*: DocOrg
-    admonitions*: seq[tuple[kind: OrgBigIdentKind, body:SemOrg]]
-    metatags*: seq[(SemMetaTag, SemOrg)]
+    admonitions*: seq[DocAdmonition]
+    metatags*: seq[DocMetatag]
 
     case kind*: DocEntryKind
       of dekShellOption:
@@ -237,6 +262,22 @@ type
     entries*: Table[DocId, DocEntry]
     fullIdents*: Table[DocFullIdent, DocId]
 
+storeTraits(DocAdmonition)
+storeTraits(DocMetatag)
+storeTraits(DocTypeKind)
+storeTraits(DocOccurKind)
+storeTraits(DocOccur)
+storeTraits(DocTypeHeadKind)
+storeTraits(DocIdentKind)
+storeTraits(DocId)
+storeTraits(DocIdentPart)
+storeTraits(DocFullIdent)
+storeTraits(DocType)
+storeTraits(DocEntry)
+storeTraits(DocFile)
+storeTraits(DocDb)
+storeTraits(DocIdent)
+storeTraits(DocPragma)
 
 proc hash*(id: DocId): Hash = hash(id.id)
 proc hash*(full: var DocFullIdent): Hash =
