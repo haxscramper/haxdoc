@@ -6,7 +6,6 @@ import std/[options, tables, hashes]
 import nimtraits
 
 type
-  DocOrg* = ref object of SemOrg
   DocNode* = ref object of OrgUserNode
 
   DocEntryKind* = enum
@@ -35,6 +34,7 @@ type
              # `concept` and automatic trait-based.
 
     # new type kinds start
+    dekBuiltin ## Builtin type, not defined using any other types
     dekObject ## class/structure/object definition
     dekException ## Exception object
     dekDefect ## Nim defect object
@@ -57,6 +57,7 @@ type
     dekGlobalVar ## Global mutable variable
     dekGlobalLet ## Global immutable variable
     dekField ## object/struct field
+    dekEnumField ## Enum field/constant
     # end
 
     dekNamespace ## Namespace
@@ -89,12 +90,15 @@ type
 const
   dekProcKinds* = { dekProc .. dekSlot }
   dekNewtypeKinds* = { dekObject .. dekDistinctAlias }
+  dekAliasKinds* = { dekTypeclass, dekAlias, dekDistinctAlias }
 
 type
   DocTypeKind* = enum
     dtkNone ## Default type kind
 
     dtkIdent ## Single, non-generic (or non-specialized generic) identifier
+    dtkGenericParam ## Generic parameter used in type, not resolved to any
+                    ## particular type
     dtkGenericSpec ## Generic object with one or more generic parameters
     dtkAnonTuple ## Anonymous (no named fields) tuple
     dtkProc ## Procedure
@@ -110,13 +114,15 @@ type
     dtkDir
 
   DocOccurKind* = enum
-    dokTypeUsage
+    dokTypeDirectUse ## Direct use of non-generic type
+    dokTypeAsParameterUse ## Use as a parameter in generic specialization
+    dokTypeSpecializationUse ## Specialization of generic type using other
+                             ## types
+
     dokUsage
     dokCall
     dokInheritance
     dokOverride
-    dokTypeArgument
-    dokTemplateSpecialization
     dokInclude
     dokImport
     dokMacroUsage
@@ -128,6 +134,15 @@ type
     ## Single occurence of documentable entry
     refid*: DocId ## Documentable entry id
     kind*: DocOccurKind ## Type of entry occurence
+
+  DocCodePart* = object
+    ## Single code part with optional occurence link.
+    text*: string ## Code context itself
+    occur*: Option[DocOccur] ## 'link' to documentable entry
+
+  DocCode* = object
+    ## Block of source code with embedded occurence links.
+    parts*: seq[DocCodePart]
 
   DocTypeHeadKind* = enum
     dthGenericParam ## Unresolved generic parameter
@@ -177,7 +192,7 @@ type
 
   DocPragma* = object
     entry*: DocId
-    args*: string
+    args*: seq[DocCode]
 
   DocType* = ref object
     ## Single **use** of a type in any documentable context (procedure
@@ -186,12 +201,14 @@ type
     ## itself.
     # doctextBody*: SemOrg ## Full documentation text, excluding 'brief'
     # doctextBrief*: SemOrg ## 'bfief' part
-    refid*: DocOccur
     case kind*: DocTypeKind
       of dtkIdent, dtkGenericSpec, dtkAnonTuple:
-        head*: DocEntry ## Documentation entry
-        identKind*: DocTypeHeadKind ## `head` ident kind
+        head*: DocId ## Documentation entry
+        identKind* {.Attr.}: DocTypeHeadKind ## `head` ident kind
         genParams*: seq[DocType]
+
+      of dtkGenericParam:
+        paramName* {.Attr.}: string
 
       of dtkProc, dtkNamedTuple:
         returnType*: Option[DocType]
@@ -218,23 +235,29 @@ type
 
   DocAdmonition* = ref object
     kind*: OrgBigIdentKind
-    body*: DocOrg
+    body*: SemOrg
 
   DocMetatag* = ref object
     kind*: SemMetaTag
-    body*: DocOrg
+    body*: SemOrg
+
+  DocLocation* = object
+    column* {.Attr.}: int
+    line* {.Attr.}: int
+    file* {.Attr.}: string
 
   DocEntry* = ref object
+    location*: Option[DocLocation]
     nested*: seq[DocId] ## Nested documentable entries. Not all
     ## `DocEntryKind` is guaranteed to have one.
 
-    db: DocDb ## Parent documentable entry database
+    db*: DocDb ## Parent documentable entry database
 
     name* {.Attr.}: string
     fullIdent*: DocFullIdent ## Fully scoped identifier for a name
 
-    docBrief*: DocOrg
-    docBody*: DocOrg
+    docBrief*: SemOrg
+    docBody*: SemOrg
     admonitions*: seq[DocAdmonition]
     metatags*: seq[DocMetatag]
 
@@ -244,6 +267,15 @@ type
         optType*: Option[DocType]
         optRepeatRange*: Slice[int]
 
+      of dekArg:
+        argTypeStr* {.Attr.}: Option[string]
+        argType*: Option[DocType] ## Argument type description
+        argDefault*: Option[DocCode] ## Expression for argument default
+                                     ## value.
+
+      of dekAliasKinds:
+        baseType*: DocType
+
       else:
         discard
 
@@ -251,7 +283,7 @@ type
     absPath: AbsFile
 
   DocDb* = ref object
-    ## - DESIGN ::Two-layer mapping between full entry identifiers, their
+    ## - DESIGN :: Two-layer mapping between full entry identifiers, their
     ##   hashes and documentable entries. Hashes are also mapped to full
     ##   identifiers using [[code:DocEntry.fullIdent]] field.
 
@@ -261,7 +293,11 @@ type
     # require expensive `ref` graph reconstruction during serialization.
     entries*: Table[DocId, DocEntry]
     fullIdents*: Table[DocFullIdent, DocId]
+    top*: seq[DocEntry]
 
+storeTraits(DocEntry, dekAliasKinds)
+
+storeTraits(DocLocation)
 storeTraits(DocAdmonition)
 storeTraits(DocMetatag)
 storeTraits(DocTypeKind)
@@ -273,14 +309,17 @@ storeTraits(DocId)
 storeTraits(DocIdentPart)
 storeTraits(DocFullIdent)
 storeTraits(DocType)
-storeTraits(DocEntry)
 storeTraits(DocFile)
 storeTraits(DocDb)
 storeTraits(DocIdent)
 storeTraits(DocPragma)
+storeTraits(DocCode)
+storeTraits(DocCodePart)
 
 proc hash*(id: DocId): Hash = hash(id.id)
 proc hash*(full: var DocFullIdent): Hash =
+  # Full identifier hash should be very stable (only changed if the name of
+  # the entry is changed)
   if full.docId.id != 0:
     return full.docId.id
 
@@ -318,7 +357,7 @@ iterator pairs*(de: DocEntry): (int, DocEntry) =
 
 proc newDocType*(kind: DocTypeKind, head: DocEntry): DocType =
   result = DocType(kind: kind)
-  result.head = head
+  result.head = head.id()
 
 proc initIdentPart*(kind: DocEntryKind, name: string): DocIdentPart =
   DocIdentPart(kind: kind, name: name)
@@ -337,7 +376,9 @@ proc newDocEntry*(
     kind: kind
   )
 
+  db.entries[result.id()] = result
   db.fullIdents[result.fullIdent] = result.id()
+  db.top.add result
 
 proc newDocEntry*(
     parent: var DocEntry, kind: DocEntryKind, name: string
@@ -353,5 +394,6 @@ proc newDocEntry*(
     kind: kind
   )
 
+  parent.db.entries[result.id()] = result
   parent.db.fullIdents[result.fullIdent] = result.id()
   parent.nested.add result.id()

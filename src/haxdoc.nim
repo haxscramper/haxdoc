@@ -611,13 +611,6 @@ proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
     debug options.nimbleDir
     result = resolveNimbleDeps(nimbleFile.get(), options).deduplicate()
 
-  # if nimbleDir.isSome():
-  #   info "Found nimble file in directory"
-  #   debug nimbleDir.get()
-
-  # else:
-  #   info "No nimble file found in parent directories"
-
 when isMainModule:
   startColorLogger()
 
