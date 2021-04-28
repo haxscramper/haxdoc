@@ -9,14 +9,29 @@ type
   DocNode* = ref object of OrgUserNode
 
   DocEntryKind* = enum
+    ## - NOTE :: Different procedure kinds are also used to describe
+    ##   operator implementations.
     # procedure kinds start
-    dekProc ## Procedure definition
-    dekFunc ## Function definition
+    dekProc ## \
+    ## Procedure definition
+
+    dekFunc ## \
+    ## Function definition
+
     dekMacro ## Macro
     dekMethod ## Method
-    dekTemplate ## Template. NOTE: C++ templates are mapped to `dekProc`
-    dekIterator ## Iteartor. NOTE: C++ iterator classes are mapped to objects
-    dekConverter
+    dekTemplate ## \
+    ## Template - simple code substitution.
+    ##
+    ## - NOTE :: C++ templates are mapped to `dekProc`, and macros are mapped
+    ##   to `dekMacros`
+
+    dekIterator ## \
+    ## Iterator
+    ##
+    ## - NOTE :: C++ iterator classes are mapped to objects
+
+    dekConverter ## User-defined implicit conversion
     dekSignal
     dekSlot
     # procedure kinds end
@@ -263,16 +278,19 @@ type
     rawDoc*: seq[string]
 
     case kind*: DocEntryKind
+      of dekObject:
+        baseTypes*: seq[DocId]
+
       of dekShellOption:
         isRequired*: bool
         optType*: Option[DocType]
         optRepeatRange*: Slice[int]
 
-      of dekArg:
-        argTypeStr* {.Attr.}: Option[string]
-        argType*: Option[DocType] ## Argument type description
-        argDefault*: Option[DocCode] ## Expression for argument default
-                                     ## value.
+      of dekArg, dekField:
+        identTypeStr* {.Attr.}: Option[string]
+        identType*: Option[DocType] ## Argument type description
+        identDefault*: Option[DocCode] ## Expression for argument default
+                                       ## value.
 
       of dekAliasKinds:
         baseType*: DocType
@@ -343,6 +361,8 @@ proc add*(de: var DocEntry, other: DocEntry) =
   de.nested.add other.id
 
 proc `[]`*(db: DocDb, entry: DocEntry): DocEntry = db.entries[entry.id()]
+
+proc contains*(db: DocDb, id: DocId): bool = id in db.entries
 proc `[]`*(db: DocDb, id: DocId): DocEntry = db.entries[id]
 
 proc `[]`*(de: DocEntry, idx: int): DocEntry =

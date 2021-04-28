@@ -63,7 +63,10 @@ proc addSigmap(ctx; node; entry: DocEntry) =
 proc sigHash(t: NType): SigHash =
   result = t.declNode.get().headSym().trySigHash()
 
-proc `[]`(ctx; ntype: NType): DocId =
+proc sigHash(t: PNode): SigHash =
+  result = t.headSym().trySigHash()
+
+proc `[]`(ctx; ntype: NType | PNode): DocId =
   let hash = ntype.sigHash()
   if hash in ctx.sigmap:
     return ctx.sigmap[hash]
@@ -108,7 +111,26 @@ proc toDocType(ctx; ntype: NType): DocType =
   #   registerTypeUse(ctx, used)
 
 proc classifiyKind(decl: PProcDecl): DocEntryKind =
-  dekProc
+  case decl.declNode.get().kind:
+    of nkProcDef: dekProc
+    of nkTemplateDef: dekTemplate
+    of nkMacroDef: dekMacro
+    of nkMethodDef: dekMethod
+    of nkIteratorDef: dekIterator
+    of nkFuncDef: dekFunc
+    else:
+      raiseImplementKindError(decl.declNode.get())
+
+proc classifyKind(ctx; decl: PObjectDecl): DocEntryKind =
+  result = dekObject
+  case decl.name.head:
+    of "CatchableError": result = dekException
+    of "Defect": result = dekDefect
+    of "RootEffect": result = dekEffect
+    elif decl.base.isSome():
+      let baseId = ctx[decl.base.get()]
+      if baseId in ctx.db:
+        result = ctx.db[baseId].kind
 
 proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
   if asAlias:
@@ -143,8 +165,8 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
   for argument in arguments(procDecl):
     for ident in argument.idents:
       var arg = entry.newDocEntry(dekArg, ident.getStrVal())
-      arg.argType = some ctx.toDocType(argument.vtype)
-      arg.argTypeStr = some $argument.vtype
+      arg.identType = some ctx.toDocType(argument.vtype)
+      arg.identTypeStr = some $argument.vtype
 
     # let localId = ctx.writer[].recordLocalSymbol($argument.sym)
     # discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, argument))
@@ -160,7 +182,12 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
 proc registerTypeDef(ctx; node) =
   if isObjectDecl(node):
     let objectDecl: PObjectDecl = parseObject(node)
-    var entry = ctx.module.newDocEntry(dekObject, objectDecl.name.head)
+
+    # echo treeRepr(node)
+
+    var entry = ctx.module.newDocEntry(
+      ctx.classifyKind(objectDecl), objectDecl.name.head)
+
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
     entry.rawDoc.add objectDecl.docComment
@@ -191,6 +218,8 @@ proc registerTypeDef(ctx; node) =
     for nimField in iterateFields(objectDecl):
       var field = entry.newDocEntry(dekField, nimField.name)
       field.rawDoc.add nimField.docComment
+      field.identType = some ctx.toDocType(nimField.fldType)
+      field.identTypeStr = some $nimField.fldType
       # if fld.fldType.declNode.isSome():
         # let fldType = fld.fldType.declNode.get()
 
@@ -239,6 +268,9 @@ proc registerTypeDef(ctx; node) =
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
     entry.baseType = baseType
+
+    for param in parseNType(node[0]).genParams:
+      var p = entry.newDocEntry(dekParam, param.head)
 
     # let path = ("", $node[0], "")
     # let aliasSymbol = ctx.writer[].recordSymbol(sskTypedef, path)
