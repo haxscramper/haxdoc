@@ -278,8 +278,8 @@ type
     rawDoc*: seq[string]
 
     case kind*: DocEntryKind
-      of dekObject:
-        baseTypes*: seq[DocId]
+      of dekObject, dekDefect, dekException, dekEffect:
+        superTypes*: seq[DocId]
 
       of dekShellOption:
         isRequired*: bool

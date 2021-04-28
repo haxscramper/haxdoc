@@ -188,6 +188,9 @@ proc registerTypeDef(ctx; node) =
     var entry = ctx.module.newDocEntry(
       ctx.classifyKind(objectDecl), objectDecl.name.head)
 
+    if objectDecl.base.isSome():
+      entry.superTypes.add ctx[objectDecl.base.get()]
+
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
     entry.rawDoc.add objectDecl.docComment
