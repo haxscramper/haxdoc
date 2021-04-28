@@ -260,6 +260,7 @@ type
     docBody*: SemOrg
     admonitions*: seq[DocAdmonition]
     metatags*: seq[DocMetatag]
+    rawDoc*: seq[string]
 
     case kind*: DocEntryKind
       of dekShellOption:

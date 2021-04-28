@@ -138,7 +138,7 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
     procDecl.classifiyKind(), procDecl.name)
   ctx.addSigmap(procDef, entry)
   ctx.setLocation(entry, procDef)
-  # info procDecl.name
+  entry.rawDoc.add procDecl.docComment
 
   for argument in arguments(procDecl):
     for ident in argument.idents:
@@ -163,7 +163,7 @@ proc registerTypeDef(ctx; node) =
     var entry = ctx.module.newDocEntry(dekObject, objectDecl.name.head)
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
-
+    entry.rawDoc.add objectDecl.docComment
 
     # let objNameHierarchy = ("", objectDecl.name.head, "")
     # let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
@@ -185,8 +185,12 @@ proc registerTypeDef(ctx; node) =
     #         discard ctx.writer[].recordReferenceLocation(
     #           referenceId, (fileId, value))
 
+    for param in objectDecl.name.genParams:
+      var p = entry.newDocEntry(dekParam, param.head)
+
     for nimField in iterateFields(objectDecl):
       var field = entry.newDocEntry(dekField, nimField.name)
+      field.rawDoc.add nimField.docComment
       # if fld.fldType.declNode.isSome():
         # let fldType = fld.fldType.declNode.get()
 

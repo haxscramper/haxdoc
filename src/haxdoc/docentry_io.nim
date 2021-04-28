@@ -108,10 +108,18 @@ proc writeXml*(w; it: DocDb, tag) = discard # genXmlWriter(DocDb, it, w, tag)
 
 proc writeXml*(w; it: DocEntry, tag) =
   startHaxComp()
-  genXmlWriter(DocEntry, it, w, tag, ["nested", "db"], false)
+  genXmlWriter(DocEntry, it, w, tag, ["nested", "db", "rawDoc"], false)
+
   w.indent()
   for item in it.nested:
     w.writeXml(it.db[item], "nested")
+
+  for item in it.rawDoc:
+    w.writeInd()
+    w.xmlStart("rawDoc", false)
+    w.xmlCData(item)
+    w.xmlEnd("rawDoc", false)
+    w.line()
 
   w.dedent()
 
