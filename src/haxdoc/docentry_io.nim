@@ -8,13 +8,13 @@ import hmisc/other/hshell
 import hmisc/hdebug_misc
 
 import haxorg/semorg
+import haxorg/exporter_xml
 
 storeTraits(SemMetaTag)
 storeTraits(ShellCmd)
 
 using w: var XmlWriter
 
-proc writeXml*(w; id: SemOrg, tag: string) = discard
 proc writeXml*(w; cmd: ShellCmd, tag: string) = discard
 proc writeXml*(w; cmd: SemMetaTag, tag: string) = discard
 
@@ -47,28 +47,28 @@ proc writeXml*(w; it: DocCode, tag)
 proc writeXml*(w; it: DocCodePart, tag)
 proc writeXml*(w; it: DocLocation, tag)
 
-proc writeXml*(w; it: DocLocation, tag)     =
+proc writeXml*(w; it: DocLocation, tag) =
   genXmlWriter(DocLocation, it, w, tag)
 
-proc writeXml*(w; it: DocCode, tag)     =
+proc writeXml*(w; it: DocCode, tag) =
   genXmlWriter(DocCode, it, w, tag)
 
 proc writeXml*(w; it: DocCodePart, tag) =
   genXmlWriter(DocCodePart, it, w, tag)
 
-proc writeXml*(w; it: DocPragma, tag)   =
+proc writeXml*(w; it: DocPragma, tag) =
   genXmlWriter(DocPRagma, it, w, tag)
 
-proc writeXml*(w; it: DocIdent, tag)   =
+proc writeXml*(w; it: DocIdent, tag) =
   genXmlWriter(DocIdent, it, w, tag)
 
-proc writeXml*(w; it: DocAdmonition, tag)   =
+proc writeXml*(w; it: DocAdmonition, tag) =
   genXmlWriter(DocAdmonition, it, w, tag)
 
-proc writeXml*(w; it: DocMetatag, tag)   =
+proc writeXml*(w; it: DocMetatag, tag) =
   genXmlWriter(DocMetatag, it, w, tag)
 
-proc writeXml*(w; it: DocOccur, tag)   =
+proc writeXml*(w; it: DocOccur, tag) =
   genXmlWriter(DocOccur,it, w, tag)
 
 proc writeXml*(w; it: DocId, tag) =

@@ -5,6 +5,7 @@ import hnimast
 import hmisc/other/[oswrap, colorlogger]
 import hmisc/algo/[hstring_algo, halgorithm]
 import compiler/sighashes
+import haxorg/[semorg, ast, importer_nim_rst]
 
 
 type
@@ -148,7 +149,11 @@ proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
     else:
       raiseImplementKindError(nt)
 
-
+proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
+  let file = AbsFile($ctx.graph.getFilePath(node))
+  info file, node.getInfo().line
+  let org = text.parseRstString(file).toOrgNode()
+  return toSemOrg(org)
 
 proc registerCalls(ctx: DocContext, impl: PNode) =
   discard
@@ -161,6 +166,7 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
   ctx.addSigmap(procDef, entry)
   ctx.setLocation(entry, procDef)
   entry.rawDoc.add procDecl.docComment
+  entry.docBody = ctx.convertComment(procDecl.docComment, procDef)
 
   for argument in arguments(procDecl):
     for ident in argument.idents:
@@ -194,6 +200,7 @@ proc registerTypeDef(ctx; node) =
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
     entry.rawDoc.add objectDecl.docComment
+    entry.docBody = ctx.convertComment(objectDecl.docComment, node)
 
     # let objNameHierarchy = ("", objectDecl.name.head, "")
     # let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
@@ -221,6 +228,9 @@ proc registerTypeDef(ctx; node) =
     for nimField in iterateFields(objectDecl):
       var field = entry.newDocEntry(dekField, nimField.name)
       field.rawDoc.add nimField.docComment
+      field.docBody = ctx.convertComment(
+        nimField.docComment, nimField.declNode.get())
+
       field.identType = some ctx.toDocType(nimField.fldType)
       field.identTypeStr = some $nimField.fldType
       # if fld.fldType.declNode.isSome():
