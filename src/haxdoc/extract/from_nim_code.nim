@@ -153,7 +153,7 @@ proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
 proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
   let file = AbsFile($ctx.graph.getFilePath(node))
   try:
-    let org = text.parseRstString(file).toOrgNode()
+    let org = text.strip().parseRstString(file).toOrgNode()
     return toSemOrg(org)
 
   except EParseError as e:
@@ -412,7 +412,10 @@ when isMainModule:
   let db = generateDocDb(file, getStdPath(), @[])
 
   var writer = newXmlWriter(newFileStream(AbsFile("/tmp/a.xml"), fmWrite))
+  writer.xmlStart("main")
   for entry in db.top:
     writer.writeXml(entry, "test")
+
+  writer.xmlEnd("main")
 
   echo "done"
