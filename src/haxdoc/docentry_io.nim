@@ -115,11 +115,7 @@ proc writeXml*(w; it: DocEntry, tag) =
     w.writeXml(it.db[item], "nested")
 
   for item in it.rawDoc:
-    w.writeInd()
-    w.xmlStart("rawDoc", false)
-    w.xmlCData(item)
-    w.xmlEnd("rawDoc", false)
-    w.line()
+    w.xmlWrappedCdata("raw", item)
 
   w.dedent()
 

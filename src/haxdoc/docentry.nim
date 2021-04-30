@@ -197,6 +197,9 @@ type
     ##   FullIdent is a path.
     name* {.Attr.}: string
     case kind*: DocEntryKind
+      of dekProcKinds:
+        argTypes*: seq[DocType]
+
       else:
         discard
 
@@ -325,7 +328,7 @@ storeTraits(DocOccur)
 storeTraits(DocTypeHeadKind)
 storeTraits(DocIdentKind)
 storeTraits(DocId)
-storeTraits(DocIdentPart)
+storeTraits(DocIdentPart, dekProcKinds)
 storeTraits(DocFullIdent)
 storeTraits(DocType)
 storeTraits(DocFile)
@@ -386,6 +389,12 @@ proc initIdentPart*(kind: DocEntryKind, name: string): DocIdentPart =
 proc initFullIdent*(parts: sink seq[DocIdentPart]): DocFullIdent =
   result = DocFullIdent(parts: parts)
   discard hash(result)
+
+proc lastIdentPart*(entry: var DocEntry): var DocIdentPart =
+  if entry.fullIdent.parts.len == 0:
+    raiseArgumentError("Cannot return last ident part")
+
+  return entry.fullIdent.parts[^1]
 
 proc newDocEntry*(
     db: var DocDb, kind: DocEntryKind, name: string): DocEntry =

@@ -1,6 +1,7 @@
 import ../docentry, ../docentry_io
 import hnimast/compiler_aux
 import std/[strutils, strformat, tables, streams]
+import packages/docutils/[rst]
 import hnimast
 import hmisc/other/[oswrap, colorlogger]
 import hmisc/algo/[hstring_algo, halgorithm]
@@ -151,9 +152,14 @@ proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
 
 proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
   let file = AbsFile($ctx.graph.getFilePath(node))
-  info file, node.getInfo().line
-  let org = text.parseRstString(file).toOrgNode()
-  return toSemOrg(org)
+  try:
+    let org = text.parseRstString(file).toOrgNode()
+    return toSemOrg(org)
+
+  except EParseError as e:
+    err e.msg
+    return onkRawText.newTree(e.msg).toSemOrg()
+
 
 proc registerCalls(ctx: DocContext, impl: PNode) =
   discard
@@ -169,9 +175,11 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
   entry.docBody = ctx.convertComment(procDecl.docComment, procDef)
 
   for argument in arguments(procDecl):
+    let argType = ctx.toDocType(argument.vtype)
     for ident in argument.idents:
+      entry.lastIdentPart.argTypes.add argType
       var arg = entry.newDocEntry(dekArg, ident.getStrVal())
-      arg.identType = some ctx.toDocType(argument.vtype)
+      arg.identType = some argType
       arg.identTypeStr = some $argument.vtype
 
     # let localId = ctx.writer[].recordLocalSymbol($argument.sym)
