@@ -28,6 +28,17 @@ proc setLocation(ctx; entry: DocEntry, node) =
     file: $ctx.graph.getFilePath(node)
   )
 
+proc nodeSlice(node: PNode): DocCodeSlice =
+  let l = len($node)
+  if l > 20:
+    warn node, "has len > 20"
+
+  initDocSlice(
+    node.getInfo().line.int,
+    node.getInfo().col.int,
+    node.getInfo().col.int + l
+  )
+
 proc headSym(node): PSym =
   case node.kind:
     of nkProcDeclKinds, nkDistinctTy, nkVarTy, nkRefTy, nkPtrTy,
@@ -75,6 +86,134 @@ proc `[]`(ctx; ntype: NType | PNode): DocId =
 
   # else:
   #   err hash, " ", ntype, ntype.declNode.get().treeRepr()
+
+proc occur(ctx; node: PNode, kind: DocOccurKind) =
+  var occur: DocOccur
+  if kind == dokLocalUse:
+    raiseImplementError("")
+
+  else:
+    occur = DocOccur(kind: kind)
+    occur.refid = ctx[node]
+
+  ctx.db.newOccur(
+    node.nodeSlice(),
+    AbsFile($ctx.graph.getFilePath(node)),
+    occur
+  )
+
+proc registerUses(ctx; node) =
+  case node.kind:
+    of nkSym:
+      case node.sym.kind:
+        of skType:
+          ctx.occur(node, dokTypeDirectUse)
+
+        of skEnumField:
+          ctx.occur(node, dokFieldUse)
+
+        of skProc, skTemplate, skMethod, skMacro:
+          ctx.occur(node, dokCall)
+
+        of skParam, skVar, skConst, skLet:
+          # TODO local usage declaration
+          discard
+
+        of skResult:
+          # IDEA can be used to collect information about `result` vs
+          # `return` uses
+          discard
+
+        else:
+          raiseImplementError(node.treeRepr())
+
+    of nkIdent:
+      # TODO without better context information it is not possible what
+      # kind of usage particular identifier represents, so discarding for
+      # now.
+      discard
+
+    of nkCommentStmt, nkEmpty, hnimast.nkStrKinds, nkFloatKinds:
+      discard
+
+    of nkIntKinds:
+      # TODO check if integer constant is not actually an enum value
+      discard
+
+    of nkPragmaExpr:
+      ctx.registerUses(node[1])
+
+    of nkConstSection, nkVarSection, nkLetSection:
+      # TODO register local type definitino
+      for decl in node:
+        ctx.registerUses(decl[1]) # Type usage
+        ctx.registerUses(decl[2]) # Init expression
+
+    of nkIncludeStmt, nkImportStmt:
+      # TODO extract target path from compiler and generate
+      # `dekImport/dekInclude` dependency
+      discard
+
+    of nkExportStmt:
+      # QUESTION not really sure what `export` should be mapped to, so
+      # discarding for now.
+      discard
+
+    of nkGenericParams:
+      # TODO create context with generic parameters declared in
+      # procedure/type header and use them to create list of local symbols.
+      discard
+
+    of nkPragma:
+      # TODO implement for pragma uses
+      discard
+
+    of nkAsmStmt:
+      # IDEA possible analysis of passthrough code?
+      discard
+
+    of nkTypeSection,
+       nkProcDeclKinds, # TODO handle procedure declaration in different
+                        # context in order to provide more precise usage
+                        # information for argument types.
+       nkEnumTy, nkEnumFieldDef,
+       nkCall, nkInfix, nkCommand, nkDotExpr, nkCast, nkConv, nkPrefix,
+       nkFormalParams, nkIdentDefs,
+
+       nkStmtList, nkStmtListExpr, nkPar, nkIfExpr, nkElifBranch,
+       nkWhenStmt, nkElse, nkForStmt, nkWhileStmt, nkIfStmt,
+
+       nkPtrTy, nkRefTy, nkVarTy, # IDEA possible context information about
+                                  # `ptr/ref` being used on a type.
+       nkBracket, nkBracketExpr,
+       nkObjectTy, nkRecList, nkPostfix, nkObjConstr,
+       nkExprColonExpr, nkExprEqExpr,
+       nkDiscardStmt, nkReturnStmt,
+       nkProcTy,
+       nkAsgn
+         :
+      for subnode in node:
+        ctx.registerUses(subnode)
+
+    of nkOpenSymChoice:
+      # QUESTION I have no idea what multiple symbol choices mean *after*
+      # semcheck happened, so discarding for now.
+      discard
+
+    of nkTypeDef:
+      # TODO register pragma uses in head but ignore symbol declaration
+      # itself (add to registration context)
+      ctx.registerUses(node[2])
+
+    of nkDistinctTy:
+      ctx.registerUses(node[0])
+
+
+    else:
+      raiseImplementKindError(node, node.treeRepr(maxDepth = 3) & " " & $node.kind)
+
+
+
 
 proc toDocType(ctx; ntype: NType): DocType =
   case ntype.kind:
@@ -348,7 +487,9 @@ proc registerToplevel(ctx: DocContext, node: PNode) =
       discard
 
     else:
-      ctx.registerCalls(node)
+      discard
+
+  ctx.registerUses(node)
 
 
 proc generateDocDb*(
@@ -411,11 +552,19 @@ when isMainModule:
 
   let db = generateDocDb(file, getStdPath(), @[])
 
-  var writer = newXmlWriter(newFileStream(AbsFile("/tmp/a.xml"), fmWrite))
-  writer.xmlStart("main")
-  for entry in db.top:
-    writer.writeXml(entry, "test")
+  block:
+    var writer = newXmlWriter(newFileStream(AbsFile("/tmp/a.xml"), fmWrite))
+    writer.xmlStart("main")
+    for entry in db.top:
+      writer.writeXml(entry, "test")
 
-  writer.xmlEnd("main")
+    writer.xmlEnd("main")
+
+  for file in db.files:
+    var writer = newXmlWriter(newFileStream(
+      AbsDir("/tmp") /. file.path.splitFile2().file, fmWrite))
+
+    writer.writeXml(file, "file")
+
 
   echo "done"

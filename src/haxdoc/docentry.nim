@@ -2,7 +2,7 @@
 
 import haxorg/[ast, semorg]
 import hmisc/other/[oswrap]
-import std/[options, tables, hashes]
+import std/[options, tables, hashes, enumerate]
 import nimtraits
 
 type
@@ -145,19 +145,35 @@ type
 
     dokDefinition
 
+    dokLocalUse
+    dokFieldUse
+
   DocOccur* = object
     ## Single occurence of documentable entry
-    refid*: DocId ## Documentable entry id
-    kind*: DocOccurKind ## Type of entry occurence
+    case kind*: DocOccurKind ## Type of entry occurence
+      of dokLocalUse:
+        localId* {.Attr.}: int
+
+      else:
+        refid* {.Attr.}: DocId ## Documentable entry id
+
+  DocCodeSlice* = object
+    line* {.Attr.}: int ## Code slice line /index/
+    column* {.Attr.}: Slice[int]
 
   DocCodePart* = object
     ## Single code part with optional occurence link.
-    text*: string ## Code context itself
+    slice*: DocCodeSlice ## Single-line slice of the code
     occur*: Option[DocOccur] ## 'link' to documentable entry
+
+  DocCodeLine* = object
+    lineHigh*: int ## /max index/ (not just length) for target code line
+    text*: string
+    parts*: seq[DocCodePart]
 
   DocCode* = object
     ## Block of source code with embedded occurence links.
-    parts*: seq[DocCodePart]
+    codeLines*: seq[DocCodeLine]
 
   DocTypeHeadKind* = enum
     dthGenericParam ## Unresolved generic parameter
@@ -269,7 +285,7 @@ type
     nested*: seq[DocId] ## Nested documentable entries. Not all
     ## `DocEntryKind` is guaranteed to have one.
 
-    db*: DocDb ## Parent documentable entry database
+    db* {.Skip(IO).}: DocDb ## Parent documentable entry database
 
     name* {.Attr.}: string
     fullIdent*: DocFullIdent ## Fully scoped identifier for a name
@@ -302,7 +318,10 @@ type
         discard
 
   DocFile* = object
-    absPath: AbsFile
+    ## Processed code file
+    path* {.Attr.}: AbsFile ## Absolute path to the original file
+    body*: DocCode ## Full text with [[code:DocOccur][occurrence]]
+                   ## annotations
 
   DocDb* = ref object
     ## - DESIGN :: Two-layer mapping between full entry identifiers, their
@@ -316,6 +335,7 @@ type
     entries*: Table[DocId, DocEntry]
     fullIdents*: Table[DocFullIdent, DocId]
     top*: seq[DocEntry]
+    files*: seq[DocFile]
 
 storeTraits(DocEntry, dekAliasKinds)
 
@@ -337,6 +357,8 @@ storeTraits(DocIdent)
 storeTraits(DocPragma)
 storeTraits(DocCode)
 storeTraits(DocCodePart)
+storeTraits(DocCodeSlice)
+storeTraits(DocCodeLine)
 
 proc hash*(id: DocId): Hash = hash(id.id)
 proc hash*(full: var DocFullIdent): Hash =
@@ -427,3 +449,92 @@ proc newDocEntry*(
   parent.db.entries[result.id()] = result
   parent.db.fullIdents[result.fullIdent] = result.id()
   parent.nested.add result.id()
+
+
+proc contains(s1, s2: DocCodeSlice): bool =
+  s1.line == s2.line and
+  s1.column.a <= s2.column.a and s2.column.b <= s2.column.b
+
+proc initDocSlice*(line, startCol, endCol: int): DocCodeSlice =
+  DocCodeSlice(line: line, column: Slice[int](a: startCol, b: endCol))
+
+proc splitOn(base, sep: DocCodeSlice):
+  tuple[before, after: Option[DocCodeSlice]] =
+
+  if base.column.a == sep.column.a and
+     base.column.b == sep.column.b:
+    discard
+
+  else:
+    if base.column.a != sep.column.a:
+      result.before = some initDocSlice(
+        base.line, base.column.a, sep.column.a - 1)
+
+    if base.column.b != sep.column.b:
+      result.after = some initDocSlice(
+        base.line, sep.column.b + 1, base.column.b)
+
+
+proc newCodePart*(slice: DocCodeSlice): DocCodePart =
+  DocCodePart(slice: slice)
+
+proc newCodePart*(slice: DocCodeSlice, occur: DocOccur): DocCodePart =
+  DocCodePart(slice: slice, occur: some occur)
+
+proc newCodeLine*(idx: int, line: string): DocCodeLine =
+  DocCodeLine(
+    lineHigh: line.high,
+    text: line,
+    parts: @[newCodePart(initDocSlice(idx, 0, line.high))])
+
+
+
+proc add*(line: var DocCodeLine, other: DocCodePart) =
+  var idx = 0
+  while idx < line.parts.len:
+    if other.slice in line.parts[idx].slice:
+      let split = line.parts[idx].slice.splitOn(other.slice)
+
+      var offset = 0
+      if split.before.isSome():
+        line.parts.insert(newCodePart(split.before.get()), max(idx - 1, 0))
+        inc offset
+
+      line.parts[idx + offset] = other
+
+      if split.after.isSome():
+        line.parts.insert(newCodePart(split.after.get()), idx + 1 + offset)
+
+      break
+
+    inc idx
+
+proc add*(code: var DocCode, other: DocCodePart) =
+  code.codeLines[other.slice.line].add other
+
+proc add*(code: var DocCode, line: DocCodeLine) =
+  code.codeLines.add line
+
+proc newCodeBlock*(text: seq[string]): DocCode =
+  for idx, line in text:
+    result.codeLines.add newCodeLine(idx, line)
+
+proc newDocFile*(path: AbsFile): DocFile =
+  result.path = path
+  for idx, line in enumerate(lines(path.getStr())):
+    result.body.add newCodeLine(idx, line)
+
+
+proc newOccur*(
+  db: var DocDb, position: DocCodeSlice, inFile: AbsFile, occur: DocOccur) =
+  var fileIdx = -1
+  for idx, file in pairs(db.files):
+    if file.path == inFile:
+      fileIdx = idx
+      break
+
+  if fileIdx == -1:
+    db.files.add newDocFile(inFile)
+    fileIdx = db.files.high
+
+  db.files[fileIdx].body.add newCodePart(position, occur)

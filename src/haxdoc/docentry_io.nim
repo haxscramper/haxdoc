@@ -4,7 +4,7 @@ import ./docentry
 import std/[macros, streams, strutils]
 import nimtraits, nimtraits/trait_xml
 export trait_xml
-import hmisc/other/hshell
+import hmisc/other/[hshell, oswrap]
 import hmisc/hdebug_misc
 
 import haxorg/semorg
@@ -30,6 +30,12 @@ using tag: string
 # proc writeXml*(w; it: DocIdentKind, tag) = genXmlWriter(DocIdentKind, it, w, tag)
 # proc writeXml*(w; it: DocTypeHeadKind, tag) = genXmlWriter(DocTypeHeadKind, it, w, tag)
 
+proc xmlAttribute*(w; key: string, id: DocId) =
+  xmlAttribute(w, key, $id.id)
+
+proc xmlAttribute*(w; key: string, file: AnyPath) =
+  xmlAttribute(w, key, file.getStr())
+
 
 proc writeXml*(w; it: DocAdmonition, tag)
 proc writeXml*(w; it: DocMetatag, tag)
@@ -45,16 +51,17 @@ proc writeXml*(w; it: DocIdent, tag)
 proc writeXml*(w; it: DocPragma, tag)
 proc writeXml*(w; it: DocCode, tag)
 proc writeXml*(w; it: DocCodePart, tag)
+proc writeXml*(w; it: DocCodeSlice, tag)
 proc writeXml*(w; it: DocLocation, tag)
+proc writeXml*(w; it: DocCodeLine, tag)
 
 proc writeXml*(w; it: DocLocation, tag) =
   genXmlWriter(DocLocation, it, w, tag)
 
-proc writeXml*(w; it: DocCode, tag) =
-  genXmlWriter(DocCode, it, w, tag)
-
-proc writeXml*(w; it: DocCodePart, tag) =
-  genXmlWriter(DocCodePart, it, w, tag)
+proc writeXml*(w; it: DocCode, tag) = genXmlWriter(DocCode, it, w, tag)
+proc writeXml*(w; it: DocCodePart, tag) = genXmlWriter(DocCodePart, it, w, tag)
+proc writeXml*(w; it: DocCodeSlice, tag) = genXmlWriter(DocCodeSlice, it, w, tag)
+proc writeXml*(w; it: DocCodeLine, tag) = genXmlWriter(DocCodeLine, it, w, tag)
 
 proc writeXml*(w; it: DocPragma, tag) =
   genXmlWriter(DocPRagma, it, w, tag)
@@ -108,7 +115,7 @@ proc writeXml*(w; it: DocDb, tag) = discard # genXmlWriter(DocDb, it, w, tag)
 
 proc writeXml*(w; it: DocEntry, tag) =
   startHaxComp()
-  genXmlWriter(DocEntry, it, w, tag, ["nested", "db", "rawDoc"], false)
+  genXmlWriter(DocEntry, it, w, tag, ["nested", "rawDoc"], false)
 
   w.indent()
   for item in it.nested:
@@ -120,8 +127,6 @@ proc writeXml*(w; it: DocEntry, tag) =
   w.dedent()
 
   w.xmlEnd(tag)
-
-
 
 when isMainModule:
   let doc = DocEntry()
