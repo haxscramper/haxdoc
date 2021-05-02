@@ -5,6 +5,7 @@ import std/[macros, streams, strutils]
 import nimtraits, nimtraits/trait_xml
 export trait_xml
 import hmisc/other/[hshell, oswrap]
+import hmisc/algo/halgorithm
 import hmisc/hdebug_misc
 
 import haxorg/semorg
@@ -59,9 +60,32 @@ proc writeXml*(w; it: DocLocation, tag) =
   genXmlWriter(DocLocation, it, w, tag)
 
 proc writeXml*(w; it: DocCode, tag) = genXmlWriter(DocCode, it, w, tag)
-proc writeXml*(w; it: DocCodePart, tag) = genXmlWriter(DocCodePart, it, w, tag)
+proc writeXml*(w; it: DocCodePart, tag) =
+  w.xmlOpen(tag)
+  w.xmlAttribute("line", it.slice.line)
+  w.xmlAttribute("column", it.slice.column)
+  if it.occur.getSome(occur):
+    w.xmlAttribute("kind", occur.kind)
+    case occur.kind:
+      of dokLocalUse: w.xmlAttribute("localId", occur.localId)
+      else: w.xmlAttribute("refid", occur.refId)
+
+
+  w.xmlCloseEnd()
+  # w.line()
+  # genXmlWriter(DocCodePart, it, w, tag)
+
+
 proc writeXml*(w; it: DocCodeSlice, tag) = genXmlWriter(DocCodeSlice, it, w, tag)
-proc writeXml*(w; it: DocCodeLine, tag) = genXmlWriter(DocCodeLine, it, w, tag)
+proc writeXml*(w; it: DocCodeLine, tag) =
+  w.xmlStart(tag)
+  w.indent()
+  w.xmlWrappedCdata(it.text, "text")
+  for part in it.parts:
+    w.writeXml(part, "parts")
+  w.dedent()
+  w.xmlEnd(tag)
+  # genXmlWriter(DocCodeLine, it, w, tag)
 
 proc writeXml*(w; it: DocPragma, tag) =
   genXmlWriter(DocPRagma, it, w, tag)
@@ -122,7 +146,7 @@ proc writeXml*(w; it: DocEntry, tag) =
     w.writeXml(it.db[item], "nested")
 
   for item in it.rawDoc:
-    w.xmlWrappedCdata("raw", item)
+    w.xmlWrappedCdata(item, "raw")
 
   w.dedent()
 

@@ -2,7 +2,8 @@
 
 import haxorg/[ast, semorg]
 import hmisc/other/[oswrap]
-import std/[options, tables, hashes, enumerate]
+import hmisc/hdebug_misc
+import std/[options, tables, hashes, enumerate, strformat]
 import nimtraits
 
 type
@@ -136,7 +137,7 @@ type
 
     dokUsage
     dokCall
-    dokInheritance
+    dokInheritFrom
     dokOverride
     dokInclude
     dokImport
@@ -167,7 +168,7 @@ type
     occur*: Option[DocOccur] ## 'link' to documentable entry
 
   DocCodeLine* = object
-    lineHigh*: int ## /max index/ (not just length) for target code line
+    lineHigh* {.Attr.}: int ## /max index/ (not just length) for target code line
     text*: string
     parts*: seq[DocCodePart]
 
@@ -453,10 +454,15 @@ proc newDocEntry*(
 
 proc contains(s1, s2: DocCodeSlice): bool =
   s1.line == s2.line and
-  s1.column.a <= s2.column.a and s2.column.b <= s2.column.b
+  s1.column.a <= s2.column.a and s2.column.b <= s1.column.b
 
 proc initDocSlice*(line, startCol, endCol: int): DocCodeSlice =
-  DocCodeSlice(line: line, column: Slice[int](a: startCol, b: endCol))
+  if endCol == -1:
+    DocCodeSlice(line: line, column: Slice[int](a: -1, b: -1))
+
+  else:
+    assert startCol <= endCol, &"{startCol} <= {endCol}"
+    DocCodeSlice(line: line, column: Slice[int](a: startCol, b: endCol))
 
 proc splitOn(base, sep: DocCodeSlice):
   tuple[before, after: Option[DocCodeSlice]] =
@@ -466,13 +472,34 @@ proc splitOn(base, sep: DocCodeSlice):
     discard
 
   else:
-    if base.column.a != sep.column.a:
+    if base.column.a < sep.column.a:
+      # [base text  ... (anything)]
+      #          < [separator text]
       result.before = some initDocSlice(
         base.line, base.column.a, sep.column.a - 1)
 
-    if base.column.b != sep.column.b:
+    elif base.column.a == sep.column.a:
+      discard
+
+    else:
+      echov base
+      echov sep
+      raiseImplementError("")
+
+    if sep.column.b < base.column.b:
+      # [... (anything)  base text]
+      # [separator text] <
       result.after = some initDocSlice(
         base.line, sep.column.b + 1, base.column.b)
+
+    elif sep.column.b == base.column.b:
+      discard
+
+    else:
+      echov base
+      echov sep
+      raiseImplementError("")
+
 
 
 proc newCodePart*(slice: DocCodeSlice): DocCodePart =
@@ -493,11 +520,19 @@ proc add*(line: var DocCodeLine, other: DocCodePart) =
   var idx = 0
   while idx < line.parts.len:
     if other.slice in line.parts[idx].slice:
-      let split = line.parts[idx].slice.splitOn(other.slice)
+      let split =
+        try:
+          line.parts[idx].slice.splitOn(other.slice)
+
+        except ImplementError:
+          echov other
+          for part in line.parts:
+            echov part
+          raise
 
       var offset = 0
       if split.before.isSome():
-        line.parts.insert(newCodePart(split.before.get()), max(idx - 1, 0))
+        line.parts.insert(newCodePart(split.before.get()), idx)
         inc offset
 
       line.parts[idx + offset] = other
