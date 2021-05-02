@@ -1,7 +1,7 @@
 ## Serialization and deserialization for documentation entries
 
 import ./docentry
-import std/[macros, streams, strutils]
+import std/[macros, streams, strutils, strformat]
 import nimtraits, nimtraits/trait_xml
 export trait_xml
 import hmisc/other/[hshell, oswrap]
@@ -37,6 +37,8 @@ proc xmlAttribute*(w; key: string, id: DocId) =
 proc xmlAttribute*(w; key: string, file: AnyPath) =
   xmlAttribute(w, key, file.getStr())
 
+proc xmlAttribute*(w; key: string, pos: DocPos) =
+  xmlAttribute(w, key, &"{pos.line}:{pos.column}")
 
 proc writeXml*(w; it: DocAdmonition, tag)
 proc writeXml*(w; it: DocMetatag, tag)
@@ -55,6 +57,9 @@ proc writeXml*(w; it: DocCodePart, tag)
 proc writeXml*(w; it: DocCodeSlice, tag)
 proc writeXml*(w; it: DocLocation, tag)
 proc writeXml*(w; it: DocCodeLine, tag)
+
+proc writeXml*(w; it: DocExtent, tag)
+proc writeXml*(w; it: DocPos, tag)
 
 proc writeXml*(w; it: DocLocation, tag) =
   genXmlWriter(DocLocation, it, w, tag)
@@ -81,14 +86,20 @@ proc writeXml*(w; it: DocCodeLine, tag) =
   w.xmlStart(tag)
   w.indent()
   w.xmlWrappedCdata(it.text, "text")
-  for part in it.parts:
-    w.writeXml(part, "parts")
+  for part in it.parts: w.writeXml(part, "parts")
+  for part in it.overlaps: w.writeXml(part, "overlaps")
   w.dedent()
   w.xmlEnd(tag)
   # genXmlWriter(DocCodeLine, it, w, tag)
 
 proc writeXml*(w; it: DocPragma, tag) =
   genXmlWriter(DocPRagma, it, w, tag)
+
+proc writeXml*(w; it: DocPos, tag) =
+  genXmlWriter(DocPos, it, w, tag)
+
+proc writeXml*(w; it: DocExtent, tag) =
+  genXmlWriter(DocExtent, it, w, tag)
 
 proc writeXml*(w; it: DocIdent, tag) =
   genXmlWriter(DocIdent, it, w, tag)
@@ -104,12 +115,28 @@ proc writeXml*(w; it: DocOccur, tag) =
 
 proc writeXml*(w; it: DocId, tag) =
   w.xmlOpen(tag)
-  w.space()
   w.xmlAttribute("id", $it.id)
   w.xmlCloseEnd()
 
 proc writeXml*(w; it: DocIdentPart, tag) =
-  genXmlWriter(DocIdentPart, it, w, tag)
+  # if it.kind notin dekProcKinds:
+  #   w.xmlOpen(tag)
+  #   w.xmlAttribute("name", it.name)
+  #   w.xmlAttribute("kind", it.kind)
+  #   w.xmlCloseEnd()
+
+  # else:
+  startHaxComp()
+  genXmlWriter(
+    DocIdentPart, it, w, tag,
+    hasFieldsExpr = (
+      (it.kind in dekProcKinds) and (it.argTypes.len > 0)
+    )
+  )
+
+  stopHaxComp()
+
+  # w.xmlEnd(tag)
 
 proc writeXml*(w; it: DocFullIdent, tag) =
   when false:
@@ -138,8 +165,12 @@ proc writeXml*(w; it: DocFile, tag) =
 proc writeXml*(w; it: DocDb, tag) = discard # genXmlWriter(DocDb, it, w, tag)
 
 proc writeXml*(w; it: DocEntry, tag) =
-  startHaxComp()
-  genXmlWriter(DocEntry, it, w, tag, ["nested", "rawDoc"], false)
+  genXmlWriter(
+    DocEntry, it, w, tag, ["nested", "rawDoc"], false,
+    extraAttrWrite = (
+      w.xmlAttribute("decl", true)
+    )
+  )
 
   w.indent()
   for item in it.nested:

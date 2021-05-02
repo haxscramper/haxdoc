@@ -1,9 +1,10 @@
 import ../docentry, ../docentry_io
 import hnimast/compiler_aux
 import hmisc/hdebug_misc
-import std/[strutils, strformat, tables, streams]
+import std/[strutils, strformat, tables, streams, sequtils]
 import packages/docutils/[rst]
 import hnimast
+import hmisc/helpers
 import hmisc/other/[oswrap, colorlogger]
 import hmisc/algo/[hstring_algo, halgorithm]
 import compiler/sighashes
@@ -22,10 +23,20 @@ type
     rskTopLevel
     rskInheritList
     rskPragma
+    rskObjectFields ## Object field groups
+    rskObjectBranch ## Object branch or switch expression
+    rskEnumFields ## Enum field groups
+
+    rskProcHeader
+    rskBracketHead
+    rskBracketArgs
+
+    rskDefineCheck
 
 
   RegisterState = object
     state: seq[RegisterStateKind]
+    switchId: DocId
 
 using
   ctx: DocContext
@@ -35,18 +46,59 @@ proc `+`(state: RegisterState, kind: RegisterStateKind): RegisterState =
   result = state
   result.state.add kind
 
+proc `+=`(state: var RegisterState, kind: RegisterStateKind) =
+  state.state.add kind
+
+
 proc top(state: RegisterState): RegisterStateKind =
   return state.state[^1]
 
 proc initRegisterState(): RegisterState =
   RegisterState(state: @[rskToplevel])
 
+proc toDocPos(info: TLineInfo): DocPos =
+  DocPos(line: info.line.int, column: info.col.int)
+
+proc startPos(node): DocPos =
+  case node.kind:
+    of nkTokenKinds:
+      result = toDocPos(node.getInfo())
+
+    else:
+      result = node[0].startPos()
+
+proc finishPos(node): DocPos =
+  case node.kind:
+    of nkTokenKinds:
+      result = toDocPos(node.getInfo())
+      result.column += len($node) - 1
+
+    else:
+      if len(node) > 0:
+        var idx = len(node) - 1
+        while idx >= 0 and node[idx].kind in {nkEmpty}:
+          dec idx
+
+        if idx >= 0:
+          result = node[idx].finishPos()
+
+        else:
+          result = toDocPos(node.getInfo())
+
+      else:
+        result = toDocPos(node.getInfo())
+
+proc nodeExtent(node): DocExtent =
+  result.start = startPos(node)
+  result.finish = finishPos(node)
+
 proc setLocation(ctx; entry: DocEntry, node) =
-  entry.location = some DocLocation(
-    line: node.getInfo().line.int,
-    column: node.getInfo().col.int,
-    file: $ctx.graph.getFilePath(node)
+  entry.setLocation DocLocation(
+    pos: node.getInfo().toDocPos(),
+    absFile: AbsFile($ctx.graph.getFilePath(node))
   )
+
+  entry.extent = some nodeExtent(node)
 
 proc nodeSlice(node: PNode): DocCodeSlice =
   let l = len($node)
@@ -56,8 +108,19 @@ proc nodeSlice(node: PNode): DocCodeSlice =
   initDocSlice(
     node.getInfo().line.int - 1, # Lines are indexed, not numbered
     node.getInfo().col.int,
-    node.getInfo().col.int + l
+    node.getInfo().col.int + l - 1
   )
+
+proc isEnum*(node): bool =
+  case node.kind:
+    of nkEnumTy:
+      true
+
+    of nkTypeDef:
+      node[2].isEnum()
+
+    else:
+      false
 
 proc headSym(node): PSym =
   case node.kind:
@@ -104,7 +167,10 @@ proc sigHash(t: NType): SigHash =
 proc sigHash(t: PNode): SigHash =
   result = t.headSym().trySigHash()
 
-proc `[]`(ctx; ntype: NType | PNode): DocId =
+proc sigHash(t: PSym): SigHash =
+  result = t.trySigHash()
+
+proc `[]`(ctx; ntype: NType | PNode | PSym): DocId =
   let hash = ntype.sigHash()
   if hash in ctx.sigmap:
     return ctx.sigmap[hash]
@@ -121,11 +187,15 @@ proc occur(ctx; node: PNode, kind: DocOccurKind) =
     occur = DocOccur(kind: kind)
     occur.refid = ctx[node]
 
+  let file = AbsFile($ctx.graph.getFilePath(node))
+  ctx.db.newOccur(node.nodeSlice(), file, occur)
+
+proc occur(ctx; node; id: DocId, kind: DocOccurKind) =
+  var occur = DocOccur(kind: kind)
+  occur.refid = id
   ctx.db.newOccur(
     node.nodeSlice(),
-    AbsFile($ctx.graph.getFilePath(node)),
-    occur
-  )
+    AbsFile($ctx.graph.getFilePath(node)), occur)
 
 proc registerUses(ctx; node; state: RegisterState) =
   case node.kind:
@@ -133,20 +203,53 @@ proc registerUses(ctx; node; state: RegisterState) =
       case node.sym.kind:
         of skType:
           case state.top():
-            of rskTopLevel, rskPragma: ctx.occur(node, dokTypeDirectUse)
-            of rskInheritList: ctx.occur(node, dokInheritFrom)
+            of rskTopLevel, rskPragma:
+              ctx.occur(node, dokTypeDirectUse)
+
+            of rskObjectFields, rskObjectBranch:
+              ctx.occur(node, dokTypeAsFieldUse)
+
+            of rskInheritList:
+              ctx.occur(node, dokInheritFrom)
+
+            of rskProcHeader:
+              ctx.occur(node, dokTypeAsArgUse)
+
+            of rskBracketHead:
+              ctx.occur(node, dokTypeSpecializationUse)
+
+            of rskBracketArgs:
+              ctx.occur(node, dokTypeAsParameterUse)
+
+            else:
+              raiseImplementKindError(state.top())
+
+            # of rskObjectBranch:
+            #   ctx.occur(node, dok)
 
         of skEnumField:
-          ctx.occur(node, dokFieldUse)
+          if state.top() == rskEnumFields:
+            ctx.occur(node, dokEnumFieldDeclare)
+
+          else:
+            ctx.occur(node, dokEnumFieldUse)
 
         of skField:
           # QUESTION these two field usage kinds should be different (like
           # `field use` and `enum constant use`?)
-          ctx.occur(node, dokFieldUse)
+          if state.top() in {rskObjectBranch, rskObjectFields}:
+            ctx.occur(node, dokFieldDeclare)
+
+          else:
+            ctx.occur(node, dokFieldUse)
 
 
         of skProc, skTemplate, skMethod, skMacro, skIterator, skConverter:
-          ctx.occur(node, dokCall)
+          if state.top() == rskProcHeader:
+            ctx.occur(node, dokCallDeclare)
+
+          else:
+            ctx.occur(node, dokCall)
 
         of skParam, skVar, skConst, skLet, skForVar:
           # TODO local usage declaration
@@ -168,14 +271,40 @@ proc registerUses(ctx; node; state: RegisterState) =
       # TODO without better context information it is not possible what
       # kind of usage particular identifier represents, so discarding for
       # now.
-      discard
+      if state.switchId.isValid():
+        let sub = ctx.db[state.switchId].getSub($node)
+        if sub.isValid():
+          ctx.occur(node, sub, dokEnumFieldUse)
+
+      elif state.top() == rskDefineCheck:
+        let def = ctx.db.getOrNew(dekCompileDefine, $node)
+        ctx.occur(node, def.id(), dokDefineCheck)
+
 
     of nkCommentStmt, nkEmpty, hnimast.nkStrKinds, nkFloatKinds, nkNilLit:
       discard
 
     of nkIntKinds:
-      # TODO check if integer constant is not actually an enum value
-      discard
+      if notNil(node.typ) and
+         notNil(node.typ.sym) and
+         notNil(node.typ.sym.ast):
+
+        let parent = ctx[node.typ.sym]
+        if node.typ.sym.ast.isEnum():
+          if parent.isValid():
+            let sub = ctx.db[parent].getSub($node)
+            ctx.occur(node, sub, dokEnumFieldUse)
+
+          # else:
+          #   warn $node, "has type of", node.typ.sym, ", which was not registered"
+
+
+# $node.typ.sym.ast[0]
+
+        # let path = [("", , ""), ("", $node, "")]
+        # let referencedSymbol = ctx.writer[].recordSymbol(sskEnumConstant, path)
+        # let referenceId = ctx.writer[].recordReference(
+        #   callerId, referencedSymbol, srkUsage)
 
     of nkPragmaExpr:
       ctx.registerUses(node[1], state + rskPragma)
@@ -210,6 +339,14 @@ proc registerUses(ctx; node; state: RegisterState) =
       # IDEA possible analysis of passthrough code?
       discard
 
+    of nkCall:
+      if "defined" in $node:
+        ctx.registerUses(node[1], state + rskDefineCheck)
+
+      else:
+        for subnode in node:
+          ctx.registerUses(subnode, state)
+
     of nkTypeSection,
        nkProcDeclKinds, # TODO handle procedure declaration in different
                         # context in order to provide more precise usage
@@ -217,7 +354,7 @@ proc registerUses(ctx; node; state: RegisterState) =
        nkEnumTy, nkEnumFieldDef,
 
        # function calls and similar uses
-       nkCall, nkInfix, nkCommand, nkDotExpr, nkCast, nkConv, nkPrefix,
+       nkInfix, nkCommand, nkDotExpr, nkCast, nkConv, nkPrefix,
        nkFormalParams, nkIdentDefs,
 
        # Process all subnodes, no additional context required
@@ -236,8 +373,8 @@ proc registerUses(ctx; node; state: RegisterState) =
 
        nkPtrTy, nkRefTy, nkVarTy, # IDEA possible context information about
                                   # `ptr/ref` being used on a type.
-       nkBracket, nkBracketExpr,
-       nkObjectTy, nkRecList, nkRecWhen,
+       nkBracket,
+       nkObjectTy, nkRecWhen,
        nkPostfix, nkObjConstr, nkTupleConstr,
        nkExprColonExpr,
        nkExprEqExpr, # Possible `dokFieldUse`
@@ -257,12 +394,47 @@ proc registerUses(ctx; node; state: RegisterState) =
        nkDefer, nkContinueStmt, nkBlockStmt, nkStaticStmt, nkImportExceptStmt,
        nkExportExceptStmt, nkFromStmt, nkUsingStmt, nkBlockExpr, nkStmtListType,
        nkBlockType, nkWith, nkWithout, nkTypeOfExpr, nkTupleClassTy,
-       nkTypeClassTy, nkStaticTy, nkRecCase, nkConstTy, nkMutableTy, nkIteratorTy,
+       nkTypeClassTy, nkStaticTy, nkConstTy, nkMutableTy, nkIteratorTy,
        nkSharedTy, nkArgList, nkPattern, nkHiddenTryStmt, nkClosure, nkGotoState,
-       nkState, nkBreakState
+       nkState, nkBreakState,
+
+       nkRecList,
          :
+
+      var state = state
+      case node.kind:
+        of nkEnumTy:
+          state += rskEnumFields
+
+        of nkObjectTy, nkRecList:
+          state += rskObjectFields
+
+        else:
+          discard
+
       for subnode in node:
         ctx.registerUses(subnode, state)
+
+    of nkBracketExpr:
+      ctx.registerUses(node[0], state + rskBracketHead)
+      for subnode in node[1..^1]:
+        ctx.registerUses(subnode, state + rskBracketArgs)
+
+    of nkRecCase:
+      var state = state
+      state.switchId = ctx[node[0][1]]
+      ctx.registerUses(node[0], state + rskObjectBranch)
+      for branch in node[1 .. ^1]:
+        for expr in branch[0 .. ^2]:
+          ctx.registerUses(expr, state + rskObjectBranch)
+
+        ctx.registerUses(branch[^1], state + rskObjectFields)
+      # info ctx.graph.getFilePath(node)
+      # info node.getInfo()
+      # raiseImplementError(node.treeRepr())
+
+    # of nkRecList:
+    #   ctx.registerUses()
 
     of nkRaiseStmt:
       # TODO get type of the raised expression and if it is a concrete type
@@ -584,7 +756,8 @@ proc generateDocDb*(
     debug "Either explicitly specify library path via `--stdpath`"
     debug "Or run trail analysis with choosenim toolchain for correct version"
 
-  var db {.global.} = DocDb()
+  var db {.global.}: DocDb
+  db = newDocDb(@[AbsDir(($stdPath).dropSuffix("lib"))])
   var graph {.global.}: ModuleGraph
   graph = newModuleGraph(file, stdpath,
     proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
@@ -623,7 +796,43 @@ proc generateDocDb*(
 
 when isMainModule:
   let file = AbsFile("/tmp/a.nim")
-  file.writeFile("echo 12")
+  file.writeFile("""
+type
+  MalTypeKind* = enum Nil, True, False, Number, Symbol, String,
+    List, Vector, HashMap, Fun, MalFun, Atom
+
+type
+  FunType = proc(a: varargs[MalType]): MalType
+
+  MalFunType* = ref object
+    fn*:       FunType
+    ast*:      MalType
+    params*:   MalType
+    is_macro*: bool
+
+  MalType* = ref object
+    case kind*: MalTypeKind
+    of Nil, True, False: nil
+    of Number:           number*:   int
+    of String, Symbol:   str*:      string
+    of List, Vector:     list*:     seq[MalType]
+    of HashMap:          hash_map*: int
+    of Fun:
+                         fun*:      FunType
+                         is_macro*: bool
+    of MalFun:           malfun*:   MalFunType
+    of Atom:             val*:      MalType
+
+    meta*: MalType
+
+type
+  A = ref object
+    b: B
+
+  B = ref object
+    a: A
+
+""")
   let stdpath = getStdPath()
 
   startColorLogger()
@@ -634,7 +843,7 @@ when isMainModule:
   block:
     var writer = newXmlWriter(newFileStream(AbsFile("/tmp/res.xml"), fmWrite))
     writer.xmlStart("main")
-    for entry in db.top:
+    for _, entry in db.top:
       writer.writeXml(entry, "test")
 
     writer.xmlEnd("main")
@@ -644,7 +853,7 @@ when isMainModule:
     var writer = newXmlWriter(newFileStream(outFile, fmWrite))
 
     writer.writeXml(file, "file")
-    info "Wrote", outFile
+    # info "Wrote", outFile
 
 
 

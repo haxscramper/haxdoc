@@ -2,7 +2,8 @@
 
 import haxorg/[ast, semorg]
 import hmisc/other/[oswrap]
-import hmisc/hdebug_misc
+import hmisc/algo/hseq_mapping
+import hmisc/[hdebug_misc, helpers]
 import std/[options, tables, hashes, enumerate, strformat]
 import nimtraits
 
@@ -135,8 +136,13 @@ type
     dokTypeSpecializationUse ## Specialization of generic type using other
                              ## types
 
+    dokTypeAsArgUse
+    dokTypeAsFieldUse
+
     dokUsage
     dokCall
+    dokCallDeclare
+
     dokInheritFrom
     dokOverride
     dokInclude
@@ -144,10 +150,15 @@ type
     dokMacroUsage
     dokAnnotationUsage
 
-    dokDefinition
-
     dokLocalUse
+
+    dokFieldDeclare
     dokFieldUse
+
+    dokEnumFieldDeclare
+    dokEnumFieldUse
+
+    dokDefineCheck
 
   DocOccur* = object
     ## Single occurence of documentable entry
@@ -168,9 +179,16 @@ type
     occur*: Option[DocOccur] ## 'link' to documentable entry
 
   DocCodeLine* = object
-    lineHigh* {.Attr.}: int ## /max index/ (not just length) for target code line
+    lineHigh* {.Attr.}: int ## /max index/ (not just length) for target
+                            ## code line
     text*: string
     parts*: seq[DocCodePart]
+    overlaps*: seq[DocCodePart] ## \
+    ##
+    ## - WHY :: sometimes it is not possible to reliably determine extent
+    ##   of the identifier, which leads to potentially overlapping code
+    ##   segments. Determining 'the correct' one is hardly possible, so
+    ##   they are just dumped in the overlapping section.
 
   DocCode* = object
     ## Block of source code with embedded occurence links.
@@ -276,13 +294,23 @@ type
     kind*: SemMetaTag
     body*: SemOrg
 
-  DocLocation* = object
-    column* {.Attr.}: int
+  DocPos* = object
     line* {.Attr.}: int
+    column* {.Attr.}: int
+
+
+  DocLocation* = object
     file* {.Attr.}: string
+    absFile* {.Skip(IO).}: AbsFile
+    pos* {.Attr.}: DocPos
+
+  DocExtent* = object
+    start* {.Attr.}: DocPos
+    finish* {.Attr.}: DocPos
 
   DocEntry* = ref object
     location*: Option[DocLocation]
+    extent*: Option[DocExtent]
     nested*: seq[DocId] ## Nested documentable entries. Not all
     ## `DocEntryKind` is guaranteed to have one.
 
@@ -335,11 +363,14 @@ type
     # require expensive `ref` graph reconstruction during serialization.
     entries*: Table[DocId, DocEntry]
     fullIdents*: Table[DocFullIdent, DocId]
-    top*: seq[DocEntry]
+    top*: OrderedTable[DocIdentPart, DocEntry]
     files*: seq[DocFile]
+    rootPaths*: seq[AbsDir]
 
 storeTraits(DocEntry, dekAliasKinds)
 
+storeTraits(DocExtent)
+storeTraits(DocPos)
 storeTraits(DocLocation)
 storeTraits(DocAdmonition)
 storeTraits(DocMetatag)
@@ -361,7 +392,13 @@ storeTraits(DocCodePart)
 storeTraits(DocCodeSlice)
 storeTraits(DocCodeLine)
 
+proc `$`*(dk: DocEntryKind): string = toString(dk)[3 ..^ 1]
+proc `$`*(dk: DocOccurKind): string = toString(dk)[3 ..^ 1]
+
 proc hash*(id: DocId): Hash = hash(id.id)
+proc hash*(part: DocIdentPart): Hash =
+  !$(hash(part.kind) !& hash(part.name))
+
 proc hash*(full: var DocFullIdent): Hash =
   # Full identifier hash should be very stable (only changed if the name of
   # the entry is changed)
@@ -370,7 +407,7 @@ proc hash*(full: var DocFullIdent): Hash =
 
   else:
     for part in full.parts:
-      result = result !& hash(part.kind) !& hash(part.name)
+      result = result !& hash(part)
 
     result = !$result
     full.docId.id = result
@@ -381,7 +418,7 @@ proc `==`*(a, b: DocFullIdent): bool = a.parts == b.parts
 
 proc id*(full: var DocFullIdent): DocId {.inline.} = DocId(id: hash(full))
 proc id*(de: DocEntry): DocId {.inline.} = de.fullident.id
-
+proc isValid*(id: DocId): bool = (id.id != 0)
 
 proc add*(de: var DocEntry, other: DocEntry) =
   de.nested.add other.id
@@ -422,8 +459,9 @@ proc lastIdentPart*(entry: var DocEntry): var DocIdentPart =
 proc newDocEntry*(
     db: var DocDb, kind: DocEntryKind, name: string): DocEntry =
   ## Create new toplevel entry (package, file, module) directly using DB.
+  let part = initIdentPart(kind, name)
   result = DocEntry(
-    fullIdent: initFullIdent(@[initIdentPart(kind, name)]),
+    fullIdent: initFullIdent(@[part]),
     db: db,
     name: name,
     kind: kind
@@ -431,7 +469,7 @@ proc newDocEntry*(
 
   db.entries[result.id()] = result
   db.fullIdents[result.fullIdent] = result.id()
-  db.top.add result
+  db.top[part] = result
 
 proc newDocEntry*(
     parent: var DocEntry, kind: DocEntryKind, name: string
@@ -450,6 +488,32 @@ proc newDocEntry*(
   parent.db.entries[result.id()] = result
   parent.db.fullIdents[result.fullIdent] = result.id()
   parent.nested.add result.id()
+
+proc newDocDb*(rootPaths: seq[AbsDir]): DocDb =
+  result = DocDb(rootPaths: rootPaths)
+  sortIt(result.rootPaths, it.len)
+
+proc getOrNew*(db: var DocDb, kind: DocEntryKind, name: string): DocEntry =
+  let key = initIdentPart(kind, name)
+  if key in db.top:
+    result = db.top[key]
+
+  else:
+    result = db.newDocEntry(kind, name)
+
+proc getSub*(parent: DocEntry, subName: string): DocId =
+  for sub in parent.nested:
+    if parent.db[sub].name == subName:
+      return sub
+
+proc setLocation*(de: DocEntry, location: DocLocation) =
+  de.location = some location
+  for path in de.db.rootPaths:
+    # echov path
+    if location.absFile.startsWith($path):
+      de.location.get().file =
+        location.absFile.getStr().dropPrefix($path).dropPrefix("/")
+      break
 
 
 proc contains(s1, s2: DocCodeSlice): bool =
@@ -540,9 +604,16 @@ proc add*(line: var DocCodeLine, other: DocCodePart) =
       if split.after.isSome():
         line.parts.insert(newCodePart(split.after.get()), idx + 1 + offset)
 
-      break
+      return
 
     inc idx
+
+
+  line.overlaps.add other
+  # echov other
+  # for part in line.parts:
+  #   echov part
+  # raiseImplementError("Addition failed")
 
 proc add*(code: var DocCode, other: DocCodePart) =
   code.codeLines[other.slice.line].add other
