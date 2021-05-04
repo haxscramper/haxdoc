@@ -695,45 +695,53 @@ proc generateDocDb*(
   return db
 
 when isMainModule:
-  let file = AbsFile("/tmp/a.nim")
+  let dir = getTempDir() / "from_nim_code"
+  # rmDir dir
+  mkDir dir
+  let file = dir /. "a.nim"
   file.writeFile("""
 type
   MalTypeKind* = enum Nil, True, False, Number, Symbol, String,
     List, Vector, HashMap, Fun, MalFun, Atom
-
-type
-  FunType = proc(a: varargs[MalType]): MalType
-
-  MalFunType* = ref object
-    fn*:       FunType
-    ast*:      MalType
-    params*:   MalType
-    is_macro*: bool
-
-  MalType* = ref object
-    case kind*: MalTypeKind
-    of Nil, True, False: nil
-    of Number:           number*:   int
-    of String, Symbol:   str*:      string
-    of List, Vector:     list*:     seq[MalType]
-    of HashMap:          hash_map*: int
-    of Fun:
-                         fun*:      FunType
-                         is_macro*: bool
-    of MalFun:           malfun*:   MalFunType
-    of Atom:             val*:      MalType
-
-    meta*: MalType
-
-type
-  A = ref object
-    b: B
-
-  B = ref object
-    a: A
-
 """)
+
+# type
+#   FunType = proc(a: varargs[MalType]): MalType
+
+#   MalFunType* = ref object
+#     fn*:       FunType
+#     ast*:      MalType
+#     params*:   MalType
+#     is_macro*: bool
+
+  # MalType* = ref object
+  #   case kind*: MalTypeKind
+  #   of Nil, True, False: nil
+  #   of Number:           number*:   int
+  #   of String, Symbol:   str*:      string
+  #   of List, Vector:     list*:     seq[MalType]
+  #   of HashMap:          hash_map*: int
+  #   of Fun:
+  #                        fun*:      FunType
+  #                        is_macro*: bool
+  #   of MalFun:           malfun*:   MalFunType
+  #   of Atom:             val*:      MalType
+
+  #   meta*: MalType
+
+# type
+#   Base = ref object of RootObj
+
+#   A = ref object of Base
+#     b: B
+
+#   B = ref object of Base
+#     a: A
+
+
+
   let stdpath = getStdPath()
+
 
   startColorLogger()
   startHax()
@@ -741,7 +749,7 @@ type
   let db = generateDocDb(file, getStdPath(), @[])
 
   block:
-    var writer = newXmlWriter(newFileStream(AbsFile("/tmp/res.xml"), fmWrite))
+    var writer = newXmlWriter(newFileStream(dir /. "res.xml", fmWrite))
     writer.xmlStart("main")
     for _, entry in db.top:
       writer.writeXml(entry, "test")
@@ -749,11 +757,15 @@ type
     writer.xmlEnd("main")
 
   for file in db.files:
-    let outFile = (AbsDir("/tmp") /. file.path.splitFile2().file).withExt("xml")
+    let outFile = dir /. file.path.withExt("xml").splitFile2().file
     var writer = newXmlWriter(newFileStream(outFile, fmWrite))
 
     writer.writeXml(file, "file")
 
-
+  for file in walkDir(dir, AbsFile, recurse = false):
+    info "Loading XML", file
+    var inFile: DocFile
+    var reader = newHXmlParser(file, true)
+    reader.loadXml(inFile, "file")
 
   echo "done"

@@ -10,6 +10,7 @@ import hmisc/hdebug_misc
 
 import haxorg/semorg
 import haxorg/serialize_xml
+export trait_xml
 
 storeTraits(SemMetaTag)
 storeTraits(ShellCmd)
@@ -106,9 +107,26 @@ proc writeXml*(w; it: DocCode, tag) = genXmlWriter(DocCode, it, w, tag)
 
 # ~~~~ DocCodePart ~~~~ #
 
+proc loadXml*(r; it: var DocOccurKind, tag) =
+  r.loadEnumWithPrefix(it, tag, "dok")
 
 proc loadXml*(r; it: var DocCodePart, tag) =
-  discard
+  r.skipOpen(tag)
+  r.loadXml(it.slice.line, "line")
+  r.loadXml(it.slice.column, "column")
+  if r["kind"]:
+    var kind: DocOccurKind
+    r.loadXml(kind, "kind")
+    it.occur = some DocOccur(kind: kind)
+
+    case kind:
+      of dokLocalUse:
+        r.loadXml(it.occur.get().localId, "localId")
+
+      else:
+        r.loadXml(it.occur.get().refid, "refid")
+
+  r.skipCloseEnd()
 
 proc writeXml*(w; it: DocCodePart, tag) =
   w.xmlOpen(tag)
@@ -122,8 +140,6 @@ proc writeXml*(w; it: DocCodePart, tag) =
 
 
   w.xmlCloseEnd()
-  # w.line()
-  # genXmlWriter(DocCodePart, it, w, tag)
 
 # ~~~~ DocCodeSlice ~~~~ #
 
@@ -134,9 +150,12 @@ proc writeXml*(w; it: DocCodeSlice, tag) = genXmlWriter(DocCodeSlice, it, w, tag
 
 # ~~~~ DocCodeLine ~~~~ #
 
-
 proc loadXml*(r; it: var DocCodeLine, tag) =
-  discard
+  r.skipStart(tag)
+  r.loadXml(it.text, "text")
+  r.loadXml(it.parts, "parts")
+  r.loadXml(it.overlaps, "overlaps")
+  r.skipEnd(tag)
 
 proc writeXml*(w; it: DocCodeLine, tag) =
   w.xmlStart(tag)
@@ -203,7 +222,13 @@ proc writeXml*(w; it: DocOccur, tag) =
 
 
 proc loadXml*(r; it: var DocId, tag) =
-  genXmlLoader(DocId, it, r, tag, newObjExpr = DocId())
+  if r.atAttr():
+    r.loadXml(it.id, "id")
+
+  else:
+    r.skipOpen(tag)
+    r.loadXml(it.id, "id")
+    r.skipCloseEnd()
 
 proc writeXml*(w; it: DocId, tag) =
   w.xmlOpen(tag)
@@ -236,7 +261,8 @@ proc writeXml*(w; it: DocType, tag) =
 
 
 proc loadXml*(r; it: var DocFile, tag) =
-  genXmlLoader(DocFile, it, r, tag, newObjExpr = DocFile())
+  expandMacros:
+    genXmlLoader(DocFile, it, r, tag, newObjExpr = DocFile())
 
 proc writeXml*(w; it: DocFile, tag) =
   genXmlWriter(DocFile, it, w, tag)
