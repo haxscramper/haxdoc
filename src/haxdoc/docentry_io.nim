@@ -9,27 +9,20 @@ import hmisc/algo/halgorithm
 import hmisc/hdebug_misc
 
 import haxorg/semorg
-import haxorg/exporter_xml
+import haxorg/serialize_xml
 
 storeTraits(SemMetaTag)
 storeTraits(ShellCmd)
 
-using w: var XmlWriter
+using
+  w: var XmlWriter
+  r: var HXmlParser
+  tag: string
+
 
 proc writeXml*(w; cmd: ShellCmd, tag: string) = discard
 proc writeXml*(w; cmd: SemMetaTag, tag: string) = discard
 
-using tag: string
-
-
-# proc writeXml*(w; it: DocTypeKind, tag)
-# proc writeXml*(w; it: DocIdentKind, tag)
-# proc writeXml*(w; it: DocOccurKind, tag)
-# proc writeXml*(w; it: DocTypeHeadKind, tag)
-# proc writeXml*(w; it: DocOccurKind, tag) = genXmlWriter(DocOccurKind, it, w, tag)
-# proc writeXml*(w; it: DocTypeKind, tag) = genXmlWriter(DocTypeKind, it, w, tag)
-# proc writeXml*(w; it: DocIdentKind, tag) = genXmlWriter(DocIdentKind, it, w, tag)
-# proc writeXml*(w; it: DocTypeHeadKind, tag) = genXmlWriter(DocTypeHeadKind, it, w, tag)
 
 proc xmlAttribute*(w; key: string, id: DocId) =
   xmlAttribute(w, key, $id.id)
@@ -41,30 +34,82 @@ proc xmlAttribute*(w; key: string, pos: DocPos) =
   xmlAttribute(w, key, &"{pos.line}:{pos.column}")
 
 proc writeXml*(w; it: DocAdmonition, tag)
+proc loadXml*(r; it: var DocAdmonition, tag)
+
 proc writeXml*(w; it: DocMetatag, tag)
+proc loadXml*(r; it: var DocMetatag, tag)
+
 proc writeXml*(w; it: DocOccur, tag)
+proc loadXml*(r; it: var DocOccur, tag)
+
 proc writeXml*(w; it: DocId, tag)
+proc loadXml*(r; it: var DocId, tag)
+
 proc writeXml*(w; it: DocIdentPart, tag)
+proc loadXml*(r; it: var DocIdentPart, tag)
+
 proc writeXml*(w; it: DocFullIdent, tag)
+proc loadXml*(r; it: var DocFullIdent, tag)
+
 proc writeXml*(w; it: DocType, tag)
+proc loadXml*(r; it: var DocType, tag)
+
 proc writeXml*(w; it: DocEntry, tag)
+proc loadXml*(r; it: var DocEntry, tag)
+
 proc writeXml*(w; it: DocFile, tag)
+proc loadXml*(r; it: var DocFile, tag)
+
 proc writeXml*(w; it: DocDb, tag)
+proc loadXml*(r; it: var DocDb, tag)
+
 proc writeXml*(w; it: DocIdent, tag)
+proc loadXml*(r; it: var DocIdent, tag)
+
 proc writeXml*(w; it: DocPragma, tag)
+proc loadXml*(r; it: var DocPragma, tag)
+
 proc writeXml*(w; it: DocCode, tag)
+proc loadXml*(r; it: var DocCode, tag)
+
 proc writeXml*(w; it: DocCodePart, tag)
+proc loadXml*(r; it: var DocCodePart, tag)
+
 proc writeXml*(w; it: DocCodeSlice, tag)
+proc loadXml*(r; it: var DocCodeSlice, tag)
+
 proc writeXml*(w; it: DocLocation, tag)
+proc loadXml*(r; it: var DocLocation, tag)
+
 proc writeXml*(w; it: DocCodeLine, tag)
+proc loadXml*(r; it: var DocCodeLine, tag)
 
 proc writeXml*(w; it: DocExtent, tag)
-proc writeXml*(w; it: DocPos, tag)
+proc loadXml*(r; it: var DocExtent, tag)
 
-proc writeXml*(w; it: DocLocation, tag) =
-  genXmlWriter(DocLocation, it, w, tag)
+proc writeXml*(w; it: DocPos, tag)
+proc loadXml*(r; it: var DocPos, tag)
+
+# ~~~~ DocLocation ~~~~ #
+
+proc loadXml*(r; it: var DocLocation, tag) =
+  genXmlLoader(DocLocation, it, r, tag, newObjExpr = DocLocation())
+
+proc writeXml*(w; it: DocLocation, tag) = genXmlWriter(DocLocation, it, w, tag)
+
+# ~~~~ DocCode ~~~~ #
+
+proc loadXml*(r; it: var DocCode, tag) =
+  genXmlLoader(DocCode, it, r, tag, newObjExpr = DocCode())
 
 proc writeXml*(w; it: DocCode, tag) = genXmlWriter(DocCode, it, w, tag)
+
+# ~~~~ DocCodePart ~~~~ #
+
+
+proc loadXml*(r; it: var DocCodePart, tag) =
+  discard
+
 proc writeXml*(w; it: DocCodePart, tag) =
   w.xmlOpen(tag)
   w.xmlAttribute("line", it.slice.line)
@@ -80,8 +125,19 @@ proc writeXml*(w; it: DocCodePart, tag) =
   # w.line()
   # genXmlWriter(DocCodePart, it, w, tag)
 
+# ~~~~ DocCodeSlice ~~~~ #
+
+proc loadXml*(r; it: var DocCodeSlice, tag) =
+  genXmlLoader(DocCodeSlice, it, r, tag, newObjExpr = DocCodeSlice())
 
 proc writeXml*(w; it: DocCodeSlice, tag) = genXmlWriter(DocCodeSlice, it, w, tag)
+
+# ~~~~ DocCodeLine ~~~~ #
+
+
+proc loadXml*(r; it: var DocCodeLine, tag) =
+  discard
+
 proc writeXml*(w; it: DocCodeLine, tag) =
   w.xmlStart(tag)
   w.indent()
@@ -90,79 +146,107 @@ proc writeXml*(w; it: DocCodeLine, tag) =
   for part in it.overlaps: w.writeXml(part, "overlaps")
   w.dedent()
   w.xmlEnd(tag)
-  # genXmlWriter(DocCodeLine, it, w, tag)
+
+# ~~~~ DocPragma ~~~~ #
+
+proc loadXml*(r; it: var DocPragma, tag) =
+  genXmlLoader(DocPragma, it, r, tag, newObjExpr = DocPragma())
 
 proc writeXml*(w; it: DocPragma, tag) =
   genXmlWriter(DocPRagma, it, w, tag)
 
-proc writeXml*(w; it: DocPos, tag) =
-  genXmlWriter(DocPos, it, w, tag)
+# ~~~~ DocPos ~~~~ #
+
+proc loadXml*(r; it: var DocPos, tag) =
+  genXmlLoader(DocPos, it, r, tag, newObjExpr = DocPos())
+
+proc writeXml*(w; it: DocPos, tag) = genXmlWriter(DocPos, it, w, tag)
+
+# ~~~~ DocExtent ~~~~ #
+
+proc loadXml*(r; it: var DocExtent, tag) =
+  genXmlLoader(DocExtent, it, r, tag, newObjExpr = DocExtent())
 
 proc writeXml*(w; it: DocExtent, tag) =
   genXmlWriter(DocExtent, it, w, tag)
 
+# ~~~~ DocIdent ~~~~ #
+
+proc loadXml*(r; it: var DocIdent, tag) =
+  genXmlLoader(DocIdent, it, r, tag, newObjExpr = DocIdent())
+
 proc writeXml*(w; it: DocIdent, tag) =
   genXmlWriter(DocIdent, it, w, tag)
+
+# ~~~~ DocAdmonition ~~~~ #
+
+proc loadXml*(r; it: var DocAdmonition, tag) =
+  genXmlLoader(DocAdmonition, it, r, tag, newObjExpr = DocAdmonition())
 
 proc writeXml*(w; it: DocAdmonition, tag) =
   genXmlWriter(DocAdmonition, it, w, tag)
 
+# ~~~~ DocMetaTag ~~~~ #
+
+proc loadXml*(r; it: var DocMetatag, tag) =
+  genXmlLoader(DocMetatag, it, r, tag, newObjExpr = DocMetaTag())
+
 proc writeXml*(w; it: DocMetatag, tag) =
   genXmlWriter(DocMetatag, it, w, tag)
 
+
+proc loadXml*(r; it: var DocOccur, tag) =
+  genXmlLoader(DocOccur, it, r, tag, newObjExpr = DocOccur())
+
 proc writeXml*(w; it: DocOccur, tag) =
-  genXmlWriter(DocOccur,it, w, tag)
+  genXmlWriter(DocOccur, it, w, tag)
+
+
+proc loadXml*(r; it: var DocId, tag) =
+  genXmlLoader(DocId, it, r, tag, newObjExpr = DocId())
 
 proc writeXml*(w; it: DocId, tag) =
   w.xmlOpen(tag)
   w.xmlAttribute("id", $it.id)
   w.xmlCloseEnd()
 
-proc writeXml*(w; it: DocIdentPart, tag) =
-  # if it.kind notin dekProcKinds:
-  #   w.xmlOpen(tag)
-  #   w.xmlAttribute("name", it.name)
-  #   w.xmlAttribute("kind", it.kind)
-  #   w.xmlCloseEnd()
 
-  # else:
-  startHaxComp()
+proc loadXml*(r; it: var DocIdentPart, tag) =
+  genXmlLoader(DocIdentPart, it, r, tag, newObjExpr = DocIdentPart())
+
+
+proc writeXml*(w; it: DocIdentPart, tag) =
   genXmlWriter(
     DocIdentPart, it, w, tag,
-    hasFieldsExpr = (
-      (it.kind in dekProcKinds) and (it.argTypes.len > 0)
-    )
-  )
+    hasFieldsExpr = (it.kind in dekProcKinds and it.argTypes.len > 0))
 
-  stopHaxComp()
 
-  # w.xmlEnd(tag)
+proc loadXml*(r; it: var DocFullIdent, tag) =
+  genXmlLoader(DocFullIdent, it, r, tag, newObjExpr = DocFullIdent())
 
 proc writeXml*(w; it: DocFullIdent, tag) =
-  when false:
-    w.xmlOpen(tag)
-    w.space()
-    w.xmlAttribute("id", $it.docId.id)
-    w.space()
-    var parts: seq[string]
-    for part in it.parts:
-      parts.add $part.name & "::" & $part.kind
+  genXmlWriter(DocFullIdent, it, w, tag)
 
-    w.xmlAttribute("parts", parts.join("/"))
-
-    w.xmlCloseEnd()
-
-  else:
-    genXmlWriter(DocFullIdent, it, w, tag)
+proc loadXml*(r; it: var DocType, tag) =
+  genXmlLoader(DocType, it, r, tag, newObjExpr = DocType())
 
 proc writeXml*(w; it: DocType, tag) =
   genXmlWriter(DocType, it, w, tag)
 
 
+
+proc loadXml*(r; it: var DocFile, tag) =
+  genXmlLoader(DocFile, it, r, tag, newObjExpr = DocFile())
+
 proc writeXml*(w; it: DocFile, tag) =
   genXmlWriter(DocFile, it, w, tag)
 
-proc writeXml*(w; it: DocDb, tag) = discard # genXmlWriter(DocDb, it, w, tag)
+proc writeXml*(w; it: DocDb, tag) = discard
+proc loadXml*(r; it: var DocDb, tag) = discard
+
+
+proc loadXml*(r; it: var DocEntry, tag) =
+  discard
 
 proc writeXml*(w; it: DocEntry, tag) =
   genXmlWriter(

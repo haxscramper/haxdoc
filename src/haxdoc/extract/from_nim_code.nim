@@ -17,7 +17,7 @@ type
     graph: ModuleGraph
     allModules: seq[DocEntry]
     module: DocEntry
-    sigmap: Table[SigHash, DocId]
+    sigmap: TableRef[SigHash, DocId]
 
   RegisterStateKind = enum
     rskTopLevel
@@ -28,6 +28,8 @@ type
     rskEnumFields ## Enum field groups
 
     rskProcHeader
+    rskProcArgs
+    rskProcReturn
     rskBracketHead
     rskBracketArgs
 
@@ -153,8 +155,6 @@ proc addSigmap(ctx; node; entry: DocEntry) =
   try:
     let hash = node.headSym().sigHash()
     ctx.sigmap[hash] = entry.id()
-    # if "string" in $node and node.kind notin nkProcDeclKinds:
-    #   info hash, " ", node.treeRepr(maxDepth = 1)
 
 
   except IndexDefect as e:
@@ -174,9 +174,6 @@ proc `[]`(ctx; ntype: NType | PNode | PSym): DocId =
   let hash = ntype.sigHash()
   if hash in ctx.sigmap:
     return ctx.sigmap[hash]
-
-  # else:
-  #   err hash, " ", ntype, ntype.declNode.get().treeRepr()
 
 proc occur(ctx; node: PNode, kind: DocOccurKind) =
   var occur: DocOccur
@@ -212,8 +209,11 @@ proc registerUses(ctx; node; state: RegisterState) =
             of rskInheritList:
               ctx.occur(node, dokInheritFrom)
 
-            of rskProcHeader:
+            of rskProcArgs, rskProcHeader:
               ctx.occur(node, dokTypeAsArgUse)
+
+            of rskProcReturn:
+              ctx.occur(node, dokTypeAsReturnUse)
 
             of rskBracketHead:
               ctx.occur(node, dokTypeSpecializationUse)
@@ -223,9 +223,6 @@ proc registerUses(ctx; node; state: RegisterState) =
 
             else:
               raiseImplementKindError(state.top())
-
-            # of rskObjectBranch:
-            #   ctx.occur(node, dok)
 
         of skEnumField:
           if state.top() == rskEnumFields:
@@ -280,6 +277,10 @@ proc registerUses(ctx; node; state: RegisterState) =
         let def = ctx.db.getOrNew(dekCompileDefine, $node)
         ctx.occur(node, def.id(), dokDefineCheck)
 
+      elif state.top() == rskPragma:
+        let def = ctx.db.getOrNew(dekPragma, $node)
+        ctx.occur(node, def.id(), dokAnnotationUsage)
+
 
     of nkCommentStmt, nkEmpty, hnimast.nkStrKinds, nkFloatKinds, nkNilLit:
       discard
@@ -295,16 +296,6 @@ proc registerUses(ctx; node; state: RegisterState) =
             let sub = ctx.db[parent].getSub($node)
             ctx.occur(node, sub, dokEnumFieldUse)
 
-          # else:
-          #   warn $node, "has type of", node.typ.sym, ", which was not registered"
-
-
-# $node.typ.sym.ast[0]
-
-        # let path = [("", , ""), ("", $node, "")]
-        # let referencedSymbol = ctx.writer[].recordSymbol(sskEnumConstant, path)
-        # let referenceId = ctx.writer[].recordReference(
-        #   callerId, referencedSymbol, srkUsage)
 
     of nkPragmaExpr:
       ctx.registerUses(node[1], state + rskPragma)
@@ -348,9 +339,6 @@ proc registerUses(ctx; node; state: RegisterState) =
           ctx.registerUses(subnode, state)
 
     of nkTypeSection,
-       nkProcDeclKinds, # TODO handle procedure declaration in different
-                        # context in order to provide more precise usage
-                        # information for argument types.
        nkEnumTy, nkEnumFieldDef,
 
        # function calls and similar uses
@@ -415,6 +403,19 @@ proc registerUses(ctx; node; state: RegisterState) =
       for subnode in node:
         ctx.registerUses(subnode, state)
 
+    of nkProcDeclKinds:
+      for idx in 0 .. (len(node) - 2):
+        case idx:
+          of 3:
+            ctx.registerUses(node[idx][0], state + rskProcReturn)
+            for n in node[idx][1 ..^ 1]:
+              ctx.registerUses(n, state + rskProcArgs)
+
+          else:
+            ctx.registerUses(node[idx], state + rskProcHeader)
+
+      ctx.registeruses(node[^1], state)
+
     of nkBracketExpr:
       ctx.registerUses(node[0], state + rskBracketHead)
       for subnode in node[1..^1]:
@@ -429,12 +430,6 @@ proc registerUses(ctx; node; state: RegisterState) =
           ctx.registerUses(expr, state + rskObjectBranch)
 
         ctx.registerUses(branch[^1], state + rskObjectFields)
-      # info ctx.graph.getFilePath(node)
-      # info node.getInfo()
-      # raiseImplementError(node.treeRepr())
-
-    # of nkRecList:
-    #   ctx.registerUses()
 
     of nkRaiseStmt:
       # TODO get type of the raised expression and if it is a concrete type
@@ -459,12 +454,6 @@ proc registerUses(ctx; node; state: RegisterState) =
       ctx.registerUses(node[0], state)
 
 
-    # else:
-    #   raiseImplementKindError(node, node.treeRepr(maxDepth = 3) & " " & $node.kind)
-
-
-
-
 proc toDocType(ctx; ntype: NType): DocType =
   case ntype.kind:
     of ntkIdent:
@@ -478,28 +467,6 @@ proc toDocType(ctx; ntype: NType): DocType =
 
     else:
       result = DocType(kind: dtkIdent)
-  # if ntype.kind in {ntkIdent, ntkGenericSpec} and
-  #    ntype.declNode.isSome() and
-  #    (
-  #      (ntype.head notin ["ref", "ptr", "sink", "owned", "out", "distinct"]) or
-  #      (ntype.genParams.len == 0)
-  #    ):
-
-
-    # let reference = ctx.recordReference(
-    #   userId,
-    #   ctx.writer[].recordSymbol(sskType, path),
-    #   srkTypeUsage
-    # )
-
-    # let node = declHead(ntype.declNode.get())
-    # let rng = toSourcetrailSourceRange((fileId, node))
-
-    # discard ctx.writer[].recordReferenceLocation(reference, rng)
-
-  # let direct = directUsedTypes(ntype)
-  # for used in direct:
-  #   registerTypeUse(ctx, used)
 
 proc classifiyKind(decl: PProcDecl): DocEntryKind =
   case decl.declNode.get().kind:
@@ -532,10 +499,6 @@ proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
       return dekTypeclass
 
   case nt.kind:
-    # of ntkIdent:
-    #   if nt.genParams.len == 0:
-    #     result =
-
     else:
       raiseImplementKindError(nt)
 
@@ -549,9 +512,6 @@ proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
     err e.msg
     return onkRawText.newTree(e.msg).toSemOrg()
 
-
-proc registerCalls(ctx: DocContext, impl: PNode) =
-  discard
 
 proc registerProcDef(ctx: DocContext, procDef: PNode) =
   let procDecl = parseProc(procDef)
@@ -571,23 +531,12 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
       arg.identType = some argType
       arg.identTypeStr = some $argument.vtype
 
-    # let localId = ctx.writer[].recordLocalSymbol($argument.sym)
-    # discard ctx.writer[].recordLocalSymbolLocation(localId, (fileId, argument))
-
   let procType = ctx.toDocType(procDecl.signature)
-  # registerTypeUse(ctx, procDecl.signature)
-
-  if not(isNil(procDecl.impl) or procDecl.impl.kind == nkEmpty):
-    logIndented:
-      ctx.registerCalls(procDecl.impl)
 
 
 proc registerTypeDef(ctx; node) =
   if isObjectDecl(node):
     let objectDecl: PObjectDecl = parseObject(node)
-
-    # echo treeRepr(node)
-
     var entry = ctx.module.newDocEntry(
       ctx.classifyKind(objectDecl), objectDecl.name.head)
 
@@ -598,26 +547,6 @@ proc registerTypeDef(ctx; node) =
     ctx.addSigmap(node, entry)
     entry.rawDoc.add objectDecl.docComment
     entry.docBody = ctx.convertComment(objectDecl.docComment, node)
-
-    # let objNameHierarchy = ("", objectDecl.name.head, "")
-    # let objectSymbol = ctx.writer[].recordSymbol(sskStruct, objNameHierarchy)
-    # discard ctx.recordNodeLocation(objectSymbol, objectDecl.declNode.get())
-
-    # for fld in getBranchFields(objectDecl):
-    #   let switchType = fld.fldType
-    #   debug switchType
-    #   let typeName = $switchType.declNode.get()
-    #   for branch in fld.branches:
-    #     if not branch.isElse:
-    #       for value in branch.ofValue.setValues():
-    #         let referencedSymbol = ctx.writer[].recordSymbol(
-    #           sskEnumConstant, [("", typeName, ""), ("", $value, "")])
-
-    #         let referenceId = ctx.writer[].recordReference(
-    #           objectSymbol, referencedSymbol, srkUsage)
-
-    #         discard ctx.writer[].recordReferenceLocation(
-    #           referenceId, (fileId, value))
 
     for param in objectDecl.name.genParams:
       var p = entry.newDocEntry(dekParam, param.head)
@@ -630,15 +559,6 @@ proc registerTypeDef(ctx; node) =
 
       field.identType = some ctx.toDocType(nimField.fldType)
       field.identTypeStr = some $nimField.fldType
-      # if fld.fldType.declNode.isSome():
-        # let fldType = fld.fldType.declNode.get()
-
-        # let fieldSymbol = ctx.writer[].recordSymbol(
-        #   sskField, objNameHierarchy, ("", fld.name, ""))
-
-        # discard ctx.recordNodeLocation(fieldSymbol, fld.declNode.get())
-
-        # registerTypeUse(ctx, fieldSymbol, fileId, fld.fldType)
 
   elif node[2].kind == nkEnumTy:
     let enumDecl: PEnumDecl = parseEnum(node)
@@ -648,16 +568,6 @@ proc registerTypeDef(ctx; node) =
 
     for enField in enumDecl.values:
       var field = entry.newDocEntry(dekEnumField, enField.name)
-      # let valueSymbol = ctx.writer[].recordSymbol(
-      #   sskEnumConstant,
-      #   enumName, ("", fld.name, ""))
-
-
-    # let enumName = ("", enumDecl.name, "")
-    # let enumSymbol = ctx.writer[].recordSymbol(sskEnum, enumName)
-    # discard ctx.recordNodeLocation(enumSymbol, enumDecl.declNode.get())
-
-    #   discard ctx.recordNodeLocation(valueSymbol, fld.declNode.get())
 
   elif node[2].kind in {
       nkDistinctTy, nkSym, nkPtrTy, nkRefTy, nkProcTy, nkTupleTy,
@@ -682,22 +592,7 @@ proc registerTypeDef(ctx; node) =
     for param in parseNType(node[0]).genParams:
       var p = entry.newDocEntry(dekParam, param.head)
 
-    # let path = ("", $node[0], "")
-    # let aliasSymbol = ctx.writer[].recordSymbol(sskTypedef, path)
-    # discard ctx.recordNodeLocation(aliasSymbol, node)
-    # # debug ""
-    # # info path
-    # # logIndented:
-    # # debug node.treeRepr()
-    # registerTypeUse(ctx, )
-
   elif node[0].kind in {nkPragmaExpr}:
-    # # err "Unhandled pragma expression"
-    # # debug treeRepr(node)
-
-    # let path = ("", $node[0][0], "")
-    # let sym = ctx.writer[].recordSymbol(sskBuiltinType, path)
-    # discard ctx.recordNodeLocation(node[0][0])
     var entry = ctx.module.newDocEntry(dekBuiltin, $node[0][0])
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
@@ -758,6 +653,11 @@ proc generateDocDb*(
 
   var db {.global.}: DocDb
   db = newDocDb(@[AbsDir(($stdPath).dropSuffix("lib"))])
+
+  var sigmap {.global.}: TableRef[SigHash, DocId]
+
+  sigmap = newTable[SigHash, DocId]()
+
   var graph {.global.}: ModuleGraph
   graph = newModuleGraph(file, stdpath,
     proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
@@ -771,7 +671,7 @@ proc generateDocDb*(
     graph, makePass(
       (
         proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
-          var context = DocContext(db: db, graph: graph)
+          var context = DocContext(db: db, graph: graph, sigmap: sigmap)
           context.module = db.newDocEntry(dekModule, module.getStrVal())
           context.allModules.add context.module
           return context
@@ -853,7 +753,6 @@ type
     var writer = newXmlWriter(newFileStream(outFile, fmWrite))
 
     writer.writeXml(file, "file")
-    # info "Wrote", outFile
 
 
 

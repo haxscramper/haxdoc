@@ -137,6 +137,7 @@ type
                              ## types
 
     dokTypeAsArgUse
+    dokTypeAsReturnUse
     dokTypeAsFieldUse
 
     dokUsage
