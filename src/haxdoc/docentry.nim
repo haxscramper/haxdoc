@@ -417,12 +417,33 @@ proc hash*(full: DocFullIdent): Hash = full.docId.id
 proc `==`*(a, b: DocIdentPart): bool = a.kind == b.kind
 proc `==`*(a, b: DocFullIdent): bool = a.parts == b.parts
 
+proc `$`*(ident: DocIdentPart): string =
+ "[" & ident.name & " " & $ident.kind & "]"
+
+proc `$`*(ident: DocFullIdent): string =
+  for idx, part in ident.parts:
+    if idx > 0:
+      result.add "/"
+
+    result.add $part
+
+
 proc id*(full: var DocFullIdent): DocId {.inline.} = DocId(id: hash(full))
 proc id*(de: DocEntry): DocId {.inline.} = de.fullident.id
 proc isValid*(id: DocId): bool = (id.id != 0)
 
-proc add*(de: var DocEntry, other: DocEntry) =
-  de.nested.add other.id
+proc add*(db: var DocDb, entry: DocEntry) =
+  entry.db = db
+  db.fullIdents[entry.fullIdent] = entry.id
+  db.entries[entry.id()] = entry
+
+proc addTop*(db: var DocDb, entry: DocEntry) =
+  db.add entry
+  let part = entry.fullIdent.parts[0]
+  db.top[part] = entry
+
+proc add*(de: DocEntry, other: DocEntry) = de.nested.add other.id
+proc add*(de: DocEntry, id: DocID) = de.nested.add id
 
 proc `[]`*(db: DocDb, entry: DocEntry): DocEntry = db.entries[entry.id()]
 

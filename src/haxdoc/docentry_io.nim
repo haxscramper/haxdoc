@@ -20,9 +20,15 @@ using
   r: var HXmlParser
   tag: string
 
+proc loadXml*(r; it: var DocEntryKind, tag) =
+  loadEnumWithPrefix[DocEntryKind](r, it, tag, "dek")
 
-proc writeXml*(w; cmd: ShellCmd, tag: string) = discard
-proc writeXml*(w; cmd: SemMetaTag, tag: string) = discard
+proc loadXml*(r; it: var DocOccurKind, tag) =
+  r.loadEnumWithPrefix(it, tag, "dok")
+
+
+proc writeXml*(w; cmd: ShellCmd, tag: string) = raiseImplementError("")
+proc writeXml*(w; cmd: SemMetaTag, tag: string) = raiseImplementError("")
 
 
 proc xmlAttribute*(w; key: string, id: DocId) =
@@ -56,7 +62,7 @@ proc writeXml*(w; it: DocType, tag)
 proc loadXml*(r; it: var DocType, tag)
 
 proc writeXml*(w; it: DocEntry, tag)
-proc loadXml*(r; it: var DocEntry, tag)
+# proc loadXml*(r; it: var DocEntry, tag)
 
 proc writeXml*(w; it: DocFile, tag)
 proc loadXml*(r; it: var DocFile, tag)
@@ -106,9 +112,6 @@ proc loadXml*(r; it: var DocCode, tag) =
 proc writeXml*(w; it: DocCode, tag) = genXmlWriter(DocCode, it, w, tag)
 
 # ~~~~ DocCodePart ~~~~ #
-
-proc loadXml*(r; it: var DocOccurKind, tag) =
-  r.loadEnumWithPrefix(it, tag, "dok")
 
 proc loadXml*(r; it: var DocCodePart, tag) =
   r.skipOpen(tag)
@@ -177,7 +180,14 @@ proc writeXml*(w; it: DocPragma, tag) =
 # ~~~~ DocPos ~~~~ #
 
 proc loadXml*(r; it: var DocPos, tag) =
-  genXmlLoader(DocPos, it, r, tag, newObjExpr = DocPos())
+  if r.atAttr():
+    var sl: Slice[int]
+    r.loadXml(sl, tag)
+    it.line = sl.a
+    it.column = sl.b
+
+  else:
+    genXmlLoader(DocPos, it, r, tag, newObjExpr = DocPos())
 
 proc writeXml*(w; it: DocPos, tag) = genXmlWriter(DocPos, it, w, tag)
 
@@ -237,7 +247,8 @@ proc writeXml*(w; it: DocId, tag) =
 
 
 proc loadXml*(r; it: var DocIdentPart, tag) =
-  genXmlLoader(DocIdentPart, it, r, tag, newObjExpr = DocIdentPart())
+  genXmlLoader(DocIdentPart, it, r, tag,
+               newObjExpr = DocIdentPart(kind: kind))
 
 
 proc writeXml*(w; it: DocIdentPart, tag) =
@@ -253,26 +264,60 @@ proc writeXml*(w; it: DocFullIdent, tag) =
   genXmlWriter(DocFullIdent, it, w, tag)
 
 proc loadXml*(r; it: var DocType, tag) =
-  genXmlLoader(DocType, it, r, tag, newObjExpr = DocType())
+  genXmlLoader(DocType, it, r, tag, newObjExpr = DocType(kind: kind))
 
 proc writeXml*(w; it: DocType, tag) =
   genXmlWriter(DocType, it, w, tag)
 
-
-
 proc loadXml*(r; it: var DocFile, tag) =
-  expandMacros:
-    genXmlLoader(DocFile, it, r, tag, newObjExpr = DocFile())
+  genXmlLoader(DocFile, it, r, tag, newObjExpr = DocFile())
 
 proc writeXml*(w; it: DocFile, tag) =
   genXmlWriter(DocFile, it, w, tag)
 
-proc writeXml*(w; it: DocDb, tag) = discard
-proc loadXml*(r; it: var DocDb, tag) = discard
+proc writeXml*(w; it: DocDb, tag) =
+  w.xmlStart(tag)
+  for _, entry in it.top:
+    w.writeXml(entry, "test")
+
+  w.xmlEnd(tag)
 
 
-proc loadXml*(r; it: var DocEntry, tag) =
-  discard
+proc loadNested*(r; db: var DocDb, tag; top: DocEntry): DocId =
+  var entry: DocEntry
+  genXmlLoader(
+    DocEntry, entry, r, tag,
+    skipFieldLoad = ["nested"],
+    extraFieldLoad = {
+      "nested": (
+        while r.atOpenStart() and r["nested"]:
+          let id = loadNested(r, db, "nested", entry)
+          if not isNil(top):
+            top.add id
+      )
+    },
+    extraAttrLoad = { "decl" : r.next() },
+    newObjExpr = DocEntry(kind: kind)
+  )
+
+  if isNil(top):
+    db.addTop entry
+
+  else:
+    db.add entry
+
+  return entry.id
+
+proc loadXml*(r; it: var DocDb, tag) =
+  if isNil(it):
+    it = DocDb()
+
+  r.skipStart(tag)
+  while r["test"]:
+    let module = r.loadNested(it, "test", nil)
+
+  r.skipEnd(tag)
+
 
 proc writeXml*(w; it: DocEntry, tag) =
   genXmlWriter(
@@ -287,7 +332,7 @@ proc writeXml*(w; it: DocEntry, tag) =
     w.writeXml(it.db[item], "nested")
 
   for item in it.rawDoc:
-    w.xmlWrappedCdata(item, "raw")
+    w.xmlWrappedCdata(item, "rawDoc")
 
   w.dedent()
 

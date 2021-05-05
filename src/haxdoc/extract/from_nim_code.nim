@@ -694,8 +694,8 @@ proc generateDocDb*(
 
   return db
 
-when isMainModule:
-  let dir = getTempDir() / "from_nim_code"
+proc main() =
+  let dir = getTempDir() / "from_nim_code2"
   # rmDir dir
   mkDir dir
   let file = dir /. "a.nim"
@@ -703,40 +703,40 @@ when isMainModule:
 type
   MalTypeKind* = enum Nil, True, False, Number, Symbol, String,
     List, Vector, HashMap, Fun, MalFun, Atom
+
+type
+  FunType = proc(a: varargs[MalType]): MalType
+
+  MalFunType* = ref object
+    fn*:       FunType
+    ast*:      MalType
+    params*:   MalType
+    is_macro*: bool
+
+  MalType* = ref object
+    case kind*: MalTypeKind
+    of Nil, True, False: nil
+    of Number:           number*:   int
+    of String, Symbol:   str*:      string
+    of List, Vector:     list*:     seq[MalType]
+    of HashMap:          hash_map*: int
+    of Fun:
+                         fun*:      FunType
+                         is_macro*: bool
+    of MalFun:           malfun*:   MalFunType
+    of Atom:             val*:      MalType
+
+    meta*: MalType
+
+type
+  Base = ref object of RootObj
+
+  A = ref object of Base
+    b: B
+
+  B = ref object of Base
+    a: A
 """)
-
-# type
-#   FunType = proc(a: varargs[MalType]): MalType
-
-#   MalFunType* = ref object
-#     fn*:       FunType
-#     ast*:      MalType
-#     params*:   MalType
-#     is_macro*: bool
-
-  # MalType* = ref object
-  #   case kind*: MalTypeKind
-  #   of Nil, True, False: nil
-  #   of Number:           number*:   int
-  #   of String, Symbol:   str*:      string
-  #   of List, Vector:     list*:     seq[MalType]
-  #   of HashMap:          hash_map*: int
-  #   of Fun:
-  #                        fun*:      FunType
-  #                        is_macro*: bool
-  #   of MalFun:           malfun*:   MalFunType
-  #   of Atom:             val*:      MalType
-
-  #   meta*: MalType
-
-# type
-#   Base = ref object of RootObj
-
-#   A = ref object of Base
-#     b: B
-
-#   B = ref object of Base
-#     a: A
 
 
 
@@ -749,23 +749,33 @@ type
   let db = generateDocDb(file, getStdPath(), @[])
 
   block:
-    var writer = newXmlWriter(newFileStream(dir /. "res.xml", fmWrite))
-    writer.xmlStart("main")
-    for _, entry in db.top:
-      writer.writeXml(entry, "test")
-
-    writer.xmlEnd("main")
+    var writer = newXmlWriter(dir /. "compile-db.hxde")
+    writer.writeXml(db, "main")
+    writer.close()
 
   for file in db.files:
-    let outFile = dir /. file.path.withExt("xml").splitFile2().file
-    var writer = newXmlWriter(newFileStream(outFile, fmWrite))
-
+    let outFile = dir /. file.path.withExt("hxda").splitFile2().file
+    var writer = newXmlWriter(outFile)
     writer.writeXml(file, "file")
+    writer.close()
 
-  for file in walkDir(dir, AbsFile, recurse = false):
-    info "Loading XML", file
+  for file in walkDir(dir, AbsFile, exts = @["hxda"]):
     var inFile: DocFile
-    var reader = newHXmlParser(file, true)
+    var reader = newHXmlParser(file)
     reader.loadXml(inFile, "file")
 
+  for file in walkDir(dir, AbsFile, exts = @["hxde"]):
+    info "Loading DB", file
+    var inDb: DocDb
+    block:
+      var reader = newHXmlParser(file)
+      reader.loadXml(inDb, "main")
+
+    block:
+      var writer = newXmlWriter(file.withExt("xml"))
+      writer.writeXml(inDb, "file")
+
   echo "done"
+
+when isMainModule:
+  main()
