@@ -283,30 +283,43 @@ proc writeXml*(w; it: DocDb, tag) =
   w.xmlEnd(tag)
 
 
-proc loadNested*(r; db: var DocDb, tag; top: DocEntry): DocId =
+proc loadNested*(r; db: var DocDb, tag; top: var DocEntry) =
+  var
+    kind: DocEntryKind
+    name: string
+
+  r.skipOpen(tag)
+  while r.atAttr():
+    case r.attrKey():
+      of "kind": r.loadXml(kind, "kind")
+      of "name": r.loadXml(name, "name")
+      else: break
+
   var entry: DocEntry
+  if isNil(top):
+    entry = db.newDocEntry(kind, name)
+
+  else:
+    entry = top.newDocEntry(kind, name)
+
+
+  while r.atAttr():
+    case r.attrKey():
+      of "identTypeStr": r.loadXml(entry.identTypeStr, "identTypeStr")
+      of "decl": r.next()
+      else: raiseUnexpectedAttribute(r)
+
   genXmlLoader(
     DocEntry, entry, r, tag,
     skipFieldLoad = ["nested"],
+    loadHeader = false,
     extraFieldLoad = {
       "nested": (
         while r.atOpenStart() and r["nested"]:
-          let id = loadNested(r, db, "nested", entry)
-          if not isNil(top):
-            top.add id
+          loadNested(r, db, "nested", entry)
       )
-    },
-    extraAttrLoad = { "decl" : r.next() },
-    newObjExpr = DocEntry(kind: kind)
+    }
   )
-
-  if isNil(top):
-    db.addTop entry
-
-  else:
-    db.add entry
-
-  return entry.id
 
 proc loadXml*(r; it: var DocDb, tag) =
   if isNil(it):
@@ -314,7 +327,7 @@ proc loadXml*(r; it: var DocDb, tag) =
 
   r.skipStart(tag)
   while r["test"]:
-    let module = r.loadNested(it, "test", nil)
+    r.loadNested(it, "test", (var top: DocEntry; top))
 
   r.skipEnd(tag)
 
