@@ -156,6 +156,7 @@ type
     dokFieldDeclare
     dokFieldUse
 
+    dokOjectDeclare
     dokEnumFieldDeclare
     dokEnumFieldUse
 
@@ -312,6 +313,10 @@ type
   DocEntry* = ref object
     location*: Option[DocLocation]
     extent*: Option[DocExtent]
+    declHeadExtent*: Option[DocExtent] ## Source code extent for
+    ## documentable entry 'head'. Points to single identifier - entry name
+    ## in declaration.
+    ## - WHY :: Used in sourcetrail
     nested*: seq[DocId] ## Nested documentable entries. Not all
     ## `DocEntryKind` is guaranteed to have one.
 

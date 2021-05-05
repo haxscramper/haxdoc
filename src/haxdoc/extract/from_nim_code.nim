@@ -1,7 +1,7 @@
 import ../docentry, ../docentry_io
 import hnimast/compiler_aux
 import hmisc/hdebug_misc
-import std/[strutils, strformat, tables, streams, sequtils]
+import std/[strutils, strformat, tables, streams, sequtils, with]
 import packages/docutils/[rst]
 import hnimast
 import hmisc/helpers
@@ -530,6 +530,7 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
       var arg = entry.newDocEntry(dekArg, ident.getStrVal())
       arg.identType = some argType
       arg.identTypeStr = some $argument.vtype
+      ctx.setLocation(arg, ident)
 
   let procType = ctx.toDocType(procDecl.signature)
 
@@ -554,11 +555,15 @@ proc registerTypeDef(ctx; node) =
     for nimField in iterateFields(objectDecl):
       var field = entry.newDocEntry(dekField, nimField.name)
       field.rawDoc.add nimField.docComment
-      field.docBody = ctx.convertComment(
-        nimField.docComment, nimField.declNode.get())
 
-      field.identType = some ctx.toDocType(nimField.fldType)
-      field.identTypeStr = some $nimField.fldType
+      with field:
+        docBody = ctx.convertComment(
+          nimField.docComment, nimField.declNode.get())
+
+        identType = some ctx.toDocType(nimField.fldType)
+        identTypeStr = some $nimField.fldType
+
+      ctx.setLocation(field, nimField.declNode.get())
 
   elif node[2].kind == nkEnumTy:
     let enumDecl: PEnumDecl = parseEnum(node)
@@ -568,6 +573,7 @@ proc registerTypeDef(ctx; node) =
 
     for enField in enumDecl.values:
       var field = entry.newDocEntry(dekEnumField, enField.name)
+      ctx.setLocation(field, enField.declNode.get())
 
   elif node[2].kind in {
       nkDistinctTy, nkSym, nkPtrTy, nkRefTy, nkProcTy, nkTupleTy,
