@@ -270,7 +270,13 @@ proc writeXml*(w; it: DocType, tag) =
   genXmlWriter(DocType, it, w, tag)
 
 proc loadXml*(r; it: var DocFile, tag) =
-  genXmlLoader(DocFile, it, r, tag, newObjExpr = DocFile())
+  # r.skipOpen(tag)
+  # echov r.displayAt()
+  # r.loadXml(it.path, "path")
+  # echov it.path
+  genXmlLoader(
+    DocFile, it, r, tag, newObjExpr = DocFile(), # loadHeader = false
+  )
 
 proc writeXml*(w; it: DocFile, tag) =
   genXmlWriter(DocFile, it, w, tag)

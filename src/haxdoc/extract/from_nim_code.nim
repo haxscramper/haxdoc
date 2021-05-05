@@ -658,7 +658,8 @@ proc generateDocDb*(
     debug "Or run trail analysis with choosenim toolchain for correct version"
 
   var db {.global.}: DocDb
-  db = newDocDb(@[AbsDir(($stdPath).dropSuffix("lib"))])
+  db = newDocDb()
+  db.addKnownLib(AbsDir(($stdPath).dropSuffix("lib")), "std")
 
   var sigmap {.global.}: TableRef[SigHash, DocId]
 

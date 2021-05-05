@@ -6,23 +6,28 @@ import hmisc/other/oswrap
 import hmisc/base_errors
 import hmisc/hasts/xml_ast
 import hmisc/hdebug_misc
+import hnimast/compiler_aux
 import std/[with, options, tables]
+
+proc getFile(writer: var SourcetrailDbWriter, path, lang: string): cint =
+  result = writer.recordFile(path)
+  discard writer.recordFileLanguage(result, lang)
 
 proc toRange(fileId: cint, extent: DocExtent): SourcetrailSourceRange =
   with result:
     fileId = fileId
     startLine = extent.start.line.cint + 1
-    startColumn = extent.start.column.cint
+    startColumn = extent.start.column.cint + 1
     endLine = extent.finish.line.cint + 1
-    endColumn = extent.finish.column.cint
+    endColumn = extent.finish.column.cint + 1
 
 proc toRange(fileId: cint, codeRange: DocCodeSlice): SourcetrailSourceRange =
   with result:
     fileId = fileId
     startLine = codeRange.line.cint + 1
     endLine = codeRange.line.cint + 1
-    startColumn = codeRange.column.a.cint
-    endColumn = codeRange.column.b.cint
+    startColumn = codeRange.column.a.cint + 1
+    endColumn = codeRange.column.b.cint + 1
 
 type
   IdMap* = object
@@ -34,7 +39,7 @@ using
 
 proc registerUses(writer; file: DocFile, idMap: IdMap) =
   var userId: cint
-  let fileID = writer.recordFile(file.path.string)
+  let fileID = writer.getFile(file.path.string, "nim")
   for line in file.body.codeLines:
     for part in line.parts:
       if part.occur.isSome():
@@ -103,7 +108,8 @@ proc registerDb*(writer; db: DocDb): IdMap =
     elif entry.kind in {dekModule, dekArg}:
       continue
 
-    let fileId = writer.recordFile(entry.location.get().file)
+    let fileId = writer.getFile(
+      db.getPathInLib(entry.location.get()).string, "nim")
 
     let defKind =
       case entry.kind:
@@ -150,9 +156,12 @@ when isMainModule:
   var writer: SourcetrailDbWriter
 
   let trailFile = dir /. "trail.srctrldb"
+  rmFile trailFile
   discard writer.open(string(trailFile))
 
-  var db: DocDb
+  var db = newDocDb()
+  db.addKnownLib(getStdPath().dropSuffix("lib"), "std")
+
   for file in walkDir(dir, AbsFile, exts = @["hxde"]):
     var reader = newHXmlParser(file)
     reader.loadXml(db, "main")
@@ -164,7 +173,6 @@ when isMainModule:
 
 
   for file in walkDir(dir, AbsFile, exts = @["hxda"]):
-    echov file
     var inFile: DocFile
     var reader = newHXmlParser(file)
     reader.loadXml(inFile, "file")

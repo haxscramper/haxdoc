@@ -302,6 +302,7 @@ type
 
 
   DocLocation* = object
+    lib* {.Attr.}: Option[string]
     file* {.Attr.}: string
     absFile* {.Skip(IO).}: AbsFile
     pos* {.Attr.}: DocPos
@@ -358,6 +359,11 @@ type
     body*: DocCode ## Full text with [[code:DocOccur][occurrence]]
                    ## annotations
 
+  DocLib* = object
+    name*: string
+    dir*: AbsDir
+
+
   DocDb* = ref object
     ## - DESIGN :: Two-layer mapping between full entry identifiers, their
     ##   hashes and documentable entries. Hashes are also mapped to full
@@ -371,7 +377,7 @@ type
     fullIdents*: Table[DocFullIdent, DocId]
     top*: OrderedTable[DocIdentPart, DocEntry]
     files*: seq[DocFile]
-    rootPaths*: seq[AbsDir]
+    knownLibs: seq[DocLib]
 
 storeTraits(DocEntry, dekAliasKinds)
 
@@ -516,9 +522,8 @@ proc newDocEntry*(
   parent.db.fullIdents[result.fullIdent] = result.id()
   parent.nested.add result.id()
 
-proc newDocDb*(rootPaths: seq[AbsDir]): DocDb =
-  result = DocDb(rootPaths: rootPaths)
-  sortIt(result.rootPaths, it.len)
+proc newDocDb*(): DocDb =
+  result = DocDb()
 
 proc getOrNew*(db: var DocDb, kind: DocEntryKind, name: string): DocEntry =
   let key = initIdentPart(kind, name)
@@ -533,14 +538,44 @@ proc getSub*(parent: DocEntry, subName: string): DocId =
     if parent.db[sub].name == subName:
       return sub
 
+proc getLibForPath*(db: DocDb, path: AbsFile): DocLib =
+  for lib in db.knownLibs:
+    if path.startsWith($lib.dir):
+      return lib
+
+proc getLibForName*(db: DocDb, name: string): DocLib =
+  for lib in db.knownLibs:
+    if lib.name == name:
+      return lib
+
+proc getPathInLib*(db: DocDb, loc: DocLocation): AbsFile =
+  for lib in db.knownLibs:
+    if lib.name == loc.lib.get():
+      return lib.dir /. loc.file
+
+  if isAbsolute(loc.file):
+    return AbsFile(loc.file)
+
+  raiseArgumentError("Cannot find path for library name '" &
+    $loc.lib.get() & "'")
+
+proc addKnownLib*(db: var DocDb, dir: AbsDir, name: string) =
+  db.knownLibs.add DocLib(dir: dir, name: name)
+  # NOTE I know it is not particularly efficient, but if I get to the point
+  # where it becomes a bottleneck I simply replace it with `Map`
+  sortIt(db.knownLibs, it.dir.len)
+
 proc setLocation*(de: DocEntry, location: DocLocation) =
   de.location = some location
-  for path in de.db.rootPaths:
-    # echov path
-    if location.absFile.startsWith($path):
-      de.location.get().file =
-        location.absFile.getStr().dropPrefix($path).dropPrefix("/")
-      break
+  let lib = de.db.getLibForPath(location.absFile)
+
+  let withLib = location.absFile.getStr()
+  var nolib = withLib.dropPrefix($lib.dir)
+  if nolib != withLib:
+    noLib = nolib.dropPrefix("/")
+
+  de.location.get().file = nolib
+  de.location.get().lib = some lib.name
 
 
 proc contains(s1, s2: DocCodeSlice): bool =
