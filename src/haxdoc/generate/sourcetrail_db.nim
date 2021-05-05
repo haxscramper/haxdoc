@@ -39,35 +39,43 @@ proc registerUses(writer; file: DocFile, idMap: IdMap) =
     for part in line.parts:
       if part.occur.isSome():
         let occur = part.occur.get()
+        if not occur.refid.isValid():
+          discard
 
-        if occur.kind in {dokOjectDeclare}:
+        elif occur.kind in {dokOjectDeclare, dokCallDeclare}:
           userId = idMap.docToTrail[occur.refid]
 
         else:
           let targetId = idMap.docToTrail[occur.refid]
-          var refSym: cint
-          case occur.kind:
-            of dokLocalUse:
-              raiseImplementError("")
+          let useKind =
+            case occur.kind:
+              of dokLocalUse:
+                raiseImplementError("")
 
-            of dokTypeAsFieldUse, dokTypeAsReturnUse,
-               dokTypeAsParameterUse, dokTypeAsArgUse:
-              refSym = writer.recordReference(userId, targetId, srkTypeUsage)
+              of dokTypeAsFieldUse, dokTypeAsReturnUse, dokTypeDirectUse,
+                dokTypeAsParameterUse, dokTypeAsArgUse:
+                srkTypeUsage
 
-            of dokTypeSpecializationUse:
-              refSym = writer.recordReference(
-                userId, targetId, srkTemplateSpecialization)
+              of dokTypeSpecializationUse:
+                srkTemplateSpecialization
 
-            of dokInheritFrom:
-              refSym = writer.recordReference(
-                userId, targetId, srkInheritance)
+              of dokInheritFrom:
+                srkInheritance
 
-            of dokCall:
-              refSym = writer.recordReference(
-                userId, targetId, srkCall)
+              of dokCall:
+                srkCall
 
-            else:
-              raiseUnexpectedKindError(occur)
+              of dokEnumFieldUse:
+                srkUsage
+
+              of dokAnnotationUsage, dokDefineCheck:
+                srkMacroUsage
+
+              else:
+                raiseUnexpectedKindError(occur)
+
+          let refSym = writer.recordReference(
+            userId, targetId, useKind)
 
           discard writer.recordReferenceLocation(
             refSym, toRange(fileId, part.slice))
@@ -89,45 +97,44 @@ proc registerDb*(writer; db: DocDb): IdMap =
       entry = db[id]
 
     if entry.kind in {dekCompileDefine, dekPragma}:
-      let symId = writer.recordSymbol(name, sskMacro)
+      result.docToTrail[entry.id()] = writer.recordSymbol(name, sskMacro)
       continue
 
-    elif entry.kind in {dekModule}:
+    elif entry.kind in {dekModule, dekArg}:
       continue
 
-    echov entry.fullIdent
     let fileId = writer.recordFile(entry.location.get().file)
 
-    var symId: cint
-    case entry.kind:
-      of dekProc, dekFunc, dekConverter, dekIterator:
-        symId = writer.recordSymbol(name, sskFunction)
+    let defKind =
+      case entry.kind:
+        of dekProc, dekFunc, dekConverter, dekIterator:
+          sskFunction
 
-      of dekMacro, dekTemplate:
-        symId = writer.recordSymbol(name, sskMacro)
+        of dekMacro, dekTemplate:
+          sskMacro
 
-      of dekNewtypeKinds - { dekAlias, dekDistinctAlias, dekEnum },
-         dekBuiltin:
-        symId = writer.recordSymbol(name, sskStruct)
+        of dekEnum:
+          sskEnum
 
-      of dekEnum:
-        symId = writer.recordSymbol(name, sskEnum)
+        of dekAlias, dekDistinctAlias:
+          sskTypedef
 
-      of dekAlias, dekDistinctAlias:
-        symId = writer.recordSymbol(name, sskTypedef)
+        of dekField:
+          sskField
 
-      of dekField:
-        symId = writer.recordSymbol(name, sskField)
+        of dekEnumField:
+          sskEnumConstant
 
-      of dekEnumField:
-        symId = writer.recordSymbol(name, sskEnumConstant)
+        of dekNewtypeKinds - { dekAlias, dekDistinctAlias, dekEnum },
+           dekBuiltin:
+          sskStruct
 
-      of dekArg:
-        # Local symbol
-        discard
+        else:
+          raiseImplementKindError(entry)
 
-      else:
-        raiseImplementKindError(entry)
+    let symId = writer.recordSymbol(name, defKind)
+
+    result.docToTrail[entry.id()] = symId
 
     if entry.declHeadExtent.isSome():
       let extent = toRange(fileId, entry.declHeadExtent.get())
@@ -142,7 +149,8 @@ when isMainModule:
   let dir = getTempDir() / "from_nim_code2"
   var writer: SourcetrailDbWriter
 
-  discard writer.open(string(dir /. "trail.srctrldb"))
+  let trailFile = dir /. "trail.srctrldb"
+  discard writer.open(string(trailFile))
 
   var db: DocDb
   for file in walkDir(dir, AbsFile, exts = @["hxde"]):
@@ -156,6 +164,7 @@ when isMainModule:
 
 
   for file in walkDir(dir, AbsFile, exts = @["hxda"]):
+    echov file
     var inFile: DocFile
     var reader = newHXmlParser(file)
     reader.loadXml(inFile, "file")
@@ -163,3 +172,7 @@ when isMainModule:
     discard writer.beginTransaction()
     writer.registerUses(inFile, idMap)
     discard writer.commitTransaction()
+
+  echov trailFile
+  discard writer.close()
+  echo "done"
