@@ -9,23 +9,41 @@ import hmisc/hdebug_misc
 import hnimast/compiler_aux
 import std/[with, options, tables]
 
+
 proc getFile(writer: var SourcetrailDbWriter, path, lang: string): cint =
   result = writer.recordFile(path)
   discard writer.recordFileLanguage(result, lang)
 
+
+proc toTrailName(ident: DocFullIdent): SourcetrailNameHierarchy =
+  var parts: seq[tuple[prefix, name, postfix: string]]
+  for part in ident.parts:
+    var buf = part.name
+    if part.kind in dekProcKinds:
+      buf &= "("
+      for idx, arg in part.argTypes:
+        if idx > 0: buf &= ", "
+        buf &= $arg
+
+      buf &= ")"
+
+    parts.add ("", buf, "")
+
+  return initSourcetrailNameHierarchy(("::", parts))
+
 proc toRange(fileId: cint, extent: DocExtent): SourcetrailSourceRange =
   with result:
     fileId = fileId
-    startLine = extent.start.line.cint + 1
+    startLine = extent.start.line.cint
     startColumn = extent.start.column.cint + 1
-    endLine = extent.finish.line.cint + 1
+    endLine = extent.finish.line.cint
     endColumn = extent.finish.column.cint + 1
 
 proc toRange(fileId: cint, codeRange: DocCodeSlice): SourcetrailSourceRange =
   with result:
     fileId = fileId
-    startLine = codeRange.line.cint + 1
-    endLine = codeRange.line.cint + 1
+    startLine = codeRange.line.cint
+    endLine = codeRange.line.cint
     startColumn = codeRange.column.a.cint + 1
     endColumn = codeRange.column.b.cint + 1
 
@@ -47,8 +65,10 @@ proc registerUses(writer; file: DocFile, idMap: IdMap) =
         if not occur.refid.isValid():
           discard
 
-        elif occur.kind in {dokOjectDeclare, dokCallDeclare}:
+        elif occur.kind in {dokObjectDeclare, dokCallDeclare}:
           userId = idMap.docToTrail[occur.refid]
+          discard writer.recordSymbolLocation(
+            userId, toRange(fileId, part.slice))
 
         else:
           let targetId = idMap.docToTrail[occur.refid]
@@ -84,15 +104,6 @@ proc registerUses(writer; file: DocFile, idMap: IdMap) =
 
           discard writer.recordReferenceLocation(
             refSym, toRange(fileId, part.slice))
-
-
-
-proc toTrailName(ident: DocFullIdent): SourcetrailNameHierarchy =
-  var parts: seq[tuple[prefix, name, postfix: string]]
-  for part in ident.parts:
-    parts.add ("", part.name, "")
-
-  return initSourcetrailNameHierarchy(("::", parts))
 
 
 proc registerDb*(writer; db: DocDb): IdMap =

@@ -10,6 +10,81 @@ import hmisc/algo/[hstring_algo, halgorithm]
 import compiler/sighashes
 import haxorg/[semorg, ast, importer_nim_rst]
 
+proc headSym(node: PNode): PSym =
+  case node.kind:
+    of nkProcDeclKinds, nkDistinctTy, nkVarTy,
+       nkBracketExpr, nkTypeDef, nkPragmaExpr:
+      headSym(node[0])
+
+    of nkCommand, nkCall:
+      headSym(node[1])
+
+    of nkSym:
+      node.sym
+
+    of nkRefTy, nkPtrTy:
+      if node.len == 0:
+        nil
+
+      else:
+        headSym(node[0])
+
+    of nkIdent, nkEnumTy, nkProcTy, nkObjectTy, nkTupleTy:
+      nil
+
+    else:
+      raiseImplementKindError(node, node.treeRepr())
+
+proc typeHead(node: PNode): PNode =
+  case node.kind:
+    of nkSym: node
+    of nkTypeDef: typeHead(node[0])
+    of nkPragmaExpr: typeHead(node[0])
+    else:
+      raiseImplementKindError(node)
+
+proc declHead(node: PNode): PNode =
+  case node.kind:
+    of nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr,
+       nkVarTy, nkBracketExpr, nkPrefix,
+       nkDistinctTy, nkBracket:
+      result = declHead(node[0])
+
+    of nkRefTy, nkPtrTy:
+      if node.len > 0:
+        result = declHead(node[0])
+
+      else:
+        result = node
+
+    of nkSym, nkIdent, nkEnumFieldDef, nkDotExpr,
+       nkExprColonExpr, nkCall,
+       nkRange, # WARNING
+       nkEnumTy,
+       nkProcTy,
+       nkIteratorTy,
+       nkTupleClassTy,
+       nkLiteralKinds:
+      result = node
+
+    of nkPostfix, nkCommand:
+      result = node[1]
+
+    of nkInfix, nkPar:
+      result = node[0]
+
+    of nkTypeDef:
+      let head = typeHead(node)
+      doAssert head.kind == nkSym, head.treeRepr()
+      result = head
+
+    of nkObjectTy:
+      result = node
+
+    else:
+      raiseImplementKindError(node, node.treeRepr())
+
+
 
 type
   DocContext = ref object of PPassContext
@@ -32,6 +107,7 @@ type
     rskProcReturn
     rskBracketHead
     rskBracketArgs
+    rskTypeHeader
 
     rskDefineCheck
 
@@ -101,6 +177,7 @@ proc setLocation(ctx; entry: DocEntry, node) =
   )
 
   entry.extent = some nodeExtent(node)
+  entry.declHeadExtent = some nodeExtent(node.declHead())
 
 proc nodeSlice(node: PNode): DocCodeSlice =
   let l = len($node)
@@ -108,7 +185,7 @@ proc nodeSlice(node: PNode): DocCodeSlice =
     warn node, "has len > 20", l
 
   initDocSlice(
-    node.getInfo().line.int - 1, # Lines are indexed, not numbered
+    node.getInfo().line.int,
     node.getInfo().col.int,
     node.getInfo().col.int + l - 1
   )
@@ -124,23 +201,6 @@ proc isEnum*(node): bool =
     else:
       false
 
-proc headSym(node): PSym =
-  case node.kind:
-    of nkProcDeclKinds, nkDistinctTy, nkVarTy, nkRefTy, nkPtrTy,
-       nkBracketExpr, nkTypeDef, nkPragmaExpr:
-      headSym(node[0])
-
-    of nkCommand, nkCall:
-      headSym(node[1])
-
-    of nkSym:
-      node.sym
-
-    of nkIdent:
-      nil
-
-    else:
-      raiseImplementKindError(node, node.treeRepr())
 
 proc trySigHash*(sym: PSym): SigHash =
   if not isNil(sym):
@@ -220,6 +280,9 @@ proc registerUses(ctx; node; state: RegisterState) =
 
             of rskBracketArgs:
               ctx.occur(node, dokTypeAsParameterUse)
+
+            of rskTypeHeader:
+              ctx.occur(node, dokObjectDeclare)
 
             else:
               raiseImplementKindError(state.top())
@@ -446,8 +509,8 @@ proc registerUses(ctx; node; state: RegisterState) =
       discard
 
     of nkTypeDef:
-      # TODO register pragma uses in head but ignore symbol declaration
-      # itself (add to registration context)
+      ctx.registerUses(node[0], state + rskTypeHeader)
+      ctx.registerUses(node[1], state + rskTypeHeader)
       ctx.registerUses(node[2], state)
 
     of nkDistinctTy:
@@ -459,14 +522,65 @@ proc toDocType(ctx; ntype: NType): DocType =
     of ntkIdent:
       if ntype.declNode.get().kind == nkIdent:
         result = DocType(
+          name: ntype.head,
           kind: dtkGenericParam,
           paramName: $ntype.declNode.get())
 
       else:
-        result = DocType(kind: dtkIdent, head: ctx[ntype])
+        result = DocType(
+          name: ntype.head,
+          kind: dtkIdent, head: ctx[ntype])
+
+      for param in ntype.genParams:
+        result.genParams.add ctx.toDocType(param)
+
+    of ntkAnonTuple:
+      result = DocType(kind: dtkAnonTuple)
+      for param in ntype.genParams:
+        result.genParams.add ctx.toDocType(param)
+
+    of ntkGenericSpec:
+      result = DocType(kind: dtkGenericSpec)
+      for param in ntype.genParams:
+        result.genParams.add ctx.toDocType(param)
+
+    of ntkRange:
+      result = DocType(
+        kind: dtkRange, rngStart: $ntype.rngStart,
+        rngEnd: $ntype.rngEnd)
+
+    of ntkVarargs:
+      result = DocType(
+        kind: dtkVarargs,
+        vaType: ctx.toDocType(ntype.vaType()))
+
+      if ntype.vaConverter.isSome():
+        result.vaConverter = some $ntype.vaConverter.get()
+
+    of ntkNamedTuple, ntkProc:
+      if ntype.kind == ntkNamedTuple:
+        result = DocType(kind: dtkNamedTuple)
+
+      else:
+        result = DocType(kind: dtkProc)
+
+      for arg in ntype.arguments:
+        let t = ctx.toDocType(arg.vtype)
+        for ident in arg.idents:
+          result.arguments.add DocIdent(
+            ident: $ident, identType: t)
+
+    of ntkNone:
+      result = DocType(kind: dtkNone)
+
+    of ntkValue:
+      result = DocType(kind: dtkValue, value: $ntype.value)
+
+    of ntkTypeofExpr:
+      result = DocType(kind: dtkTypeofExpr, value: $ntype.value)
 
     else:
-      result = DocType(kind: dtkIdent)
+      raiseImplementKindError(ntype, $ntype)
 
 proc classifiyKind(decl: PProcDecl): DocEntryKind =
   case decl.declNode.get().kind:

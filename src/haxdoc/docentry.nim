@@ -4,7 +4,7 @@ import haxorg/[ast, semorg]
 import hmisc/other/[oswrap]
 import hmisc/algo/hseq_mapping
 import hmisc/[hdebug_misc, helpers]
-import std/[options, tables, hashes, enumerate, strformat]
+import std/[options, tables, hashes, enumerate, strformat, sequtils]
 import nimtraits
 
 type
@@ -156,7 +156,7 @@ type
     dokFieldDeclare
     dokFieldUse
 
-    dokOjectDeclare
+    dokObjectDeclare
     dokEnumFieldDeclare
     dokEnumFieldUse
 
@@ -246,7 +246,8 @@ type
     parts*: seq[DocIdentPart]
 
   DocPragma* = object
-    entry*: DocId
+    name* {.Attr.}: string
+    entry* {.Attr.}: DocId
     args*: seq[DocCode]
 
   DocType* = ref object
@@ -254,11 +255,10 @@ type
     ## arguments, return types etc.). Plays structural role in
     ## documentation context - does not contain any additional information
     ## itself.
-    # doctextBody*: SemOrg ## Full documentation text, excluding 'brief'
-    # doctextBrief*: SemOrg ## 'bfief' part
+    name* {.Attr.}: string
     case kind*: DocTypeKind
       of dtkIdent, dtkGenericSpec, dtkAnonTuple:
-        head*: DocId ## Documentation entry
+        head* {.Attr.}: DocId ## Documentation entry
         identKind* {.Attr.}: DocTypeHeadKind ## `head` ident kind
         genParams*: seq[DocType]
 
@@ -279,10 +279,10 @@ type
         vaType*: DocType
         vaConverter*: Option[string]
 
-      of dtkValue:
+      of dtkValue, dtkTypeofExpr:
         value*: string
 
-      of dtkNone, dtkTypeofExpr:
+      of dtkNone:
         discard
 
       of dtkFile, dtkDir, dtkString:
@@ -427,6 +427,53 @@ proc hash*(full: var DocFullIdent): Hash =
 proc hash*(full: DocFullIdent): Hash = full.docId.id
 proc `==`*(a, b: DocIdentPart): bool = a.kind == b.kind
 proc `==`*(a, b: DocFullIdent): bool = a.parts == b.parts
+
+
+proc `$`*(t: DocType): string
+proc `$`*(t: DocIdent): string =
+  t.ident & ": " & $t.identType
+
+proc `$`*(t: DocType): string =
+  case t.kind:
+    of dtkIdent:
+      result = t.name
+
+    of dtkGenericSpec:
+      result = t.name
+      result &= t.genParams.mapIt($it).join(", ")
+
+    of dtkGenericParam:
+      result = t.paramName
+
+    of dtkNone:
+      result = ""
+
+    of dtkRange:
+      result = "range[" & t.rngStart & " .. " & t.rngEnd & "]"
+
+    of dtkTypeofExpr:
+      result = "typeof(" & t.value & ")"
+
+    of dtkValue:
+      result = t.value
+
+    of dtkNamedTuple:
+      result &= "tuple[" & t.arguments.mapIt($it).join(", ") & "]"
+
+    of dtkProc:
+      result &= "proc(" & t.arguments.mapIt($it).join(", ") & ")"
+      if t.returnType.isSome():
+        result &= ": " & $t.returnType.get()
+
+    of dtkVarargs:
+      result = "varargs[" & $t.vaType
+      if t.vaConverter.isSome():
+        result &= ", " & t.vaConverter.get()
+
+      result &= "]"
+
+    else:
+      raiseImplementKindError(t)
 
 proc `$`*(ident: DocIdentPart): string =
  "[" & ident.name & " " & $ident.kind & "]"
@@ -678,19 +725,19 @@ proc add*(line: var DocCodeLine, other: DocCodePart) =
   # raiseImplementError("Addition failed")
 
 proc add*(code: var DocCode, other: DocCodePart) =
-  code.codeLines[other.slice.line].add other
+  code.codeLines[other.slice.line - 1].add other
 
 proc add*(code: var DocCode, line: DocCodeLine) =
   code.codeLines.add line
 
 proc newCodeBlock*(text: seq[string]): DocCode =
   for idx, line in text:
-    result.codeLines.add newCodeLine(idx, line)
+    result.codeLines.add newCodeLine(idx + 1, line)
 
 proc newDocFile*(path: AbsFile): DocFile =
   result.path = path
   for idx, line in enumerate(lines(path.getStr())):
-    result.body.add newCodeLine(idx, line)
+    result.body.add newCodeLine(idx + 1, line)
 
 
 proc newOccur*(

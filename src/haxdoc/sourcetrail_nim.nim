@@ -62,60 +62,7 @@ converter toSourcetrailSourceRange*(
   result.endLine = arg.ranges[2].cint
   result.endColumn = arg.ranges[3].cint
 
-proc typeHead(node: PNode): PNode =
-  case node.kind:
-    of nkSym: node
-    of nkTypeDef: typeHead(node[0])
-    of nkPragmaExpr: typeHead(node[0])
-    else:
-      raiseImplementKindError(node)
 
-proc declHead(node: PNode): PNode =
-  case node.kind:
-    of nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr,
-       nkVarTy, nkBracketExpr, nkPrefix,
-       nkDistinctTy, nkBracket
-      :
-      result = declHead(node[0])
-
-    of nkRefTy, nkPtrTy:
-      if node.len > 0:
-        result = declHead(node[0])
-
-      else:
-        result = node
-
-    of nkSym, nkIdent, nkEnumFieldDef, nkDotExpr,
-       nkExprColonExpr, nkCall,
-       nkRange, # WARNING
-       nkEnumTy,
-       nkProcTy,
-       nkIteratorTy,
-       nkTupleClassTy,
-       nkLiteralKinds
-      :
-      result = node
-
-    of nkPostfix, nkCommand
-      :
-      result = node[1]
-
-    of nkInfix, nkPar:
-      result = node[0]
-
-    of nkTypeDef:
-      let head = typeHead(node)
-      doAssert head.kind == nkSym, head.treeRepr()
-      result = head
-
-    of nkObjectTy:
-      result = node
-
-    else:
-      debug node.kind
-      debug node
-      err node.treeRepr()
-      raiseImplementKindError(node)
 
 converter toSourcetrailSourceRange*(
   arg: tuple[file: cint, name: PNode]): SourcetrailSourceRange =
