@@ -237,7 +237,7 @@ type
     name* {.Attr.}: string
     case kind*: DocEntryKind
       of dekProcKinds:
-        argTypes*: seq[DocType]
+        procType*: DocType
 
       else:
         discard
@@ -377,7 +377,7 @@ type
     # resolved through iteger identifiers. This is slower but does not
     # require expensive `ref` graph reconstruction during serialization.
     entries*: Table[DocId, DocEntry]
-    fullIdents*: Table[DocFullIdent, DocId]
+    fullIdents*: OrderedTable[DocFullIdent, DocId]
     top*: OrderedTable[DocIdentPart, DocEntry]
     files*: seq[DocFile]
     knownLibs: seq[DocLib]
@@ -409,29 +409,6 @@ storeTraits(DocCodeLine)
 
 proc `$`*(dk: DocEntryKind): string = toString(dk)[3 ..^ 1]
 proc `$`*(dk: DocOccurKind): string = toString(dk)[3 ..^ 1]
-
-proc hash*(id: DocId): Hash = hash(id.id)
-proc hash*(part: DocIdentPart): Hash =
-  !$(hash(part.kind) !& hash(part.name))
-
-proc hash*(full: var DocFullIdent): Hash =
-  # Full identifier hash should be very stable (only changed if the name of
-  # the entry is changed)
-  if full.docId.id != 0:
-    return full.docId.id
-
-  else:
-    for part in full.parts:
-      result = result !& hash(part)
-
-    result = !$result
-    full.docId.id = result
-
-proc hash*(full: DocFullIdent): Hash = full.docId.id
-proc `==`*(a, b: DocIdentPart): bool = a.kind == b.kind
-proc `==`*(a, b: DocFullIdent): bool = a.parts == b.parts
-
-
 proc `$`*(t: DocType): string
 proc `$`*(t: DocIdent): string =
   t.ident & ": " & $t.identType
@@ -463,6 +440,9 @@ proc `$`*(t: DocType): string =
     of dtkNamedTuple:
       result &= "tuple[" & t.arguments.mapIt($it).join(", ") & "]"
 
+    of dtkAnonTuple:
+      result &= "(" & t.genParams.mapIt($it).join(", ") & ")"
+
     of dtkProc:
       result &= "proc(" & t.arguments.mapIt($it).join(", ") & ")"
       if t.returnType.isSome():
@@ -478,8 +458,44 @@ proc `$`*(t: DocType): string =
     else:
       raiseImplementKindError(t)
 
+
+proc hash*(id: DocId): Hash = hash(id.id)
+proc hash*(part: DocIdentPart): Hash =
+  result = hash(part.kind) !& hash(part.name)
+  if part.kind in dekProcKinds:
+    result = result !& hash($part.procType)
+
+  return !$result
+
+proc hash*(full: var DocFullIdent): Hash =
+  # Full identifier hash should be very stable (only changed if the name of
+  # the entry is changed)
+  if full.docId.id != 0:
+    return full.docId.id
+
+  else:
+    for part in full.parts:
+      result = result !& hash(part)
+
+    result = !$result
+    full.docId.id = result
+
+proc hash*(full: DocFullIdent): Hash = full.docId.id
+proc `==`*(a, b: DocIdentPart): bool = a.kind == b.kind
+proc `==`*(a, b: DocFullIdent): bool = a.parts == b.parts
+
+
+
 proc `$`*(ident: DocIdentPart): string =
- "[" & ident.name & " " & $ident.kind & "]"
+ result = "[" & ident.name & " "
+ if ident.kind in dekProcKinds:
+   if ident.procType.isNil():
+     result &= "<nil-proc-type> "
+
+   else:
+     result &= $ident.procType & " "
+
+ result &= $ident.kind & "]"
 
 proc `$`*(ident: DocFullIdent): string =
   for idx, part in ident.parts:
@@ -526,8 +542,11 @@ proc newDocType*(kind: DocTypeKind, head: DocEntry): DocType =
   result = DocType(kind: kind)
   result.head = head.id()
 
-proc initIdentPart*(kind: DocEntryKind, name: string): DocIdentPart =
-  DocIdentPart(kind: kind, name: name)
+proc initIdentPart*(
+    kind: DocEntryKind, name: string, procType: DocType = nil): DocIdentPart =
+  result = DocIdentPart(kind: kind, name: name)
+  if kind in dekProcKinds:
+    result.procType = procType
 
 proc initFullIdent*(parts: sink seq[DocIdentPart]): DocFullIdent =
   result = DocFullIdent(parts: parts)
@@ -540,9 +559,11 @@ proc lastIdentPart*(entry: var DocEntry): var DocIdentPart =
   return entry.fullIdent.parts[^1]
 
 proc newDocEntry*(
-    db: var DocDb, kind: DocEntryKind, name: string): DocEntry =
+      db: var DocDb, kind: DocEntryKind, name: string, 
+      procType: DocType = nil
+  ): DocEntry =
   ## Create new toplevel entry (package, file, module) directly using DB.
-  let part = initIdentPart(kind, name)
+  let part = initIdentPart(kind, name, procType)
   result = DocEntry(
     fullIdent: initFullIdent(@[part]),
     db: db,
@@ -555,14 +576,15 @@ proc newDocEntry*(
   db.top[part] = result
 
 proc newDocEntry*(
-    parent: var DocEntry, kind: DocEntryKind, name: string
+    parent: var DocEntry, kind: DocEntryKind, name: string,
+    procType: DocType = nil
   ): DocEntry =
   ## Create new nested document entry. Add it to subnode of `parent` node.
 
 
   result = DocEntry(
     fullIdent: initFullIdent(
-      parent.fullIdent.parts & initIdentPart(kind, name)),
+      parent.fullIdent.parts & initIdentPart(kind, name, procType)),
     db: parent.db,
     name: name,
     kind: kind
@@ -571,6 +593,18 @@ proc newDocEntry*(
   parent.db.entries[result.id()] = result
   parent.db.fullIdents[result.fullIdent] = result.id()
   parent.nested.add result.id()
+  if "msbit" in $parent.fullIdent:
+    echo "new doc entry add >", parent.fullIdent
+
+proc registerNested*(db: var DocDb, parent, nested: DocEntry) =
+  nested.db = db
+  db.entries[nested.id()] = nested
+  db.fullIdents[nested.fullIdent] = nested.id()
+  if isNil(parent):
+    db.top[nested.fullIdent.parts[0]] = nested
+
+  else:
+    parent.nested.add nested.id()
 
 proc newDocDb*(): DocDb =
   result = DocDb()

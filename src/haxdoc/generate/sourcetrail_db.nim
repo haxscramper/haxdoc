@@ -7,7 +7,7 @@ import hmisc/base_errors
 import hmisc/hasts/xml_ast
 import hmisc/hdebug_misc
 import hnimast/compiler_aux
-import std/[with, options, tables]
+import std/[with, options, tables, strutils]
 
 
 proc getFile(writer: var SourcetrailDbWriter, path, lang: string): cint =
@@ -18,16 +18,27 @@ proc getFile(writer: var SourcetrailDbWriter, path, lang: string): cint =
 proc toTrailName(ident: DocFullIdent): SourcetrailNameHierarchy =
   var parts: seq[tuple[prefix, name, postfix: string]]
   for part in ident.parts:
-    var buf = part.name
     if part.kind in dekProcKinds:
-      buf &= "("
-      for idx, arg in part.argTypes:
+      var buf = "("
+      for idx, arg in part.procType.arguments:
         if idx > 0: buf &= ", "
-        buf &= $arg
+        buf &= $arg.identType
 
       buf &= ")"
 
-    parts.add ("", buf, "")
+      if "zz" in part.name:
+        echov buf
+
+      if part.procType.returnType.isSome():
+        parts.add ($part.procType.returnType.get(), part.name, buf)
+
+      else:
+        parts.add ("", part.name, buf)
+
+    else:
+      parts.add ("", part.name, "")
+
+
 
   return initSourcetrailNameHierarchy(("::", parts))
 
@@ -57,6 +68,8 @@ using
 
 proc registerUses(writer; file: DocFile, idMap: IdMap) =
   let fileID = writer.getFile(file.path.string, "nim")
+
+  var extent: Option[DocExtent]
 
   var
     userId: cint

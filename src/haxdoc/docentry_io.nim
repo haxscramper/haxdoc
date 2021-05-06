@@ -251,11 +251,12 @@ proc loadXml*(r; it: var DocIdentPart, tag) =
                newObjExpr = DocIdentPart(kind: kind))
 
 
+
+
 proc writeXml*(w; it: DocIdentPart, tag) =
   genXmlWriter(
     DocIdentPart, it, w, tag,
-    hasFieldsExpr = (it.kind in dekProcKinds and it.argTypes.len > 0))
-
+    hasFieldsExpr = (it.kind in dekProcKinds))
 
 proc loadXml*(r; it: var DocFullIdent, tag) =
   genXmlLoader(DocFullIdent, it, r, tag, newObjExpr = DocFullIdent())
@@ -270,13 +271,7 @@ proc writeXml*(w; it: DocType, tag) =
   genXmlWriter(DocType, it, w, tag)
 
 proc loadXml*(r; it: var DocFile, tag) =
-  # r.skipOpen(tag)
-  # echov r.displayAt()
-  # r.loadXml(it.path, "path")
-  # echov it.path
-  genXmlLoader(
-    DocFile, it, r, tag, newObjExpr = DocFile(), # loadHeader = false
-  )
+  genXmlLoader(DocFile, it, r, tag, newObjExpr = DocFile())
 
 proc writeXml*(w; it: DocFile, tag) =
   genXmlWriter(DocFile, it, w, tag)
@@ -290,42 +285,20 @@ proc writeXml*(w; it: DocDb, tag) =
 
 
 proc loadNested*(r; db: var DocDb, tag; top: var DocEntry) =
-  var
-    kind: DocEntryKind
-    name: string
-
-  r.skipOpen(tag)
-  while r.atAttr():
-    case r.attrKey():
-      of "kind": r.loadXml(kind, "kind")
-      of "name": r.loadXml(name, "name")
-      else: break
-
   var entry: DocEntry
-  if isNil(top):
-    entry = db.newDocEntry(kind, name)
-
-  else:
-    entry = top.newDocEntry(kind, name)
-
-
-  while r.atAttr():
-    case r.attrKey():
-      of "identTypeStr": r.loadXml(entry.identTypeStr, "identTypeStr")
-      of "decl": r.next()
-      else: raiseUnexpectedAttribute(r)
 
   genXmlLoader(
     DocEntry, entry, r, tag,
     skipFieldLoad = ["nested"],
-    loadHeader = false,
+    extraAttrLoad = { "decl": r.next() },
+    newObjExpr = DocEntry(kind: kind),
     extraFieldLoad = {
       "nested": (
         while r.atOpenStart() and r["nested"]:
-          loadNested(r, db, "nested", entry)
-      )
-    }
-  )
+          loadNested(r, db, "nested", entry))})
+
+  db.registerNested(top, entry)
+
 
 proc loadXml*(r; it: var DocDb, tag) =
   if isNil(it):
@@ -341,10 +314,7 @@ proc loadXml*(r; it: var DocDb, tag) =
 proc writeXml*(w; it: DocEntry, tag) =
   genXmlWriter(
     DocEntry, it, w, tag, ["nested", "rawDoc"], false,
-    extraAttrWrite = (
-      w.xmlAttribute("decl", true)
-    )
-  )
+    extraAttrWrite = (w.xmlAttribute("decl", true)))
 
   w.indent()
   for item in it.nested:

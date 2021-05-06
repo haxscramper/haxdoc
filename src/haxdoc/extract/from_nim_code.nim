@@ -608,7 +608,8 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
   let procDecl = parseProc(procDef)
 
   var entry = ctx.module.newDocEntry(
-    procDecl.classifiyKind(), procDecl.name)
+    procDecl.classifiyKind(), procDecl.name, ctx.toDocType(procDecl.signature))
+
   ctx.addSigmap(procDef, entry)
   ctx.setLocation(entry, procDef)
   entry.rawDoc.add procDecl.docComment
@@ -617,7 +618,6 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
   for argument in arguments(procDecl):
     let argType = ctx.toDocType(argument.vtype)
     for ident in argument.idents:
-      entry.lastIdentPart.argTypes.add argType
       var arg = entry.newDocEntry(dekArg, ident.getStrVal())
       arg.identType = some argType
       arg.identTypeStr = some $argument.vtype
@@ -837,6 +837,13 @@ type
 
   B = ref object of Base
     a: A
+
+proc zz(a: A) = discard
+proc zz(b: B) = discard
+
+zz(A())
+zz(B())
+
 """)
 
 
@@ -845,7 +852,7 @@ type
 
 
   startColorLogger()
-  startHax()
+  # startHax()
 
   let db = generateDocDb(file, getStdPath(), @[])
 
