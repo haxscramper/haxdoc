@@ -113,6 +113,8 @@ type
 
     rskDefineCheck
 
+    rskImport
+
 
   RegisterState = object
     state: seq[RegisterStateKind]
@@ -334,6 +336,9 @@ proc registerUses(ctx; node; state: RegisterState) =
         of skLabel:
           discard # ???
 
+        of skModule:
+          ctx.occur(node, dokImport)
+
         else:
           info ctx.graph.getFilePath(node)
           raiseImplementError(node.treeRepr())
@@ -381,9 +386,11 @@ proc registerUses(ctx; node; state: RegisterState) =
         ctx.registerUses(decl[1], state) # Type usage
         ctx.registerUses(decl[2], state) # Init expression
 
-    of nkIncludeStmt, nkImportStmt:
-      # TODO extract target path from compiler and generate
-      # `dekImport/dekInclude` dependency
+    of nkImportStmt:
+      for subnode in node:
+        ctx.registerUses(subnode, state + rskImport)
+
+    of nkIncludeStmt:
       discard
 
     of nkExportStmt:
@@ -764,6 +771,9 @@ proc generateDocDb*(
         proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
           var context = DocContext(db: db, graph: graph, sigmap: sigmap)
           context.module = db.newDocEntry(dekModule, module.getStrVal())
+          sigmap[module.sigHash()] = context.module.id()
+          context.db.setIdForFile(graph.getFilePath(module), context.module.id())
+
           context.allModules.add context.module
           return context
       ),

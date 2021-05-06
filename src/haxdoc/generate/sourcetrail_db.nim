@@ -56,13 +56,17 @@ using
   writer: var SourcetrailDbWriter
 
 proc registerUses(writer; file: DocFile, idMap: IdMap) =
-  var userId: cint
   let fileID = writer.getFile(file.path.string, "nim")
-  var lastDeclare: DocOccurKind
+
+  var
+    userId: cint
+    lastDeclare: DocOccurKind
+
   for line in file.body.codeLines:
     for part in line.parts:
       if part.occur.isSome():
         let occur = part.occur.get()
+
         if occur.kind == dokLocalUse:
           discard writer.recordLocalSymbolLocation(
             writer.recordLocalSymbol(occur.localId),
@@ -79,6 +83,14 @@ proc registerUses(writer; file: DocFile, idMap: IdMap) =
           lastDeclare = occur.kind
           discard writer.recordSymbolLocation(
             userId, toRange(fileId, part.slice))
+
+        elif occur.kind in {dokImport}:
+          if file.moduleId.isSome():
+            discard writer.recordReference(
+              idMap.docToTrail[file.moduleId.get()],
+              idMap.docToTrail[occur.refid],
+              srkImport
+            )
 
         else:
           let targetId = idMap.docToTrail[occur.refid]

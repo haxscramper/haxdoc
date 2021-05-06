@@ -360,6 +360,7 @@ type
     path* {.Attr.}: AbsFile ## Absolute path to the original file
     body*: DocCode ## Full text with [[code:DocOccur][occurrence]]
                    ## annotations
+    moduleId* {.Attr.}: Option[DocId]
 
   DocLib* = object
     name*: string
@@ -741,6 +742,17 @@ proc newDocFile*(path: AbsFile): DocFile =
   for idx, line in enumerate(lines(path.getStr())):
     result.body.add newCodeLine(idx + 1, line)
 
+proc setIdForFile*(db: var DocDb, path: AbsFile, id: DocId) =
+  var found = false
+  for file in mitems(db.files):
+    if file.path == path:
+      file.moduleId = some id
+      found = true
+
+  if not found:
+    var file = newDocFile(path)
+    file.moduleId = some id
+    db.files.add file
 
 proc newOccur*(
   db: var DocDb, position: DocCodeSlice, inFile: AbsFile, occur: DocOccur) =
