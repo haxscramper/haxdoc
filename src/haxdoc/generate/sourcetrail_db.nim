@@ -114,48 +114,53 @@ proc registerDb*(writer; db: DocDb): IdMap =
 
     if entry.kind in {dekCompileDefine, dekPragma}:
       result.docToTrail[entry.id()] = writer.recordSymbol(name, sskMacro)
-      continue
 
-    elif entry.kind in {dekModule, dekArg}:
-      continue
+    elif entry.kind in {dekArg}:
+      discard
 
-    let fileId = writer.getFile(
-      db.getPathInLib(entry.location.get()).string, "nim")
+    elif entry.kind in {dekModule}:
+      result.docToTrail[entry.id()] = writer.recordSymbol(name, sskModule)
 
-    let defKind =
-      case entry.kind:
-        of dekProc, dekFunc, dekConverter, dekIterator:
-          sskFunction
+    else:
+      let fileId = writer.getFile(
+        db.getPathInLib(entry.location.get()).string, "nim")
 
-        of dekMacro, dekTemplate:
-          sskMacro
+      let defKind =
+        case entry.kind:
+          of dekProc, dekFunc, dekConverter, dekIterator:
+            sskFunction
 
-        of dekEnum:
-          sskEnum
+          of dekMacro, dekTemplate:
+            sskMacro
 
-        of dekAlias, dekDistinctAlias:
-          sskTypedef
+          of dekEnum:
+            sskEnum
 
-        of dekField:
-          sskField
+          of dekAlias, dekDistinctAlias:
+            sskTypedef
 
-        of dekEnumField:
-          sskEnumConstant
+          of dekField:
+            sskField
 
-        of dekNewtypeKinds - { dekAlias, dekDistinctAlias, dekEnum },
-           dekBuiltin:
-          sskStruct
+          of dekEnumField:
+            sskEnumConstant
 
-        else:
-          raiseImplementKindError(entry)
+          of dekNewtypeKinds - { dekAlias, dekDistinctAlias, dekEnum },
+             dekBuiltin:
+            sskStruct
 
-    let symId = writer.recordSymbol(name, defKind)
+          else:
+            raiseImplementKindError(entry)
 
-    result.docToTrail[entry.id()] = symId
+      let symId = writer.recordSymbol(name, defKind)
 
-    if entry.declHeadExtent.isSome():
-      let extent = toRange(fileId, entry.declHeadExtent.get())
-      discard writer.recordSymbolLocation(symId, extent)
+      result.docToTrail[entry.id()] = symId
+      echov full
+
+      if entry.declHeadExtent.isSome():
+        let extent = toRange(fileId, entry.declHeadExtent.get())
+        discard writer.recordSymbolLocation(symId, extent)
+        discard writer.recordSymbolScopeLocation(symId, extent)
 
 
 
