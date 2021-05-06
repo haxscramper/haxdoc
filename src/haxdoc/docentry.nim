@@ -168,7 +168,7 @@ type
     ## Single occurence of documentable entry
     case kind*: DocOccurKind ## Type of entry occurence
       of dokLocalUse:
-        localId* {.Attr.}: int
+        localId* {.Attr.}: string
 
       else:
         refid* {.Attr.}: DocId ## Documentable entry id

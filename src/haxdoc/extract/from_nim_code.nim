@@ -269,6 +269,13 @@ proc occur(ctx; node; id: DocId, kind: DocOccurKind) =
     node.nodeSlice(),
     AbsFile($ctx.graph.getFilePath(node)), occur)
 
+proc occur(ctx; node; localId: string) =
+  ctx.db.newOccur(
+    node.nodeSlice(),
+    ctx.graph.getFilePath(node).string.AbsFile(),
+    DocOccur(kind: dokLocalUse, localId: localId)
+  )
+
 proc registerUses(ctx; node; state: RegisterState) =
   case node.kind:
     of nkSym:
@@ -317,8 +324,7 @@ proc registerUses(ctx; node; state: RegisterState) =
             ctx.occur(node, dokCall)
 
         of skParam, skVar, skConst, skLet, skForVar:
-          # TODO local usage declaration
-          discard
+          ctx.occur(node, $node.headSym())
 
         of skResult:
           # IDEA can be used to collect information about `result` vs

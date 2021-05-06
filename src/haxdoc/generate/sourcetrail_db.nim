@@ -63,7 +63,12 @@ proc registerUses(writer; file: DocFile, idMap: IdMap) =
     for part in line.parts:
       if part.occur.isSome():
         let occur = part.occur.get()
-        if not occur.refid.isValid():
+        if occur.kind == dokLocalUse:
+          discard writer.recordLocalSymbolLocation(
+            writer.recordLocalSymbol(occur.localId),
+            toRange(fileId, part.slice))
+
+        elif not occur.refid.isValid():
           discard
 
         elif occur.kind in {
@@ -135,11 +140,17 @@ proc registerDb*(writer; db: DocDb): IdMap =
 
     let defKind =
       case entry.kind:
+        of dekNewtypeKinds - { dekAlias, dekDistinctAlias, dekEnum }:
+          sskStruct
+
         of dekProc, dekFunc, dekConverter, dekIterator:
           sskFunction
 
         of dekMacro, dekTemplate:
           sskMacro
+
+        of dekAlias, dekDistinctAlias:
+          sskTypedef
 
         of dekCompileDefine:
           # compile-time defines might be treated as macros or as global
@@ -147,27 +158,12 @@ proc registerDb*(writer; db: DocDb): IdMap =
           # now I think global variable describes sematics a little better.
           sskGlobalVariable
 
-        of dekEnum:
-          sskEnum
-
-        of dekAlias, dekDistinctAlias:
-          sskTypedef
-
-        of dekField:
-          sskField
-
-        of dekEnumField:
-          sskEnumConstant
-
-        of dekNewtypeKinds - { dekAlias, dekDistinctAlias, dekEnum },
-           dekBuiltin:
-          sskStruct
-
-        of dekPragma:
-          sskAnnotation
-
-        of dekModule:
-          sskModule
+        of dekEnum:      sskEnum
+        of dekField:     sskField
+        of dekEnumField: sskEnumConstant
+        of dekBuiltin:   sskBuiltinType
+        of dekPragma:    sskAnnotation
+        of dekModule:    sskModule
 
         else:
           raiseImplementKindError(entry)
