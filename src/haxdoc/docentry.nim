@@ -142,7 +142,6 @@ type
 
     dokUsage
     dokCall
-    dokCallDeclare
 
     dokInheritFrom
     dokOverride
@@ -153,12 +152,15 @@ type
 
     dokLocalUse
 
-    dokFieldDeclare
     dokFieldUse
-
-    dokObjectDeclare
-    dokEnumFieldDeclare
     dokEnumFieldUse
+
+    dokFieldDeclare
+    dokCallDeclare
+    dokAliasDeclare
+    dokObjectDeclare
+    dokEnumDeclare
+    dokEnumFieldDeclare
 
     dokDefineCheck
 

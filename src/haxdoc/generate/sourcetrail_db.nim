@@ -58,6 +58,7 @@ using
 proc registerUses(writer; file: DocFile, idMap: IdMap) =
   var userId: cint
   let fileID = writer.getFile(file.path.string, "nim")
+  var lastDeclare: DocOccurKind
   for line in file.body.codeLines:
     for part in line.parts:
       if part.occur.isSome():
@@ -65,8 +66,12 @@ proc registerUses(writer; file: DocFile, idMap: IdMap) =
         if not occur.refid.isValid():
           discard
 
-        elif occur.kind in {dokObjectDeclare, dokCallDeclare}:
+        elif occur.kind in {
+          dokObjectDeclare, dokCallDeclare,
+          dokAliasDeclare, dokEnumDeclare
+        }:
           userId = idMap.docToTrail[occur.refid]
+          lastDeclare = occur.kind
           discard writer.recordSymbolLocation(
             userId, toRange(fileId, part.slice))
 
@@ -82,7 +87,21 @@ proc registerUses(writer; file: DocFile, idMap: IdMap) =
                 srkTypeUsage
 
               of dokTypeSpecializationUse:
-                srkTemplateSpecialization
+                if lastDeclare == dokAliasDeclare:
+                  srkTemplateSpecialization
+
+                else:
+                  # sourcetrail 'template specialization' relations is used
+                  # in order to show that one type is a generic
+                  # specialization of another type. In haxdoc 'generic
+                  # specialization' is used that in this particular case
+                  # generic type was specialized with some parameter -
+                  # without describing /context/ in which declaration
+                  # ocurred. Maybe later I will add support for 'context
+                  # ranges' in annotation sources and differentiate between
+                  # 'specialized generic used as a field' and 'inherited
+                  # from specialized generic'
+                  srkTypeUsage
 
               of dokInheritFrom:
                 srkInheritance
@@ -112,50 +131,56 @@ proc registerDb*(writer; db: DocDb): IdMap =
       name = full.toTrailName()
       entry = db[id]
 
-    if entry.kind in {dekCompileDefine, dekPragma}:
-      result.docToTrail[entry.id()] = writer.recordSymbol(name, sskMacro)
+    if entry.kind in {dekArg}: continue
 
-    elif entry.kind in {dekArg}:
-      discard
+    let defKind =
+      case entry.kind:
+        of dekProc, dekFunc, dekConverter, dekIterator:
+          sskFunction
 
-    elif entry.kind in {dekModule}:
-      result.docToTrail[entry.id()] = writer.recordSymbol(name, sskModule)
+        of dekMacro, dekTemplate:
+          sskMacro
 
-    else:
+        of dekCompileDefine:
+          # compile-time defines might be treated as macros or as global
+          # varibles. I'm not exactly sure how to classify them, but for
+          # now I think global variable describes sematics a little better.
+          sskGlobalVariable
+
+        of dekEnum:
+          sskEnum
+
+        of dekAlias, dekDistinctAlias:
+          sskTypedef
+
+        of dekField:
+          sskField
+
+        of dekEnumField:
+          sskEnumConstant
+
+        of dekNewtypeKinds - { dekAlias, dekDistinctAlias, dekEnum },
+           dekBuiltin:
+          sskStruct
+
+        of dekPragma:
+          sskAnnotation
+
+        of dekModule:
+          sskModule
+
+        else:
+          raiseImplementKindError(entry)
+
+    result.docToTrail[entry.id()] = writer.recordSymbol(name, defKind)
+
+    if entry.location.isSome():
       let fileId = writer.getFile(
         db.getPathInLib(entry.location.get()).string, "nim")
-
-      let defKind =
-        case entry.kind:
-          of dekProc, dekFunc, dekConverter, dekIterator:
-            sskFunction
-
-          of dekMacro, dekTemplate:
-            sskMacro
-
-          of dekEnum:
-            sskEnum
-
-          of dekAlias, dekDistinctAlias:
-            sskTypedef
-
-          of dekField:
-            sskField
-
-          of dekEnumField:
-            sskEnumConstant
-
-          of dekNewtypeKinds - { dekAlias, dekDistinctAlias, dekEnum },
-             dekBuiltin:
-            sskStruct
-
-          else:
-            raiseImplementKindError(entry)
 
       let symId = writer.recordSymbol(name, defKind)
 
       result.docToTrail[entry.id()] = symId
-      echov full
 
       if entry.declHeadExtent.isSome():
         let extent = toRange(fileId, entry.declHeadExtent.get())

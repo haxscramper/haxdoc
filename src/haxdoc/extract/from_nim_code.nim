@@ -108,6 +108,8 @@ type
     rskBracketHead
     rskBracketArgs
     rskTypeHeader
+    rskAliasHeader
+    rskEnumHeader
 
     rskDefineCheck
 
@@ -201,6 +203,19 @@ proc isEnum*(node): bool =
     else:
       false
 
+proc isAliasDecl*(node): bool =
+  case node.kind:
+    of nkObjectTy, nkEnumTy:
+      false
+
+    of nkPtrTy, nkRefTy:
+      isAliasDecl(node[0])
+
+    of nkTypeDef:
+      isAliasDecl(node[2])
+
+    else:
+      true
 
 proc trySigHash*(sym: PSym): SigHash =
   if not isNil(sym):
@@ -259,33 +274,23 @@ proc registerUses(ctx; node; state: RegisterState) =
     of nkSym:
       case node.sym.kind:
         of skType:
-          case state.top():
-            of rskTopLevel, rskPragma:
-              ctx.occur(node, dokTypeDirectUse)
+          let useKind =
+            case state.top():
+              of rskTopLevel, rskPragma:           dokTypeDirectUse
+              of rskObjectFields, rskObjectBranch: dokTypeAsFieldUse
+              of rskProcArgs, rskProcHeader:       dokTypeAsArgUse
 
-            of rskObjectFields, rskObjectBranch:
-              ctx.occur(node, dokTypeAsFieldUse)
+              of rskInheritList: dokInheritFrom
+              of rskProcReturn:  dokTypeAsReturnUse
+              of rskBracketHead: dokTypeSpecializationUse
+              of rskBracketArgs: dokTypeAsParameterUse
+              of rskTypeHeader:  dokObjectDeclare
+              of rskEnumHeader:  dokEnumDeclare
+              of rskAliasHeader: dokAliasDeclare
+              else:
+                raiseImplementKindError(state.top())
 
-            of rskInheritList:
-              ctx.occur(node, dokInheritFrom)
-
-            of rskProcArgs, rskProcHeader:
-              ctx.occur(node, dokTypeAsArgUse)
-
-            of rskProcReturn:
-              ctx.occur(node, dokTypeAsReturnUse)
-
-            of rskBracketHead:
-              ctx.occur(node, dokTypeSpecializationUse)
-
-            of rskBracketArgs:
-              ctx.occur(node, dokTypeAsParameterUse)
-
-            of rskTypeHeader:
-              ctx.occur(node, dokObjectDeclare)
-
-            else:
-              raiseImplementKindError(state.top())
+          ctx.occur(node, useKind)
 
         of skEnumField:
           if state.top() == rskEnumFields:
@@ -361,6 +366,7 @@ proc registerUses(ctx; node; state: RegisterState) =
 
 
     of nkPragmaExpr:
+      ctx.registerUses(node[0], state)
       ctx.registerUses(node[1], state + rskPragma)
 
     of nkConstSection, nkVarSection, nkLetSection:
@@ -400,71 +406,6 @@ proc registerUses(ctx; node; state: RegisterState) =
       else:
         for subnode in node:
           ctx.registerUses(subnode, state)
-
-    of nkTypeSection,
-       nkEnumTy, nkEnumFieldDef,
-
-       # function calls and similar uses
-       nkInfix, nkCommand, nkDotExpr, nkCast, nkConv, nkPrefix,
-       nkFormalParams, nkIdentDefs,
-
-       # Process all subnodes, no additional context required
-       nkStmtList, nkStmtListExpr, nkPar, nkIfExpr, nkElifBranch,
-       nkWhenStmt, nkElse, nkForStmt, nkWhileStmt, nkIfStmt, nkPragmaBlock,
-       nkDerefExpr,
-
-       # QUESTION should hidden nodes be ignored?
-       nkHiddenStdConv, nkHiddenDeref, nkHiddenAddr, nkHiddenSubConv,
-
-       nkTryStmt, nkFinally, nkExceptBranch, # Can create different context
-                                             # for exception usage
-       nkTupleTy, # Tracking particular uses of a tuple is most likely
-                  # won't work, but this is another possible implementation
-                  # IDEA
-
-       nkPtrTy, nkRefTy, nkVarTy, # IDEA possible context information about
-                                  # `ptr/ref` being used on a type.
-       nkBracket,
-       nkObjectTy, nkRecWhen,
-       nkPostfix, nkObjConstr, nkTupleConstr,
-       nkExprColonExpr,
-       nkExprEqExpr, # Possible `dokFieldUse`
-       nkDiscardStmt, nkReturnStmt, nkYieldStmt, nkBreakStmt,
-       nkProcTy,
-       nkAsgn, # Might create different contex when assigned to global
-               # variable (track only /assignments/ to global variable)
-       nkMixinStmt, nkBindStmt,
-       nkAccQuoted,
-
-       nkNone, nkType, nkComesFrom, nkDotCall, nkCallStrLit, nkHiddenCallConv,
-       nkVarTuple, nkCurly, nkCurlyExpr, nkRange, nkCheckedFieldExpr, nkElifExpr,
-       nkElseExpr, nkLambda, nkDo, nkTableConstr, nkBind, nkClosedSymChoice,
-       nkStaticExpr, nkAddr, nkObjDownConv, nkObjUpConv, nkChckRangeF,
-       nkChckRange64, nkChckRange, nkStringToCString, nkCStringToString,
-       nkFastAsgn, nkImportAs, nkOfBranch, nkParForStmt, nkCaseStmt, nkConstDef,
-       nkDefer, nkContinueStmt, nkBlockStmt, nkStaticStmt, nkImportExceptStmt,
-       nkExportExceptStmt, nkFromStmt, nkUsingStmt, nkBlockExpr, nkStmtListType,
-       nkBlockType, nkWith, nkWithout, nkTypeOfExpr, nkTupleClassTy,
-       nkTypeClassTy, nkStaticTy, nkConstTy, nkMutableTy, nkIteratorTy,
-       nkSharedTy, nkArgList, nkPattern, nkHiddenTryStmt, nkClosure, nkGotoState,
-       nkState, nkBreakState,
-
-       nkRecList,
-         :
-
-      var state = state
-      case node.kind:
-        of nkEnumTy:
-          state += rskEnumFields
-
-        of nkObjectTy, nkRecList:
-          state += rskObjectFields
-
-        else:
-          discard
-
-      for subnode in node:
-        ctx.registerUses(subnode, state)
 
     of nkProcDeclKinds:
       for idx in 0 .. (len(node) - 2):
@@ -509,12 +450,35 @@ proc registerUses(ctx; node; state: RegisterState) =
       discard
 
     of nkTypeDef:
-      ctx.registerUses(node[0], state + rskTypeHeader)
-      ctx.registerUses(node[1], state + rskTypeHeader)
+      let decl =
+        if node.isAliasDecl(): rskAliasHeader
+        elif node.isEnum():    rskEnumHeader
+        else:                  rskTypeHeader
+
+      ctx.registerUses(node[0], state + decl)
+      ctx.registerUses(node[1], state + decl)
+
+
       ctx.registerUses(node[2], state)
 
     of nkDistinctTy:
       ctx.registerUses(node[0], state)
+
+    else:
+      var state = state
+      case node.kind:
+        of nkEnumTy:
+          state += rskEnumFields
+
+        of nkObjectTy, nkRecList:
+          state += rskObjectFields
+
+        else:
+          discard
+
+      for subnode in node:
+        ctx.registerUses(subnode, state)
+
 
 
 proc toDocType(ctx; ntype: NType): DocType =
@@ -694,7 +658,6 @@ proc registerTypeDef(ctx; node) =
       nkBracketExpr, nkInfix, nkVarTy
     }:
 
-
     let baseNType = parseNType(node[2])
     let baseType = ctx.toDocType(baseNType)
 
@@ -704,13 +667,14 @@ proc registerTypeDef(ctx; node) =
       else:
         classifyKind(baseNType, true)
 
-    var entry = ctx.module.newDocEntry(kind, $node[0])
+    var entry = ctx.module.newDocEntry(kind, $node.declHead())
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
     entry.baseType = baseType
 
     for param in parseNType(node[0]).genParams:
       var p = entry.newDocEntry(dekParam, param.head)
+
 
   elif node[0].kind in {nkPragmaExpr}:
     var entry = ctx.module.newDocEntry(dekBuiltin, $node[0][0])
