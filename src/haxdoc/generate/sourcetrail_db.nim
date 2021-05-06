@@ -26,9 +26,6 @@ proc toTrailName(ident: DocFullIdent): SourcetrailNameHierarchy =
 
       buf &= ")"
 
-      if "zz" in part.name:
-        echov buf
-
       if part.procType.returnType.isSome():
         parts.add ($part.procType.returnType.get(), part.name, buf)
 
@@ -68,91 +65,90 @@ using
 
 proc registerUses(writer; file: DocFile, idMap: IdMap) =
   let fileID = writer.getFile(file.path.string, "nim")
-
-  var extent: Option[DocExtent]
-
   var
     userId: cint
     lastDeclare: DocOccurKind
 
   for line in file.body.codeLines:
     for part in line.parts:
-      if part.occur.isSome():
-        let occur = part.occur.get()
+      if not part.occur.isSome():
+        continue
 
-        if occur.kind == dokLocalUse:
-          discard writer.recordLocalSymbolLocation(
-            writer.recordLocalSymbol(occur.localId),
-            toRange(fileId, part.slice))
+      let occur = part.occur.get()
 
-        elif not occur.refid.isValid():
-          discard
+      if occur.kind == dokLocalUse:
+        discard writer.recordLocalSymbolLocation(
+          writer.recordLocalSymbol(occur.localId),
+          toRange(fileId, part.slice))
 
-        elif occur.kind in {
-          dokObjectDeclare, dokCallDeclare,
-          dokAliasDeclare, dokEnumDeclare
-        }:
-          userId = idMap.docToTrail[occur.refid]
-          lastDeclare = occur.kind
-          discard writer.recordSymbolLocation(
-            userId, toRange(fileId, part.slice))
+      elif not occur.refid.isValid():
+        discard
 
-        elif occur.kind in {dokImport}:
-          if file.moduleId.isSome():
-            discard writer.recordReference(
-              idMap.docToTrail[file.moduleId.get()],
-              idMap.docToTrail[occur.refid],
-              srkImport
-            )
+      elif occur.kind in {
+        dokObjectDeclare, dokCallDeclare,
+        dokAliasDeclare, dokEnumDeclare
+      }:
+        userId = idMap.docToTrail[occur.refid]
+        lastDeclare = occur.kind
+        discard writer.recordSymbolLocation(
+          userId, toRange(fileId, part.slice))
 
-        else:
-          let targetId = idMap.docToTrail[occur.refid]
-          let useKind =
-            case occur.kind:
-              of dokLocalUse:
-                raiseImplementError("")
+      elif occur.kind in {dokImport}:
+        if file.moduleId.isSome():
+          discard writer.recordReference(
+            idMap.docToTrail[file.moduleId.get()],
+            idMap.docToTrail[occur.refid],
+            srkImport
+          )
 
-              of dokTypeAsFieldUse, dokTypeAsReturnUse, dokTypeDirectUse,
-                dokTypeAsParameterUse, dokTypeAsArgUse:
-                srkTypeUsage
+      else:
+        let targetId = idMap.docToTrail[occur.refid]
+        let useKind =
+          case occur.kind:
+            of dokLocalUse:
+              raiseImplementError("")
 
-              of dokTypeSpecializationUse:
-                if lastDeclare == dokAliasDeclare:
-                  srkTemplateSpecialization
+            of dokTypeAsFieldUse, dokTypeAsReturnUse, dokTypeDirectUse,
+              dokTypeAsParameterUse, dokTypeAsArgUse:
+              srkTypeUsage
 
-                else:
-                  # sourcetrail 'template specialization' relations is used
-                  # in order to show that one type is a generic
-                  # specialization of another type. In haxdoc 'generic
-                  # specialization' is used that in this particular case
-                  # generic type was specialized with some parameter -
-                  # without describing /context/ in which declaration
-                  # ocurred. Maybe later I will add support for 'context
-                  # ranges' in annotation sources and differentiate between
-                  # 'specialized generic used as a field' and 'inherited
-                  # from specialized generic'
-                  srkTypeUsage
-
-              of dokInheritFrom:
-                srkInheritance
-
-              of dokCall:
-                srkCall
-
-              of dokEnumFieldUse:
-                srkUsage
-
-              of dokAnnotationUsage, dokDefineCheck:
-                srkMacroUsage
+            of dokTypeSpecializationUse:
+              if lastDeclare == dokAliasDeclare:
+                srkTemplateSpecialization
 
               else:
-                raiseUnexpectedKindError(occur)
+                # sourcetrail 'template specialization' relations is used
+                # in order to show that one type is a generic
+                # specialization of another type. In haxdoc 'generic
+                # specialization' is used that in this particular case
+                # generic type was specialized with some parameter -
+                # without describing /context/ in which declaration
+                # ocurred. Maybe later I will add support for 'context
+                # ranges' in annotation sources and differentiate between
+                # 'specialized generic used as a field' and 'inherited
+                # from specialized generic'
+                srkTypeUsage
 
-          let refSym = writer.recordReference(
-            userId, targetId, useKind)
+            of dokInheritFrom:
+              srkInheritance
 
-          discard writer.recordReferenceLocation(
-            refSym, toRange(fileId, part.slice))
+            of dokCall:
+              srkCall
+
+            of dokEnumFieldUse:
+              srkUsage
+
+            of dokAnnotationUsage, dokDefineCheck:
+              srkMacroUsage
+
+            else:
+              raiseUnexpectedKindError(occur)
+
+        let refSym = writer.recordReference(
+          userId, targetId, useKind)
+
+        discard writer.recordReferenceLocation(
+          refSym, toRange(fileId, part.slice))
 
 
 proc registerDb*(writer; db: DocDb): IdMap =
