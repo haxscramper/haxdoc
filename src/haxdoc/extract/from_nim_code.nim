@@ -1,7 +1,7 @@
 import ../docentry, ../docentry_io
 import hnimast/compiler_aux
 import hmisc/hdebug_misc
-import std/[strutils, strformat, tables, streams, sequtils, with]
+import std/[strutils, strformat, tables, sequtils, with]
 import packages/docutils/[rst]
 import hnimast
 import hmisc/helpers
@@ -13,10 +13,10 @@ import haxorg/[semorg, ast, importer_nim_rst]
 proc headSym(node: PNode): PSym =
   case node.kind:
     of nkProcDeclKinds, nkDistinctTy, nkVarTy,
-       nkBracketExpr, nkTypeDef, nkPragmaExpr:
+       nkBracketExpr, nkTypeDef, nkPragmaExpr, nkPar:
       headSym(node[0])
 
-    of nkCommand, nkCall:
+    of nkCommand, nkCall, nkDotExpr, nkPrefix:
       headSym(node[1])
 
     of nkSym:
@@ -29,7 +29,8 @@ proc headSym(node: PNode): PSym =
       else:
         headSym(node[0])
 
-    of nkIdent, nkEnumTy, nkProcTy, nkObjectTy, nkTupleTy:
+    of nkIdent, nkEnumTy, nkProcTy, nkObjectTy, nkTupleTy,
+       nkTupleClassTy, nkIteratorTy:
       nil
 
     else:
@@ -185,9 +186,6 @@ proc setLocation(ctx; entry: DocEntry, node) =
 
 proc nodeSlice(node: PNode): DocCodeSlice =
   let l = len($node)
-  if l > 20 and not validIdentifier($node):
-    warn node, "has len > 20", l
-
   initDocSlice(
     node.getInfo().line.int,
     node.getInfo().col.int,
@@ -261,15 +259,22 @@ proc occur(ctx; node: PNode, kind: DocOccurKind) =
     occur = DocOccur(kind: kind)
     occur.refid = ctx[node]
 
-  let file = AbsFile($ctx.graph.getFilePath(node))
-  ctx.db.newOccur(node.nodeSlice(), file, occur)
+  let file = ctx.graph.getFilePath(node)
+  if not exists(file):
+    err node, "located in", file, "does not exist"
+
+  else:
+    ctx.db.newOccur(node.nodeSlice(), file, occur)
 
 proc occur(ctx; node; id: DocId, kind: DocOccurKind) =
   var occur = DocOccur(kind: kind)
   occur.refid = id
-  ctx.db.newOccur(
-    node.nodeSlice(),
-    AbsFile($ctx.graph.getFilePath(node)), occur)
+  let file = ctx.graph.getFilePath(node)
+  if not exists(file):
+    err node, "located in", file, "does not exist"
+
+  else:
+    ctx.db.newOccur(node.nodeSlice(), file, occur)
 
 proc occur(ctx; node; localId: string) =
   ctx.db.newOccur(
@@ -318,7 +323,8 @@ proc registerUses(ctx; node; state: RegisterState) =
             ctx.occur(node, dokFieldUse)
 
 
-        of skProc, skTemplate, skMethod, skMacro, skIterator, skConverter:
+        of skProc, skTemplate, skMethod, skMacro,
+           skIterator, skConverter, skFunc:
           if state.top() == rskProcHeader:
             ctx.occur(node, dokCallDeclare)
 
@@ -333,15 +339,12 @@ proc registerUses(ctx; node; state: RegisterState) =
           # `return` uses
           discard
 
-        of skLabel:
+        of skLabel, skTemp, skUnknown, skConditional, skDynLib,
+           skGenericParam, skStub, skPackage, skAlias:
           discard # ???
 
         of skModule:
           ctx.occur(node, dokImport)
-
-        else:
-          info ctx.graph.getFilePath(node)
-          raiseImplementError(node.treeRepr())
 
     of nkIdent:
       # TODO without better context information it is not possible what
@@ -497,6 +500,9 @@ proc registerUses(ctx; node; state: RegisterState) =
 proc toDocType(ctx; ntype: NType): DocType =
   case ntype.kind:
     of ntkIdent:
+      if ntype.declNode.isNone():
+        info ntype
+
       if ntype.declNode.get().kind == nkIdent:
         result = DocType(
           name: ntype.head,
@@ -556,8 +562,8 @@ proc toDocType(ctx; ntype: NType): DocType =
     of ntkTypeofExpr:
       result = DocType(kind: dtkTypeofExpr, value: $ntype.value)
 
-    else:
-      raiseImplementKindError(ntype, $ntype)
+    of ntkCurly:
+      result = ctx.toDocType(ntype.curlyHead())
 
 proc classifiyKind(decl: PProcDecl): DocEntryKind =
   case decl.declNode.get().kind:
@@ -580,14 +586,25 @@ proc classifyKind(ctx; decl: PObjectDecl): DocEntryKind =
       let baseId = ctx[decl.base.get()]
       if baseId in ctx.db:
         result = ctx.db[baseId].kind
+        if result == dekRefAlias:
+          result = dekObject
+
 
 proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
   if asAlias:
-    if nt.kind != ntkGenericSpec:
-      return dekAlias
+    case nt.kind:
+      of ntkIdent:
+        if nt.head == "ref":
+          return dekRefAlias
 
-    else:
-      return dekTypeclass
+        else:
+          return dekAlias
+
+      of ntkGenericSpec:
+        return dekTypeclass
+
+      else:
+        return dekAlias
 
   case nt.kind:
     else:
@@ -603,9 +620,18 @@ proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
     err e.msg
     return onkRawText.newTree(e.msg).toSemOrg()
 
+  except ImplementKindError as e:
+    err ctx.graph.getFilePath(node), node.getInfo()
+    raise e
+
 
 proc registerProcDef(ctx: DocContext, procDef: PNode) =
-  let procDecl = parseProc(procDef)
+  let procDecl = try:
+                   parseProc(procDef)
+                 except ImplementKindError as e:
+                   echo procDef.treeRepr1()
+                   echo ctx.graph.getFilePath(procDef), procDef.getInfo()
+                   raise e
 
   var entry = ctx.module.newDocEntry(
     procDecl.classifiyKind(), procDecl.name, ctx.toDocType(procDecl.signature))
@@ -628,9 +654,15 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
 
 proc registerTypeDef(ctx; node) =
   if isObjectDecl(node):
-    let objectDecl: PObjectDecl = parseObject(node)
-    var entry = ctx.module.newDocEntry(
-      ctx.classifyKind(objectDecl), objectDecl.name.head)
+    let objectDecl: PObjectDecl = try:
+                                    parseObject(node)
+                                  except ImplementError as e:
+                                    echo node.treeRepr1()
+                                    echo ctx.graph.getFilePath(node), node.getInfo()
+                                    raise e
+
+    let kind = ctx.classifyKind(objectDecl)
+    var entry = ctx.module.newDocEntry(kind, objectDecl.name.head)
 
     if objectDecl.base.isSome():
       entry.superTypes.add ctx[objectDecl.base.get()]
@@ -677,6 +709,7 @@ proc registerTypeDef(ctx; node) =
     let kind =
       if node[2].kind == nkDistinctTy:
         dekDistinctAlias
+
       else:
         classifyKind(baseNType, true)
 
@@ -794,96 +827,3 @@ proc generateDocDb*(
     compileProject(graph)
 
   return db
-
-proc main() =
-  let dir = getTempDir() / "from_nim_code2"
-  # rmDir dir
-  mkDir dir
-  let file = dir /. "a.nim"
-  file.writeFile("""
-type
-  MalTypeKind* = enum Nil, True, False, Number, Symbol, String,
-    List, Vector, HashMap, Fun, MalFun, Atom
-
-type
-  FunType = proc(a: varargs[MalType]): MalType
-
-  MalFunType* = ref object
-    fn*:       FunType
-    ast*:      MalType
-    params*:   MalType
-    is_macro*: bool
-
-  MalType* = ref object
-    case kind*: MalTypeKind
-    of Nil, True, False: nil
-    of Number:           number*:   int
-    of String, Symbol:   str*:      string
-    of List, Vector:     list*:     seq[MalType]
-    of HashMap:          hash_map*: int
-    of Fun:
-                         fun*:      FunType
-                         is_macro*: bool
-    of MalFun:           malfun*:   MalFunType
-    of Atom:             val*:      MalType
-
-    meta*: MalType
-
-type
-  Base = ref object of RootObj
-
-  A = ref object of Base
-    b: B
-
-  B = ref object of Base
-    a: A
-
-proc zz(a: A) = discard
-proc zz(b: B) = discard
-
-zz(A())
-zz(B())
-
-""")
-
-
-
-  let stdpath = getStdPath()
-
-
-  startColorLogger()
-  # startHax()
-
-  let db = generateDocDb(file, getStdPath(), @[])
-
-  block:
-    var writer = newXmlWriter(dir /. "compile-db.hxde")
-    writer.writeXml(db, "main")
-    writer.close()
-
-  for file in db.files:
-    let outFile = dir /. file.path.withExt("hxda").splitFile2().file
-    var writer = newXmlWriter(outFile)
-    writer.writeXml(file, "file")
-    writer.close()
-
-  for file in walkDir(dir, AbsFile, exts = @["hxda"]):
-    var inFile: DocFile
-    var reader = newHXmlParser(file)
-    reader.loadXml(inFile, "file")
-
-  for file in walkDir(dir, AbsFile, exts = @["hxde"]):
-    info "Loading DB", file
-    var inDb: DocDb
-    block:
-      var reader = newHXmlParser(file)
-      reader.loadXml(inDb, "main")
-
-    block:
-      var writer = newXmlWriter(file.withExt("xml"))
-      writer.writeXml(inDb, "file")
-
-  echo "done"
-
-when isMainModule:
-  main()

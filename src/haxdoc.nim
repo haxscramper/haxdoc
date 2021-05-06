@@ -535,81 +535,8 @@ proc createCallgraph(infile: AbsFile, stdpath: AbsDir, outfile: AbsFile) =
   info "Graphviz compilation ok"
   debug "Image saved to", target
 
-# import nimble
-
-import nimblepkg/[packageparser, options, cli, version, packageinfo, common]
 import std/[with]
 import hpprint
-
-proc getRequires*(file: AbsFile): seq[PkgTuple] =
-  getPackageInfo(file).requires
-
-proc resolvePackage*(pkg: PkgTuple): AbsDir =
-  ## Resolve package `pkg` constraints to absolute directory
-  discard
-
-proc findPackage*(
-    name: string,
-    version: VersionRange,
-    options: Options
-  ): Option[PackageInfo] =
-
-  var pkgList {.global.}: seq[tuple[
-    pkginfo: PackageInfo, meta: MetaData]] = @[]
-
-  once:
-    pkgList = getInstalledPkgsMin(getPkgsDir(options), options)
-
-  let dep: PkgTuple = (name: name, ver: version)
-
-  let resolvedDep = resolveAlias(dep, options)
-  var pkg: PackageInfo
-  var found = findPkg(pkgList, resolvedDep, pkg)
-  if not found and resolvedDep.name != dep.name:
-    found = findPkg(pkgList, dep, pkg)
-
-  if found:
-    return some(pkg)
-
-
-
-
-proc resolveNimbleDeps*(file: AbsFile, options: Options): seq[AbsDir] =
-  let info = getPackageInfo(file)
-  for dep in info.requires:
-    let pkg = findPackage(dep.name, dep.ver, options)
-
-    if pkg.isNone():
-      if dep.name != "nim":
-        err "Cannot find ", dep
-
-    else:
-      result.add(AbsDir(pkg.get().getRealDir()))
-      result.add(resolveNimbleDeps(AbsFile(pkg.get().myPath), options))
-
-
-proc initDefaultOptions*(): Options =
-  result = initOptions()
-  result.nimbleDir = $(~".nimble")
-  result.verbosity = SilentPriority
-
-
-proc getNimblePaths*(file: AbsFile): seq[AbsDir] =
-  var nimbleFile: Option[AbsFile]
-  block mainSearch:
-    for dir in parentDirs(file):
-      for file in walkDir(dir, AbsFile):
-        if ext(file) in ["nimble", "babel"]:
-          nimbleFile = some(file)
-          break mainSearch
-
-
-  if nimbleFile.isSome():
-    let options = initDefaultOptions()
-    setVerbosity(SilentPriority)
-
-    debug options.nimbleDir
-    result = resolveNimbleDeps(nimbleFile.get(), options).deduplicate()
 
 when isMainModule:
   startColorLogger()

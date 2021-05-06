@@ -327,6 +327,18 @@ proc writeXml*(w; it: DocEntry, tag) =
 
   w.xmlEnd(tag)
 
+proc writeDbXml*(db: DocDb, dir: AbsDir, dbName: string) =
+  block:
+    var writer = withExt(dir /. dbName, "hxde").newXmlWriter()
+    writer.writeXml(db, "dbmain")
+    writer.close()
+
+  for file in db.files:
+    let outFile = dir /. file.path.withExt("hxda").splitFile2().file
+    var writer = newXmlWriter(outFile)
+    writer.writeXml(file, "file")
+    writer.close()
+
 when isMainModule:
   let doc = DocEntry()
 

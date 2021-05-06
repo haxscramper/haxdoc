@@ -206,19 +206,32 @@ proc registerDb*(writer; db: DocDb): IdMap =
 
 
 
+proc open*(writer; file: AbsFile) = discard writer.open(file.string)
 
+proc registerFullDb*(writer; db: DocDb) =
+  discard writer.beginTransaction()
+  let idMap = writer.registerDb(db)
+  discard writer.commitTransaction()
+
+  for file in db.files:
+    discard writer.beginTransaction()
+    writer.registerUses(file, idMap)
+    discard writer.commitTransaction()
+
+const
+  sourcetrailDbExt* = "srctrldb"
 
 when isMainModule:
   startHax()
   let dir = getTempDir() / "from_nim_code2"
-  var writer: SourcetrailDbWriter
 
   let trailFile = dir /. "trail.srctrldb"
   rmFile trailFile
-  discard writer.open(string(trailFile))
 
   var db = newDocDb()
   db.addKnownLib(getStdPath().dropSuffix("lib"), "std")
+
+  var writer = newSourcetrailWriter(trailFile)
 
   for file in walkDir(dir, AbsFile, exts = @["hxde"]):
     var reader = newHXmlParser(file)

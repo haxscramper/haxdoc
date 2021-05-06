@@ -62,6 +62,7 @@ type
     dekEnum ## Enumeration
     dekEffect ## Side effect tag
     dekAlias ## Typedef
+    dekRefAlias
     dekDistinctAlias ## strong typedef
     # new type kinds end
 
@@ -107,7 +108,8 @@ type
 const
   dekProcKinds* = { dekProc .. dekSlot }
   dekNewtypeKinds* = { dekObject .. dekDistinctAlias }
-  dekAliasKinds* = { dekTypeclass, dekAlias, dekDistinctAlias }
+  dekAliasKinds* = { dekTypeclass, dekAlias, dekDistinctAlias,
+                     dekRefAlias }
 
 type
   DocTypeKind* = enum
@@ -593,8 +595,6 @@ proc newDocEntry*(
   parent.db.entries[result.id()] = result
   parent.db.fullIdents[result.fullIdent] = result.id()
   parent.nested.add result.id()
-  if "msbit" in $parent.fullIdent:
-    echo "new doc entry add >", parent.fullIdent
 
 proc registerNested*(db: var DocDb, parent, nested: DocEntry) =
   nested.db = db
@@ -771,9 +771,14 @@ proc newCodeBlock*(text: seq[string]): DocCode =
   for idx, line in text:
     result.codeLines.add newCodeLine(idx + 1, line)
 
+iterator lines*(path: AbsFile): string =
+  assertExists(path)
+  for line in lines(path.string):
+    yield line
+
 proc newDocFile*(path: AbsFile): DocFile =
   result.path = path
-  for idx, line in enumerate(lines(path.getStr())):
+  for idx, line in enumerate(lines(path)):
     result.body.add newCodeLine(idx + 1, line)
 
 proc setIdForFile*(db: var DocDb, path: AbsFile, id: DocId) =
@@ -790,6 +795,7 @@ proc setIdForFile*(db: var DocDb, path: AbsFile, id: DocId) =
 
 proc newOccur*(
   db: var DocDb, position: DocCodeSlice, inFile: AbsFile, occur: DocOccur) =
+  assertExists(inFile)
   var fileIdx = -1
   for idx, file in pairs(db.files):
     if file.path == inFile:
