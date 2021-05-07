@@ -1,6 +1,7 @@
 import ../docentry, ../docentry_io
 import hnimast/compiler_aux
 import hmisc/hdebug_misc
+import hmisc/helpers
 import std/[strutils, strformat, tables, sequtils, with]
 import packages/docutils/[rst]
 import hnimast
@@ -13,7 +14,8 @@ import haxorg/[semorg, ast, importer_nim_rst]
 proc headSym(node: PNode): PSym =
   case node.kind:
     of nkProcDeclKinds, nkDistinctTy, nkVarTy, nkAccQuoted,
-       nkBracketExpr, nkTypeDef, nkPragmaExpr, nkPar, nkEnumFieldDef:
+       nkBracketExpr, nkTypeDef, nkPragmaExpr, nkPar, nkEnumFieldDef,
+       nkIdentDefs, nkRecCase:
       headSym(node[0])
 
     of nkCommand, nkCall, nkDotExpr, nkPrefix, nkPostfix:
@@ -128,6 +130,11 @@ using
   ctx: DocContext
   node: PNode
 
+proc nodePosDisplay(ctx; node): string =
+  let info = node.getInfo()
+  return $ctx.graph.getFilePath(node) & "(" & $info.line & ":" & $info.col & ")"
+
+
 proc `+`(state: RegisterState, kind: RegisterStateKind): RegisterState =
   result = state
   result.state.add kind
@@ -209,6 +216,18 @@ proc nodeSlice(node: PNode): DocCodeSlice =
     node.getInfo().col.int + l - 1
   )
 
+
+proc nodeExprSlice(node: PNode): DocCodeSlice =
+  let l = len($node)
+  let i = node.getInfo()
+  result = initDocSlice(i.line.int, i.col.int, i.col.int + l - 1)
+  case node.kind:
+    of nkDotExpr:
+      result -= len($node[0]) - 1
+
+    else:
+      discard
+
 proc isEnum*(node): bool =
   case node.kind:
     of nkEnumTy:
@@ -245,9 +264,14 @@ proc trySigHash*(sym: PSym): SigHash =
 
 proc addSigmap(ctx; node; entry: DocEntry) =
   try:
-    let hash = node.headSym().sigHash()
-    ctx.sigmap[hash] = entry.id()
+    let sym = node.headSym()
+    if not isNil(sym):
+      let hash = sym.sigHash()
+      ctx.sigmap[hash] = entry.id()
 
+    # else:
+    #   err node.treeRepr(), "has empty sym"
+    #   debug ctx.nodePosDisplay(node)
 
   except IndexDefect as e:
     err e.msg
@@ -292,6 +316,28 @@ proc occur(ctx; node; id: DocId, kind: DocOccurKind, user: Option[DocId]) =
   if exists(file):
     ctx.db.newOccur(node.nodeSlice(), file, occur)
 
+proc subslice(parent, node: PNode): DocCodeSlice =
+  let main = parent.nodeExprSlice()
+  case parent.kind:
+    of nkDotExpr: result = main[^(len($node)) .. ^1]
+    else: result = main
+
+  if "debugTest" in $node:
+    echov parent.getInfo(), len($parent)
+    echov parent, main
+    echov node, result
+
+
+proc occur(
+    ctx; node; parent: PNode; id: DocId,
+    kind: DocOccurKind, user: Option[DocId]
+  ) =
+  var occur = DocOccur(kind: kind, user: user)
+  occur.refid = id
+  let file = ctx.graph.getFilePath(parent)
+  if exists(file):
+    ctx.db.newOccur(parent.subslice(node), file, occur)
+
 proc occur(ctx; node; localId: string) =
   ctx.db.newOccur(
     node.nodeSlice(),
@@ -299,11 +345,9 @@ proc occur(ctx; node; localId: string) =
     DocOccur(kind: dokLocalUse, localId: localId))
 
 
-proc nodePosDisplay(ctx; node): string =
-  let info = node.getInfo()
-  return $ctx.graph.getFilePath(node) & "(" & $info.line & ":" & $info.col & ")"
-
-proc registerUses(ctx; node; state: RegisterState): Option[DocId] {.discardable.} =
+proc impl(
+    ctx; node; state: RegisterState, parent: PNode
+  ): Option[DocId] {.discardable.} =
   case node.kind:
     of nkSym:
       case node.sym.kind:
@@ -339,14 +383,17 @@ proc registerUses(ctx; node; state: RegisterState): Option[DocId] {.discardable.
             ctx.occur(node, dokEnumFieldUse, state.user)
 
         of skField:
-          # QUESTION these two field usage kinds should be different (like
-          # `field use` and `enum constant use`?)
-          if state.top() in {rskObjectBranch, rskObjectFields}:
-            ctx.occur(node, dokFieldDeclare, state.user)
+          if "debugTest" in $node:
+            echov state
+            echov ctx.nodePosDisplay(node)
+            echov node.treeRepr1()
+            echov parent.treeRepr1()
+            echov ctx.nodePosDisplay(node)
+            echov ctx.nodePosDisplay(parent)
 
-          else:
-            ctx.occur(node, dokFieldUse, state.user)
-
+          if node.sym.owner.notNil:
+            let field = ctx.db[ctx[node.sym.owner]].getSub($node)
+            ctx.occur(node, parent, field, dokFieldUse, state.user)
 
         of skProcDeclKinds:
           if state.top() == rskProcHeader:
@@ -402,6 +449,14 @@ proc registerUses(ctx; node; state: RegisterState): Option[DocId] {.discardable.
         let def = ctx.db.getOrNew(dekPragma, $node)
         ctx.occur(node, def.id(), dokAnnotationUsage, state.user)
 
+      elif state.top() == rskObjectFields:
+        let def = ctx.db[state.user.get()].getSub($node)
+        ctx.occur(node, def, dokFieldDeclare, state.user)
+
+      if "debugTest" in $node:
+        echov state
+        echov ctx.nodePosDisplay(node)
+        echov node.treeRepr()
 
     of nkCommentStmt, nkEmpty, hnimast.nkStrKinds, nkFloatKinds, nkNilLit:
       discard
@@ -419,24 +474,24 @@ proc registerUses(ctx; node; state: RegisterState): Option[DocId] {.discardable.
 
 
     of nkPragmaExpr:
-      result = ctx.registerUses(node[0], state)
-      ctx.registerUses(node[1], state + rskPragma + result)
+      result = ctx.impl(node[0], state, node)
+      ctx.impl(node[1], state + rskPragma + result, node)
 
     # of nkConstSection, nkVarSection, nkLetSection:
     #   # TODO register local type definitino
     #   for decl in node:
-    #     ctx.registerUses(decl)
-    #     result = ctx.registerUses(decl[1], state) # Type usage
-    #     ctx.registerUses(decl[2], state + result.get()) # Init expression
+    #     ctx.impl(decl)
+    #     result = ctx.impl(decl[1], state) # Type usage
+    #     ctx.impl(decl[2], state + result.get()) # Init expression
 
     of nkIdentDefs, nkConstDef:
-      result = ctx.registerUses(node[0], state) # Variable declaration
-      ctx.registerUses(node[1], state + result)
-      ctx.registerUses(node[2], state + result)
+      result = ctx.impl(node[0], state, node) # Variable declaration
+      ctx.impl(node[1], state + result, node)
+      ctx.impl(node[2], state + result, node)
 
     of nkImportStmt:
       for subnode in node:
-        ctx.registerUses(subnode, state + rskImport)
+        ctx.impl(subnode, state + rskImport, node)
 
     of nkIncludeStmt:
       discard
@@ -454,7 +509,7 @@ proc registerUses(ctx; node; state: RegisterState): Option[DocId] {.discardable.
     of nkPragma:
       # TODO implement for pragma uses
       for subnode in node:
-        result = ctx.registerUses(subnode, state + rskPragma)
+        result = ctx.impl(subnode, state + rskPragma, node)
 
     of nkAsmStmt:
       # IDEA possible analysis of passthrough code?
@@ -462,48 +517,48 @@ proc registerUses(ctx; node; state: RegisterState): Option[DocId] {.discardable.
 
     of nkCall:
       if "defined" in $node:
-        ctx.registerUses(node[1], state + rskDefineCheck)
+        ctx.impl(node[1], state + rskDefineCheck, node)
 
       else:
         for subnode in node:
-          ctx.registerUses(subnode, state)
+          ctx.impl(subnode, state, node)
 
     of nkProcDeclKinds:
-      result = ctx.registerUses(node[0], state + rskProcHeader)
+      result = ctx.impl(node[0], state + rskProcHeader, node)
       # IDEA process TRM macros/pattern susing different state constraints.
-      ctx.registerUses(node[1], state + rskProcHeader + result)
-      ctx.registerUses(node[2], state + rskProcHeader + result)
-      ctx.registerUses(node[3][0], state + rskProcReturn + result)
+      ctx.impl(node[1], state + rskProcHeader + result, node)
+      ctx.impl(node[2], state + rskProcHeader + result, node)
+      ctx.impl(node[3][0], state + rskProcReturn + result, node)
       for n in node[3][1 ..^ 1]:
-        ctx.registerUses(n, state + rskProcArgs + result)
+        ctx.impl(n, state + rskProcArgs + result, node)
 
-      ctx.registerUses(node[4], state + rskProcHeader + result)
-      ctx.registerUses(node[5], state + rskProcHeader + result)
-      ctx.registerUses(node[6], state + result)
+      ctx.impl(node[4], state + rskProcHeader + result, node)
+      ctx.impl(node[5], state + rskProcHeader + result, node)
+      ctx.impl(node[6], state + result, node)
 
     of nkBracketExpr:
-      ctx.registerUses(node[0], state + rskBracketHead)
+      ctx.impl(node[0], state + rskBracketHead, node)
       for subnode in node[1..^1]:
-        ctx.registerUses(subnode, state + rskBracketArgs)
+        ctx.impl(subnode, state + rskBracketArgs, node)
 
     of nkRecCase:
       var state = state
       state.switchId = ctx[node[0][1]]
-      ctx.registerUses(node[0], state + rskObjectBranch)
+      ctx.impl(node[0], state + rskObjectBranch, node)
       for branch in node[1 .. ^1]:
         for expr in branch[0 .. ^2]:
-          ctx.registerUses(expr, state + rskObjectBranch)
+          ctx.impl(expr, state + rskObjectBranch, node)
 
-        ctx.registerUses(branch[^1], state + rskObjectFields)
+        ctx.impl(branch[^1], state + rskObjectFields, node)
 
     of nkRaiseStmt:
       # TODO get type of the raised expression and if it is a concrete type
       # record `dokRaised` usage.
       for subnode in node:
-        ctx.registerUses(subnode, state)
+        ctx.impl(subnode, state, node)
 
     of nkOfInherit:
-      ctx.registerUses(node[0], state + rskInheritList)
+      ctx.impl(node[0], state + rskInheritList, node)
 
     of nkOpenSymChoice:
       # QUESTION I have no idea what multiple symbol choices mean *after*
@@ -516,24 +571,24 @@ proc registerUses(ctx; node; state: RegisterState): Option[DocId] {.discardable.
         elif node.isEnum():    rskEnumHeader
         else:                  rskTypeHeader
 
-      result = ctx.registerUses(node[0], state + decl)
+      result = ctx.impl(node[0], state + decl, node)
       if result.isNone() and not isNil(node.headSym()):
         echo node.treeRepr1(maxdepth = 3)
         raiseImplementError("")
 
-      ctx.registerUses(node[1], state + decl + result)
-      ctx.registerUses(node[2], state + result)
+      ctx.impl(node[1], state + decl + result, node)
+      ctx.impl(node[2], state + result, node)
 
     of nkDistinctTy:
-      ctx.registerUses(node[0], state)
+      ctx.impl(node[0], state, node)
 
     of nkAsgn:
-      result = ctx.registerUses(node[0], state + rskAsgn)
+      result = ctx.impl(node[0], state + rskAsgn, node)
       if result.isSome():
-        ctx.registerUses(node[1], state + result.get())
+        ctx.impl(node[1], state + result.get(), node)
 
       else:
-        ctx.registerUses(node[1], state)
+        ctx.impl(node[1], state, node)
 
     else:
       var state = state
@@ -548,8 +603,11 @@ proc registerUses(ctx; node; state: RegisterState): Option[DocId] {.discardable.
           discard
 
       for subnode in node:
-        ctx.registerUses(subnode, state)
+        ctx.impl(subnode, state, node)
 
+
+proc registerUses(ctx; node; state: RegisterState) =
+  impl(ctx, node, state, nil)
 
 
 proc toDocType(ctx; ntype: NType): DocType =
@@ -742,6 +800,7 @@ proc registerTypeDef(ctx; node) =
         identTypeStr = some $nimField.fldType
 
       ctx.setLocation(field, nimField.declNode.get())
+      ctx.addSigmap(nimField.declNode.get(), field)
 
   elif node[2].kind == nkEnumTy:
     let enumDecl: PEnumDecl = parseEnum(node)

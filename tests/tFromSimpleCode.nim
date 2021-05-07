@@ -43,10 +43,18 @@ type
   Base = ref object of RootObj
 
   A = ref object of Base
+    debugTestB: B
     b: B
 
   B = ref object of Base
     a: A
+    debugTestA: A
+
+proc zz(b: B) =
+  echo b.debugTestA.debugTestB.debugTestA[]
+  let z = b.debugTestA.debugTestB
+  let q = b.debugTestA
+
 
 var globalVar = 10
 let globalLet = 20
@@ -56,9 +64,6 @@ proc zz(a: A) =
   echo globalVar
   echo globalConst
   echo globalLet
-
-proc zz(b: B) =
-  echo b[]
 
 zz(A())
 zz(B())
@@ -102,7 +107,7 @@ var writer: SourcetrailDbWriter
 
 block: # Open sourcetrail DB
   inDb.addKnownLib(getStdPath().dropSuffix("lib"), "std")
-  let trailFile = dir /. "db" &. sourcetrailDbExt
+  let trailFile = dir /. "fromSimpleCode" &. sourcetrailDbExt
   rmFile trailFile
   writer.open(trailFile)
   discard writer.beginTransaction()

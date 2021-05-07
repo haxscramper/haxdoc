@@ -93,6 +93,7 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap) =
         dokObjectDeclare, dokCallDeclare,
         dokAliasDeclare, dokEnumDeclare,
         dokGlobalDeclare, dokEnumFieldDeclare,
+        dokFieldDeclare
       }:
         userId = idMap.docToTrail[occur.refid]
         lastDeclare = occur.kind
@@ -141,7 +142,7 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap) =
             of dokCall:
               srkCall
 
-            of dokEnumFieldUse, dokGlobalRead, dokGlobalWrite:
+            of dokEnumFieldUse, dokGlobalRead, dokGlobalWrite, dokFieldUse:
               srkUsage
 
             of dokAnnotationUsage, dokDefineCheck:

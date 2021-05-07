@@ -673,6 +673,24 @@ proc contains(s1, s2: DocCodeSlice): bool =
   s1.line == s2.line and
   s1.column.a <= s2.column.a and s2.column.b <= s1.column.b
 
+func `[]`*[R1, R2](slice: DocCodeSlice, split: HSlice[R1, R2]): DocCodeSlice =
+  result = slice
+  when R1 is BackwardsIndex:
+    result.column.a = result.column.b - split.a.int
+
+  else:
+    result.column.a = result.column.a + split.a
+
+  when R2 is BackwardsIndex:
+    result.column.b = result.column.b - split.b.int
+
+  else:
+    result.column.a = result.column.a + split.b
+
+func `-=`*(slice: var DocCodeSlice, shift: int) =
+  slice.column.a -= shift
+  slice.column.b -= shift
+
 proc initDocSlice*(line, startCol, endCol: int): DocCodeSlice =
   if endCol == -1:
     DocCodeSlice(line: line, column: Slice[int](a: -1, b: -1))
@@ -681,7 +699,7 @@ proc initDocSlice*(line, startCol, endCol: int): DocCodeSlice =
     assert startCol <= endCol, &"{startCol} <= {endCol}"
     DocCodeSlice(line: line, column: Slice[int](a: startCol, b: endCol))
 
-proc splitOn(base, sep: DocCodeSlice):
+proc splitOn*(base, sep: DocCodeSlice):
   tuple[before, after: Option[DocCodeSlice]] =
 
   if base.column.a == sep.column.a and
