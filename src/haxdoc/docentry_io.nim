@@ -331,6 +331,17 @@ proc writeXml*(w; it: DocEntry, tag) =
 
   w.xmlEnd(tag)
 
+proc loadDbXml*(
+    dir: AbsDir, dbName: string, loadFiles: bool = false): DocDb =
+  var reader = newHXmlParser(dir /. dbName &. "hxde")
+  reader.loadXml(result, "dbmain")
+
+  if loadFiles:
+    for file in walkDir(dir, AbsFile, exts = @["hxda"]):
+      var inFile: DocFile
+      var reader = newHXmlParser(file)
+      reader.loadXml(inFile, "file")
+
 proc writeDbXml*(db: DocDb, dir: AbsDir, dbName: string) =
   block:
     var writer = withExt(dir /. dbName, "hxde").newXmlWriter()

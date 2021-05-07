@@ -361,6 +361,9 @@ type
       of dekAliasKinds:
         baseType*: DocType
 
+      of dekProcKinds:
+        procType*: DocType
+
       else:
         discard
 
@@ -391,7 +394,7 @@ type
     files*: seq[DocFile]
     knownLibs: seq[DocLib]
 
-storeTraits(DocEntry, dekAliasKinds)
+storeTraits(DocEntry, dekAliasKinds, dekProcKinds)
 
 storeTraits(DocExtent)
 storeTraits(DocPos)
