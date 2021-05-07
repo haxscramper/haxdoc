@@ -314,12 +314,6 @@ proc subslice(parent, node: PNode): DocCodeSlice =
     of nkDotExpr: result = main[^(len($node)) .. ^1]
     else: result = main
 
-  if "debugTest" in $node:
-    echov parent.getInfo(), len($parent)
-    echov parent, main
-    echov node, result
-
-
 proc occur(
     ctx; node; parent: PNode; id: DocId,
     kind: DocOccurKind, user: Option[DocId]
@@ -375,14 +369,6 @@ proc impl(
             ctx.occur(node, dokEnumFieldUse, state.user)
 
         of skField:
-          if "debugTest" in $node:
-            echov state
-            echov ctx.nodePosDisplay(node)
-            echov node.treeRepr1()
-            echov parent.treeRepr1()
-            echov ctx.nodePosDisplay(node)
-            echov ctx.nodePosDisplay(parent)
-
           if node.sym.owner.notNil:
             let id = ctx[node.sym.owner]
             if id.isValid():
@@ -427,9 +413,6 @@ proc impl(
           ctx.occur(node, dokImport, some(state.moduleId))
 
     of nkIdent:
-      # TODO without better context information it is not possible what
-      # kind of usage particular identifier represents, so discarding for
-      # now.
       if state.switchId.isValid():
         let sub = ctx.db[state.switchId].getSub($node)
         if sub.isValid():
@@ -446,11 +429,6 @@ proc impl(
       elif state.top() == rskObjectFields:
         let def = ctx.db[state.user.get()].getSub($node)
         ctx.occur(node, def, dokFieldDeclare, state.user)
-
-      if "debugTest" in $node:
-        echov state
-        echov ctx.nodePosDisplay(node)
-        echov node.treeRepr()
 
     of nkCommentStmt, nkEmpty, hnimast.nkStrKinds, nkFloatKinds, nkNilLit:
       discard
@@ -470,13 +448,6 @@ proc impl(
     of nkPragmaExpr:
       result = ctx.impl(node[0], state, node)
       ctx.impl(node[1], state + rskPragma + result, node)
-
-    # of nkConstSection, nkVarSection, nkLetSection:
-    #   # TODO register local type definitino
-    #   for decl in node:
-    #     ctx.impl(decl)
-    #     result = ctx.impl(decl[1], state) # Type usage
-    #     ctx.impl(decl[2], state + result.get()) # Init expression
 
     of nkIdentDefs, nkConstDef:
       result = ctx.impl(node[0], state, node) # Variable declaration
@@ -566,10 +537,6 @@ proc impl(
         else:                  rskTypeHeader
 
       result = ctx.impl(node[0], state + decl, node)
-      if result.isNone() and not isNil(node.headSym()):
-        echo node.treeRepr1(maxdepth = 3)
-        raiseImplementError("")
-
       ctx.impl(node[1], state + decl + result, node)
       ctx.impl(node[2], state + result, node)
 

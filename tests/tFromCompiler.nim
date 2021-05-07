@@ -22,11 +22,11 @@ info compFile
 
 let db = generateDocDb(compFile, compDir / "lib", @[])
 echo "Db compilation done"
-db.writeDbXml(outDir, "compile-db")
-echo "Wrote db xml"
+# db.writeDbXml(outDir, "compile-db")
+# echo "Wrote db xml"
 
 var writer: SourcetrailDbWriter
-writer.open(outDir /. "db" &. sourcetrailDbExt)
+writer.open(outDir /. "tFromCompiler" &. sourcetrailDbExt)
 
 writer.registerFullDb(db)
 echo "Registered sourcetrail DB"
