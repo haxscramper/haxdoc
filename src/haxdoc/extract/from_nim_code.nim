@@ -218,6 +218,7 @@ proc nodeSlice(node: PNode): DocCodeSlice =
 
 
 proc nodeExprSlice(node: PNode): DocCodeSlice =
+  ## Return source code slice for `node`.
   let l = len($node)
   let i = node.getInfo()
   result = initDocSlice(i.line.int, i.col.int, i.col.int + l - 1)
@@ -259,7 +260,6 @@ proc trySigHash*(sym: PSym): SigHash =
       result = sym.sigHash()
 
     except IndexDefect as e:
-      err e.msg
       discard
 
 proc addSigmap(ctx; node; entry: DocEntry) =
@@ -269,12 +269,7 @@ proc addSigmap(ctx; node; entry: DocEntry) =
       let hash = sym.sigHash()
       ctx.sigmap[hash] = entry.id()
 
-    # else:
-    #   err node.treeRepr(), "has empty sym"
-    #   debug ctx.nodePosDisplay(node)
-
   except IndexDefect as e:
-    err e.msg
     discard
 
 proc sigHash(t: NType): SigHash =
@@ -303,10 +298,7 @@ proc occur(ctx; node: PNode, kind: DocOccurKind, user: Option[DocId]) =
     occur.refid = ctx[node]
 
   let file = ctx.graph.getFilePath(node)
-  if not exists(file):
-    err node, "located in", file, "does not exist"
-
-  else:
+  if exists(file):
     ctx.db.newOccur(node.nodeSlice(), file, occur)
 
 proc occur(ctx; node; id: DocId, kind: DocOccurKind, user: Option[DocId]) =
@@ -392,8 +384,10 @@ proc impl(
             echov ctx.nodePosDisplay(parent)
 
           if node.sym.owner.notNil:
-            let field = ctx.db[ctx[node.sym.owner]].getSub($node)
-            ctx.occur(node, parent, field, dokFieldUse, state.user)
+            let id = ctx[node.sym.owner]
+            if id.isValid():
+              let field = ctx.db[id].getSub($node)
+              ctx.occur(node, parent, field, dokFieldUse, state.user)
 
         of skProcDeclKinds:
           if state.top() == rskProcHeader:
@@ -943,6 +937,7 @@ proc generateDocDb*(
     graph, makePass(
       (
         proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
+          info "Processing ", module
           var context = DocContext(db: db, graph: graph, sigmap: sigmap)
           context.module = db.newDocEntry(dekModule, module.getStrVal())
           sigmap[module.sigHash()] = context.module.id()
