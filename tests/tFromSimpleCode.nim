@@ -1,5 +1,13 @@
-import hmisc/other/[oswrap, colorlogger]
-import haxdoc/extract/from_nim_code, haxdoc/[docentry, docentry_io]
+import
+  hmisc/other/[oswrap, colorlogger],
+  hmisc/hdebug_misc
+
+import
+  haxdoc/extract/from_nim_code,
+  haxdoc/[docentry, docentry_io],
+  haxdoc/generate/sourcetrail_db,
+  nimtrail/nimtrail_common
+
 import hnimast/compiler_aux
 
 const code = """
@@ -40,13 +48,24 @@ type
   B = ref object of Base
     a: A
 
-proc zz(a: A) = discard
-proc zz(b: B) = discard
+var globalVar = 10
+let globalLet = 20
+const globalConst = 30
+
+proc zz(a: A) =
+  echo globalVar
+  echo globalConst
+  echo globalLet
+
+proc zz(b: B) =
+  echo b[]
 
 zz(A())
 zz(B())
 
 """
+
+startHax()
 
 let dir = getTempDir() / "tFromSimpleCode"
 mkDir dir
@@ -55,23 +74,47 @@ file.writeFile code
 
 startColorLogger()
 
-let db = generateDocDb(file, getStdPath(), @[])
-db.writeDbXml(dir, "compile-db")
+block: # Generate initial DB
+  let db = generateDocDb(file, getStdPath(), @[])
+  db.writeDbXml(dir, "compile-db")
 
-for file in walkDir(dir, AbsFile, exts = @["hxda"]):
-  var inFile: DocFile
-  var reader = newHXmlParser(file)
-  reader.loadXml(inFile, "file")
 
-for file in walkDir(dir, AbsFile, exts = @["hxde"]):
-  info "Loading DB", file
-  var inDb: DocDb
-  block:
+var inDb: DocDb
+
+block: # Load DB from xml
+  for file in walkDir(dir, AbsFile, exts = @["hxde"]):
+    info "Loading DB", file
+    block:
+      var reader = newHXmlParser(file)
+      reader.loadXml(inDb, "dbmain")
+
+    block:
+      var writer = newXmlWriter(file.withExt("xml"))
+      writer.writeXml(inDb, "file")
+
+
+var writer: SourcetrailDbWriter
+
+block: # Open sourcetrail DB
+  inDb.addKnownLib(getStdPath().dropSuffix("lib"), "std")
+  let trailFile = dir /. "db" &. sourcetrailDbExt
+  rmFile trailFile
+  writer.open(trailFile)
+  discard writer.beginTransaction()
+
+block: # Generate sourcetrail database
+  let idMap = writer.registerDb(inDb)
+
+  for file in walkDir(dir, AbsFile, exts = @["hxda"]):
+    var inFile: DocFile
     var reader = newHXmlParser(file)
-    reader.loadXml(inDb, "dbmain")
+    reader.loadXml(inFile, "file")
 
-  block:
-    var writer = newXmlWriter(file.withExt("xml"))
-    writer.writeXml(inDb, "file")
+    writer.registerUses(inFile, idMap)
+
+block: # Close sourcetrail DB
+  discard writer.commitTransaction()
+  discard writer.close()
+
 
 echo "done"

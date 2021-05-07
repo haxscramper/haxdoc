@@ -63,18 +63,23 @@ type
 using
   writer: var SourcetrailDbWriter
 
-proc registerUses(writer; file: DocFile, idMap: IdMap) =
+proc registerUses*(writer; file: DocFile, idMap: IdMap) =
   let fileID = writer.getFile(file.path.string, "nim")
-  var
-    userId: cint
-    lastDeclare: DocOccurKind
-
+  var lastDeclare: DocOccurKind
   for line in file.body.codeLines:
     for part in line.parts:
       if not part.occur.isSome():
         continue
 
       let occur = part.occur.get()
+      var userID: cint
+      if occur.user.isSome():
+        if occur.user.get().isValid:
+          userId = idMap.docToTrail[occur.user.get()]
+
+        else:
+          echov file.path
+          echov part, "has invalid user"
 
       if occur.kind == dokLocalUse:
         discard writer.recordLocalSymbolLocation(
@@ -86,7 +91,8 @@ proc registerUses(writer; file: DocFile, idMap: IdMap) =
 
       elif occur.kind in {
         dokObjectDeclare, dokCallDeclare,
-        dokAliasDeclare, dokEnumDeclare
+        dokAliasDeclare, dokEnumDeclare,
+        dokGlobalDeclare,
       }:
         userId = idMap.docToTrail[occur.refid]
         lastDeclare = occur.kind
@@ -135,7 +141,7 @@ proc registerUses(writer; file: DocFile, idMap: IdMap) =
             of dokCall:
               srkCall
 
-            of dokEnumFieldUse:
+            of dokEnumFieldUse, dokGlobalRead, dokGlobalWrite:
               srkUsage
 
             of dokAnnotationUsage, dokDefineCheck:
@@ -172,6 +178,9 @@ proc registerDb*(writer; db: DocDb): IdMap =
 
         of dekAlias, dekDistinctAlias:
           sskTypedef
+
+        of dekGlobalConst, dekGlobalVar, dekGlobalLet:
+          sskGlobalVariable
 
         of dekCompileDefine:
           # compile-time defines might be treated as macros or as global

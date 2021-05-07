@@ -154,6 +154,12 @@ type
 
     dokLocalUse
 
+    dokGlobalWrite ## Asign value to global variable
+    dokGlobalRead ## Non-asign form of global variable usage. Taking
+    ## address and mutating, passing to function that accepts `var`
+    ## parameter etc. would count as 'read' action.
+    dokGlobalDeclare
+
     dokFieldUse
     dokEnumFieldUse
 
@@ -168,6 +174,7 @@ type
 
   DocOccur* = object
     ## Single occurence of documentable entry
+    user* {.Attr.}: Option[DocId]
     case kind*: DocOccurKind ## Type of entry occurence
       of dokLocalUse:
         localId* {.Attr.}: string
@@ -561,7 +568,7 @@ proc lastIdentPart*(entry: var DocEntry): var DocIdentPart =
   return entry.fullIdent.parts[^1]
 
 proc newDocEntry*(
-      db: var DocDb, kind: DocEntryKind, name: string, 
+      db: var DocDb, kind: DocEntryKind, name: string,
       procType: DocType = nil
   ): DocEntry =
   ## Create new toplevel entry (package, file, module) directly using DB.

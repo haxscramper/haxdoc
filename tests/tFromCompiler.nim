@@ -22,7 +22,6 @@ info compFile
 
 let db = generateDocDb(compFile, compDir / "lib", @[])
 
-proc `&.`*(file: AbsFile, ext: string): AbsFile = withExt(file, ext)
 
 var writer: SourcetrailDbWriter
 writer.open(outDir /. "db" &. sourcetrailDbExt)

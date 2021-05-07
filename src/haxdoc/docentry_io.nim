@@ -122,6 +122,9 @@ proc loadXml*(r; it: var DocCodePart, tag) =
     r.loadXml(kind, "kind")
     it.occur = some DocOccur(kind: kind)
 
+    if r["user"]:
+      r.loadXml(it.occur.get().user, "user")
+
     case kind:
       of dokLocalUse:
         r.loadXml(it.occur.get().localId, "localId")
@@ -137,6 +140,7 @@ proc writeXml*(w; it: DocCodePart, tag) =
   w.xmlAttribute("column", it.slice.column)
   if it.occur.getSome(occur):
     w.xmlAttribute("kind", occur.kind)
+    w.xmlAttribute("user", occur.user)
     case occur.kind:
       of dokLocalUse: w.xmlAttribute("localId", occur.localId)
       else: w.xmlAttribute("refid", occur.refId)
