@@ -92,7 +92,7 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap) =
       elif occur.kind in {
         dokObjectDeclare, dokCallDeclare,
         dokAliasDeclare, dokEnumDeclare,
-        dokGlobalDeclare,
+        dokGlobalDeclare, dokEnumFieldDeclare,
       }:
         userId = idMap.docToTrail[occur.refid]
         lastDeclare = occur.kind

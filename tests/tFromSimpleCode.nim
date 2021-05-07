@@ -63,6 +63,11 @@ proc zz(b: B) =
 zz(A())
 zz(B())
 
+proc qew() =
+  var test: MalTypeKind
+  test = Fun
+  echo(test)
+
 """
 
 startHax()

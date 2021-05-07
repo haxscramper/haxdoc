@@ -13,7 +13,7 @@ import haxorg/[semorg, ast, importer_nim_rst]
 proc headSym(node: PNode): PSym =
   case node.kind:
     of nkProcDeclKinds, nkDistinctTy, nkVarTy, nkAccQuoted,
-       nkBracketExpr, nkTypeDef, nkPragmaExpr, nkPar:
+       nkBracketExpr, nkTypeDef, nkPragmaExpr, nkPar, nkEnumFieldDef:
       headSym(node[0])
 
     of nkCommand, nkCall, nkDotExpr, nkPrefix, nkPostfix:
@@ -289,18 +289,14 @@ proc occur(ctx; node; id: DocId, kind: DocOccurKind, user: Option[DocId]) =
   var occur = DocOccur(kind: kind, user: user)
   occur.refid = id
   let file = ctx.graph.getFilePath(node)
-  if not exists(file):
-    err node, "located in", file, "does not exist"
-
-  else:
+  if exists(file):
     ctx.db.newOccur(node.nodeSlice(), file, occur)
 
 proc occur(ctx; node; localId: string) =
   ctx.db.newOccur(
     node.nodeSlice(),
     ctx.graph.getFilePath(node).string.AbsFile(),
-    DocOccur(kind: dokLocalUse, localId: localId)
-  )
+    DocOccur(kind: dokLocalUse, localId: localId))
 
 
 proc nodePosDisplay(ctx; node): string =
@@ -756,6 +752,7 @@ proc registerTypeDef(ctx; node) =
     for enField in enumDecl.values:
       var field = entry.newDocEntry(dekEnumField, enField.name)
       ctx.setLocation(field, enField.declNode.get())
+      ctx.addSigmap(enField.declNode.get(), field)
 
   elif node[2].kind in {
       nkDistinctTy, nkSym, nkPtrTy, nkRefTy, nkProcTy, nkTupleTy,

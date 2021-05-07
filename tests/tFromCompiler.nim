@@ -21,7 +21,7 @@ startColorLogger()
 info compFile
 
 let db = generateDocDb(compFile, compDir / "lib", @[])
-
+db.writeDbXml(outDir, "compile-db")
 
 var writer: SourcetrailDbWriter
 writer.open(outDir /. "db" &. sourcetrailDbExt)
