@@ -446,15 +446,15 @@ proc vaConverter*(t: DocType): Option[DocType] =
   if t.genParams.len > 1:
     return some t.genParams[1]
 
-proc `$`*(dk: DocEntryKind): string = toString(dk)[3 ..^ 1]
-proc `$`*(dk: DocOccurKind): string = toString(dk)[3 ..^ 1]
-proc `$`*(t: DocType): string
-proc `$`*(t: DocIdent): string =
+func `$`*(dk: DocEntryKind): string = toString(dk)[3 ..^ 1]
+func `$`*(dk: DocOccurKind): string = toString(dk)[3 ..^ 1]
+func `$`*(t: DocType): string
+func `$`*(t: DocIdent): string =
   result = t.ident & ": " & $t.identType
   if t.value.isSome():
     result &= " = " & t.value.get()
 
-proc `$`*(t: DocType): string =
+func `$`*(t: DocType): string =
   case t.kind:
     of dtkIdent:
       result = t.name
@@ -502,7 +502,7 @@ proc `$`*(t: DocType): string =
       raiseImplementKindError(t)
 
 
-proc hash*(id: DocId): Hash = hash(id.id)
+func hash*(id: DocId): Hash = hash(id.id)
 proc hash*(part: DocIdentPart): Hash =
   result = hash(part.kind) !& hash(part.name)
   if part.kind in dekProcKinds:
