@@ -236,14 +236,8 @@ func toGroup*(group: sink DocFilterGroup): DocFilterGroup = group
 
 func firstTypeId*(docType: DocType): DocId =
   case docType.kind:
-    of dtkIdent:
-      result = docType.head
-
-    of dtkAnonTuple, dtkGenericSpec:
-      result = firstTypeId(docType.genParams[0])
-
-    of dtkVarargs:
-      result = docType.vaType().head
+    of dtkIdent, dtkAnonTuple, dtkGenericSpec, dtkVarargs:
+      result = docType.id()
 
     of dtkProc:
       if docType.arguments.len > 0:

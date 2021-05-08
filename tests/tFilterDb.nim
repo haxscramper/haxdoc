@@ -1,5 +1,6 @@
 import hmisc/other/[oswrap, colorlogger]
 import hmisc/hdebug_misc
+import std/[colors, options]
 import
   haxdoc/[docentry, docentry_io],
   haxdoc/process/[docentry_query, docentry_group]
@@ -20,3 +21,7 @@ for group in groups:
   echo group.typeEntry.name
   for pr in group.procs:
     echo "  ", pr.name, " ", pr.procType()
+
+
+db.inheritDotGraph().toPng(AbsFile "/tmp/inherit.png")
+db.usageDotGraph().toPng(AbsFile "/tmp/usage.png")

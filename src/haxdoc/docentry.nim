@@ -111,6 +111,8 @@ const
   dekNewtypeKinds* = { dekObject .. dekDistinctAlias }
   dekAliasKinds* = { dekTypeclass, dekAlias, dekDistinctAlias,
                      dekRefAlias }
+  dekStructTypes* = { dekObject, dekDefect, dekException, dekEffect }
+
 
 type
   DocTypeKind* = enum
@@ -352,7 +354,7 @@ type
     rawDoc*: seq[string]
 
     case kind*: DocEntryKind
-      of dekObject, dekDefect, dekException, dekEffect:
+      of dekStructTypes:
         superTypes*: seq[DocId]
 
       of dekShellOption:
@@ -368,6 +370,9 @@ type
 
       of dekAliasKinds:
         baseType*: DocType
+
+      # of dekField:
+      #   fieldType*: DocType
 
       # of dekProcKinds:
       #   procType*: DocType
@@ -402,7 +407,7 @@ type
     files*: seq[DocFile]
     knownLibs: seq[DocLib]
 
-storeTraits(DocEntry, dekAliasKinds, dekProcKinds)
+storeTraits(DocEntry, dekAliasKinds, dekProcKinds, dekStructTypes)
 
 storeTraits(DocExtent)
 storeTraits(DocPos)
@@ -453,7 +458,7 @@ proc `$`*(t: DocType): string =
 
     of dtkGenericSpec:
       result = t.name
-      result &= t.genParams.mapIt($it).join(", ")
+      result &= t.genParams.mapIt($it).join(" | ")
 
     of dtkGenericParam:
       result = t.paramName
@@ -546,11 +551,51 @@ iterator items*(s: DocIdSet): DocId =
   for i in s.ids:
     yield DocId(id: i)
 
+
 func id*(full: var DocFullIdent): DocId {.inline.} = DocId(id: hash(full))
 func id*(de: DocEntry): DocId {.inline.} = de.fullident.id
-proc isValid*(id: DocId): bool = (id.id != 0)
+func id*(docType: DocType): DocId =
+  case docType.kind:
+    of dtkIdent:
+      result = docType.head
 
-proc add*(db: var DocDb, entry: DocEntry) =
+    of dtkAnonTuple, dtkGenericSpec:
+      result = docType.genParams[0].id()
+
+    of dtkVarargs:
+      result = docType.vaType().head
+
+    else:
+      discard
+
+func allId*(docType: DocType): DocIdSet =
+  func aux(t: DocType, s: var DocIdSet) =
+    case t.kind:
+      of dtkIdent:
+        s.incl t.head
+        for param in t.genParams:
+          aux(param, s)
+
+      of dtkVarargs:
+        aux(t.vaType(), s)
+
+      of dtkAnonTuple, dtkGenericSpec:
+        for param in t.genParams:
+          aux(param, s)
+
+      of dtkProc:
+        for arg in t.arguments:
+          aux(arg.identType, s)
+
+      else:
+        discard
+
+  aux(docType, result)
+
+
+func isValid*(id: DocId): bool = (id.id != 0)
+
+func add*(db: var DocDb, entry: DocEntry) =
   entry.db = db
   db.fullIdents[entry.fullIdent] = entry.id
   db.entries[entry.id()] = entry
