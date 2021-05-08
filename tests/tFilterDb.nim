@@ -19,8 +19,14 @@ let (groups, other) = db.procsByTypes()
 
 for group in groups:
   echo group.typeEntry.name
-  for pr in group.procs:
-    echo "  ", pr.name, " ", pr.procType()
+  let groups = group.splitCommonProcs()
+  echo "  common procs"
+  for pr in groups.procs.nested[0]:
+    echo "    ", pr.name, " ", pr.procType()
+
+  echo "  other procs"
+  for pr in groups.procs.nested[1]:
+    echo "    ", pr.name, " ", pr.procType()
 
 
 db.inheritDotGraph().toPng(AbsFile "/tmp/inherit.png")

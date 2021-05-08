@@ -714,8 +714,8 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
 
   ctx.addSigmap(procDef, entry)
   ctx.setLocation(entry, procDef)
-  entry.rawDoc.add procDecl.docComment
-  entry.docBody = ctx.convertComment(procDecl.docComment, procDef)
+  entry.docText.rawDoc.add procDecl.docComment
+  entry.docText.docBody = ctx.convertComment(procDecl.docComment, procDef)
 
   for argument in arguments(procDecl):
     let argType = ctx.toDocType(argument.vtype)
@@ -745,20 +745,19 @@ proc registerTypeDef(ctx; node) =
 
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
-    entry.rawDoc.add objectDecl.docComment
-    entry.docBody = ctx.convertComment(objectDecl.docComment, node)
+    entry.docText.rawDoc.add objectDecl.docComment
+    entry.docText.docBody = ctx.convertComment(objectDecl.docComment, node)
 
     for param in objectDecl.name.genParams:
       var p = entry.newDocEntry(dekParam, param.head)
 
     for nimField in iterateFields(objectDecl):
       var field = entry.newDocEntry(dekField, nimField.name)
-      field.rawDoc.add nimField.docComment
+      field.docText.rawDoc.add nimField.docComment
+      field.docText.docBody = ctx.convertComment(
+        nimField.docComment, nimField.declNode.get())
 
       with field:
-        docBody = ctx.convertComment(
-          nimField.docComment, nimField.declNode.get())
-
         identType = some ctx.toDocType(nimField.fldType)
         identTypeStr = some $nimField.fldType
 

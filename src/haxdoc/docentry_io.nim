@@ -52,6 +52,9 @@ proc loadXml*(r; it: var DocOccur, tag)
 proc writeXml*(w; it: DocId, tag)
 proc loadXml*(r; it: var DocId, tag)
 
+proc writeXml*(w; it: DocText, tag)
+proc loadXml*(r; it: var DocText, tag)
+
 proc writeXml*(w; it: DocIdentPart, tag)
 proc loadXml*(r; it: var DocIdentPart, tag)
 
@@ -211,6 +214,21 @@ proc loadXml*(r; it: var DocIdent, tag) =
 proc writeXml*(w; it: DocIdent, tag) =
   genXmlWriter(DocIdent, it, w, tag)
 
+# ~~~~ DocText ~~~~ #
+
+proc loadXml*(r; it: var DocText, tag) =
+  genXmlLoader(DocText, it, r, tag, newObjExpr = DocText())
+
+proc writeXml*(w; it: DocText, tag) =
+  genXmlWriter(DocText, it, w, tag,
+               skipFieldWrite = ["rawDoc"], addClose = false)
+
+  for d in it.rawDoc:
+    w.xmlWrappedCData(d, "rawDoc")
+
+  w.dedent()
+  w.xmlEnd(tag)
+
 # ~~~~ DocAdmonition ~~~~ #
 
 proc loadXml*(r; it: var DocAdmonition, tag) =
@@ -323,9 +341,6 @@ proc writeXml*(w; it: DocEntry, tag) =
   w.indent()
   for item in it.nested:
     w.writeXml(it.db[item], "nested")
-
-  for item in it.rawDoc:
-    w.xmlWrappedCdata(item, "rawDoc")
 
   w.dedent()
 

@@ -332,6 +332,14 @@ type
     start* {.Attr.}: DocPos
     finish* {.Attr.}: DocPos
 
+  DocText* = object
+    docTags*: seq[string]
+    docBrief*: SemOrg
+    docBody*: SemOrg
+    admonitions*: seq[DocAdmonition]
+    metatags*: seq[DocMetatag]
+    rawDoc*: seq[string]
+
   DocEntry* = ref object
     location*: Option[DocLocation]
     extent*: Option[DocExtent]
@@ -347,11 +355,7 @@ type
     name* {.Attr.}: string
     fullIdent*: DocFullIdent ## Fully scoped identifier for a name
 
-    docBrief*: SemOrg
-    docBody*: SemOrg
-    admonitions*: seq[DocAdmonition]
-    metatags*: seq[DocMetatag]
-    rawDoc*: seq[string]
+    docText*: DocText
 
     case kind*: DocEntryKind
       of dekStructTypes:
@@ -410,6 +414,7 @@ type
 storeTraits(DocEntry, dekAliasKinds, dekProcKinds, dekStructTypes)
 
 storeTraits(DocExtent)
+storeTraits(DocText)
 storeTraits(DocPos)
 storeTraits(DocLocation)
 storeTraits(DocAdmonition)
@@ -635,6 +640,13 @@ iterator pairs*(de: DocEntry): (int, DocEntry) =
 
 func newEntryGroup*(e: DocEntry): DocEntryGroup =
   DocEntryGroup(entries: @[e])
+
+func newEntryGroup*(): DocEntryGroup =
+  DocEntryGroup()
+
+func newEntryGroup*(nested: seq[DocEntryGroup]): DocEntryGroup =
+  DocEntryGroup(nested: nested)
+
 
 func add*(group: var DocEntryGroup, e: DocEntry) =
   if isNil(group): group = newEntryGroup(e)

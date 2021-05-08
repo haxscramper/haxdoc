@@ -39,6 +39,17 @@ proc procsByTypes*(db: DocDb): tuple[byType: seq[DocTypeGroup], other: DocEntryG
   for _, group in table:
     result.byType.add group
 
+proc splitCommonProcs*(group: DocTypeGroup): DocTypeGroup =
+  result.typeEntry = group.typeEntry
+  result.procs = newEntryGroup(@[newEntryGroup(), newEntryGroup()])
+  for entry in group.procs:
+    if entry.name in ["$", "==", "<", "items", "pairs", ">", "!=", "[]", "[]="]:
+      result.procs.nested[0].add entry
+
+    else:
+      result.procs.nested[1].add entry
+
+
 proc inheritGraph*(db: DocDb): HGraph[DocId, NoProperty] =
   result = newHGraph[DocId, NoProperty]()
   for id, entry in db.entries:
