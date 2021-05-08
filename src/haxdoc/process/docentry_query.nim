@@ -7,6 +7,7 @@ type
     dfkKindFilter
     dfkNameFilter
     dfkSigFilter
+    dfkSetFilter
 
   DocSigPatternKind = enum
     dspkTrail
@@ -41,6 +42,9 @@ type
 
       of dfkSigFilter:
         targetSig*: DocSigPattern
+
+      of dfkSetFilter:
+        idSet*: DocIdSet
 
   DocFilterGroupKind = enum
     dfgkOrGroup
@@ -156,8 +160,11 @@ func matches*(entry; filter: DocFilter): bool =
         else:
           result = false
 
-    else:
-      raiseImplementKindError(filter)
+    of dfkSetFilter:
+      result = filter.isInverted xor (entry.id() in filter.idSet)
+
+    of dfkKindFilter:
+      result = filter.isInverted xor (entry.kind in filter.targetKinds)
 
 func matches*(entry; group): bool =
   for filter in group:
@@ -226,6 +233,46 @@ func toGroup*(filter: DocFilter): DocFilterGroup =
   DocFilterGroup(kind: dfgkAndGroup, filters: @[filter])
 
 func toGroup*(group: sink DocFilterGroup): DocFilterGroup = group
+
+func firstTypeId*(docType: DocType): DocId =
+  case docType.kind:
+    of dtkIdent:
+      result = docType.head
+
+    of dtkAnonTuple, dtkGenericSpec:
+      result = firstTypeId(docType.genParams[0])
+
+    of dtkVarargs:
+      result = docType.vaType().head
+
+    of dtkProc:
+      if docType.arguments.len > 0:
+        result = docType.arguments[0].identType.firstTypeId()
+
+    else:
+      discard
+
+func firstTypeId*(entry): DocId = entry.procType().firstTypeId()
+
+# func firstTypeEntry*()
+
+func procsByFirstId*(entries: seq[DocEntry]): seq[DocEntryGroup] =
+  var tmp: Table[DocId, DocEntryGroup]
+  for e in entries:
+    if e.kind == dekProc:
+      let id = e.procType().firstTypeId()
+      if e.id notin tmp:
+        tmp[id] = newEntryGroup(e)
+
+      else:
+        tmp[id].add e
+
+  for _, group in tmp:
+    result.add group
+
+# func procsByClass*
+
+
 
 iterator topMatching*(db: DocDb; group: DocFilterGroup | DocFilter): DocEntry =
   for _, entry in db.top:

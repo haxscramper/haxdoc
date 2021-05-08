@@ -4,7 +4,8 @@ import haxorg/[ast, semorg]
 import hmisc/other/[oswrap]
 import hmisc/algo/[hseq_mapping, halgorithm]
 import hmisc/[hdebug_misc, helpers]
-import std/[options, tables, hashes, enumerate, strformat, sequtils]
+import std/[options, tables, hashes, enumerate,
+            strformat, sequtils, intsets]
 import nimtraits
 
 type
@@ -233,8 +234,15 @@ type
     value*: Option[string] ## Optional expression for initialization value
     entry*: DocId
 
+  DocIdSet* = object
+    ids: IntSet
+
   DocId* = object
     id* {.Attr.}: Hash
+
+  DocEntryGroup* = ref object
+    entries*: seq[DocEntry]
+    nested*: seq[DocEntryGroup]
 
   DocIdentPart* = object
     ## Part of fully scoped document identifier.
@@ -432,7 +440,9 @@ proc `$`*(dk: DocEntryKind): string = toString(dk)[3 ..^ 1]
 proc `$`*(dk: DocOccurKind): string = toString(dk)[3 ..^ 1]
 proc `$`*(t: DocType): string
 proc `$`*(t: DocIdent): string =
-  t.ident & ": " & $t.identType
+  result = t.ident & ": " & $t.identType
+  if t.value.isSome():
+    result &= " = " & t.value.get()
 
 proc `$`*(t: DocType): string =
   case t.kind:
@@ -490,22 +500,23 @@ proc hash*(part: DocIdentPart): Hash =
 
   return !$result
 
-proc hash*(full: var DocFullIdent): Hash =
+func hash*(full: var DocFullIdent): Hash =
   # Full identifier hash should be very stable (only changed if the name of
   # the entry is changed)
   if full.docId.id != 0:
     return full.docId.id
 
   else:
-    for part in full.parts:
-      result = result !& hash(part)
+    {.cast(noSideEffect).}:
+      for part in full.parts:
+        result = result !& hash(part)
 
     result = !$result
     full.docId.id = result
 
-proc hash*(full: DocFullIdent): Hash = full.docId.id
-proc `==`*(a, b: DocIdentPart): bool = a.kind == b.kind
-proc `==`*(a, b: DocFullIdent): bool = a.parts == b.parts
+func hash*(full: DocFullIdent): Hash = full.docId.id
+func `==`*(a, b: DocIdentPart): bool = a.kind == b.kind
+func `==`*(a, b: DocFullIdent): bool = a.parts == b.parts
 
 
 
@@ -528,8 +539,15 @@ proc `$`*(ident: DocFullIdent): string =
     result.add $part
 
 
-proc id*(full: var DocFullIdent): DocId {.inline.} = DocId(id: hash(full))
-proc id*(de: DocEntry): DocId {.inline.} = de.fullident.id
+func incl*(s: var DocIdSet, id: DocId) = s.ids.incl id.id.int
+func excl*(s: var DocIdSet, id: DocId) = s.ids.excl id.id.int
+func contains*(s: DocIdSet, id: DocId): bool = id.id.int in s.ids
+iterator items*(s: DocIdSet): DocId =
+  for i in s.ids:
+    yield DocId(id: i)
+
+func id*(full: var DocFullIdent): DocId {.inline.} = DocId(id: hash(full))
+func id*(de: DocEntry): DocId {.inline.} = de.fullident.id
 proc isValid*(id: DocId): bool = (id.id != 0)
 
 proc add*(db: var DocDb, entry: DocEntry) =
@@ -557,6 +575,10 @@ iterator items*(de: DocEntry): DocEntry =
   for id in items(de.nested):
     yield de.db[id]
 
+iterator items*(dg: DocEntryGroup): DocEntry =
+  for e in items(dg.entries):
+    yield e
+
 iterator items*(ident: DocFullIdent): DocIdentPart =
   for part in items(ident.parts):
     yield part
@@ -565,6 +587,13 @@ iterator pairs*(de: DocEntry): (int, DocEntry) =
   for idx, id in pairs(de.nested):
     yield (idx, de.db[id])
 
+
+func newEntryGroup*(e: DocEntry): DocEntryGroup =
+  DocEntryGroup(entries: @[e])
+
+func add*(group: var DocEntryGroup, e: DocEntry) =
+  if isNil(group): group = newEntryGroup(e)
+  group.entries.add e
 
 func procType*(de: DocEntry): DocType =
   assertKind(de, dekProcKinds)
