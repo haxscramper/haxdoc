@@ -268,7 +268,7 @@ type
     ## itself.
     name* {.Attr.}: string
     case kind*: DocTypeKind
-      of dtkIdent, dtkGenericSpec, dtkAnonTuple:
+      of dtkIdent, dtkGenericSpec, dtkAnonTuple, dtkVarargs:
         head* {.Attr.}: DocId ## Documentation entry
         identKind* {.Attr.}: DocTypeHeadKind ## `head` ident kind
         genParams*: seq[DocType]
@@ -286,9 +286,9 @@ type
       of dtkRange:
         rngStart*, rngEnd*: string
 
-      of dtkVarargs:
-        vaType*: DocType
-        vaConverter*: Option[string]
+      # of dtkVarargs:
+      #   vaType*: DocType
+      #   vaConverter*: Option[string]
 
       of dtkValue, dtkTypeofExpr:
         value*: string
@@ -419,6 +419,15 @@ storeTraits(DocCodePart)
 storeTraits(DocCodeSlice)
 storeTraits(DocCodeLine)
 
+proc vaType*(t: DocType): DocType =
+  assertKind(t, {dtkVarargs})
+  return t.genParams[0]
+
+proc vaConverter*(t: DocType): Option[DocType] =
+  assertKind(t, {dtkVarargs})
+  if t.genParams.len > 1:
+    return some t.genParams[1]
+
 proc `$`*(dk: DocEntryKind): string = toString(dk)[3 ..^ 1]
 proc `$`*(dk: DocOccurKind): string = toString(dk)[3 ..^ 1]
 proc `$`*(t: DocType): string
@@ -465,7 +474,7 @@ proc `$`*(t: DocType): string =
     of dtkVarargs:
       result = "varargs[" & $t.vaType
       if t.vaConverter.isSome():
-        result &= ", " & t.vaConverter.get()
+        result &= ", " & $t.vaConverter.get()
 
       result &= "]"
 

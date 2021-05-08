@@ -1,5 +1,5 @@
 import ../docentry
-import std/[tables]
+import std/[tables, sequtils, pegs]
 import hmisc/[base_errors, hdebug_misc]
 
 type
@@ -11,9 +11,12 @@ type
   DocSigPatternKind = enum
     dspkTrail
     dspkTypeId
-    dspkPattern
+    dspkGenPattern
+    dspkProcPattern
+    dspkChoice
 
   DocSigPattern = object
+    elements*: seq[DocSigPattern]
     case kind*: DocSigPatternKind
       of dspkTrail:
         discard
@@ -21,9 +24,11 @@ type
       of dspkTypeId:
         typeId*: DocId
 
-      of dspkPattern:
-        headKind*: DocTypeKind
-        arguments*: seq[DocSigPattern]
+      of dspkChoice, dspkProcPattern:
+        discard
+
+      of dspkGenPattern:
+        headName*: Peg
 
   DocFilter = object
     isInverted*: bool
@@ -75,6 +80,13 @@ func matches*(etype: DocType, sig: DocSigPattern): bool =
     of dspkTrail:
       result = true
 
+    of dspkChoice:
+      for patt in sig.elements:
+        if etype.matches(patt):
+          return true
+
+      return false
+
     of dspkTypeId:
       case etype.kind:
         of dtkIDent:
@@ -86,29 +98,50 @@ func matches*(etype: DocType, sig: DocSigPattern): bool =
         else:
           result = false
 
-    of dspkPattern:
-      result = (etype.kind == sig.headKind)
+    of dspkGenPattern:
       case etype.kind:
-        of dtkProc:
+        of {dtkIdent, dtkVarargs}:
+          result = (etype.name =~ sig.headName)
+
           var argIdx = 0
           var sigIdx = 0
-          while argIdx < etype.arguments.len and
-                sigIdx < sig.arguments.len:
+          while argIdx < etype.genParams.len and
+                sigIdx < sig.elements.len:
 
-            if sig.arguments[sigIdx].kind == dspkTrail:
+            if sig.elements[sigIdx].kind == dspkTrail:
               return true
 
-            elif not etype.arguments[argIdx].identType.matches(
-              sig.arguments[sigIdx]):
+            elif not etype.genParams[argIdx].matches(
+              sig.elements[sigIdx]):
               return false
 
             inc argIdx
             inc sigIdx
 
-          return etype.arguments.len == sig.arguments.len
+          return etype.genParams.len == sig.elements.len
 
         else:
-          raiseImplementKindError(etype)
+          result = false
+
+    of dspkProcPattern:
+      etype.assertKind(dtkProc)
+
+      var argIdx = 0
+      var sigIdx = 0
+      while argIdx < etype.arguments.len and
+            sigIdx < sig.elements.len:
+
+        if sig.elements[sigIdx].kind == dspkTrail:
+          return true
+
+        elif not etype.arguments[argIdx].identType.matches(
+          sig.elements[sigIdx]):
+          return false
+
+        inc argIdx
+        inc sigIdx
+
+      return etype.arguments.len == sig.elements.len
 
 func matches*(entry; filter: DocFilter): bool =
   case filter.kind:
@@ -148,14 +181,31 @@ iterator matching*(entry; group): DocEntry =
     if entry.matches(group):
       yield nested
 
-func sigPatt*(typeKind: DocTypeKind, args: seq[DocSigPattern]): DocSigPattern =
-  DocSigPattern(kind: dspkPattern, headKind: typeKind, arguments: args)
+let
+  nimTyHeadChoice*: Peg = `/`(
+    term("var"),
+    term("sink"),
+    term("ptr"),
+    term("ref")
+  )
+
+func procPatt*(args: varargs[DocSigPattern]): DocSigPattern =
+  DocSigPattern(kind: dspkProcPattern, elements: toSeq(args))
+
+func genPatt*(head: string, args: varargs[DocSigPattern]): DocSigPattern =
+  DocSigPattern(kind: dspkGenPattern, elements: toSeq(args), headName: term(head))
+
+func genPatt*(head: Peg, args: varargs[DocSigPattern]): DocSigPattern =
+  DocSigPattern(kind: dspkGenPattern, elements: toSeq(args), headName: head)
 
 func sigPatt*(id: DocId): DocSigPattern =
   DocSigPattern(kind: dspkTypeId, typeId: id)
 
 func sigPatt*(kind: DocSigPatternKind): DocSigPattern =
   DocSigPattern(kind: kind)
+
+func choice*(alts: varargs[DocSigPattern]): DocSigPattern =
+  DocSigPattern(kind: dspkChoice, elements: toSeq(alts))
 
 func docFilter*(kind: set[DocEntryKind]): DocFilter =
   DocFilter(kind: dfkKindFilter, targetKinds: kind)
@@ -189,6 +239,9 @@ iterator allMatching*(db: DocDb; group: DocFilterGroup | DocFilter): DocEntry =
 
 proc getProcsForType*(entry): seq[DocEntry] =
   for entry in entry.db.allMatching(toGroup(
-    sigPatt(dtkProc, @[sigPatt(entry.id()), sigPatt(dspkTrail)])
+    procPatt(choice(
+      sigPatt(entry.id()),
+      genPatt(nimTyHeadChoice, sigPatt(entry.id()))
+    ), sigPatt(dspkTrail))
   )):
     result.add entry

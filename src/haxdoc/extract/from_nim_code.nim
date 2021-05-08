@@ -609,10 +609,12 @@ proc toDocType(ctx; ntype: NType): DocType =
     of ntkVarargs:
       result = DocType(
         kind: dtkVarargs,
-        vaType: ctx.toDocType(ntype.vaType()))
+        genParams: @[ctx.toDocType(ntype.vaType())])
 
       if ntype.vaConverter.isSome():
-        result.vaConverter = some $ntype.vaConverter.get()
+        result.genParams.add DocType(
+          kind: dtkValue,
+          value: $ntype.vaConverter.get())
 
     of ntkNamedTuple, ntkProc:
       if ntype.kind == ntkNamedTuple:
