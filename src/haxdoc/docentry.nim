@@ -2,7 +2,7 @@
 
 import haxorg/[ast, semorg]
 import hmisc/other/[oswrap]
-import hmisc/algo/hseq_mapping
+import hmisc/algo/[hseq_mapping, halgorithm]
 import hmisc/[hdebug_misc, helpers]
 import std/[options, tables, hashes, enumerate, strformat, sequtils]
 import nimtraits
@@ -361,8 +361,8 @@ type
       of dekAliasKinds:
         baseType*: DocType
 
-      of dekProcKinds:
-        procType*: DocType
+      # of dekProcKinds:
+      #   procType*: DocType
 
       else:
         discard
@@ -429,6 +429,8 @@ proc `$`*(t: DocType): string =
   case t.kind:
     of dtkIdent:
       result = t.name
+      if t.genParams.len > 0:
+        result &= t.genParams.mapIt($it).join(", ").wrap("[", "]")
 
     of dtkGenericSpec:
       result = t.name
@@ -546,9 +548,20 @@ iterator items*(de: DocEntry): DocEntry =
   for id in items(de.nested):
     yield de.db[id]
 
+iterator items*(ident: DocFullIdent): DocIdentPart =
+  for part in items(ident.parts):
+    yield part
+
 iterator pairs*(de: DocEntry): (int, DocEntry) =
   for idx, id in pairs(de.nested):
     yield (idx, de.db[id])
+
+
+func procType*(de: DocEntry): DocType =
+  assertKind(de, dekProcKinds)
+  for part in de.fullIdent:
+    if part.kind == de.kind:
+      return part.procType
 
 proc newDocType*(kind: DocTypeKind, head: DocEntry): DocType =
   result = DocType(kind: kind)

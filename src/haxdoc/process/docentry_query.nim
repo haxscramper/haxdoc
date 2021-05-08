@@ -76,10 +76,39 @@ func matches*(etype: DocType, sig: DocSigPattern): bool =
       result = true
 
     of dspkTypeId:
-      result = etype.head == sig.typeId
+      case etype.kind:
+        of dtkIDent:
+          result = etype.head == sig.typeId
+
+        of dtkVarargs:
+          result = etype.vaType.matches(sig)
+
+        else:
+          result = false
 
     of dspkPattern:
       result = (etype.kind == sig.headKind)
+      case etype.kind:
+        of dtkProc:
+          var argIdx = 0
+          var sigIdx = 0
+          while argIdx < etype.arguments.len and
+                sigIdx < sig.arguments.len:
+
+            if sig.arguments[sigIdx].kind == dspkTrail:
+              return true
+
+            elif not etype.arguments[argIdx].identType.matches(
+              sig.arguments[sigIdx]):
+              return false
+
+            inc argIdx
+            inc sigIdx
+
+          return etype.arguments.len == sig.arguments.len
+
+        else:
+          raiseImplementKindError(etype)
 
 func matches*(entry; filter: DocFilter): bool =
   case filter.kind:

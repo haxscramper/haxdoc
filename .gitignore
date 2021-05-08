@@ -1,3 +1,5 @@
 **/cache
 bin
 **/*.srctrl*
+tests/*
+!tests/*.*

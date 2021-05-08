@@ -574,14 +574,14 @@ proc registerUses(ctx; node; state: RegisterState) =
 proc toDocType(ctx; ntype: NType): DocType =
   case ntype.kind:
     of ntkIdent:
-      if ntype.declNode.isNone():
-        info ntype
-
       if ntype.declNode.get().kind == nkIdent:
         result = DocType(
           name: ntype.head,
           kind: dtkGenericParam,
           paramName: $ntype.declNode.get())
+
+      elif ntype.head in ["ref", "sink", "ptr", "var"]:
+        result = DocType(name: ntype.head, kind: dtkIdent)
 
       else:
         result = DocType(
