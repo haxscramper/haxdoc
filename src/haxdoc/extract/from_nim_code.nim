@@ -38,6 +38,18 @@ proc headSym(node: PNode): PSym =
     else:
       raiseImplementKindError(node, node.treeRepr())
 
+
+proc isVisible*(n: PNode): bool =
+  case n.kind:
+    of nkPostfix: true
+    of nkSym: sfExported in n.sym.flags
+    of nkPragmaExpr, nkTypeDef, nkIdentDefs, nkRecCase,
+       nkProcDeclKinds:
+      isVisible(n[0])
+
+    else:
+      false
+
 proc typeHead(node: PNode): PNode =
   case node.kind:
     of nkSym: node
@@ -712,6 +724,9 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
   var entry = ctx.module.newDocEntry(
     procDecl.classifiyKind(), procDecl.name, ctx.toDocType(procDecl.signature))
 
+  if procDecl.declNode.get().isVisible():
+    entry.visibility = dvkPublic
+
   ctx.addSigmap(procDef, entry)
   ctx.setLocation(entry, procDef)
   entry.docText.rawDoc.add procDecl.docComment
@@ -740,6 +755,12 @@ proc registerTypeDef(ctx; node) =
     let kind = ctx.classifyKind(objectDecl)
     var entry = ctx.module.newDocEntry(kind, objectDecl.name.head)
 
+    # if objectDecl.name.head == "ForeignCell":
+    #   echov node.treeRepr1()
+
+
+    if node.isVisible(): entry.visibility = dvkPublic
+
     if objectDecl.base.isSome():
       entry.superTypes.add ctx[objectDecl.base.get()]
 
@@ -757,6 +778,12 @@ proc registerTypeDef(ctx; node) =
       field.docText.docBody = ctx.convertComment(
         nimField.docComment, nimField.declNode.get())
 
+      # if objectDecl.name.head == "ForeignCell":
+      #   echov nimField.declNode.get().treeRepr1()
+
+      if nimField.declNode.get().isVisible():
+        field.visibility = dvkPublic
+
       with field:
         identType = some ctx.toDocType(nimField.fldType)
         identTypeStr = some $nimField.fldType
@@ -770,8 +797,12 @@ proc registerTypeDef(ctx; node) =
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
 
+    if enumDecl.exported:
+      entry.visibility = dvkPublic
+
     for enField in enumDecl.values:
       var field = entry.newDocEntry(dekEnumField, enField.name)
+      field.visibility = entry.visibility
       ctx.setLocation(field, enField.declNode.get())
       ctx.addSigmap(enField.declNode.get(), field)
 
@@ -791,6 +822,10 @@ proc registerTypeDef(ctx; node) =
         classifyKind(baseNType, true)
 
     var entry = ctx.module.newDocEntry(kind, $node.declHead())
+
+    if node.isVisible(): entry.visibility = dvkPublic
+
+
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
     entry.baseType = baseType
@@ -801,6 +836,8 @@ proc registerTypeDef(ctx; node) =
 
   elif node[0].kind in {nkPragmaExpr}:
     var entry = ctx.module.newDocEntry(dekBuiltin, $node[0][0])
+    if node.isVisible(): entry.visibility = dvkPublic
+
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
 
@@ -831,6 +868,9 @@ proc registerDeclSection(ctx; node; nodeKind: DocEntryKind = dekGlobalVar) =
 
     of nkConstDef, nkIdentDefs:
       var def = ctx.module.newDocEntry(nodeKind, $node[0].declHead)
+      if parseIdentName(node).exported:
+        def.visibility = dvkPublic
+
       ctx.setLocation(def, node[0])
       ctx.addSigmap(node[0], def)
       # TODO extract comments
@@ -912,6 +952,7 @@ proc generateDocDb*(
             package = db.getOrNewPackage(file)
 
           context.module = package.newDocEntry(dekModule, module.getStrVal())
+          context.module.visibility = dvkPublic
           sigmap[module.sigHash()] = context.module.id()
           context.db.setIdForFile(file, context.module.id())
 

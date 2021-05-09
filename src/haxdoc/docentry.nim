@@ -338,6 +338,11 @@ type
     metatags*: seq[DocMetatag]
     rawDoc*: seq[string]
 
+  DocVisibilityKind* = enum
+    dvkPrivate ## Not exported
+    dvkInternal ## Exported, but only for internal use
+    dvkPublic ## Exported, available for public use
+
   DocEntry* = ref object
     location*: Option[DocLocation]
     extent*: Option[DocExtent]
@@ -351,6 +356,8 @@ type
     db* {.Skip(IO).}: DocDb ## Parent documentable entry database
 
     name* {.Attr.}: string
+    visibility* {.Attr.}: DocVisibilityKind
+    isDeprecated* {.Attr.}: bool
     fullIdent*: DocFullIdent ## Fully scoped identifier for a name
 
     docText*: DocText
@@ -747,7 +754,8 @@ proc getOrNewPackage*(db: var DocDb, path: AbsPath): DocEntry =
   let lib = db.getLibForPath(path)
   let path = initIdentPart(dekPackage, lib.name)
   if path notin db.top:
-    return db.newDocEntry(dekPackage, lib.name)
+    result = db.newDocEntry(dekPackage, lib.name)
+    result.visibility = dvkPublic
 
   else:
     return db.top[path]
@@ -756,6 +764,9 @@ proc getLibForName*(db: DocDb, name: string): DocLib =
   for lib in db.knownLibs:
     if lib.name == name:
       return lib
+
+  raiseArgumentError(
+    "No known library for name " & $name)
 
 func package*(ident: DocFullIdent): string =
   if ident.parts.len == 0 or
