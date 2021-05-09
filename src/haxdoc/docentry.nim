@@ -507,7 +507,6 @@ func `$`*(t: DocType): string =
     else:
       raiseImplementKindError(t)
 
-
 func hash*(id: DocId): Hash = hash(id.id)
 proc hash*(part: DocIdentPart): Hash =
   result = hash(part.kind) !& hash(part.name)
@@ -563,6 +562,7 @@ iterator items*(s: DocIdSet): DocId =
     yield DocId(id: i)
 
 
+func isExported*(e: DocEntry): bool = e.visibility in {dvkPublic}
 func id*(full: var DocFullIdent): DocId {.inline.} = DocId(id: hash(full))
 func id*(de: DocEntry): DocId {.inline.} = de.fullident.id
 func id*(docType: DocType): DocId =

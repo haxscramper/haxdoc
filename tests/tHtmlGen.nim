@@ -10,14 +10,45 @@ startHax()
 let dir = getTempDir() / "tFromSimpleCode"
 let db = loadDbXml(dir, "compile-db")
 
+var w = newHtmlWriter(AbsFile "/tmp/page.html")
 
-var w = stdout.newHtmlWriter()
+w.start(hHtml)
+w.start(hHead)
+
+w.style({
+  "th": @{
+    "text-align": "left"
+  }
+})
+
+w.finish(hHead)
+
+w.start hBody
+w.wrap0 hCaption, w.text("Module list")
 
 for module in allItems(db, {dekModule}):
-  w.link(module, module.name)
+  w.wrap hH1:
+    w.wrap0 hCell, w.link(module, module.name)
+    w.wrap0 hCell, w.text("some brief documentation")
 
-for docType in allItems(db, dekStructKinds):
-  w.link(docType, docType.name)
-  let procs = docType.getProcsForType()
-  # for pr in procs:
-  #   echo pr.name, " ", pr.procType(), " ", pr.fullIdent.toLink()
+  w.wrap hTable:
+    for t in items(module, dekNewtypeKinds):
+      w.wrap </[hRow, hTable]:
+        w.wrap hRow:
+          w.wrap0 hCell, w.link(t, t.name)
+          w.wrap0 hCell, w.text("Type documentat")
+
+        let procs = t.getProcsForType()
+        w.wrap </[hRow, hCell{"colspan": "2"}, hTable]:
+          for pr in procs:
+            w.wrap hRow:
+              w.wrap0 hCell, w.link(pr, pr.name & " " & $pr.procType())
+              w.wrap0 hCell, w.text("proc")
+
+
+
+
+w.finish hBody
+w.finish(hHtml)
+
+echo "compile done"
