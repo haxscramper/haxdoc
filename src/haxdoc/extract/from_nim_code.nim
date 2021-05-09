@@ -39,16 +39,47 @@ proc headSym(node: PNode): PSym =
       raiseImplementKindError(node, node.treeRepr())
 
 
-proc isVisible*(n: PNode): bool =
+proc isExported*(n: PNode): bool =
   case n.kind:
     of nkPostfix: true
     of nkSym: sfExported in n.sym.flags
     of nkPragmaExpr, nkTypeDef, nkIdentDefs, nkRecCase,
        nkProcDeclKinds:
-      isVisible(n[0])
+      isExported(n[0])
 
     else:
       false
+
+proc getPragma*(n: PNode, name: string): Option[PNode] =
+  case n.kind:
+    of nkPragmaExpr:
+      for pr in n:
+        result = getPragma(pr, name)
+        if result.isSome():
+          return
+
+    of nkPragma:
+      if n.safeLen > 0:
+        case n[0].kind:
+          of nkSym, nkIdent:
+            if n[0].getStrVal() == name:
+              return some n[0]
+
+          of nkCall, nkCommand, nkExprColonExpr:
+            if n[0][0].getStrVal() == name:
+              return some n[0]
+
+          else:
+            raiseImplementKindError(n[0], n.treeRepr())
+
+    of nkTypeDef, nkIdentDefs, nkRecCase:
+      return getPragma(n[0], name)
+
+    of nkProcDeclKinds:
+      return getPragma(n[4], name)
+
+    else:
+      discard
 
 proc typeHead(node: PNode): PNode =
   case node.kind:
@@ -713,6 +744,17 @@ proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
     raise e
 
 
+
+proc setDeprecated(entry: var DocEntry, node) =
+  let depr = node.getPragma("deprecated")
+  if depr.getSome(depr):
+    if depr.safeLen == 0:
+      entry.deprecatedMsg = some ""
+
+    else:
+      entry.deprecatedMsg = some depr[1].getStrVal()
+
+
 proc registerProcDef(ctx: DocContext, procDef: PNode) =
   let procDecl = try:
                    parseProc(procDef)
@@ -721,10 +763,12 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
                    echo ctx.graph.getFilePath(procDef), procDef.getInfo()
                    raise e
 
+
   var entry = ctx.module.newDocEntry(
     procDecl.classifiyKind(), procDecl.name, ctx.toDocType(procDecl.signature))
 
-  if procDecl.declNode.get().isVisible():
+  entry.setDeprecated(procDef)
+  if procDecl.declNode.get().isExported():
     entry.visibility = dvkPublic
 
   ctx.addSigmap(procDef, entry)
@@ -743,6 +787,7 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
   let procType = ctx.toDocType(procDecl.signature)
 
 
+
 proc registerTypeDef(ctx; node) =
   if isObjectDecl(node):
     let objectDecl: PObjectDecl = try:
@@ -755,17 +800,13 @@ proc registerTypeDef(ctx; node) =
     let kind = ctx.classifyKind(objectDecl)
     var entry = ctx.module.newDocEntry(kind, objectDecl.name.head)
 
-    # if objectDecl.name.head == "ForeignCell":
-    #   echov node.treeRepr1()
-
-
-    if node.isVisible(): entry.visibility = dvkPublic
-
+    if node.isExported(): entry.visibility = dvkPublic
     if objectDecl.base.isSome():
       entry.superTypes.add ctx[objectDecl.base.get()]
 
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
+    entry.setDeprecated(node)
     entry.docText.rawDoc.add objectDecl.docComment
     entry.docText.docBody = ctx.convertComment(objectDecl.docComment, node)
 
@@ -781,7 +822,7 @@ proc registerTypeDef(ctx; node) =
       # if objectDecl.name.head == "ForeignCell":
       #   echov nimField.declNode.get().treeRepr1()
 
-      if nimField.declNode.get().isVisible():
+      if nimField.declNode.get().isExported():
         field.visibility = dvkPublic
 
       with field:
@@ -794,6 +835,8 @@ proc registerTypeDef(ctx; node) =
   elif node[2].kind == nkEnumTy:
     let enumDecl: PEnumDecl = parseEnum(node)
     var entry = ctx.module.newDocEntry(dekEnum, enumDecl.name)
+
+    entry.setDeprecated(node)
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
 
@@ -823,9 +866,9 @@ proc registerTypeDef(ctx; node) =
 
     var entry = ctx.module.newDocEntry(kind, $node.declHead())
 
-    if node.isVisible(): entry.visibility = dvkPublic
+    if node.isExported(): entry.visibility = dvkPublic
 
-
+    entry.setDeprecated(node)
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
     entry.baseType = baseType
@@ -836,8 +879,9 @@ proc registerTypeDef(ctx; node) =
 
   elif node[0].kind in {nkPragmaExpr}:
     var entry = ctx.module.newDocEntry(dekBuiltin, $node[0][0])
-    if node.isVisible(): entry.visibility = dvkPublic
+    if node.isExported(): entry.visibility = dvkPublic
 
+    entry.setDeprecated(node)
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
 

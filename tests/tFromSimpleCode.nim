@@ -50,7 +50,7 @@ type
     a: A
     debugTestA: A
 
-proc zz(b: B) =
+proc zz(b: B) {.deprecated("use somethign else").} =
   echo b.debugTestA.debugTestB.debugTestA[]
   let z = b.debugTestA.debugTestB
   let q = b.debugTestA

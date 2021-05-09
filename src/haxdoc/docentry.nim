@@ -357,7 +357,7 @@ type
 
     name* {.Attr.}: string
     visibility* {.Attr.}: DocVisibilityKind
-    isDeprecated* {.Attr.}: bool
+    deprecatedMsg* {.Attr.}: Option[string]
     fullIdent*: DocFullIdent ## Fully scoped identifier for a name
 
     docText*: DocText
