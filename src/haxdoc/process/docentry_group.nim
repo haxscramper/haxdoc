@@ -53,7 +53,7 @@ proc splitCommonProcs*(group: DocTypeGroup): DocTypeGroup =
 proc inheritGraph*(db: DocDb): HGraph[DocId, NoProperty] =
   result = newHGraph[DocId, NoProperty]()
   for id, entry in db.entries:
-    if entry.kind in dekStructTypes:
+    if entry.kind in dekStructKinds:
       for super in entry.superTypes:
         result.addOrGetEdge(id, super)
 
@@ -96,7 +96,7 @@ proc usageDotGraph*(db: DocDb): DotGraph =
             result.add makeDotEdge(userId, target).withIt do:
               it.style = edsDashed
 
-      of dekStructTypes:
+      of dekStructKinds:
         var typeFields: seq[RecordField] = @[makeDotRecord(0, &"[[ {entry.name} ]]")]
         for nested in entry:
           if nested.kind == dekField and nested.identType.isSome():

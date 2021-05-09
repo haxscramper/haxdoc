@@ -113,7 +113,8 @@ const
   dekNewtypeKinds* = { dekObject .. dekDistinctAlias }
   dekAliasKinds* = { dekTypeclass, dekAlias, dekDistinctAlias,
                      dekRefAlias }
-  dekStructTypes* = { dekObject, dekDefect, dekException, dekEffect }
+  dekStructKinds* = { dekObject, dekDefect, dekException, dekEffect }
+  dekAllKinds* = { low(DocEntryKind) .. high(DocEntryKind) }
 
 
 type
@@ -363,7 +364,7 @@ type
     docText*: DocText
 
     case kind*: DocEntryKind
-      of dekStructTypes:
+      of dekStructKinds:
         superTypes*: seq[DocId]
 
       of dekShellOption:
@@ -416,7 +417,7 @@ type
     files*: seq[DocFile]
     knownLibs: seq[DocLib]
 
-storeTraits(DocEntry, dekAliasKinds, dekProcKinds, dekStructTypes)
+storeTraits(DocEntry, dekAliasKinds, dekProcKinds, dekStructKinds)
 
 storeTraits(DocExtent)
 storeTraits(DocText)
@@ -626,21 +627,40 @@ proc `[]`*(db: DocDb, id: DocId): DocEntry = db.entries[id]
 proc `[]`*(de: DocEntry, idx: int): DocEntry =
   de.db.entries[de.nested[idx]]
 
-iterator items*(de: DocEntry): DocEntry =
-  for id in items(de.nested):
-    yield de.db[id]
+iterator allItems*(
+    db: DocDb, accepted: set[DocEntryKind] = dekAllKinds): DocEntry =
+  for _, entry in db.entries:
+    if entry.kind in accepted:
+      yield entry
 
-iterator items*(dg: DocEntryGroup): DocEntry =
+iterator topItems*(
+    db: DocDb, accepted: set[DocEntryKind] = dekAllKinds): DocEntry =
+
+  for _, entry in db.top:
+    if entry.kind in accepted:
+      yield entry
+
+iterator items*(
+    de: DocEntry, accepted: set[DocEntryKind] = dekAllKinds): DocEntry =
+  for id in items(de.nested):
+    if de.db[id].kind in accepted:
+      yield de.db[id]
+
+iterator items*(
+    dg: DocEntryGroup, accepted: set[DocEntryKind] = dekAllKinds): DocEntry =
   for e in items(dg.entries):
-    yield e
+    if e.kind in accepted:
+      yield e
 
 iterator items*(ident: DocFullIdent): DocIdentPart =
   for part in items(ident.parts):
     yield part
 
-iterator pairs*(de: DocEntry): (int, DocEntry) =
+iterator pairs*(
+    de: DocEntry, accepted: set[DocEntryKind] = dekAllKinds): (int, DocEntry) =
   for idx, id in pairs(de.nested):
-    yield (idx, de.db[id])
+    if de.db[id].kind in accepted:
+      yield (idx, de.db[id])
 
 
 func newEntryGroup*(e: DocEntry): DocEntryGroup =
