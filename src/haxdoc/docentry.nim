@@ -106,6 +106,8 @@ type
 
     dekSchema ## Serialization schema
 
+    dekKeyword ## Language or macro DSL keyword
+
 const
   dekProcKinds* = { dekProc .. dekSlot }
   dekNewtypeKinds* = { dekObject .. dekDistinctAlias }
@@ -296,10 +298,6 @@ type
       of dtkRange:
         rngStart*, rngEnd*: string
 
-      # of dtkVarargs:
-      #   vaType*: DocType
-      #   vaConverter*: Option[string]
-
       of dtkValue, dtkTypeofExpr:
         value*: string
 
@@ -323,7 +321,6 @@ type
 
 
   DocLocation* = object
-    lib* {.Attr.}: Option[string]
     file* {.Attr.}: string
     absFile* {.Skip(IO).}: AbsFile
     pos* {.Attr.}: DocPos
@@ -333,6 +330,7 @@ type
     finish* {.Attr.}: DocPos
 
   DocText* = object
+    category* {.Attr.}: Option[string]
     docTags*: seq[string]
     docBrief*: SemOrg
     docBody*: SemOrg
@@ -745,21 +743,50 @@ proc getLibForPath*(db: DocDb, path: AbsFile): DocLib =
     if path.startsWith($lib.dir):
       return lib
 
+proc getOrNewPackage*(db: var DocDb, path: AbsPath): DocEntry =
+  let lib = db.getLibForPath(path)
+  let path = initIdentPart(dekPackage, lib.name)
+  if path notin db.top:
+    return db.newDocEntry(dekPackage, lib.name)
+
+  else:
+    return db.top[path]
+
 proc getLibForName*(db: DocDb, name: string): DocLib =
   for lib in db.knownLibs:
     if lib.name == name:
       return lib
 
-proc getPathInLib*(db: DocDb, loc: DocLocation): AbsFile =
+func package*(ident: DocFullIdent): string =
+  if ident.parts.len == 0 or
+     ident.parts[0].kind != dekPackage:
+    raiseArgumentError(
+      "No package name in full identifier " & $ident)
+
+  else:
+    return ident.parts[0].name
+
+proc getPathForPackage*(db: DocDb, ident: DocFullIdent): AbsDir =
+  let package = ident.package()
   for lib in db.knownLibs:
-    if lib.name == loc.lib.get():
-      return lib.dir /. loc.file
+    if lib.name == package:
+      return lib.dir
 
-  if isAbsolute(loc.file):
-    return AbsFile(loc.file)
+  raiseArgumentError(
+    "Cannot find path for ident package " & $ident)
 
-  raiseArgumentError("Cannot find path for library name '" &
-    $loc.lib.get() & "'")
+proc getPathInPackage*(entry: DocEntry): AbsFile =
+  if entry.location.getSome(loc):
+    if isAbsolute(AbsFile loc.file):
+      return AbsFile(loc.file)
+
+    else:
+      return entry.db.getPathForPackage(entry.fullIdent) /. loc.file
+
+  else:
+    raiseArgumentError(
+      "No location for entry " & $entry.fullIdent)
+
 
 proc addKnownLib*(db: var DocDb, dir: AbsDir, name: string) =
   db.knownLibs.add DocLib(dir: dir, name: name)
@@ -777,7 +804,7 @@ proc setLocation*(de: DocEntry, location: DocLocation) =
     noLib = nolib.dropPrefix("/")
 
   de.location.get().file = nolib
-  de.location.get().lib = some lib.name
+  # de.location.get().lib = some lib.name
 
 
 proc contains(s1, s2: DocCodeSlice): bool =

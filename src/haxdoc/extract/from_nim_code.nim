@@ -906,10 +906,14 @@ proc generateDocDb*(
       (
         proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
           info "Processing ", module
-          var context = DocContext(db: db, graph: graph, sigmap: sigmap)
-          context.module = db.newDocEntry(dekModule, module.getStrVal())
+          var
+            context = DocContext(db: db, graph: graph, sigmap: sigmap)
+            file = graph.getFilePath(module)
+            package = db.getOrNewPackage(file)
+
+          context.module = package.newDocEntry(dekModule, module.getStrVal())
           sigmap[module.sigHash()] = context.module.id()
-          context.db.setIdForFile(graph.getFilePath(module), context.module.id())
+          context.db.setIdForFile(file, context.module.id())
 
           context.allModules.add context.module
           return context

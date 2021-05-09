@@ -1,12 +1,14 @@
 import ../docentry
 import ../docentry_io
+
 import cxxstd/cxx_common
 import nimtrail/nimtrail_common
-import hmisc/other/oswrap
-import hmisc/base_errors
-import hmisc/hasts/xml_ast
-import hmisc/hdebug_misc
-import hnimast/compiler_aux
+
+import
+  hmisc/other/oswrap,
+  hmisc/[base_errors, hdebug_misc],
+  hmisc/hasts/xml_ast
+
 import std/[with, options, tables, strutils]
 
 
@@ -195,6 +197,7 @@ proc registerDb*(writer; db: DocDb): IdMap =
         of dekBuiltin:   sskBuiltinType
         of dekPragma:    sskAnnotation
         of dekModule:    sskModule
+        of dekPackage:   sskPackage
 
         else:
           raiseImplementKindError(entry)
@@ -202,9 +205,7 @@ proc registerDb*(writer; db: DocDb): IdMap =
     result.docToTrail[entry.id()] = writer.recordSymbol(name, defKind)
 
     if entry.location.isSome():
-      let fileId = writer.getFile(
-        db.getPathInLib(entry.location.get()).string, "nim")
-
+      let fileId = writer.getFile(entry.getPathInPackage().string, "nim")
       let symId = writer.recordSymbol(name, defKind)
 
       result.docToTrail[entry.id()] = symId
