@@ -10,7 +10,7 @@ binDir        = "bin"
 backend       = "cpp"
 
 requires "hnimast >= 0.3.19"
-requires "https://github.com/haxscramper/haxorg.git >= 0.1.1"
+requires "haxorg"
 requires "https://github.com/haxscramper/nimtrail.git >= 0.1.1"
 requires "nim >= 1.4.0"
 requires "hmisc >= 0.10.4"
@@ -36,6 +36,7 @@ hmisc-putils \
   -lhpprint \
   -lunicodeplus \
   -lhcparse \
+  --preTestCmds='nimble -y install https://github.com/haxscramper/haxorg.git' \
   --preTestCmds='nimble build' \
   --preTestCmds='echo "echo 1" > file.nim' \
   --preTestCmds='./bin/haxdoc trail file.nim'
