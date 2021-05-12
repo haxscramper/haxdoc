@@ -29,21 +29,21 @@ w.wrap0 hCaption, w.text("Module list")
 for module in allItems(db, {dekModule}):
   w.wrap hH1:
     w.wrap0 hCell, w.link(module, module.name)
-    w.wrap0 hCell, w.text("some brief documentation")
+    w.wrap0 hCell, module.docText.docBrief.writeHtml(w)
 
   w.wrap hTable:
     for t in items(module, dekNewtypeKinds):
       w.wrap </[hRow, hTable]:
         w.wrap hRow:
           w.wrap0 hCell, w.link(t, t.name)
-          w.wrap0 hCell, w.text("Type documentat")
+          w.wrap0 hCell, t.docText.docBrief.writeHtml(w)
 
         let procs = t.getProcsForType()
         w.wrap </[hRow, hCell{"colspan": "2"}, hTable]:
           for pr in procs:
             w.wrap hRow:
               w.wrap0 hCell, w.link(pr, pr.name & " " & $pr.procType())
-              w.wrap0 hCell, w.text("proc")
+              w.wrap0 hCell, pr.docText.docBrief.writeHtml(w)
 
 
 
