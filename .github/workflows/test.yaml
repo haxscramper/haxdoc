@@ -10,23 +10,24 @@ jobs:
           path: '../nim'
           version: 'version-1-4'
 
-      - name: Compile binary
+      - name: Run tests
         run: |
           export PATH=$HOME/.nimble/bin:$PATH
+          nimble -y install 'https://github.com/haxscramper/nimspell.git'
           nimble -y install 'https://github.com/haxscramper/cxxstd.git'
           nimble -y install 'https://github.com/haxscramper/nimtrail.git'
           nimble -y install 'https://github.com/haxscramper/haxorg.git'
           nimble test -y
-  install:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: alaviss/setup-nim@master
-        with:
-          path: '../nim'
-          version: 'version-1-4'
+  # install:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: alaviss/setup-nim@master
+  #       with:
+  #         path: '../nim'
+  #         version: 'version-1-4'
 
-      - name: Compile binary
-        run: |
-          export PATH=$HOME/.nimble/bin:$PATH
-          nimble install -y "https://github.com/haxscramper/haxdoc@#head"
+  #     - name: Compile binary
+  #       run: |
+  #         export PATH=$HOME/.nimble/bin:$PATH
+  #         nimble install -y "https://github.com/haxscramper/haxdoc@#head"
