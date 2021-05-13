@@ -39,7 +39,7 @@ for module in allItems(db, {dekModule}):
           w.wrap0 hCell, t.docText.docBrief.writeHtml(w)
 
         let procs = t.getProcsForType()
-        w.wrap </[hRow, hCell{"colspan": "2"}, hTable]:
+        w.wrap </[hRow, hCell{atColspan: "2"}, hTable]:
           for pr in procs:
             w.wrap hRow:
               w.wrap0 hCell, w.link(pr, pr.name & " " & $pr.procType())

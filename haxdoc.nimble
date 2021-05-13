@@ -4,9 +4,9 @@ description   = "Nim documentation generator"
 license       = "Apache-2.0"
 srcDir        = "src"
 
-bin           = @["haxdoc"]
+# bin           = @["haxdoc"]
 installExt    = @["nim"]
-binDir        = "bin"
+# binDir        = "bin"
 backend       = "cpp"
 
 requires "hnimast >= 0.3.19"
@@ -15,29 +15,39 @@ requires "nimtrail >= 0.1.1"
 requires "nim >= 1.4.0"
 requires "hmisc >= 0.10.4"
 requires "hpprint >= 0.2.12"
-requires "nimble <= 0.13.0"
 requires "fusion"
 requires "cxxstd"
 
+before install:
+  # Whatever, I'm too tired of fighting nimble over my local installatin
+  # 'local dependencies' will be added 'stometimes later', so for now I
+  # just have this hack. Don't care, works for me.
+  exec("nimble -y install 'https://github.com/haxscramper/nimspell.git'")
+  exec("nimble -y install 'https://github.com/haxscramper/cxxstd.git'")
+  exec("nimble -y install 'https://github.com/haxscramper/nimtrail.git'")
+  exec("nimble -y install 'https://github.com/haxscramper/haxorg.git'")
 
 task dockertest, "Run test in docker container":
   exec("""
 hmisc-putils \
   dockertest \
   --projectDir:$(pwd) \
+  -lfusion \
+  -lbenchy \
   -lcligen \
+  -lcompiler \
   -lhmisc \
   -lhasts \
   -lhdrawing \
-  -lhdrawing \
   -lregex \
+  -lnimble \
   -lhnimast \
-  -lnimtraits \
   -lhpprint \
+  -lnimtraits \
   -lunicodeplus \
   -lhcparse \
-  --preTestCmds='nimble -y install https://github.com/haxscramper/haxorg.git' \
-  --preTestCmds='nimble build' \
-  --preTestCmds='echo "echo 1" > file.nim' \
-  --preTestCmds='./bin/haxdoc trail file.nim'
+  -lnimspell \
+  -lcxxstd \
+  -lhaxorg \
+  -lnimtrail
 """)

@@ -1,4 +1,4 @@
-import hmisc/other/[oswrap, colorlogger]
+import hmisc/other/[oswrap, colorlogger, hshell]
 import
   haxdoc/extract/from_nim_code,
   haxdoc/process/[docentry_group],
@@ -25,8 +25,11 @@ let db = generateDocDb(compFile, compDir / "lib", @[])
 echo "Db compilation done"
 
 let dot = db.inheritDotGraph()
-dot.toPng(AbsFile "/tmp/compiler-inherit.png")
-echo "Inhertiance graph for compiler done"
+if hasCmd(shellCmd(dot)):
+  dot.toPng(AbsFile "/tmp/compiler-inherit.png")
+  echo "Inhertiance graph for compiler done"
+else:
+  echo "no dot installed, skipping graph generation"
 
 # db.writeDbXml(outDir, "compile-db")
 # echo "Wrote db xml"

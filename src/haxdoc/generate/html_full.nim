@@ -32,7 +32,7 @@ func toLink*(full: DocFullIdent): string =
       else:
         raiseImplementKindError(part)
 
-proc link*(writer; entry: DocEntry; text: string) =
+proc link*(writer: var HtmlWriter, entry: DocEntry; text: string) =
   writer.link(entry.fullIdent.toLink, text, $entry.kind)
 
 proc writeHtml*(sem: SemOrg, writer: var HtmlWriter) =
