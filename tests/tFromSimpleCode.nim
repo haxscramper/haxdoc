@@ -46,6 +46,7 @@ type
   Base = ref object of RootObj
 
   A = ref object of Base
+    f1*, fDebugTrigger*: string
     debugTestB: B
     b: B
 
@@ -135,32 +136,33 @@ suite "Generate DB":
   echo "done"
 
 suite "Filter DB":
-  let dir = getTempDir() / "tFromSimpleCode"
+  test "Filter db":
+    let dir = getTempDir() / "tFromSimpleCode"
 
-  if not exists(dir /. "compile-db" &. "hxde"):
-    quit 0
+    if not exists(dir /. "compile-db" &. "hxde"):
+      quit 0
 
-  let db = loadDbXml(dir, "compile-db")
+    let db = loadDbXml(dir, "compile-db")
 
-  for entry in db.allMatching(docFilter("seq")):
-    let procs = entry.getProcsForType()
-    for pr in procs:
-      echo pr.name, " ", pr.procType()
+    for entry in db.allMatching(docFilter("seq")):
+      let procs = entry.getProcsForType()
+      for pr in procs:
+        echo pr.name, " ", pr.procType()
 
-  let (groups, other) = db.procsByTypes()
+    let (groups, other) = db.procsByTypes()
 
-  for group in groups:
-    echo group.typeEntry.name
-    let groups = group.splitCommonProcs()
-    echo "  common procs"
-    for pr in groups.procs.nested[0]:
-      echo "    ", pr.name, " ", pr.procType()
+    for group in groups:
+      echo group.typeEntry.name
+      let groups = group.splitCommonProcs()
+      echo "  common procs"
+      for pr in groups.procs.nested[0]:
+        echo "    ", pr.name, " ", pr.procType()
 
-    echo "  other procs"
-    for pr in groups.procs.nested[1]:
-      echo "    ", pr.name, " ", pr.procType()
+      echo "  other procs"
+      for pr in groups.procs.nested[1]:
+        echo "    ", pr.name, " ", pr.procType()
 
 
-  if hasCmd(shellCmd("dot")):
-    db.inheritDotGraph().toPng(AbsFile "/tmp/inherit.png")
-    db.usageDotGraph().toPng(AbsFile "/tmp/usage.png")
+    if hasCmd(shellCmd("dot")):
+      db.inheritDotGraph().toPng(AbsFile "/tmp/inherit.png")
+      db.usageDotGraph().toPng(AbsFile "/tmp/usage.png")

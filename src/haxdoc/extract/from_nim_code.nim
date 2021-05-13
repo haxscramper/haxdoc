@@ -10,6 +10,7 @@ import hmisc/other/[oswrap, colorlogger]
 import hmisc/algo/[hstring_algo, halgorithm]
 import compiler/sighashes
 import haxorg/[semorg, ast, importer_nim_rst]
+import hpprint
 
 proc headSym(node: PNode): PSym =
   case node.kind:
@@ -818,9 +819,6 @@ proc registerTypeDef(ctx; node) =
       field.docText.rawDoc.add nimField.docComment
       field.docText.docBody = ctx.convertComment(
         nimField.docComment, nimField.declNode.get())
-
-      # if objectDecl.name.head == "ForeignCell":
-      #   echov nimField.declNode.get().treeRepr1()
 
       if nimField.declNode.get().isExported():
         field.visibility = dvkPublic
