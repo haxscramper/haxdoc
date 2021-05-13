@@ -11,13 +11,13 @@ backend       = "cpp"
 
 requires "hnimast >= 0.3.19"
 requires "haxorg"
-requires "https://github.com/haxscramper/nimtrail.git >= 0.1.1"
+requires "nimtrail >= 0.1.1"
 requires "nim >= 1.4.0"
 requires "hmisc >= 0.10.4"
 requires "hpprint >= 0.2.12"
 requires "nimble <= 0.13.0"
 requires "fusion"
-requires "https://github.com/haxscramper/cxxstd.git"
+requires "cxxstd"
 
 
 task dockertest, "Run test in docker container":

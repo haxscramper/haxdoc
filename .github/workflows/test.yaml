@@ -13,6 +13,8 @@ jobs:
       - name: Compile binary
         run: |
           export PATH=$HOME/.nimble/bin:$PATH
+          nimble -y install 'https://github.com/haxscramper/cxxstd.git'
+          nimble -y install 'https://github.com/haxscramper/nimtrail.git'
           nimble -y install 'https://github.com/haxscramper/haxorg.git'
           nimble test -y
   install:

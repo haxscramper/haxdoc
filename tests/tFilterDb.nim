@@ -8,6 +8,10 @@ import
 startHax()
 
 let dir = getTempDir() / "tFromSimpleCode"
+
+if not exists(dir /. "compile-db" &. "hxde"):
+  quit 0
+
 let db = loadDbXml(dir, "compile-db")
 
 for entry in db.allMatching(docFilter("seq")):
