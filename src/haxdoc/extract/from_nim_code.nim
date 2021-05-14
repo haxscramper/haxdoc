@@ -1,5 +1,6 @@
 import ../docentry, ../docentry_io
-import hnimast/compiler_aux
+import hnimast/[compiler_aux, sempass_reexport]
+import compiler/[trees, wordrecg]
 import hmisc/hdebug_misc
 import hmisc/helpers
 import std/[strutils, strformat, tables, sequtils, with]
@@ -375,6 +376,44 @@ proc occur(ctx; node; localId: string) =
     DocOccur(kind: dokLocalUse, localId: localId))
 
 
+proc registerProcBody(ctx; body: PNode, state: RegisterState, node) =
+  var
+    effects: TSemEffects
+    outEffects: PNode = newTree(nkEmpty)
+
+  let s = node[0].headSym()
+  if isNil(s): return
+
+  semInitEffects(ctx.graph, outEffects, s, effects, nil)
+
+  proc aux(node) =
+    case node.kind:
+      of nkTokenKinds - {nkSym}:
+        discard
+
+      of nkCall, nkCommand:
+        discard
+        # let head = node[0].headSym()
+        # if not isNil(head):
+        #   echo node.treeRepr1()
+        #   echo head.ast.treeRepr1()
+        #   let pragma = head.ast[pragmasPos]
+        #   let raises = effectSpec(pragma, wRaises)
+        #   echo "Found call with raises"
+
+      of nkSym:
+        discard
+
+      else:
+        for sub in node:
+          aux(sub)
+
+  aux(body)
+
+
+
+
+
 proc impl(
     ctx; node; state: RegisterState, parent: PNode
   ): Option[DocId] {.discardable.} =
@@ -544,6 +583,8 @@ proc impl(
       ctx.impl(node[4], state + rskProcHeader + result, node)
       ctx.impl(node[5], state + rskProcHeader + result, node)
       ctx.impl(node[6], state + result, node)
+
+      ctx.registerProcBody(node[6], state, node)
 
     of nkBracketExpr:
       ctx.impl(node[0], state + rskBracketHead, node)

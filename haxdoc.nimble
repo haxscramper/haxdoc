@@ -4,12 +4,10 @@ description   = "Nim documentation generator"
 license       = "Apache-2.0"
 srcDir        = "src"
 
-# bin           = @["haxdoc"]
 installExt    = @["nim"]
-# binDir        = "bin"
 backend       = "cpp"
 
-requires "hnimast >= 0.3.19"
+requires "hnimast#head"
 requires "haxorg"
 requires "nimtrail >= 0.1.1"
 requires "nim >= 1.4.0"

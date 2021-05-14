@@ -21,7 +21,7 @@ startColorLogger()
 
 info compFile
 
-let db = generateDocDb(compFile, compDir / "lib", @[])
+let db = generateDocDb(compFile, getStdPath(), @[])
 echo "Db compilation done"
 
 let dot = db.inheritDotGraph()
