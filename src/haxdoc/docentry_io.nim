@@ -268,6 +268,24 @@ proc writeXml*(w; it: DocId, tag) =
   w.xmlCloseEnd()
 
 
+proc writeXml*(w; it: DocIdSet, tag) =
+  if it.len == 0: return
+  w.xmlStart(tag)
+  w.indent()
+  for id in it:
+    w.writeXml(id, "id")
+  w.dedent()
+  w.xmlEnd(tag)
+
+proc loadXml*(r; it: var DocIdSet, tag) =
+  r.skipStart(tag)
+  while r["id"]:
+    var id: DocId
+    r.loadXml(id, "id")
+    it.incl id
+
+  r.skipEnd(tag)
+
 proc loadXml*(r; it: var DocIdentPart, tag) =
   genXmlLoader(DocIdentPart, it, r, tag,
                newObjExpr = DocIdentPart(kind: kind))

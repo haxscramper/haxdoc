@@ -1,6 +1,6 @@
 import ../docentry, ../docentry_io
 import hnimast/[compiler_aux, sempass_reexport]
-import compiler/[trees, wordrecg]
+import compiler/[trees, wordrecg, types]
 import hmisc/hdebug_misc
 import hmisc/helpers
 import std/[strutils, strformat, tables, sequtils, with]
@@ -34,7 +34,8 @@ proc headSym(node: PNode): PSym =
         headSym(node[0])
 
     of nkIdent, nkEnumTy, nkProcTy, nkObjectTy, nkTupleTy,
-       nkTupleClassTy, nkIteratorTy:
+       nkTupleClassTy, nkIteratorTy, nkOpenSymChoice,
+       nkClosedSymChoice, nkCast, nkLambda:
       nil
 
     else:
@@ -376,15 +377,51 @@ proc occur(ctx; node; localId: string) =
     DocOccur(kind: dokLocalUse, localId: localId))
 
 
+proc effectSpec*(sym: PSym, word: TSpecialWord): PNode =
+  if notNil(sym) and notNil(sym.ast) and sym.ast.len >= pragmasPos:
+    let pragma = sym.ast[pragmasPos]
+    return effectSpec(pragma, word)
+
+proc effectSpec*(n: PNode, effectType: set[TSpecialWord]): PNode =
+  for i in 0..<n.len:
+    var it = n[i]
+    if it.kind == nkExprColonExpr and whichPragma(it) in effectType:
+      result = it[1]
+      if result.kind notin {nkCurly, nkBracket}:
+        result = newNodeI(nkCurly, result.info)
+        result.add(it[1])
+      return
+
+
+# proc getEffects*(body:)
+
+proc `?`(node: PNode): bool =
+  not isNil(node) and (node.len > 0)
+
 proc registerProcBody(ctx; body: PNode, state: RegisterState, node) =
-  var
-    effects: TSemEffects
-    outEffects: PNode = newTree(nkEmpty)
-
   let s = node[0].headSym()
-  if isNil(s): return
+  if isNil(s) or not isValid(ctx[s]): return
+  let main = ctx.db[ctx[s]]
 
-  semInitEffects(ctx.graph, outEffects, s, effects, nil)
+  let prag = node[pragmasPos]
+
+  let mainRaise = effectSpec(prag, wRaises)
+  let mainEffect = effectSpec(prag, wTags)
+
+  if ?mainRaise:
+    for r in mainRaise:
+      main.raises.incl ctx[r]
+
+  if ?mainEffect:
+    for e in mainEffect:
+      main.raises.incl ctx[e]
+      main.raisesVia[ctx[e]] = DocIdSet()
+
+  let icpp = effectSpec(prag, {wImportc, wImportcpp, wImportJs, wImportObjC})
+  if ?icpp: main.wrapOf = some icpp[0].getStrVal()
+
+  let dyn = effectSpec(prag, wDynlib)
+  if ?dyn: main.dynlibOf = some dyn[0].getStrVal()
 
   proc aux(node) =
     case node.kind:
@@ -392,17 +429,38 @@ proc registerProcBody(ctx; body: PNode, state: RegisterState, node) =
         discard
 
       of nkCall, nkCommand:
-        discard
-        # let head = node[0].headSym()
-        # if not isNil(head):
-        #   echo node.treeRepr1()
-        #   echo head.ast.treeRepr1()
-        #   let pragma = head.ast[pragmasPos]
-        #   let raises = effectSpec(pragma, wRaises)
-        #   echo "Found call with raises"
+        let head = node[0].headSym()
+        main.calls.incl ctx[head]
+        let raises = head.effectSpec(wRaises)
+        if ?raises:
+          for r in raises:
+            let id = ctx[r]
+            if isValid(id) and id in main.raisesVia:
+              main.raisesVia[id].incl ctx[head]
+
+        let effects = head.effectSpec(wTags)
+        if ?effects:
+          for e in effects:
+            let id = ctx[e]
+            if isValid(id):
+              main.effectsVia.mgetOrPut(id, DocIdSet()).incl id
+
+        for sub in node:
+          aux(sub)
+
+      of nkRaiseStmt:
+        if node[0].kind != nkEmpty and notNil(node[0].typ):
+          let et = node[0].typ.skipTypes(skipPtrs)
+          if notNil(et.sym):
+            main.raisesDirect.incl ctx[et.sym]
 
       of nkSym:
-        discard
+        case node.sym.kind:
+          of skVar, skLet:
+            main.globalIO.incl ctx[node.sym]
+
+          else:
+            discard
 
       else:
         for sub in node:

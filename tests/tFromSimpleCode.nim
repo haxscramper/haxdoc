@@ -54,10 +54,31 @@ type
     a: A
     debugTestA: A
 
+
+  Exc = object of CatchableError
+  Exc2 = object of Exc
+  Def = object of Defect
+
+proc canRaise() {.raises: [Exc].} = discard
+proc canDefect() {.raises: [Def].} = discard
+
+proc newExc2(): ref Exc2 = new(result)
+
 proc zz(b: B) {.deprecated("use somethign else").} =
+  canRaise()
+  canDefect()
   echo b.debugTestA.debugTestB.debugTestA[]
   let z = b.debugTestA.debugTestB
   let q = b.debugTestA
+
+  let tmp: int = (@[0, 1, 3])[40]
+  echo $tmp
+
+  if 2 > 4:
+    raise newException(Exc, "Some message")
+
+  elif 3 > 4:
+    raise newExc2()
 
 
 var globalVar = 10

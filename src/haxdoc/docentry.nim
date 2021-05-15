@@ -384,8 +384,19 @@ type
       # of dekField:
       #   fieldType*: DocType
 
-      # of dekProcKinds:
-      #   procType*: DocType
+      of dekProcKinds:
+        wrapOf*: Option[string]
+        dynlibOf*: Option[string]
+        calls*: DocIdSet ## Procedures called by entry
+        raises*: DocIdSet ## Full list of potential raises of a procedure
+        effects*: DocIdSet ## All effects for procedure body
+        raisesVia*: Table[DocId, DocIdSet] ## Mapping between particular
+        ## raise and called procedure. Direct raises via `raise` statement
+        ## are not listed here.
+        raisesDirect*: DocIdSet
+        effectsVia*: Table[DocId, DocIdSet] ## Effect -> called procMapping
+        globalIO*: DocIdSet ## Global variables that procedure reads from
+                            ## or writes into.
 
       else:
         discard
@@ -554,7 +565,11 @@ proc `$`*(ident: DocFullIdent): string =
     result.add $part
 
 
-func incl*(s: var DocIdSet, id: DocId) = s.ids.incl id.id.int
+func len*(s: DocIdSet): int = s.ids.len
+func incl*(s: var DocIdSet, id: DocId) =
+  if id.id.int != 0:
+    s.ids.incl id.id.int
+
 func excl*(s: var DocIdSet, id: DocId) = s.ids.excl id.id.int
 func contains*(s: DocIdSet, id: DocId): bool = id.id.int in s.ids
 iterator items*(s: DocIdSet): DocId =
