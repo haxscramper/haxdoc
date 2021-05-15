@@ -278,6 +278,7 @@ proc writeXml*(w; it: DocIdSet, tag) =
   w.xmlEnd(tag)
 
 proc loadXml*(r; it: var DocIdSet, tag) =
+  if not r[tag]: return
   r.skipStart(tag)
   while r["id"]:
     var id: DocId

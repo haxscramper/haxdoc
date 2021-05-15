@@ -12,14 +12,24 @@ import hnimast/compiler_aux
 
 let
   outDir = getTempDir() / "tFromCompiler"
-  compDir = getInstallationPath()
+  opts = initDefaultNimbleOptions()
+  compPackage = findPackage("compiler", newVRAny(), opts)
+
+
+startColorLogger()
+
+if compPackage.isNone():
+  err "Failed to find package `compiler`, skipping compiler analysis test"
+
+
+let
+  compDir = compPackage.get().getRealDir().AbsDir()
   compFile = compDir /. "compiler/nim.nim"
 
 mkDir outDir
 
-startColorLogger()
-
-info compFile
+info "Using compiler source dir ", compDir
+info "Starting compilation from ", compFile
 
 let db = generateDocDb(compFile, getStdPath(), @[])
 echo "Db compilation done"

@@ -1064,6 +1064,7 @@ proc generateDocDb*(
     err "Could not find stdlib at ", stdpath
     debug "Either explicitly specify library path via `--stdpath`"
     debug "Or run trail analysis with choosenim toolchain for correct version"
+    raiseArgumentError("")
 
   var db {.global.}: DocDb
   db = newDocDb()
