@@ -867,6 +867,21 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
   var entry = ctx.module.newDocEntry(
     procDecl.classifiyKind(), procDecl.name, ctx.toDocType(procDecl.signature))
 
+  case entry.name:
+    of "=destroy": entry.procKind = dpkDestructor
+    of "=sink": entry.procKind = dpkMoveOverride
+    of "=copy": entry.procKind = dpkCopyOverride
+    of "=": entry.procKind = dpkAsgnOverride
+    else:
+      if entry.name[^1] == '=' and entry.name[0] in IdentStartChars:
+        entry.procKind = dpkPropertySet
+
+      elif entry.name[0] in IdentStartChars:
+        entry.procKind = dpkRegular
+
+      else:
+        entry.procKind = dpkOperator
+
   entry.setDeprecated(procDef)
   if procDecl.declNode.get().isExported():
     entry.visibility = dvkPublic

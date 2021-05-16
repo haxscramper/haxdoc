@@ -108,6 +108,17 @@ type
 
     dekKeyword ## Language or macro DSL keyword
 
+  DocProcKind* = enum
+    dpkRegular
+    dpkOperator
+    dpkConstructor
+    dpkDestructor
+    dpkMoveOverride
+    dpkCopyOverride
+    dpkAsgnOverride
+    dpkPropertyGet
+    dpkPropertySet
+
 const
   dekProcKinds* = { dekProc .. dekSlot }
   dekNewtypeKinds* = { dekObject .. dekDistinctAlias }
@@ -381,10 +392,8 @@ type
       of dekAliasKinds:
         baseType*: DocType
 
-      # of dekField:
-      #   fieldType*: DocType
-
       of dekProcKinds:
+        procKind* {.Attr.}: DocProcKind
         wrapOf*: Option[string]
         dynlibOf*: Option[string]
         calls*: DocIdSet ## Procedures called by entry
