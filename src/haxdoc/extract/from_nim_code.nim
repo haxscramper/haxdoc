@@ -877,7 +877,11 @@ proc registerProcDef(ctx: DocContext, procDef: PNode) =
         entry.procKind = dpkPropertySet
 
       elif entry.name[0] in IdentStartChars:
-        entry.procKind = dpkRegular
+        if entry.name.startsWith(["init", "new"]):
+          entry.procKind = dpkConstructor
+
+        else:
+          entry.procKind = dpkRegular
 
       else:
         entry.procKind = dpkOperator
