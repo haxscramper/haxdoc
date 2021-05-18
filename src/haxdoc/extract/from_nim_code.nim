@@ -397,7 +397,7 @@ proc occur(ctx; node; localId: string) =
 
 
 proc effectSpec*(sym: PSym, word: TSpecialWord): PNode =
-  if notNil(sym) and notNil(sym.ast) and sym.ast.len >= pragmasPos:
+  if notNil(sym) and notNil(sym.ast) and sym.ast.safeLen >= pragmasPos:
     let pragma = sym.ast[pragmasPos]
     return effectSpec(pragma, word)
 
