@@ -1,16 +1,25 @@
-import ../docentry, ../docentry_io
-import hnimast/[compiler_aux, sempass_reexport]
-import compiler/[trees, wordrecg, types]
-import hmisc/hdebug_misc
-import hmisc/helpers
-import std/[strutils, strformat, tables, sequtils, with]
-import packages/docutils/[rst]
-import hnimast
-import hmisc/helpers
-import hmisc/other/[oswrap, colorlogger]
-import hmisc/algo/[hstring_algo, halgorithm]
-import compiler/sighashes
-import haxorg/[semorg, ast, importer_nim_rst]
+import
+  ../docentry,
+  ../docentry_io
+
+import
+  hnimast/[compiler_aux, sempass_reexport],
+  compiler/[trees, wordrecg, types, sighashes, scriptconfig],
+  nimblepkg/[packageinfo, common],
+  packages/docutils/[rst]
+
+import std/[
+  strutils, strformat, tables, sequtils, with, sets]
+
+import
+  hnimast,
+  hmisc/[hdebug_misc, helpers],
+  hmisc/other/[oswrap, colorlogger],
+  hmisc/algo/[hstring_algo, halgorithm]
+
+import
+  haxorg/[semorg, ast, importer_nim_rst]
+
 import hpprint
 
 proc headSym(node: PNode): PSym =
@@ -20,7 +29,8 @@ proc headSym(node: PNode): PSym =
        nkIdentDefs, nkRecCase:
       headSym(node[0])
 
-    of nkCommand, nkCall, nkDotExpr, nkPrefix, nkPostfix:
+    of nkCommand, nkCall, nkDotExpr, nkPrefix, nkPostfix,
+       nkHiddenStdConv:
       headSym(node[1])
 
     of nkSym:
@@ -35,7 +45,12 @@ proc headSym(node: PNode): PSym =
 
     of nkIdent, nkEnumTy, nkProcTy, nkObjectTy, nkTupleTy,
        nkTupleClassTy, nkIteratorTy, nkOpenSymChoice,
-       nkClosedSymChoice, nkCast, nkLambda:
+       nkClosedSymChoice, nkCast, nkLambda, nkCurly:
+      nil
+
+    of nkCheckedFieldExpr:
+      # First encountered during processing of `locks` file. Most likely
+      # this is a `object.field` check
       nil
 
     else:
@@ -371,10 +386,14 @@ proc occur(
     ctx.db.newOccur(parent.subslice(node), file, occur)
 
 proc occur(ctx; node; localId: string) =
-  ctx.db.newOccur(
-    node.nodeSlice(),
-    ctx.graph.getFilePath(node).string.AbsFile(),
-    DocOccur(kind: dokLocalUse, localId: localId))
+  let path = ctx.graph.getFilePath(node).string.AbsFile()
+  if not isAbsolute(path):
+    warn "invalid file position for", ctx.nodePosDisplay(node)
+
+  else:
+    ctx.db.newOccur(
+      node.nodeSlice(), path,
+      DocOccur(kind: dokLocalUse, localId: localId))
 
 
 proc effectSpec*(sym: PSym, word: TSpecialWord): PNode =
@@ -430,20 +449,21 @@ proc registerProcBody(ctx; body: PNode, state: RegisterState, node) =
 
       of nkCall, nkCommand:
         let head = node[0].headSym()
-        main.calls.incl ctx[head]
-        let raises = head.effectSpec(wRaises)
-        if ?raises:
-          for r in raises:
-            let id = ctx[r]
-            if isValid(id) and id in main.raisesVia:
-              main.raisesVia[id].incl ctx[head]
+        if not isNil(head):
+          main.calls.incl ctx[head]
+          let raises = head.effectSpec(wRaises)
+          if ?raises:
+            for r in raises:
+              let id = ctx[r]
+              if isValid(id) and id in main.raisesVia:
+                main.raisesVia[id].incl ctx[head]
 
-        let effects = head.effectSpec(wTags)
-        if ?effects:
-          for e in effects:
-            let id = ctx[e]
-            if isValid(id):
-              main.effectsVia.mgetOrPut(id, DocIdSet()).incl id
+          let effects = head.effectSpec(wTags)
+          if ?effects:
+            for e in effects:
+              let id = ctx[e]
+              if isValid(id):
+                main.effectsVia.mgetOrPut(id, DocIdSet()).incl id
 
         for sub in node:
           aux(sub)
@@ -792,6 +812,7 @@ proc classifiyKind(decl: PProcDecl): DocEntryKind =
     of nkMethodDef: dekMethod
     of nkIteratorDef: dekIterator
     of nkFuncDef: dekFunc
+    of nkConverterDef: dekConverter
     else:
       raiseImplementKindError(decl.declNode.get())
 
@@ -1035,71 +1056,70 @@ proc registerDeclSection(ctx; node; nodeKind: DocEntryKind = dekGlobalVar) =
       ctx.addSigmap(node[0], def)
       # TODO extract comments
 
+    of nkVarTuple:
+      # TODO
+      discard
+
     else:
       raiseImplementKindError(node, node.treeRepr1())
 
 
 proc registerToplevel(ctx, node) =
-  case node.kind:
-    of nkProcDeclKinds:
-      ctx.registerProcDef(node)
+  try:
+    case node.kind:
+      of nkProcDeclKinds:
+        ctx.registerProcDef(node)
 
-    of nkTypeSection:
-      for typeDecl in node:
-        registerToplevel(ctx, typeDecl)
+      of nkTypeSection:
+        for typeDecl in node:
+          registerToplevel(ctx, typeDecl)
 
-    of nkTypeDef:
-      ctx.registerTypeDef(node)
+      of nkTypeDef:
+        ctx.registerTypeDef(node)
 
-    of nkStmtList:
-      for subnode in node:
-        ctx.registerTopLevel(subnode)
+      of nkStmtList:
+        for subnode in node:
+          ctx.registerTopLevel(subnode)
 
-    of nkVarSection, nkLetSection, nkConstSection:
-      ctx.registerDeclSection(node)
+      of nkVarSection, nkLetSection, nkConstSection:
+        ctx.registerDeclSection(node)
 
-    of nkEmpty, nkCommentStmt, nkIncludeStmt, nkImportStmt,
-       nkPragma, nkExportStmt:
-      discard
+      of nkEmpty, nkCommentStmt, nkIncludeStmt, nkImportStmt,
+         nkPragma, nkExportStmt:
+        discard
 
-    else:
-      discard
+      else:
+        discard
 
-  var state = initRegisterState()
-  state.moduleId = ctx.module.id()
-  ctx.registerUses(node, state)
+    var state = initRegisterState()
+    state.moduleId = ctx.module.id()
+    ctx.registerUses(node, state)
 
+  except:
+    err ctx.nodePosDisplay(node)
+    raise
 
-proc generateDocDb*(
-    file: AbsFile,
-    stdpath: AbsDir,
-    otherPaths: seq[AbsDir],
-  ): DocDb =
+proc loggerImpl(
+    config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
+  if config.errorCounter >= config.errorMax:
+    err msg
+    err info, config.getFilePath(info)
 
-  info "input file:", file
-  if exists(stdpath):
-    info "stdpath:", stdpath
-  else:
-    err "Could not find stdlib at ", stdpath
-    debug "Either explicitly specify library path via `--stdpath`"
-    debug "Or run trail analysis with choosenim toolchain for correct version"
-    raiseArgumentError("")
+proc registerDocPass(
+    graph: ModuleGraph, file: AbsFile, stdpath: AbsDir,
+    extraLibs: seq[(AbsDir, string)] = @[]
+     ): DocDb =
+  ## Create new documentation generator graph
 
   var db {.global.}: DocDb
   db = newDocDb()
   db.addKnownLib(AbsDir(($stdPath).dropSuffix("lib")), "std")
+  for (path, lib) in extraLibs:
+    db.addKnownLib(path, lib)
 
   var sigmap {.global.}: TableRef[SigHash, DocId]
-
   sigmap = newTable[SigHash, DocId]()
 
-  var graph {.global.}: ModuleGraph
-  graph = newModuleGraph(file, stdpath,
-    proc(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
-      if config.errorCounter >= config.errorMax:
-        err msg
-        err info, config.getFilePath(info)
-  )
 
   registerPass(graph, semPass)
   registerPass(
@@ -1133,7 +1153,89 @@ proc generateDocDb*(
     )
   )
 
+  return db
+
+
+
+proc generateDocDb*(
+    file: AbsFile,
+    stdpath: AbsDir,
+    otherPaths: seq[AbsDir],
+    extraLibs: seq[(AbsDir, string)] = @[],
+  ): DocDb =
+
+  info "input file:", file
+  if exists(stdpath):
+    info "stdpath:", stdpath
+  else:
+    err "Could not find stdlib at ", stdpath
+    debug "Either explicitly specify library path via `--stdpath`"
+    debug "Or run trail analysis with choosenim toolchain for correct version"
+    raiseArgumentError("")
+
+  var graph {.global.}: ModuleGraph
+  graph = newModuleGraph(file, stdpath, loggerImpl)
+
+  var db = graph.registerDocPass(file, stdpath, extraLibs)
+
   logIndented:
     compileProject(graph)
 
   return db
+
+
+proc projectFiles*(sourceDir: AbsDir): seq[AbsFile] =
+  ## Return list of project files.
+  ##
+  ## - TODO :: Allow user to specify lista of target files
+
+  for file in walkDir(
+    sourceDir, AbsFile, exts = @["nim"], recurse = true):
+    result.add file
+
+
+
+proc docDbFromPackage*(
+    package: PackageInfo, stdpath: AbsDir): DocDb =
+
+  let
+    projectFile = AbsFile(package.myPath)
+    sourceDir = projectFile.dir() / package.srcDir
+    files = projectFiles(sourceDir)
+    deps = projectFile.resolveNimbleDeps().deduplicate()
+    depPaths = deps.mapIt(it.projectImportPath())
+
+
+  var extraLibs = @[(package.projectImportPath(), package.name)]
+  for dep in deps:
+    extraLibs.add((dep.projectImportPath(), dep.name))
+
+  info "Import paths for dependencies"
+  for dep in depPaths:
+    pprint dep
+
+  if files.len == 1:
+    return generateDocDb(files[0], stdpath, depPaths, extraLibs)
+
+  else:
+    var graph {.global.}: ModuleGraph
+    let moduleName = ignoredAbsFile
+    graph = newModuleGraph(moduleName, stdpath, loggerImpl)
+
+    var fakeFile: string
+    for dep in depPaths:
+      assertExists(dep)
+      graph.config.searchPaths.add dep
+
+    for file in files:
+      fakeFile &= &"import \"{file}\"\n"
+
+    result = graph.registerDocPass(moduleName, stdpath, extraLibs)
+
+
+
+    var m = graph.makeModule(moduleName.string)
+    graph.vm = setupVM(m, graph.cache, moduleName.string, graph)
+    graph.compileSystemModule()
+    logIndented:
+      discard graph.processModule(m, llStreamOpen(fakeFile))

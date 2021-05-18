@@ -5,7 +5,7 @@ import cxxstd/cxx_common
 import nimtrail/nimtrail_common
 
 import
-  hmisc/other/oswrap,
+  hmisc/other/[oswrap, colorlogger],
   hmisc/[base_errors, hdebug_misc],
   hmisc/hasts/xml_ast
 
@@ -111,6 +111,10 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap) =
           )
 
       else:
+        if occur.refid notin idMap.docToTrail:
+          warn "Occur at", part, "does not refere to any exiting entry"
+          continue
+
         let targetId = idMap.docToTrail[occur.refid]
         let useKind =
           case occur.kind:
@@ -198,6 +202,7 @@ proc registerDb*(writer; db: DocDb): IdMap =
         of dekPragma:    sskAnnotation
         of dekModule:    sskModule
         of dekPackage:   sskPackage
+        of dekMethod:    sskMethod
 
         else:
           raiseImplementKindError(entry)
@@ -231,6 +236,15 @@ proc registerFullDb*(writer; db: DocDb) =
 
 const
   sourcetrailDbExt* = "srctrldb"
+
+proc writeSourcetrailDb*(db: DocDb, outFile: AbsFile) =
+  var writer: SourcetrailDbWriter
+  let outFile = outFile.withExt(sourcetrailDbExt)
+  debug outFile
+  writer.open(outFile)
+  registerFullDb(writer, db)
+  discard writer.close()
+
 
 when isMainModule:
   startHax()

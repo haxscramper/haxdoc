@@ -999,7 +999,12 @@ proc newDocFile*(path: AbsFile): DocFile =
   for idx, line in enumerate(lines(path)):
     result.body.add newCodeLine(idx + 1, line)
 
+const
+  ignoredAbsFile* = AbsFile("ignoredFakeAbsFile")
+
 proc setIdForFile*(db: var DocDb, path: AbsFile, id: DocId) =
+  if path == ignoredAbsFile: return
+
   var found = false
   for file in mitems(db.files):
     if file.path == path:
@@ -1013,6 +1018,8 @@ proc setIdForFile*(db: var DocDb, path: AbsFile, id: DocId) =
 
 proc newOccur*(
   db: var DocDb, position: DocCodeSlice, inFile: AbsFile, occur: DocOccur) =
+  if inFile == ignoredAbsFile: return
+
   assertExists(inFile)
   var fileIdx = -1
   for idx, file in pairs(db.files):
