@@ -31,7 +31,7 @@ mkDir outDir
 info "Using compiler source dir ", compDir
 info "Starting compilation from ", compFile
 
-let db = generateDocDb(compFile, getStdPath(), @[])
+let db = generateDocDb(compFile, fileLib = some("compiler"))
 echo "Db compilation done"
 
 let dot = db.inheritDotGraph()

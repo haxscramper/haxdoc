@@ -9,7 +9,9 @@ import
   packages/docutils/[rst]
 
 import std/[
-  strutils, strformat, tables, sequtils, with, sets]
+  strutils, strformat, tables, sequtils, with, sets, options]
+
+export options
 
 import
   hnimast,
@@ -1184,6 +1186,7 @@ proc generateDocDb*(
   if fileLib.isSome():
     extraLibs.add((file.dir(), fileLib.get()))
 
+
   var graph {.global.}: ModuleGraph
   graph = newModuleGraph(file, stdpath, loggerImpl)
 
@@ -1207,15 +1210,17 @@ proc projectFiles*(sourceDir: AbsDir): seq[AbsFile] =
 
 
 proc docDbFromPackage*(
-    package: PackageInfo, stdpath: AbsDir): DocDb =
+    package: PackageInfo, stdpath: AbsDir = getStdPath()): DocDb =
 
   let
     projectFile = AbsFile(package.myPath)
     sourceDir = projectFile.dir() / package.srcDir
     files = projectFiles(sourceDir)
     deps = projectFile.resolveNimbleDeps().deduplicate()
-    depPaths = deps.mapIt(it.projectImportPath())
 
+  var depPaths = deps.mapIt(it.projectImportPath())
+
+  depPaths.add package.projectImportPath()
 
   var extraLibs = @[(package.projectImportPath(), package.name)]
   for dep in deps:
@@ -1240,6 +1245,10 @@ proc docDbFromPackage*(
 
     for file in files:
       fakeFile &= &"import \"{file}\"\n"
+
+
+    for (dir, name) in extraLibs:
+      debug dir, name
 
     result = graph.registerDocPass(moduleName, stdpath, extraLibs)
 

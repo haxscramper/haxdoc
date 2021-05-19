@@ -11,13 +11,13 @@ requires "hnimast#head"
 requires "haxorg"
 requires "nimtrail >= 0.1.1"
 requires "nim >= 1.4.0"
-requires "hmisc >= 0.10.4"
+requires "hmisc#head"
 requires "hpprint >= 0.2.12"
 requires "fusion"
 requires "cxxstd"
 
 before install:
-  # Whatever, I'm too tired of fighting nimble over my local installatin
+  # Whatever, I'm too tired of fighting nimble over my local installation
   # 'local dependencies' will be added 'stometimes later', so for now I
   # just have this hack. Don't care, works for me.
   exec("nimble -y install 'https://github.com/haxscramper/nimspell.git'")

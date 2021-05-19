@@ -14,21 +14,41 @@ import
 import
   hpprint
 
-import std/[tables, sets, options]
+import std/[tables, sets, options, unittest]
 
 startHax()
 startColorLogger()
 
-let
-  outDir = getTempDir() / "tFromPackage"
 
-mkDir outDir
+suite "From project dependency":
+  test "From hmisc":
+    let
+      outDir = getTempDir() / "tFromPackage"
 
-let db = docDbFromPackage(
-  findPackage("hmisc", newVRAny()).get(), getStdPath())
+    mkDir outDir
 
-db.writeDbXml(outDir, "package")
-writeSourcetrailDb(db, outDir /. "package")
+    let db = docDbFromPackage(findPackage("hmisc", newVRAny()).get())
 
-if hasCmd(shellCmd("dot")):
-  db.inheritDotGraph().toPng(AbsFile "/tmp/hmisc-inherit.png")
+    db.writeDbXml(outDir, "package")
+    writeSourcetrailDb(db, outDir /. "package")
+
+    if hasCmd(shellCmd("dot")):
+      db.inheritDotGraph().toPng(AbsFile "/tmp/hmisc-inherit.png")
+
+suite "From regular package":
+  test "in /tmp":
+    let
+      inDir = getTempDir() / "inPackage"
+      outDir = getTempDir() / "tFromTmpPackage"
+
+    if exists(inDir):
+      mkDir outDir
+      let info = getPackageInfo(inDir)
+      echo info.projectPath()
+      echo info.projectImportPath()
+      let db = docDbFromPackage(info)
+
+      writeSourcetrailDb(db, outDir /. "fromPackage")
+
+    else:
+      echo "Directory ", inDir, " does not exist, skipping test"
