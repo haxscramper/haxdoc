@@ -158,6 +158,7 @@ type
     dokTypeAsArgUse
     dokTypeAsReturnUse
     dokTypeAsFieldUse
+    dokTypeConversionUse
 
     dokUsage
     dokCall
@@ -773,9 +774,6 @@ proc registerNested*(db: var DocDb, parent, nested: DocEntry) =
   else:
     parent.nested.add nested.id()
 
-proc newDocDb*(): DocDb =
-  result = DocDb()
-
 proc getOrNew*(db: var DocDb, kind: DocEntryKind, name: string): DocEntry =
   let key = initIdentPart(kind, name)
   if key in db.top:
@@ -789,10 +787,17 @@ proc getSub*(parent: DocEntry, subName: string): DocId =
     if parent.db[sub].name == subName:
       return sub
 
+const ignoredAbsFile* = AbsFile("ignoredFakeAbsFile")
+
 proc getLibForPath*(db: DocDb, path: AbsFile): DocLib =
+  if path == ignoredAbsFile: return
+
   for lib in db.knownLibs:
     if path.startsWith($lib.dir):
       return lib
+
+  raiseArgumentError(
+    "No known library for path " & $path)
 
 proc getOrNewPackage*(db: var DocDb, path: AbsPath): DocEntry =
   let lib = db.getLibForPath(path)
@@ -848,6 +853,11 @@ proc addKnownLib*(db: var DocDb, dir: AbsDir, name: string) =
   # NOTE I know it is not particularly efficient, but if I get to the point
   # where it becomes a bottleneck I simply replace it with `Map`
   sortIt(db.knownLibs, it.dir.len)
+
+proc newDocDb*(extraLibs: openarray[(AbsDir, string)] = @[]): DocDb =
+  result = DocDb()
+  for (dir, name) in extraLibs:
+    result.addKnownLib(dir, name)
 
 proc setLocation*(de: DocEntry, location: DocLocation) =
   de.location = some location
@@ -998,9 +1008,6 @@ proc newDocFile*(path: AbsFile): DocFile =
   result.path = path
   for idx, line in enumerate(lines(path)):
     result.body.add newCodeLine(idx + 1, line)
-
-const
-  ignoredAbsFile* = AbsFile("ignoredFakeAbsFile")
 
 proc setIdForFile*(db: var DocDb, path: AbsFile, id: DocId) =
   if path == ignoredAbsFile: return

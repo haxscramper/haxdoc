@@ -9,7 +9,7 @@ import
   haxdoc/process/[docentry_query, docentry_group],
   nimtrail/nimtrail_common
 
-import std/[unittest]
+import std/[unittest, options]
 
 import hnimast/compiler_aux
 
@@ -98,6 +98,14 @@ proc qew() =
   test = Fun
   echo(test)
 
+type Dist = distinct int
+
+let
+  aa = Dist(123)
+  bb = 123.Dist
+  cc = aa.int
+
+
 """
 
 startHax()
@@ -112,11 +120,11 @@ suite "Generate DB":
   startColorLogger()
 
   block: # Generate initial DB
-    let db = generateDocDb(file, getStdPath(), @[])
+    let db = generateDocDb(file, fileLIb = some("main"))
     db.writeDbXml(dir, "compile-db")
 
 
-  var inDb: DocDb
+  var inDb = newDocDb({file.dir(): "main"})
 
   block: # Load DB from xml
     for file in walkDir(dir, AbsFile, exts = @["hxde"]):

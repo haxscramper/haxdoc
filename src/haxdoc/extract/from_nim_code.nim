@@ -177,6 +177,7 @@ type
 
     rskDefineCheck
     rskAsgn
+    rskCallHead
 
     rskImport
 
@@ -512,6 +513,7 @@ proc impl(
               of rskTypeHeader:  dokObjectDeclare
               of rskEnumHeader:  dokEnumDeclare
               of rskAliasHeader: dokAliasDeclare
+              of rskCallHead: dokTypeConversionUse
               else:
                 echo node.treeRepr1()
                 echo ctx.graph.getFilePath(node), node.getInfo()
@@ -641,13 +643,17 @@ proc impl(
       # IDEA possible analysis of passthrough code?
       discard
 
-    of nkCall:
-      if "defined" in $node:
+    of nkCall, nkConv:
+      if node.kind == nkCall and "defined" in $node:
         ctx.impl(node[1], state + rskDefineCheck, node)
 
       else:
-        for subnode in node:
-          ctx.impl(subnode, state, node)
+        for idx, subnode in node:
+          if idx == 0:
+            ctx.impl(subnode, state + rskCallHead, node)
+
+          else:
+            ctx.impl(subnode, state, node)
 
     of nkProcDeclKinds:
       result = ctx.impl(node[0], state + rskProcHeader, node)
@@ -1159,9 +1165,10 @@ proc registerDocPass(
 
 proc generateDocDb*(
     file: AbsFile,
-    stdpath: AbsDir,
-    otherPaths: seq[AbsDir],
+    stdpath: AbsDir = getStdPath(),
+    otherPaths: seq[AbsDir] = @[],
     extraLibs: seq[(AbsDir, string)] = @[],
+    fileLib: Option[string] = none(string)
   ): DocDb =
 
   info "input file:", file
@@ -1172,6 +1179,10 @@ proc generateDocDb*(
     debug "Either explicitly specify library path via `--stdpath`"
     debug "Or run trail analysis with choosenim toolchain for correct version"
     raiseArgumentError("")
+
+  var extraLibs = extraLibs
+  if fileLib.isSome():
+    extraLibs.add((file.dir(), fileLib.get()))
 
   var graph {.global.}: ModuleGraph
   graph = newModuleGraph(file, stdpath, loggerImpl)

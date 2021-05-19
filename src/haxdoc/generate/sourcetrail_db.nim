@@ -122,7 +122,7 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap) =
               raiseImplementError("")
 
             of dokTypeAsFieldUse, dokTypeAsReturnUse, dokTypeDirectUse,
-              dokTypeAsParameterUse, dokTypeAsArgUse:
+              dokTypeAsParameterUse, dokTypeAsArgUse, dokTypeConversionUse:
               srkTypeUsage
 
             of dokTypeSpecializationUse:
