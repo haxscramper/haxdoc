@@ -1188,7 +1188,7 @@ proc generateDocDb*(
 
 
   var graph {.global.}: ModuleGraph
-  graph = newModuleGraph(file, stdpath, loggerImpl)
+  graph = newModuleGraph(file, stdpath, loggerImpl, symDefines = @["nimdoc"])
 
   var db = graph.registerDocPass(file, stdpath, extraLibs)
 
@@ -1236,7 +1236,8 @@ proc docDbFromPackage*(
   else:
     var graph {.global.}: ModuleGraph
     let moduleName = ignoredAbsFile
-    graph = newModuleGraph(moduleName, stdpath, loggerImpl)
+    graph = newModuleGraph(
+      moduleName, stdpath, loggerImpl, symDefines = @["nimdoc"])
 
     var fakeFile: string
     for dep in depPaths:
