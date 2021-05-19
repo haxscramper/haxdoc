@@ -166,11 +166,14 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap) =
 
 proc registerDb*(writer; db: DocDb): IdMap =
   for full, id in db.fullIdents:
-    let
-      name = full.toTrailName()
-      entry = db[id]
+    let entry = db[id]
 
-    if entry.kind in {dekArg}: continue
+    if (entry.kind in {dekPackage} and entry.name == "") or
+       (entry.kind in {dekArg}) or
+       (entry.kind in {dekModule} and entry.name == ignoredAbsFile.string):
+      continue
+
+    let name = full.toTrailName()
 
     let defKind =
       case entry.kind:
@@ -240,7 +243,7 @@ const
 proc writeSourcetrailDb*(db: DocDb, outFile: AbsFile) =
   var writer: SourcetrailDbWriter
   let outFile = outFile.withExt(sourcetrailDbExt)
-  debug outFile
+  rmFile outFile
   writer.open(outFile)
   registerFullDb(writer, db)
   discard writer.close()
