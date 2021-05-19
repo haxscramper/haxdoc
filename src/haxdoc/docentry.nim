@@ -179,6 +179,7 @@ type
     dokGlobalDeclare
 
     dokFieldUse
+    dokFieldSet
     dokEnumFieldUse
 
     dokFieldDeclare

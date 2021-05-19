@@ -148,7 +148,8 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap) =
             of dokCall:
               srkCall
 
-            of dokEnumFieldUse, dokGlobalRead, dokGlobalWrite, dokFieldUse:
+            of dokEnumFieldUse, dokGlobalRead, dokGlobalWrite,
+               dokFieldUse, dokFieldSet:
               srkUsage
 
             of dokAnnotationUsage, dokDefineCheck:

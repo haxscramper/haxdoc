@@ -367,16 +367,26 @@ proc occur(ctx; node: PNode, kind: DocOccurKind, user: Option[DocId]) =
 
 proc occur(ctx; node; id: DocId, kind: DocOccurKind, user: Option[DocId]) =
   var occur = DocOccur(kind: kind, user: user)
+
   occur.refid = id
   let file = ctx.graph.getFilePath(node)
   if exists(file):
-    ctx.db.newOccur(node.nodeSlice(), file, occur)
+    let slice = node.nodeSlice()
+    ctx.db.newOccur(slice, file, occur)
+
 
 proc subslice(parent, node: PNode): DocCodeSlice =
   let main = parent.nodeExprSlice()
   case parent.kind:
     of nkDotExpr: result = main[^(len($node)) .. ^1]
-    else: result = main
+    of nkExprColonExpr:
+      result.line = main.line
+      result.column.b = main.column.a
+      result.column.a = main.column.a - len($node)
+
+    else:
+      result = main
+
 
 proc occur(
     ctx; node; parent: PNode; id: DocId,
@@ -386,7 +396,8 @@ proc occur(
   occur.refid = id
   let file = ctx.graph.getFilePath(parent)
   if exists(file):
-    ctx.db.newOccur(parent.subslice(node), file, occur)
+    let slice = parent.subslice(node)
+    ctx.db.newOccur(slice, file, occur)
 
 proc occur(ctx; node; localId: string) =
   let path = ctx.graph.getFilePath(node).string.AbsFile()
@@ -721,6 +732,23 @@ proc impl(
 
       else:
         ctx.impl(node[1], state, node)
+
+    of nkObjConstr:
+      if node[0].kind != nkEmpty and notNil(node[0].typ):
+        let headType = node[0].typ.skipTypes(skipPtrs)
+        if notNil(headType.sym):
+          let headId = ctx[headType.sym]
+          if headId in ctx.db:
+            let head = ctx.db[headId]
+            for fieldPair in node[1 ..^ 1]:
+              let field = fieldPair[0]
+              let fieldId = head.getSub(field.getStrVal())
+              if fieldId.isValid():
+                ctx.occur(field, fieldPair, fieldId, dokFieldSet, state.user)
+
+      ctx.impl(node[0], state, node)
+      for subnode in node[1 ..^ 1]:
+        ctx.impl(subnode[1], state, node)
 
     else:
       var state = state

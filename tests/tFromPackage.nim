@@ -49,6 +49,7 @@ suite "From regular package":
       let db = docDbFromPackage(info)
 
       writeSourcetrailDb(db, outDir /. "fromPackage")
+      writeDbXml(db, outDir, "fromPackage")
 
     else:
       echo "Directory ", inDir, " does not exist, skipping test"
