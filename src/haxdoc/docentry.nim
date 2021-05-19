@@ -257,6 +257,9 @@ type
   DocId* = object
     id* {.Attr.}: Hash
 
+  DocIdTableN* = object
+    table: Table[DocId, DocIdSet]
+
   DocEntryGroup* = ref object
     entries*: seq[DocEntry]
     nested*: seq[DocEntryGroup]
@@ -529,6 +532,17 @@ func `$`*(t: DocType): string =
       raiseImplementKindError(t)
 
 func hash*(id: DocId): Hash = hash(id.id)
+
+func contains*(table: DocIdTableN, id: DocId): bool {.inline.} =
+  contains(table.table, id)
+
+func `[]`*(table: DocIdTableN, id: DocId): DocIdSet {.inline.} =
+  if id in table:
+    return table.table[id]
+
+func `[]=`*(table: var DocIdTableN, id: DocId, idset: DocIdSet) =
+  table.table[id] = idset
+
 proc hash*(part: DocIdentPart): Hash =
   result = hash(part.kind) !& hash(part.name)
   if part.kind in dekProcKinds:
@@ -585,6 +599,10 @@ func contains*(s: DocIdSet, id: DocId): bool = id.id.int in s.ids
 iterator items*(s: DocIdSet): DocId =
   for i in s.ids:
     yield DocId(id: i)
+
+
+func incl*(table: var DocIdTableN, idKey, idVal: DocId) =
+  table.table.mgetOrPut(idKey, DocIdSet()).incl idVal
 
 
 func isExported*(e: DocEntry): bool = e.visibility in {dvkPublic}

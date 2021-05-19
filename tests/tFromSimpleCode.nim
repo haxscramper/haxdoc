@@ -105,6 +105,9 @@ let
   bb = 123.Dist
   cc = aa.int
 
+type ObjectWithMethods = ref object of RootObj
+method exampleMethod(obj: ObjectWithMethods) =
+  discard
 
 """
 
