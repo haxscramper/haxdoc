@@ -14,17 +14,4 @@ jobs:
         run: |
           export PATH=$HOME/.nimble/bin:$PATH
           nimble install -y
-          nimble test -y
-  # install:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: alaviss/setup-nim@master
-  #       with:
-  #         path: '../nim'
-  #         version: 'version-1-4'
-
-  #     - name: Compile binary
-  #       run: |
-  #         export PATH=$HOME/.nimble/bin:$PATH
-  #         nimble install -y "https://github.com/haxscramper/haxdoc@#head"
+          nimble test -y -d:release
