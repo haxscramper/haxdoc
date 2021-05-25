@@ -34,6 +34,7 @@ suite "From project dependency":
 
     if hasCmd(shellCmd("dot")):
       db.inheritDotGraph().toPng(AbsFile "/tmp/hmisc-inherit.png")
+      db.structureDotGraph().toPng(outDir /. "structure.png")
 
 suite "From regular package":
   test "in /tmp":

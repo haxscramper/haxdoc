@@ -609,6 +609,10 @@ proc impl(
             of rskExport:
               module.exports.incl ctx[node]
 
+            of rskCallHead:
+              # `module.proc`
+              discard
+
             else:
               raise newUnexpectedKindError(state.top())
 
@@ -1283,19 +1287,18 @@ proc docDbFromPackage*(
   ): DocDb =
 
   let
-    projectFile = AbsFile(package.myPath)
-    sourceDir = projectFile.dir() / package.srcDir
-    files = projectFiles(sourceDir, ignored)
+    projectFile = package.projectFile()
+    files = package.projectImportPath().projectFiles(ignored)
     deps = projectFile.resolveNimbleDeps(searchDir).fromMinimal()
 
   var depPaths = deps.mapIt(it.projectImportPath())
 
   depPaths.add package.projectImportPath()
 
-  var extraLibs = @[(package.projectImportPath(), package.name)]
+  var extraLibs = @[(package.projectPath(), package.name)]
   for dep in deps:
-    extraLibs.add((dep.projectImportPath(), dep.name))
-    info dep.projectImportPath(), dep.name
+    extraLibs.add((dep.projectPath(), dep.name))
+    info dep.projectPath(), dep.name
 
   if files.len == 1:
     result = generateDocDb(files[0], stdpath, depPaths, extraLibs)
