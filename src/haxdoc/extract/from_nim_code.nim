@@ -9,7 +9,7 @@ import
   packages/docutils/[rst]
 
 import std/[
-  strutils, strformat, tables, sequtils, with, sets, options]
+  strutils, strformat, tables, sequtils, with, sets, options, hashes]
 
 export options
 
@@ -158,7 +158,7 @@ type
     graph: ModuleGraph
     allModules: seq[DocEntry]
     module: DocEntry
-    sigmap: TableRef[SigHash, DocId]
+    sigmap: TableRef[PSym, DocId]
 
   RegisterStateKind = enum
     rskTopLevel
@@ -326,12 +326,14 @@ proc trySigHash*(sym: PSym): SigHash =
     except IndexDefect as e:
       discard
 
+proc hash(s: PSym): Hash = hash($s)
+
+
 proc addSigmap(ctx; node; entry: DocEntry) =
   try:
     let sym = node.headSym()
     if not isNil(sym):
-      let hash = sym.sigHash()
-      ctx.sigmap[hash] = entry.id()
+      ctx.sigmap[sym] = entry.id()
 
   except IndexDefect as e:
     discard
@@ -345,13 +347,16 @@ proc sigHash(t: PNode): SigHash =
 proc sigHash(t: PSym): SigHash =
   result = t.trySigHash()
 
+proc headSym(s: PSym): PSym = s
+proc headSym(t: NType): PSym = t.declNode.get().headSym()
+
 proc contains(ctx; ntype: NType | PNode | PSym): bool =
-  ntype.sigHash() in ctx.sigmap
+  ntype.headSym() in ctx.sigmap
 
 proc `[]`(ctx; ntype: NType | PNode | PSym): DocId =
-  let hash = ntype.sigHash()
-  if hash in ctx.sigmap:
-    return ctx.sigmap[hash]
+  let sym = headSym(ntype)
+  if sym in ctx.sigmap:
+    return ctx.sigmap[sym]
 
 proc occur(ctx; node: PNode, kind: DocOccurKind, user: Option[DocId]) =
   var occur = DocOccur(user: user, kind: kind)
@@ -679,6 +684,7 @@ proc impl(
 
       ctx.impl(node[4], state + rskProcHeader + result, node)
       ctx.impl(node[5], state + rskProcHeader + result, node)
+
       ctx.impl(node[6], state + result, node)
 
       ctx.registerProcBody(node[6], state, node)
@@ -1153,8 +1159,8 @@ proc registerDocPass(
   for (path, lib) in extraLibs:
     db.addKnownLib(path, lib)
 
-  var sigmap {.global.}: TableRef[SigHash, DocId]
-  sigmap = newTable[SigHash, DocId]()
+  var sigmap {.global.}: TableRef[PSym, DocId]
+  sigmap = newTable[PSym, DocId]()
 
 
   registerPass(graph, semPass)
@@ -1170,7 +1176,7 @@ proc registerDocPass(
 
           context.module = package.newDocEntry(dekModule, module.getStrVal())
           context.module.visibility = dvkPublic
-          sigmap[module.sigHash()] = context.module.id()
+          sigmap[module] = context.module.id()
           context.db.setIdForFile(file, context.module.id())
 
           context.allModules.add context.module

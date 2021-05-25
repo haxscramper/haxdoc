@@ -118,6 +118,7 @@ type
     dpkAsgnOverride
     dpkPropertyGet
     dpkPropertySet
+    dpkPredicate
 
 const
   dekProcKinds* = { dekProc .. dekSlot }

@@ -50,3 +50,7 @@ writer.open(outDir /. "tFromCompiler" &. sourcetrailDbExt)
 writer.registerFullDb(db)
 echo "Registered sourcetrail DB"
 discard writer.close()
+
+
+# db.writeDbXml(outDir, "compile-db")
+# echo "Wrote XML db"

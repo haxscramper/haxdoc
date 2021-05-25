@@ -5,11 +5,11 @@ import
 import
   haxdoc/extract/from_nim_code,
   haxdoc/[docentry, docentry_io],
-  haxdoc/generate/sourcetrail_db,
+  haxdoc/generate/[sourcetrail_db, docentry_hext],
   haxdoc/process/[docentry_query, docentry_group],
   nimtrail/nimtrail_common
 
-import std/[unittest, options]
+import std/[unittest, options, streams]
 
 import hnimast/compiler_aux
 
@@ -109,70 +109,79 @@ type ObjectWithMethods = ref object of RootObj
 method exampleMethod(obj: ObjectWithMethods) =
   discard
 
+proc recFirst()
+proc recFirst(a: int) = recFirst()
+
+
+proc recOther() = echo "123123"
+
+proc recFirst() =
+  recFirst(1)
+  recOther()
+
 """
 
 startHax()
 
 
+let dir = getTempDir() / "tFromSimpleCode"
+
 suite "Generate DB":
-  let dir = getTempDir() / "tFromSimpleCode"
-  mkDir dir
-  let file = dir /. "a.nim"
-  file.writeFile code
+  test "Generate DB":
+    mkDir dir
+    let file = dir /. "a.nim"
+    file.writeFile code
 
-  startColorLogger()
+    startColorLogger()
 
-  block: # Generate initial DB
-    let db = generateDocDb(file, fileLIb = some("main"))
-    db.writeDbXml(dir, "compile-db")
+    block: # Generate initial DB
+      let db = generateDocDb(file, fileLIb = some("main"))
+      db.writeDbXml(dir, "compile-db")
 
 
-  var inDb = newDocDb({file.dir(): "main"})
+    var inDb = newDocDb({file.dir(): "main"})
 
-  block: # Load DB from xml
-    for file in walkDir(dir, AbsFile, exts = @["hxde"]):
-      info "Loading DB", file
-      block:
+    block: # Load DB from xml
+      for file in walkDir(dir, AbsFile, exts = @["hxde"]):
+        info "Loading DB", file
+        block:
+          var reader = newHXmlParser(file)
+          reader.loadXml(inDb, "dbmain")
+
+        block:
+          var writer = newXmlWriter(file.withExt("xml"))
+          writer.writeXml(inDb, "file")
+
+
+    var writer: SourcetrailDbWriter
+
+    block: # Open sourcetrail DB
+      inDb.addKnownLib(getStdPath().dropSuffix("lib"), "std")
+      let trailFile = dir /. "fromSimpleCode" &. sourcetrailDbExt
+      rmFile trailFile
+      writer.open(trailFile)
+      discard writer.beginTransaction()
+
+    block: # Generate sourcetrail database
+      let idMap = writer.registerDb(inDb)
+
+      for file in walkDir(dir, AbsFile, exts = @["hxda"]):
+        var inFile: DocFile
         var reader = newHXmlParser(file)
-        reader.loadXml(inDb, "dbmain")
+        reader.loadXml(inFile, "file")
 
-      block:
-        var writer = newXmlWriter(file.withExt("xml"))
-        writer.writeXml(inDb, "file")
+        writer.registerUses(inFile, idMap)
 
-
-  var writer: SourcetrailDbWriter
-
-  block: # Open sourcetrail DB
-    inDb.addKnownLib(getStdPath().dropSuffix("lib"), "std")
-    let trailFile = dir /. "fromSimpleCode" &. sourcetrailDbExt
-    rmFile trailFile
-    writer.open(trailFile)
-    discard writer.beginTransaction()
-
-  block: # Generate sourcetrail database
-    let idMap = writer.registerDb(inDb)
-
-    for file in walkDir(dir, AbsFile, exts = @["hxda"]):
-      var inFile: DocFile
-      var reader = newHXmlParser(file)
-      reader.loadXml(inFile, "file")
-
-      writer.registerUses(inFile, idMap)
-
-  block: # Close sourcetrail DB
-    discard writer.commitTransaction()
-    discard writer.close()
+    block: # Close sourcetrail DB
+      discard writer.commitTransaction()
+      discard writer.close()
 
 
-  echo "done"
+    echo "done"
 
 suite "Filter DB":
   test "Filter db":
-    let dir = getTempDir() / "tFromSimpleCode"
-
-    if not exists(dir /. "compile-db" &. "hxde"):
-      quit 0
+    if not exists(dir /. "compile-db" &. "hxde"): quit 0
 
     let db = loadDbXml(dir, "compile-db")
 
@@ -198,3 +207,32 @@ suite "Filter DB":
     if hasCmd(shellCmd("dot")):
       db.inheritDotGraph().toPng(AbsFile "/tmp/inherit.png")
       db.usageDotGraph().toPng(AbsFile "/tmp/usage.png")
+
+suite "Generate HTML":
+  test "Generate HTML":
+    if not exists(dir /. "compile-db" &. "hxde"): quit 0
+    let db = loadDbXml(dir, "compile-db")
+
+    const genTemplate = """
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>The HTML5 Herald</title>
+  <meta name="description" content="The HTML5 Herald">
+</head>
+
+<body>
+  <ul>
+  {% for entry in db %}
+  <li><b>{{entry.name}}</b></li>
+  {% end %}
+  </ul>
+</body>
+</html>
+
+"""
+
+    evalHext(genTemplate, newWriteStream(dir /. "page.html"), {
+      "db": boxValue(DValue, db)
+    })
