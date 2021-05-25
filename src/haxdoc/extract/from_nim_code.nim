@@ -3,9 +3,9 @@ import
   ../docentry_io
 
 import
-  hnimast/[compiler_aux, sempass_reexport],
+  hnimast/[compiler_aux],
   compiler/[trees, wordrecg, types, sighashes, scriptconfig],
-  nimblepkg/[packageinfo, common],
+  nimblepkg/[packageinfo, common, version],
   packages/docutils/[rst]
 
 import std/[
@@ -182,6 +182,8 @@ type
     rskCallHead
 
     rskImport
+    rskExport
+    rskInclude
 
 
   RegisterState = object
@@ -518,29 +520,33 @@ proc impl(
     of nkSym:
       case node.sym.kind:
         of skType:
-          let useKind =
-            case state.top():
-              of rskTopLevel, rskPragma, rskAsgn:  dokTypeDirectUse
-              of rskObjectFields, rskObjectBranch: dokTypeAsFieldUse
-              of rskProcArgs, rskProcHeader:       dokTypeAsArgUse
+          if state.top() == rskExport:
+            ctx.db[state.moduleId].exports.incl ctx[node]
 
-              of rskInheritList: dokInheritFrom
-              of rskProcReturn:  dokTypeAsReturnUse
-              of rskBracketHead: dokTypeSpecializationUse
-              of rskBracketArgs: dokTypeAsParameterUse
-              of rskTypeHeader:  dokObjectDeclare
-              of rskEnumHeader:  dokEnumDeclare
-              of rskAliasHeader: dokAliasDeclare
-              of rskCallHead: dokTypeConversionUse
-              else:
-                echo node.treeRepr1()
-                echo ctx.graph.getFilePath(node), node.getInfo()
-                raiseImplementKindError(state.top())
+          else:
+            let useKind =
+              case state.top():
+                of rskTopLevel, rskPragma, rskAsgn:  dokTypeDirectUse
+                of rskObjectFields, rskObjectBranch: dokTypeAsFieldUse
+                of rskProcArgs, rskProcHeader:       dokTypeAsArgUse
 
-          ctx.occur(node, useKind, state.user)
+                of rskInheritList: dokInheritFrom
+                of rskProcReturn:  dokTypeAsReturnUse
+                of rskBracketHead: dokTypeSpecializationUse
+                of rskBracketArgs: dokTypeAsParameterUse
+                of rskTypeHeader:  dokObjectDeclare
+                of rskEnumHeader:  dokEnumDeclare
+                of rskAliasHeader: dokAliasDeclare
+                of rskCallHead: dokTypeConversionUse
+                else:
+                  echo node.treeRepr1()
+                  echo ctx.graph.getFilePath(node), node.getInfo()
+                  raiseImplementKindError(state.top())
 
-          if useKind in {dokEnumDeclare, dokObjectDeclare, dokAliasDeclare}:
-            result = some ctx[node]
+            ctx.occur(node, useKind, state.user)
+
+            if useKind in {dokEnumDeclare, dokObjectDeclare, dokAliasDeclare}:
+              result = some ctx[node]
 
         of skEnumField:
           if state.top() == rskEnumFields:
@@ -561,6 +567,9 @@ proc impl(
             let disp = ctx.nodePosDisplay(node)
             ctx.occur(node, dokCallDeclare, state.user)
             result = some ctx[node]
+
+          elif state.top() == rskExport:
+            ctx.db[state.moduleId].exports.incl ctx[node]
 
           else:
             ctx.occur(node, dokCall, state.user)
@@ -592,6 +601,17 @@ proc impl(
 
         of skModule:
           ctx.occur(node, dokImport, some(state.moduleId))
+          let module = ctx.db[state.moduleId]
+          case state.top():
+            of rskImport:
+              module.imports.incl ctx[node]
+
+            of rskExport:
+              module.exports.incl ctx[node]
+
+            else:
+              raise newUnexpectedKindError(state.top())
+
 
     of nkIdent:
       if state.switchId.isValid():
@@ -640,12 +660,14 @@ proc impl(
         ctx.impl(subnode, state + rskImport, node)
 
     of nkIncludeStmt:
-      discard
+      for subnode in node:
+        ctx.impl(subnode, state + rskInclude, node)
 
     of nkExportStmt:
       # QUESTION not really sure what `export` should be mapped to, so
       # discarding for now.
-      discard
+      for subnode in node:
+        ctx.impl(subnode, state + rskExport, node)
 
     of nkGenericParams:
       # TODO create context with generic parameters declared in
@@ -1227,6 +1249,10 @@ proc generateDocDb*(
 
   var db = graph.registerDocPass(file, stdpath, extraLibs)
 
+  for (dir, name) in extraLibs:
+    assertExists(dir, &"Path for package {name}")
+    graph.config.searchPaths.add dir
+
   logIndented:
     compileProject(graph)
 
@@ -1252,14 +1278,15 @@ proc projectFiles*(
 proc docDbFromPackage*(
     package: PackageInfo,
     stdpath: AbsDir = getStdPath(),
-    ignored: seq[GitGlob] = @[]
+    ignored: seq[GitGlob] = @[],
+    searchDir: AbsDir = nimbleSearchDir()
   ): DocDb =
 
   let
     projectFile = AbsFile(package.myPath)
     sourceDir = projectFile.dir() / package.srcDir
     files = projectFiles(sourceDir, ignored)
-    deps = projectFile.resolveNimbleDeps().deduplicate()
+    deps = projectFile.resolveNimbleDeps(searchDir).fromMinimal()
 
   var depPaths = deps.mapIt(it.projectImportPath())
 
@@ -1268,13 +1295,10 @@ proc docDbFromPackage*(
   var extraLibs = @[(package.projectImportPath(), package.name)]
   for dep in deps:
     extraLibs.add((dep.projectImportPath(), dep.name))
-
-  # info "Import paths for dependencies"
-  # for dep in depPaths:
-  #   pprint dep
+    info dep.projectImportPath(), dep.name
 
   if files.len == 1:
-    return generateDocDb(files[0], stdpath, depPaths, extraLibs)
+    result = generateDocDb(files[0], stdpath, depPaths, extraLibs)
 
   else:
     var graph {.global.}: ModuleGraph
@@ -1296,10 +1320,24 @@ proc docDbFromPackage*(
 
     result = graph.registerDocPass(moduleName, stdpath, extraLibs)
 
-
-
     var m = graph.makeModule(moduleName.string)
     graph.vm = setupVM(m, graph.cache, moduleName.string, graph)
     graph.compileSystemModule()
     logIndented:
       discard graph.processModule(m, llStreamOpen(fakeFile))
+
+  for info in @[package] & deps:
+    let file = info.projectFile()
+    var package: DocEntry = result.getOrNewPackage(file)
+    with package:
+      version = info.version
+      author = info.author
+      license = info.license
+
+    for req in info.requires:
+      let res = DocRequires(
+        resolved: result.getOptTop(dekPackage, req.name),
+        name: req.name,
+        version: $req.ver)
+
+      package.requires.add res

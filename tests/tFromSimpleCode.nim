@@ -1,5 +1,6 @@
 import
   hmisc/other/[oswrap, colorlogger, hshell],
+  hmisc/algo/halgorithm,
   hmisc/hdebug_misc
 
 import
@@ -9,7 +10,10 @@ import
   haxdoc/process/[docentry_query, docentry_group],
   nimtrail/nimtrail_common
 
-import std/[unittest, options, streams]
+import std/[
+  unittest, options, streams,
+  strformat, strutils, sequtils
+]
 
 import hnimast/compiler_aux
 
@@ -125,6 +129,7 @@ proc vBase(a: var Base) = discard
 """
 
 startHax()
+startColorLogger()
 
 
 let dir = getTempDir() / "tFromSimpleCode"
@@ -134,8 +139,6 @@ suite "Generate DB":
     mkDir dir
     let file = dir /. "a.nim"
     file.writeFile code
-
-    startColorLogger()
 
     block: # Generate initial DB
       let db = generateDocDb(file, fileLIb = some("main"))
@@ -239,3 +242,74 @@ suite "Generate HTML":
     evalHext(genTemplate, newWriteStream(dir /. "page.html"), {
       "db": boxValue(DValue, db)
     })
+
+
+
+suite "Multiple packages":
+  test "Multiple packages":
+    let dir = getNewTempDir("tFromMultiPackage")
+    var
+      imports: seq[string]
+      requires: seq[string]
+
+    let count = 2
+    for i in 0 .. count:
+      let p = &"package{i}"
+      imports.add &"import {p}/{p}_file1"
+      requires.add &"{p}"
+      mkDirStructure dir:
+        dir &"{p}":
+          file &"{p}.nimble":
+            &"""
+version       = "0.1.0"
+author        = "haxscramper"
+description   = "Brief documentation for a package {i}"
+license       = "Apache-2.0"
+srcDir        = "src"
+packageName   = "package{i}"
+"""
+
+          # TODO test with package name that does not correspond to
+          # existing package `packageName = "package{i}"`
+
+
+
+          # no 'src/' dir because I'm emulating globally installed packages
+          file &"{p}_main.nim"
+          dir &"{p}":
+            file &"{p}_file1.nim": &"import {p}_file2; export {p}_file2"
+            file &"{p}_file2.nim": &"import {p}_file3; export {p}_file3"
+            file &"{p}_file3.nim": &"proc {p}_proc*() = discard"
+
+    let req = requires.joinq(", ")
+    mkDirStructure dir:
+      dir "main":
+        # have 'src/' because I'm emulating package in development
+        dir "src":
+          file "main.nim":
+            imports.joinl() & "\n\n" & mapIt(0 .. count, &"package{it}_proc()").joinl()
+
+
+        file "readme.org":
+          "Sample readme for a package"
+        file "main.nimble":
+          &"""
+version = "0.1.0"
+author = "haxscramper"
+description = "Description of the main package"
+license = "Apache-2.0"
+packageName = "main"
+requires {req}
+"""
+
+    let db = docDbFromPackage(
+      getPackageInfo(dir / "main"),
+      searchDir = dir
+    )
+
+    db.writeSourcetrailDb(dir /. "multiPackage")
+    db.writeDbXml(dir, "multiPackage")
+
+    if hasCmd shellCmd("dot"):
+      let graph = db.structureDotGraph()
+      graph.toPng(dir /. "structure.png")

@@ -274,6 +274,7 @@ type
     ##   path* to a particular documentable entry. Code link is a pattern,
     ##   FullIdent is a path.
     name* {.Attr.}: string
+    id* {.Attr.}: DocId
     case kind*: DocEntryKind
       of dekProcKinds:
         procType*: DocType
@@ -361,6 +362,11 @@ type
     dvkInternal ## Exported, but only for internal use
     dvkPublic ## Exported, available for public use
 
+  DocRequires* = object
+    name* {.Attr.}: string
+    version* {.Attr.}: string # TODO expand
+    resolved* {.Attr.}: Option[DocID]
+
   DocEntry* = ref object
     location*: Option[DocLocation]
     extent*: Option[DocExtent]
@@ -381,6 +387,16 @@ type
     docText*: DocText
 
     case kind*: DocEntryKind
+      of dekPackage:
+        version* {.Attr.}: string
+        author* {.Attr.}: string
+        license* {.Attr.}: string
+        requires*: seq[DocRequires]
+
+      of dekModule:
+        imports*: DocIdSet
+        exports*: DocIdSet
+
       of dekStructKinds:
         superTypes*: seq[DocId]
 
@@ -468,6 +484,9 @@ storeTraits(DocCode)
 storeTraits(DocCodePart)
 storeTraits(DocCodeSlice)
 storeTraits(DocCodeLine)
+# storeTraits(DocRequires)
+
+proc newDocRequires*(): DocRequires = discard
 
 proc vaType*(t: DocType): DocType =
   assertKind(t, {dtkVarargs})
@@ -733,7 +752,8 @@ proc newDocType*(kind: DocTypeKind, head: DocEntry): DocType =
   result.head = head.id()
 
 proc initIdentPart*(
-    kind: DocEntryKind, name: string, procType: DocType = nil): DocIdentPart =
+    kind: DocEntryKind, name: string,
+    procType: DocType = nil): DocIdentPart =
   result = DocIdentPart(kind: kind, name: name)
   if kind in dekProcKinds:
     result.procType = procType
@@ -761,6 +781,8 @@ proc newDocEntry*(
     kind: kind
   )
 
+  result.fullIdent.parts[^1].id = result.id()
+
   db.entries[result.id()] = result
   db.fullIdents[result.fullIdent] = result.id()
   db.top[part] = result
@@ -779,6 +801,8 @@ proc newDocEntry*(
     name: name,
     kind: kind
   )
+
+  result.fullIdent.parts[^1].id = result.id()
 
   parent.db.entries[result.id()] = result
   parent.db.fullIdents[result.fullIdent] = result.id()
@@ -806,6 +830,12 @@ proc getSub*(parent: DocEntry, subName: string): DocId =
   for sub in parent.nested:
     if parent.db[sub].name == subName:
       return sub
+
+proc getOptTop*(db: DocDb, kind: DocEntryKind, name: string): Option[DocId] =
+  let part = initIdentPart(kind, name)
+
+  if part in db.top:
+    return some db.top[part].id()
 
 const ignoredAbsFile* = AbsFile("ignoredFakeAbsFile")
 
@@ -845,6 +875,15 @@ func package*(ident: DocFullIdent): string =
 
   else:
     return ident.parts[0].name
+
+func getPackage*(entry: DocEntry): DocId =
+  if entry.fullIdent.parts.len == 0 or
+     entry.fullIdent.parts[0].kind != dekPackage:
+    raiseArgumentError(
+      "No package name in full identifier " & $entry.fullIdent)
+
+  else:
+    return entry.fullIdent.parts[0].id
 
 proc getPathForPackage*(db: DocDb, ident: DocFullIdent): AbsDir =
   let package = ident.package()

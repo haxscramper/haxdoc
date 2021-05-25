@@ -123,3 +123,40 @@ proc usageDotGraph*(db: DocDb): DotGraph =
 
       else:
         discard
+
+proc structureDotGraph*(db: DocDb): DotGraph =
+  var sub: Table[DocId, DotGraph]
+  for pack in allItems(db, {dekPackage}):
+    sub[pack.id()] = makeDotGraph().withIt do:
+      it.color = some colRed
+      it.isCluster = true
+      it.name = pack.name
+      it.label = pack.name
+      it.add makeDotNode(pack.id(), &"""
+name: {pack.name}
+auth: {pack.author}
+vers: {pack.version}""").withIt do:
+        it.labelAlign = nlaLeft
+
+
+  for module in allItems(db, {dekModule}):
+    let userId = toDotNodeId(module.id())
+    let package = module.fullIdent.parts[0].id
+    sub[package].add makeDotNode(userId, module.name)
+    for imp in module.imports:
+       sub[package].add makeDotEdge(userId, imp)
+
+  result = makeDotGraph()
+  result.compound = some true
+
+  for _, graph in sub:
+    result.add graph
+
+  for pack in topItems(db, {dekPackage}):
+    for req in pack.requires:
+      if req.resolved.isSome():
+        result.add makeDotEdge(pack.id(), req.resolved.get()).withIt do:
+          it.ltail = some pack.name
+          it.lhead = some db[db[req.resolved.get()].getPackage()].name
+          it.label = some req.version
+          it.style = edsBold
