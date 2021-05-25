@@ -44,12 +44,13 @@ else:
 # db.writeDbXml(outDir, "compile-db")
 # echo "Wrote db xml"
 
-var writer: SourcetrailDbWriter
-writer.open(outDir /. "tFromCompiler" &. sourcetrailDbExt)
+db.writeSourcetrailDb(outDir /. "tFromCompiler")
+# var writer: SourcetrailDbWriter
+# writer.open()
 
-writer.registerFullDb(db)
+# writer.registerFullDb(db)
 echo "Registered sourcetrail DB"
-discard writer.close()
+# discard writer.close()
 
 
 # db.writeDbXml(outDir, "compile-db")

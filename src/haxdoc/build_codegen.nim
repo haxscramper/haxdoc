@@ -14,8 +14,8 @@ proc doxygenXmlGenerate() =
   generateForXsd(cwd() /. "extract/doxygen_index.xsd").
     writeXsdGenerator(index)
 
-  execShell shellCmd(nim, check, errormax = 2, $compound)
-  execShell shellCmd(nim, check, errormax = 2, $index)
+  execShell shellCmd(nim, check, errormax = 2, $compound), limitErr = 30
+  execShell shellCmd(nim, check, errormax = 2, $index), limitErr = 30
 
   echo "Doxygen generate done"
 

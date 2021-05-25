@@ -17,7 +17,7 @@ import
   hnimast,
   hmisc/[hdebug_misc, helpers],
   hmisc/other/[oswrap, colorlogger],
-  hmisc/algo/[hstring_algo, halgorithm]
+  hmisc/algo/[hstring_algo, halgorithm, hseq_distance]
 
 import
   haxorg/[semorg, ast, importer_nim_rst]
@@ -729,7 +729,8 @@ proc impl(
       ctx.impl(node[2], state + result, node)
 
     of nkDistinctTy:
-      ctx.impl(node[0], state, node)
+      if node.safeLen > 0:
+        ctx.impl(node[0], state, node)
 
     of nkAsgn:
       result = ctx.impl(node[0], state + rskAsgn, node)
@@ -1232,24 +1233,32 @@ proc generateDocDb*(
   return db
 
 
-proc projectFiles*(sourceDir: AbsDir): seq[AbsFile] =
+proc projectFiles*(
+    sourceDir: AbsDir, ignored: seq[GitGlob] = @[]): seq[AbsFile] =
   ## Return list of project files.
   ##
   ## - TODO :: Allow user to specify lista of target files
 
   for file in walkDir(
     sourceDir, AbsFile, exts = @["nim"], recurse = true):
-    result.add file
+    if accept(file.string, ignored):
+      result.add file
+
+    else:
+      notice "Ignored", file
 
 
 
 proc docDbFromPackage*(
-    package: PackageInfo, stdpath: AbsDir = getStdPath()): DocDb =
+    package: PackageInfo,
+    stdpath: AbsDir = getStdPath(),
+    ignored: seq[GitGlob] = @[]
+  ): DocDb =
 
   let
     projectFile = AbsFile(package.myPath)
     sourceDir = projectFile.dir() / package.srcDir
-    files = projectFiles(sourceDir)
+    files = projectFiles(sourceDir, ignored)
     deps = projectFile.resolveNimbleDeps().deduplicate()
 
   var depPaths = deps.mapIt(it.projectImportPath())
@@ -1260,9 +1269,9 @@ proc docDbFromPackage*(
   for dep in deps:
     extraLibs.add((dep.projectImportPath(), dep.name))
 
-  info "Import paths for dependencies"
-  for dep in depPaths:
-    pprint dep
+  # info "Import paths for dependencies"
+  # for dep in depPaths:
+  #   pprint dep
 
   if files.len == 1:
     return generateDocDb(files[0], stdpath, depPaths, extraLibs)

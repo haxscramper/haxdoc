@@ -368,11 +368,11 @@ proc doxygenXmlForDir*(
 
 proc parseDoxygenIndex*(xml: AbsFile): DoxIndex.DoxygenType =
   var parser = newHXmlParser(xml)
-  parseDoxygenType(result, parser, "doxygenindex")
+  parser.loadXml(result, "doxygenindex")
 
 proc parseDoxygenFile*(xml: AbsFile): DoxCompound.DoxygenType =
   var parser = newHXmlParser(xml)
-  parseDoxygenType(result, parser, "doxygen")
+  parser.loadXml(result, "doxygen")
 
 const
   allDoxIndexKinds* = {low(DoxIndex.CompoundKind) .. high(DoxIndex.CompoundKind)}
@@ -397,7 +397,7 @@ import hpprint
 startHax()
 
 when isMainModule:
-  let dir = AbsDir("/tmp/code")
+  let dir = getNewTempDir("tFromDoxygenXml")
   mkDir dir
   writeFile(dir /. "file.cpp", """
 
@@ -414,6 +414,7 @@ void method(int arg1, int arg2) {}
   pprint index
   pprint files
   for file in files:
+    echo file
     let parsed = parseDoxygenFile(file)
     pprint parsed
 

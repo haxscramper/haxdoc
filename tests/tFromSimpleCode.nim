@@ -119,6 +119,9 @@ proc recFirst() =
   recFirst(1)
   recOther()
 
+proc vDist(a: var Dist) = discard
+proc vBase(a: var Base) = discard
+
 """
 
 startHax()
