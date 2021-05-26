@@ -176,7 +176,7 @@ suite "Generate DB":
         var reader = newHXmlParser(file)
         reader.loadXml(inFile, "file")
 
-        writer.registerUses(inFile, idMap)
+        writer.registerUses(inFile, idMap, inDb)
 
     block: # Close sourcetrail DB
       discard writer.commitTransaction()

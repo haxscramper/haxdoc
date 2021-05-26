@@ -1243,7 +1243,8 @@ proc generateDocDb*(
     stdpath: AbsDir = getStdPath(),
     otherPaths: seq[AbsDir] = @[],
     extraLibs: seq[(AbsDir, string)] = @[],
-    fileLib: Option[string] = none(string)
+    fileLib: Option[string] = none(string),
+    defines: seq[string] = @["nimdoc", "haxdoc"]
   ): DocDb =
 
   info "input file:", file
@@ -1261,7 +1262,8 @@ proc generateDocDb*(
 
 
   var graph {.global.}: ModuleGraph
-  graph = newModuleGraph(file, stdpath, loggerImpl, symDefines = @["nimdoc"])
+  graph = newModuleGraph(
+    file, stdpath, loggerImpl, symDefines = defines)
 
   var db = graph.registerDocPass(file, stdpath, extraLibs)
 

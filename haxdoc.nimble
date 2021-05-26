@@ -50,3 +50,6 @@ hmisc-putils \
   -lhaxorg \
   -lnimtrail
 """)
+
+task docgen, "Generate documentation":
+  exec("hmisc-putils docgen")

@@ -65,7 +65,7 @@ type
 using
   writer: var SourcetrailDbWriter
 
-proc registerUses*(writer; file: DocFile, idMap: IdMap) =
+proc registerUses*(writer; file: DocFile, idMap: IdMap, db: DocDb) =
   let fileID = writer.getFile(file.path.string, "nim")
   var lastDeclare: DocOccurKind
   for line in file.body.codeLines:
@@ -104,13 +104,38 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap) =
 
       elif occur.kind in {dokImport}:
         if file.moduleId.isSome():
-          discard writer.recordReferenceLocation(
-            writer.recordReference(
-              idMap.docToTrail[file.moduleId.get()],
-              idMap.docToTrail[occur.refid],
-              srkImport
-            ),
-            toRange(fileId, part.slice))
+          if true:
+            # Record module imports as file-file relations
+            let target = db[occur.refid]
+            if target.location.isSome():
+              discard writer.recordReferenceLocation(
+                writer.recordReference(
+                  fileId,
+                  writer.getFile(target.getPathInPackage().string, "nim"),
+                  srkInclude
+                ),
+                toRange(fileId, part.slice))
+
+          elif false:
+            # Record module relationship as 'include' between file and
+            # module inside another file.
+            discard writer.recordReferenceLocation(
+              writer.recordReference(
+                fileId,
+                idMap.docToTrail[occur.refid],
+                srkInclude
+              ),
+              toRange(fileId, part.slice))
+
+          elif false:
+            # Record relations betwen modules as imports
+            discard writer.recordReferenceLocation(
+              writer.recordReference(
+                idMap.docToTrail[file.moduleId.get()],
+                idMap.docToTrail[occur.refid],
+                srkImport
+              ),
+              toRange(fileId, part.slice))
 
       else:
         if occur.refid notin idMap.docToTrail:
@@ -242,7 +267,7 @@ proc registerFullDb*(writer; db: DocDb) =
 
   for file in db.files:
     discard writer.beginTransaction()
-    writer.registerUses(file, idMap)
+    writer.registerUses(file, idMap, db)
     discard writer.commitTransaction()
 
 const

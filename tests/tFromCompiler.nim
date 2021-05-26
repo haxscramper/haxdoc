@@ -30,7 +30,10 @@ mkDir outDir
 info "Using compiler source dir ", compDir
 info "Starting compilation from ", compFile
 
-let db = generateDocDb(compFile, fileLib = some("compiler"))
+let db = generateDocDb(
+  compFile, fileLib = some("compiler"),
+  defines = @["nimpretty", "haxdoc", "nimdoc"])
+
 echo "Db compilation done"
 
 let dot = db.inheritDotGraph()
