@@ -15,6 +15,7 @@ requires "hmisc#head"
 requires "hpprint >= 0.2.12"
 requires "fusion"
 requires "cxxstd"
+requires "nimtraits#head"
 
 before install:
   # Whatever, I'm too tired of fighting nimble over my local installation
