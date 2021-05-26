@@ -273,7 +273,8 @@ proc registerFullDb*(writer; db: DocDb) =
 const
   sourcetrailDbExt* = "srctrldb"
 
-proc writeSourcetrailDb*(db: DocDb, outFile: AbsFile) =
+
+proc writeDbSourcetrail*(db: DocDb, outFile: AbsFile) =
   var writer: SourcetrailDbWriter
   let outFile = outFile.withExt(sourcetrailDbExt)
   rmFile outFile
@@ -281,6 +282,8 @@ proc writeSourcetrailDb*(db: DocDb, outFile: AbsFile) =
   registerFullDb(writer, db)
   discard writer.close()
 
+proc writeSourcetrailDb*(db: DocDb, outFile: AbsFile) {.deprecated.} =
+  writeDbSourcetrail(db, outFile)
 
 when isMainModule:
   startHax()

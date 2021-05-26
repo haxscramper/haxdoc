@@ -6,7 +6,7 @@ import
 import
   haxdoc/extract/from_nim_code,
   haxdoc/[docentry, docentry_io],
-  haxdoc/generate/[sourcetrail_db, docentry_hext],
+  haxdoc/generate/[sourcetrail_db, docentry_hext, sqlite_db],
   haxdoc/process/[docentry_query, docentry_group],
   nimtrail/nimtrail_common
 
@@ -184,6 +184,13 @@ suite "Generate DB":
 
 
     echo "done"
+
+suite "Generate sqlite db":
+  test "SQlite from xml":
+    if not exists(dir /. "compile-db" &. "hxde"): quit 0
+    let db = loadDbXml(dir, "compile-db")
+    db.writeDbSqlite(dir /. "compile.sqlite")
+
 
 suite "Filter DB":
   test "Filter db":

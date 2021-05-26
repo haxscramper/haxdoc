@@ -204,6 +204,7 @@ type
 
   DocCodeSlice* = object
     line* {.Attr.}: int ## Code slice line /index/
+    endLine* {.Attr.}: Option[int]
     column* {.Attr.}: Slice[int]
 
   DocCodePart* = object
@@ -609,6 +610,7 @@ proc `$`*(ident: DocFullIdent): string =
 
     result.add $part
 
+func `$`*(e: DocEntry): string = $e.fullIdent
 
 func len*(s: DocIdSet): int = s.ids.len
 func incl*(s: var DocIdSet, id: DocId) =
