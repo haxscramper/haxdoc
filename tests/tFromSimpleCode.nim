@@ -282,13 +282,14 @@ packageName   = "package{i}"
             file &"{p}_file3.nim": &"proc {p}_proc*() = discard"
 
     let req = requires.joinq(", ")
-    mkDirStructure dir:
+    mkWithDirStructure dir:
       dir "main":
         # have 'src/' because I'm emulating package in development
         dir "src":
           file "main.nim":
-            imports.joinl() & "\n\n" & mapIt(0 .. count, &"package{it}_proc()").joinl()
-
+            file.writeLine imports.joinl()
+            for pack in 0 .. count:
+              &"package{pack}_proc()\n"
 
         file "readme.org":
           "Sample readme for a package"
@@ -304,8 +305,7 @@ requires {req}
 
     let db = docDbFromPackage(
       getPackageInfo(dir / "main"),
-      searchDir = dir
-    )
+      searchDir = dir)
 
     db.writeSourcetrailDb(dir /. "multiPackage")
     db.writeDbXml(dir, "multiPackage")

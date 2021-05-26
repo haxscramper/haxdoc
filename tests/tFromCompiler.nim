@@ -12,8 +12,7 @@ import hnimast/compiler_aux
 
 let
   outDir = getTempDir() / "tFromCompiler"
-  opts = initDefaultNimbleOptions()
-  compPackage = findPackage("compiler", newVRAny(), opts)
+  compPackage = findPackage("compiler", newVRAny())
 
 
 startColorLogger()
@@ -41,17 +40,5 @@ if hasCmd(shellCmd(dot)):
 else:
   echo "no dot installed, skipping graph generation"
 
-# db.writeDbXml(outDir, "compile-db")
-# echo "Wrote db xml"
-
 db.writeSourcetrailDb(outDir /. "tFromCompiler")
-# var writer: SourcetrailDbWriter
-# writer.open()
-
-# writer.registerFullDb(db)
 echo "Registered sourcetrail DB"
-# discard writer.close()
-
-
-# db.writeDbXml(outDir, "compile-db")
-# echo "Wrote XML db"
