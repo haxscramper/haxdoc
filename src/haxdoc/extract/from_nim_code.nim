@@ -274,6 +274,15 @@ proc setLocation(ctx; entry: DocEntry, node) =
   entry.extent = some nodeExtent(node)
   entry.declHeadExtent = some nodeExtent(node.declHead())
 
+proc setLocation(ctx; entry: DocEntry, sym: PSYm) =
+  entry.setLocation DocLocation(
+    pos: sym.info.toDocPos(),
+    absFile: AbsFile($ctx.graph.getFilePath(sym))
+  )
+
+  # entry.extent = some nodeExtent(node)
+  # entry.declHeadExtent = some nodeExtent(node.declHead())
+
 proc nodeSlice(node: PNode): DocCodeSlice =
   let l = len($node)
   initDocSlice(
@@ -1202,6 +1211,9 @@ proc registerDocPass(
             package = db.getOrNewPackage(file)
 
           context.module = package.newDocEntry(dekModule, module.getStrVal())
+
+          context.setLocation(context.module, module)
+
           context.module.visibility = dvkPublic
           sigmap[module] = context.module.id()
           context.db.setIdForFile(file, context.module.id())

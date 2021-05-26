@@ -104,11 +104,13 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap) =
 
       elif occur.kind in {dokImport}:
         if file.moduleId.isSome():
-          discard writer.recordReference(
-            idMap.docToTrail[file.moduleId.get()],
-            idMap.docToTrail[occur.refid],
-            srkImport
-          )
+          discard writer.recordReferenceLocation(
+            writer.recordReference(
+              idMap.docToTrail[file.moduleId.get()],
+              idMap.docToTrail[occur.refid],
+              srkImport
+            ),
+            toRange(fileId, part.slice))
 
       else:
         if occur.refid notin idMap.docToTrail:
@@ -223,6 +225,11 @@ proc registerDb*(writer; db: DocDb): IdMap =
         let extent = toRange(fileId, entry.declHeadExtent.get())
         discard writer.recordSymbolLocation(symId, extent)
         discard writer.recordSymbolScopeLocation(symId, extent)
+
+      elif entry.kind == dekModule:
+        let extent = toRange(fileId, initDocSlice(1, 0, 0))
+        discard writer.recordSymbolLocation(symId, extent)
+
 
 
 
