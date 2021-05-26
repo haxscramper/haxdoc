@@ -257,7 +257,7 @@ suite "Multiple packages":
       let p = &"package{i}"
       imports.add &"import {p}/{p}_file1"
       requires.add &"{p}"
-      mkDirStructure dir:
+      mkWithDirStructure dir:
         dir &"{p}":
           file &"{p}.nimble":
             &"""
