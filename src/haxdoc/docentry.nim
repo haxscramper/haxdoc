@@ -457,6 +457,7 @@ type
 
       of dekProcKinds:
         procKind* {.Attr.}: DocProcKind
+        procSignature*: DocType
         wrapOf*: Option[string]
         dynlibOf*: Option[string]
         calls*: DocIdSet ## Procedures called by entry
@@ -593,7 +594,61 @@ func `$`*(t: DocType): string =
     else:
       raiseImplementKindError(t)
 
+
 func hash*(id: DocId): Hash = hash(id.id)
+func hash*[T](o: Option[T]): Hash =
+  if o.isSome(): return hash(o.get())
+
+
+func hash*(t: DocType): Hash
+
+func hash*(p: DocPragma): Hash =
+  !$(hash(p.name) !& hash(p.entry)
+  # !& hash(p.args) # FIXME hash arguments
+
+  )
+
+func hash*(i: DocIdent): Hash =
+  !$(
+    hash(i.ident) !&
+    hash(i.kind) !&
+    hash(i.identType) !&
+    hash(i.value) !&
+    hash(i.entry)
+  )
+
+func hash*(t: DocType): Hash =
+  if isNil(t): return
+  result = hash(t.name) !& hash(t.useKind) !& hash(t.kind)
+  case t.kind:
+    of dtkIdent, dtkGenericSpec, dtkAnonTuple, dtkVarargs:
+      result = result !& hash(t.head) !&
+        hash(t.identKind) !& hash(t.genParams)
+
+    of dtkGenericParam:
+      result = result !& hash(t.paramName)
+
+    of dtkProc, dtkNamedTuple:
+      result = result !&
+        hash(t.returnType) !&
+        hash(t.arguments) !&
+        hash(t.pragmas) !&
+        hash(t.effects) !&
+        hash(t.raises)
+
+    of dtkRange:
+      result = result !& hash(t.rngStart) !& hash(t.rngEnd)
+
+    of dtkValue, dtkTypeofExpr:
+      result = result !& hash(t.value)
+
+    of dtkNone:
+      discard
+
+    of dtkFile, dtkDir, dtkString:
+      result = result !& hash(t.strVal)
+
+  return !$result
 
 func contains*(table: DocIdTableN, id: DocId): bool {.inline.} =
   contains(table.table, id)
@@ -804,11 +859,26 @@ proc initFullIdent*(parts: sink seq[DocIdentPart]): DocFullIdent =
   result = DocFullIdent(parts: parts)
   discard hash(result)
 
+func len*(ident: DocFullIdent): int = ident.parts.len
+func hasParent*(ident: DocFullIdent): bool = ident.parts.len > 1
+func hasParent*(entry: DocEntry): bool = entry.fullIdent.parts.len > 1
+
+
 proc lastIdentPart*(entry: var DocEntry): var DocIdentPart =
   if entry.fullIdent.parts.len == 0:
     raiseArgumentError("Cannot return last ident part")
 
   return entry.fullIdent.parts[^1]
+
+proc parentIdentPart*(entry: DocEntry): DocIdentPart =
+  let l = entry.fullIdent.parts.len
+  if l < 2:
+    raise newArgumentError(
+      "Cannot return parent ident part for entry with", l, "elements")
+
+  return entry.fullident.parts[^2]
+
+
 
 proc newDocEntry*(
       db: var DocDb, kind: DocEntryKind, name: string,
