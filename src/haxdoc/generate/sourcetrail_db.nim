@@ -83,7 +83,7 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap, db: DocDb) =
           echov file.path
           echov part, "has invalid user"
 
-      if occur.kind == dokLocalUse:
+      if occur.kind in dokLocalKinds:
         discard writer.recordLocalSymbolLocation(
           writer.recordLocalSymbol(occur.localId),
           toRange(fileId, part.slice))
@@ -145,8 +145,8 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap, db: DocDb) =
         let targetId = idMap.docToTrail[occur.refid]
         let useKind =
           case occur.kind:
-            of dokLocalUse:
-              raiseImplementError("")
+            of dokLocalKinds:
+              raise newUnexpectedKindError(occur.kind)
 
             of dokTypeAsFieldUse, dokTypeAsReturnUse, dokTypeDirectUse,
               dokTypeAsParameterUse, dokTypeAsArgUse, dokTypeConversionUse:

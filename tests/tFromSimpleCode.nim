@@ -185,12 +185,6 @@ suite "Generate DB":
 
     echo "done"
 
-suite "Generate sqlite db":
-  test "SQlite from xml":
-    if not exists(dir /. "compile-db" &. "hxde"): quit 0
-    let db = loadDbXml(dir, "compile-db")
-    db.writeDbSqlite(dir /. "compile.sqlite")
-
 
 suite "Filter DB":
   test "Filter db":
@@ -220,6 +214,14 @@ suite "Filter DB":
     if hasCmd(shellCmd("dot")):
       db.inheritDotGraph().toPng(AbsFile "/tmp/inherit.png")
       db.usageDotGraph().toPng(AbsFile "/tmp/usage.png")
+
+
+suite "Generate sqlite db":
+  test "SQlite from xml":
+    if not exists(dir /. "compile-db" &. "hxde"): quit 0
+    let db = loadDbXml(dir, "compile-db")
+    db.writeDbSqlite(dir /. "compile.sqlite")
+
 
 suite "Generate HTML":
   test "Generate HTML":

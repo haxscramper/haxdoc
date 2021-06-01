@@ -1,7 +1,7 @@
 ## Serialization and deserialization for documentation entries
 
 import ./docentry
-import std/[macros, streams, strutils, strformat]
+import std/[macros, streams, strutils, strformat, sequtils]
 import nimtraits, nimtraits/trait_xml
 export trait_xml
 import hmisc/other/[hshell, oswrap]
@@ -29,6 +29,12 @@ proc loadXml*(r; it: var DocOccurKind, tag) =
 
 proc writeXml*(w; cmd: ShellCmd, tag: string) = raiseImplementError("")
 proc writeXml*(w; cmd: SemMetaTag, tag: string) = raiseImplementError("")
+
+proc xmlAttribute*(w; key: string, use: seq[DocTypeUseKind]) =
+  if use.len > 0:
+    w.xmlAttribute(key, mapIt(use, $it).join(":"))
+
+# proc xml
 
 
 proc xmlAttribute*(w; key: string, id: DocId) =
@@ -129,7 +135,7 @@ proc loadXml*(r; it: var DocCodePart, tag) =
       r.loadXml(it.occur.get().user, "user")
 
     case kind:
-      of dokLocalUse:
+      of dokLocalKinds:
         r.loadXml(it.occur.get().localId, "localId")
 
       else:
@@ -145,7 +151,7 @@ proc writeXml*(w; it: DocCodePart, tag) =
     w.xmlAttribute("kind", occur.kind)
     w.xmlAttribute("user", occur.user)
     case occur.kind:
-      of dokLocalUse: w.xmlAttribute("localId", occur.localId)
+      of dokLocalKinds: w.xmlAttribute("localId", occur.localId)
       else: w.xmlAttribute("refid", occur.refId)
 
 

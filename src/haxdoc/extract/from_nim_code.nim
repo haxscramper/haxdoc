@@ -191,6 +191,7 @@ type
     switchId: DocId
     moduleId: DocId
     user: Option[DocId]
+    hasInit: bool
 
 using
   ctx: DocContext
@@ -371,8 +372,8 @@ proc `[]`(ctx; ntype: NType | PNode | PSym): DocId =
 
 proc occur(ctx; node: PNode, kind: DocOccurKind, user: Option[DocId]) =
   var occur = DocOccur(user: user, kind: kind)
-  if kind == dokLocalUse:
-    raiseImplementError("")
+  if kind in dokLocalKinds:
+    raise newUnexpectedKindError(kind)
 
   else:
     occur.refid = ctx[node]
@@ -415,16 +416,29 @@ proc occur(
     let slice = parent.subslice(node)
     ctx.db.newOccur(slice, file, occur)
 
-proc occur(ctx; node; localId: string) =
-  let path = ctx.graph.getFilePath(node).string.AbsFile()
-  if not isAbsolute(path):
-    warn "invalid file position for", ctx.nodePosDisplay(node)
+proc occur(
+    ctx; node; kind: DocOccurKind,
+    localid: string, withInit: bool = false
+  ) =
+  let path = ctx.graph.getfilepath(node).string.AbsFile()
+  if not isabsolute(path):
+    warn "invalid file position for", ctx.nodeposdisplay(node)
 
   else:
-    ctx.db.newOccur(
-      node.nodeSlice(), path,
-      DocOccur(kind: dokLocalUse, localId: localId))
+    var occur = DocOccur(kind: kind)
+    occur.localId = localId
+    occur.withInit = withInit
 
+
+    if kind in dokLocalDeclKinds:
+      if notNil(node.typ):
+        let et = node.typ.skipTypes(skipPtrs)
+        if notNil(et.sym):
+          let id = ctx[et.sym]
+          if id.isValid():
+            occur.user = some id
+
+    ctx.db.newOccur(node.nodeSlice(), path, occur)
 
 proc effectSpec*(sym: PSym, word: TSpecialWord): PNode =
   if notNil(sym) and notNil(sym.ast) and sym.ast.safeLen >= pragmasPos:
@@ -597,7 +611,20 @@ proc impl(
               ctx.occur(node, dokGlobalRead, state.user)
 
           else:
-            ctx.occur(node, $node.headSym())
+            let (kind, ok) =
+              case state.top():
+                of rskAsgn:                    (dokLocalWrite, true)
+                of rskProcHeader, rskProcArgs: (dokLocalArgDecl, true)
+                of rskObjectFields, rskProcReturn:
+                  # Local callback parameters or fields in return `tuple`
+                  # values.
+                  (dokLocalWrite, false)
+
+                else:
+                  (dokLocalUse, true)
+
+            if ok:
+              ctx.occur(node, kind, $node.headSym(), state.hasInit)
 
         of skResult:
           # IDEA can be used to collect information about `result` vs
@@ -664,6 +691,8 @@ proc impl(
       ctx.impl(node[1], state + rskPragma + result, node)
 
     of nkIdentDefs, nkConstDef:
+      var state = state
+      state.hasInit = isEmptyNode(node[2])
       result = ctx.impl(node[0], state, node) # Variable declaration
       ctx.impl(node[1], state + result, node)
       ctx.impl(node[2], state + result, node)
@@ -809,7 +838,11 @@ proc impl(
 
 
 proc registerUses(ctx; node; state: RegisterState) =
-  impl(ctx, node, state, nil)
+  try:
+    discard impl(ctx, node, state, nil)
+
+  except ImplementError:
+    echo node.treeRepr1()
 
 
 proc toDocType(ctx; ntype: NType): DocType =

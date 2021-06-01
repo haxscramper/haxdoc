@@ -171,7 +171,17 @@ type
     dokMacroUsage
     dokAnnotationUsage
 
-    dokLocalUse
+    # local section start
+    dokLocalUse ## Generic 'use' of local entry
+    dokLocalWrite
+    dokLocalRead
+
+
+    # local declaration section start
+    dokLocalArgDecl
+    dokLocalVarDecl
+    # local declarations section end
+    # local section end
 
     dokGlobalWrite ## Asign value to global variable
     dokGlobalRead ## Non-asign form of global variable usage. Taking
@@ -192,12 +202,22 @@ type
 
     dokDefineCheck
 
+const
+  dokLocalKinds* = {dokLocalUse .. dokLocalArgDecl }
+  dokLocalDeclKinds* = { dokLocalArgDecl .. dokLocalVarDecl }
+
+type
   DocOccur* = object
     ## Single occurence of documentable entry
-    user* {.Attr.}: Option[DocId]
+    user* {.Attr.}: Option[DocId] ## For occurence of global documentable
+    ## entry - lexically scoped parent (for function call - callee, for
+    ## type - parent composition). For local occurence - type of the
+    ## identifier (for local variables, arguments etc).
     case kind*: DocOccurKind ## Type of entry occurence
-      of dokLocalUse:
+      of dokLocalKinds:
         localId* {.Attr.}: string
+        withInit* {.Attr.}: bool ## For 'local decl' - whether identifier
+        ## was default-constructed or explicitly initialized.
 
       else:
         refid* {.Attr.}: DocId ## Documentable entry id
@@ -293,12 +313,28 @@ type
     entry* {.Attr.}: DocId
     args*: seq[DocCode]
 
+  DocTypeUseKind* = enum
+    ## Different kinds of type usage.
+    dtukDefault ## Direct type use
+    dtukPointerTo ## Untraced pointer to type
+    dtukGcRefTo ## Traced pointer to type
+    dtukByrefTo ## Reference to lvalue
+    dtukRvalueTo ## Temporary (rvalue/sink) reference
+
   DocType* = ref object
     ## Single **use** of a type in any documentable context (procedure
     ## arguments, return types etc.). Plays structural role in
     ## documentation context - does not contain any additional information
     ## itself.
     name* {.Attr.}: string
+    useKind* {.Attr.}: seq[DocTypeUseKind] ## Unwrap one or more layers of
+    ## indirection in type usage, blurring distinction between `ptr ptr
+    ## char` and `char` if needed.
+    # REVIEW this makes queries like 'all procedures that accept
+    # pointer-to-pointer-to-char' harder, but at the same time eliminate
+    # the need to manually unwrap and process functions that work
+    # with`*MyStruct` and `MyStruct`. Extra flexibility at the cost of
+    # extra complexity.
     case kind*: DocTypeKind
       of dtkIdent, dtkGenericSpec, dtkAnonTuple, dtkVarargs:
         head* {.Attr.}: DocId ## Documentation entry
@@ -341,6 +377,10 @@ type
 
 
   DocLocation* = object
+    # FIXME extermely expensive structure to work with - each documentable
+    # entry has at least *two* copies of almost the same string, and it is
+    # also duplicated thousands of times for each file (due to number of
+    # documentable entries). Must be replaced with FileId abd AbsFileId
     file* {.Attr.}: string
     absFile* {.Skip(IO).}: AbsFile
     pos* {.Attr.}: DocPos
@@ -470,7 +510,7 @@ storeTraits(DocAdmonition)
 storeTraits(DocMetatag)
 storeTraits(DocTypeKind)
 storeTraits(DocOccurKind)
-storeTraits(DocOccur)
+storeTraits(DocOccur, dokLocalKinds)
 storeTraits(DocTypeHeadKind)
 storeTraits(DocIdentKind)
 storeTraits(DocId)
