@@ -457,7 +457,6 @@ type
 
       of dekProcKinds:
         procKind* {.Attr.}: DocProcKind
-        procSignature*: DocType
         wrapOf*: Option[string]
         dynlibOf*: Option[string]
         calls*: DocIdSet ## Procedures called by entry

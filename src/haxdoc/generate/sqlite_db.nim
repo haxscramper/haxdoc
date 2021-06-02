@@ -4,7 +4,7 @@ import
 
 import
   std/[db_sqlite, strformat, with, sqlite3, macros, hashes,
-       options, sequtils, intsets],
+       options, sequtils, intsets, sugar],
   hmisc/other/[oswrap],
   hmisc/[helpers, hdebug_misc, base_errors],
   hnimast, hnimast/store_decl,
@@ -26,6 +26,9 @@ proc bindParam[E: enum](ps: SqlPrepared, idx: int, opt: E) =
 proc bindParam(ps: SqlPrepared, idx: int, id: DocId) =
   bindParam(ps, idx, id.id.int)
 
+# proc bindParam(ps: SqlPrepared, idx: int, id: Hash) =
+#   bindParam(ps, idx, id.int)
+
 const
   entriesTable = "entries"
   typeInstanceTable = "typeInstances"
@@ -33,6 +36,7 @@ const
   occurTable = "occurs"
   signaturesTable = "procedureSignatures"
   pragmaListTable = "pragmaLists"
+  genericInstTable = "genericSpecializations"
   argListTable = "argLists"
   idKey = "integer primary key unique not null"
 
@@ -112,7 +116,14 @@ create table {doctextTable} (
   id {idKey},
   kind {sq(DocType().kind)},
   headEntry {sq(DocType().head)},
-  procType integer references {signaturesTable}(id)
+  procType integer references {signaturesTable}(id),
+  paramTypes integer references {genericInstTable}(id)
+);
+"""),
+    sql fmt("""create table {genericInstTable} (
+  id integer not null,
+  type {sq(DocType)},
+  pos integer not null
 );
 """),
     sql fmt("""create table {signaturesTable} (
@@ -123,7 +134,7 @@ create table {doctextTable} (
 );
 """),
     sql fmt("""create table {argListTable} (
-  id {idKey},
+  id integer not null,
   pos integer not null,
   name text,
   type {sq(DocType)}
@@ -139,7 +150,7 @@ create table {doctextTable} (
 
 type
   PrepStore = object
-    entry, docText, docType, sig: SqlPrepared
+    entry, docText, docType, sig, docProc, docGeneric: SqlPrepared
 
 
 proc register(sq: DbConn, text: DocText, prep: var PrepStore): int =
@@ -162,47 +173,107 @@ insert into {doctextTable} (
 
   sq.doExec(prep.docText)
 
-proc registerSignature(sq: DbConn, sig: DocType, prep: var PrepStore): Hash =
+template checkSeen(hash: Hash): bool =
+  var store {.global.}: IntSet
+  if hash in store:
+    true
+
+  else:
+    store.incl hash
+    false
+
+proc newInsert(table: string, columns: openarray[(string, int)]): string =
+  "insert into " & table & " (\n  " &
+    columns.mapIt(it[0]).join(", ") & "\n) values ( \n" & join(
+      collect(
+        newSeq,
+        for idx, (name, val) in columns:
+         "  ?" & $val & tern(idx < columns.high, ",", " ") & " -- " & name
+      ), "\n"
+    ) & "\n);"
+
+
+
+
+proc registerProc(sq: DbConn, sig: DocType, prep: var PrepStore): Hash =
   result = hash(sig)
+  if checkSeen(result): return
+
+  once:
+    let q = argListTable.newInsert({
+      "id": 1,
+      "pos": 2,
+      "name": 3,
+      "type": 4
+    })
+
+    prep.docProc = sq.prepare(q)
+
+
+  for idx, arg in sig.arguments:
+    with prep.docProc:
+      bindParam(1, result)
+      bindParam(2, idx)
+      bindParam(3, arg.ident)
+      bindParam(4, hash(arg.identType))
+
+    sq.doExec(prep.docProc)
+
+
+
+proc registerGeneric(sq: DbConn, sig: DocType, prep: var PrepStore): Hash =
+  result = hash(sig)
+  if checkSeen(result): return
+
+  once:
+    let q = genericInstTable.newInsert({
+      "id": 1, "type": 2, "pos": 3})
+
+    prep.docGeneric = sq.prepare(q)
+
+  for idx, arg in sig.genParams:
+    with prep.docGeneric:
+      bindParam(1, result)
+      bindParam(2, arg.hash())
+      bindParam(3, idx)
+
+    sq.doExec(prep.docGeneric)
+
+
+
 
 proc register(sq: DbConn, dtype: DocType, prep: var PrepStore): Hash =
   if isNil(dtype): return
 
-  var registered {.global.}: IntSet
-  let h = dtype.hash()
-  if h in registered:
-    return h
-
-  else:
-    registered.incl h
+  result = dtype.hash()
+  if checkSeen(result): return
 
 
   once:
-    let q = fmt"""
-insert into {typeInstanceTable} (
-  id, kind, headEntry, proctype
-) values (
-  ?1, -- id
-  ?2, -- kind
-  ?3, -- headEntry
-  ?4 -- procType
-);
-"""
+    let q = typeInstanceTable.newInsert({
+      "id": 1,
+      "kind": 2,
+      "headEntry": 3,
+      "procType": 4,
+      "paramTypes": 5
+    })
 
     prep.docType = sq.prepare(q)
 
   with prep.docType:
-    bindParam(1, h)
+    bindParam(1, result)
     bindParam(2, dtype.kind)
 
-  # case dtype.kind:
-  #   of dtkProc:
+  case dtype.kind:
+    of dtkProc:
+      prep.docType.bindParam(4, sq.registerProc(dtype, prep))
 
+    of dtkIdent:
+      prep.docType.bindParam(3, dtype.head)
+      prep.docType.bindParam(5, sq.registerGeneric(dtype, prep))
 
-
-  #   of dktIdent:
-  #     prep.docType.bindParam(3, dtype.head)
-
+    else:
+      discard
 
   sq.doExec(prep.docType)
 
@@ -245,7 +316,7 @@ insert into {entriesTable} (
 
   case entry.kind:
     of dekProcKinds:
-      prep.entry.bindParam(7, sq.register(entry.procSignature, prep))
+      prep.entry.bindParam(7, sq.register(entry.procType, prep))
 
     of dekAliasKinds:
       prep.entry.bindParam(7, sq.register(entry.baseType, prep))
@@ -260,9 +331,11 @@ proc registerFullDb*(db: DocDb, sq: DbConn) =
   for entry in allItems(db):
     sq.register(entry, prep)
 
-  prep.entry.finalize()
-  prep.docText.finalize()
-  prep.docType.finalize()
+  for field in fields(prep):
+    field.finalize()
+  # prep.entry.finalize()
+  # prep.docText.finalize()
+  # prep.docType.finalize()
 
 proc writeDbSqlite*(db: DocDb, outFile: AbsFile) =
   if exists(outFile): rmFile outFile
