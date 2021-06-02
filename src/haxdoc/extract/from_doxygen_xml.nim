@@ -1,9 +1,12 @@
-import ./doxygen_compound as DoxCompound
-import ./doxygen_index as DoxIndex
-import std/strtabs
-import hmisc/hasts/[xml_ast]
-import hmisc/other/[oswrap, hshell]
-import hmisc/hdebug_misc
+import
+  ./doxygen_compound as DoxCompound,
+  ./doxygen_index as DoxIndex,
+  ../docentry,
+  std/[strtabs, tables],
+  haxorg/[semorg, ast],
+  hmisc/hasts/[xml_ast],
+  hmisc/other/[oswrap, hshell],
+  hmisc/hdebug_misc
 
 const doxyfileText = """
 DOXYFILE_ENCODING      = UTF-8
@@ -339,6 +342,13 @@ GENERATE_LEGEND        = YES
 DOT_CLEANUP            = YES
 """
 
+type
+  ConvertContext = object
+    db: DocDb
+    refidMap: Table[string, DocId]
+
+using ctx: var ConvertContext
+
 
 proc doxygenXmlForDir*(
     fromDir: AbsDir,
@@ -380,7 +390,6 @@ const
 proc indexForDir*(toDir: AbsDir): DoxIndex.DoxygenType =
   parseDoxygenIndex(toDir / "xml" /. "index.xml")
 
-
 proc listGeneratedFiles*(
     toDir: AbsDir,
     filter: set[CompoundKind] = {ckFile, ckDir}
@@ -394,28 +403,50 @@ proc listGeneratedFiles*(
 
 import hpprint
 
-startHax()
 
-when isMainModule:
-  let dir = getNewTempDir("tFromDoxygenXml")
-  mkDir dir
-  writeFile(dir /. "file.cpp", """
+proc toSemOrg(dtb: DescriptionTypeBody): SemOrg =
+  discard
 
-/// \arg arg1 Documentation for second argument
-/// \arg arg2 Documentation for the first argument
-void method(int arg1, int arg2) {}
+proc toSemOrg(dt: DescriptionType): SemOrg =
+  result = onkStmtList.newSemOrg()
+  for sub in dt.xsdChoice:
+    result.add toSemOrg(sub)
 
-""")
+proc register(db: var DocDb, dox: SectionDefType) =
+  for member in dox.memberdef:
+    case member.kind:
+      of dmkFunction:
+        pprint member, ignore = @["**/*detailed*"]
+        var pr = newDocType(dtkProc)
+        for param in member.param:
+          pr.add newDocIdent(
+            $param.declname.get[0], newDocType(dtkIdent, ""))
 
-  let toDir = dir / "doxygen_xml"
-  doxygenXmlForDir(dir, toDir, doxyfilePattern = "Doxyfile")
-  let files = listGeneratedFiles(toDir)
-  let index = indexForDir(toDir)
-  pprint index
-  pprint files
+        var entry = db.newDocEntry(dekProc, $member.name, pr)
+
+      else:
+        discard
+
+proc toDocType(db: var DocDb, ltt: LinkedTextType): DocType =
+  discard
+
+proc register(db: var DocDb, dox: DoxCompound.CompoundDefType) =
+  if dox.kind in {dckFile}:
+    for section in dox.sectiondef:
+      db.register(section)
+
+proc generateDocDb*(doxygenDir: AbsDir): DocDb =
+  var db = newDocDb()
+
+  assertExists(
+    doxygenDir / "xml",
+    "Could not find generated doxygen XML directory")
+
+  let files = listGeneratedFiles(doxygenDir)
+  let index = indexForDir(doxygenDir)
   for file in files:
-    echo file
     let parsed = parseDoxygenFile(file)
-    pprint parsed
+    for comp in parsed.compounddef:
+      db.register(comp)
 
-  echo "done"
+  return db

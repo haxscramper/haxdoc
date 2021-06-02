@@ -499,6 +499,7 @@ type
     top*: OrderedTable[DocIdentPart, DocEntry]
     files*: seq[DocFile]
     knownLibs: seq[DocLib]
+    currentTop*: DocEntry
 
 storeTraits(DocEntry, dekAliasKinds, dekProcKinds, dekStructKinds)
 
@@ -846,6 +847,20 @@ func procType*(de: DocEntry): DocType =
 proc newDocType*(kind: DocTypeKind, head: DocEntry): DocType =
   result = DocType(kind: kind)
   result.head = head.id()
+
+proc newDocType*(kind: DocTypeKind, name: string = ""): DocType =
+  result = DocType(kind: kind, name: name)
+
+proc newDocIdent*(name: string, idType: DocType): DocIdent =
+  DocIdent(ident: name, identType: idType)
+
+func add*(t: var DocType, ident: DocIdent) =
+  case t.kind:
+    of dtkProc, dtkNamedTuple:
+      t.arguments.add ident
+
+    else:
+      raise newUnexpectedKindError(t.kind)
 
 proc initIdentPart*(
     kind: DocEntryKind, name: string,

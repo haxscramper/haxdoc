@@ -65,7 +65,7 @@ proc loadXml*(parser: var HXmlParser; target: var MemberKind; tag: string)
 
 proc loadXml*(parser: var HXmlParser; target: var DoxygenType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -77,14 +77,15 @@ proc loadXml*(parser: var HXmlParser; target: var DoxygenType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "compound":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.compound, "compound")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -100,14 +101,14 @@ proc loadXml*(parser: var HXmlParser; target: var DoxygenType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var CompoundType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -121,17 +122,18 @@ proc loadXml*(parser: var HXmlParser; target: var CompoundType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "name":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.name, "name")
       of "member":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.member, "member")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -147,14 +149,14 @@ proc loadXml*(parser: var HXmlParser; target: var CompoundType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var MemberType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -168,14 +170,15 @@ proc loadXml*(parser: var HXmlParser; target: var MemberType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "name":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.name, "name")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -191,88 +194,74 @@ proc loadXml*(parser: var HXmlParser; target: var MemberType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var CompoundKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "class":
-      target = ckClass
-    of "struct":
-      target = ckStruct
-    of "union":
-      target = ckUnion
-    of "interface":
-      target = ckInterface
-    of "protocol":
-      target = ckProtocol
-    of "category":
-      target = ckCategory
-    of "exception":
-      target = ckException
-    of "file":
-      target = ckFile
-    of "namespace":
-      target = ckNamespace
-    of "group":
-      target = ckGroup
-    of "page":
-      target = ckPage
-    of "example":
-      target = ckExample
-    of "dir":
-      target = ckDir
-    of "type":
-      target = ckType
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "class":
+    target = ckClass
+  of "struct":
+    target = ckStruct
+  of "union":
+    target = ckUnion
+  of "interface":
+    target = ckInterface
+  of "protocol":
+    target = ckProtocol
+  of "category":
+    target = ckCategory
+  of "exception":
+    target = ckException
+  of "file":
+    target = ckFile
+  of "namespace":
+    target = ckNamespace
+  of "group":
+    target = ckGroup
+  of "page":
+    target = ckPage
+  of "example":
+    target = ckExample
+  of "dir":
+    target = ckDir
+  of "type":
+    target = ckType
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var MemberKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "define":
-      target = mkDefine
-    of "property":
-      target = mkProperty
-    of "event":
-      target = mkEvent
-    of "variable":
-      target = mkVariable
-    of "typedef":
-      target = mkTypedef
-    of "enum":
-      target = mkEnum
-    of "enumvalue":
-      target = mkEnumvalue
-    of "function":
-      target = mkFunction
-    of "signal":
-      target = mkSignal
-    of "prototype":
-      target = mkPrototype
-    of "friend":
-      target = mkFriend
-    of "dcop":
-      target = mkDcop
-    of "slot":
-      target = mkSlot
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "define":
+    target = mkDefine
+  of "property":
+    target = mkProperty
+  of "event":
+    target = mkEvent
+  of "variable":
+    target = mkVariable
+  of "typedef":
+    target = mkTypedef
+  of "enum":
+    target = mkEnum
+  of "enumvalue":
+    target = mkEnumvalue
+  of "function":
+    target = mkFunction
+  of "signal":
+    target = mkSignal
+  of "prototype":
+    target = mkPrototype
+  of "friend":
+    target = mkFriend
+  of "dcop":
+    target = mkDcop
+  of "slot":
+    target = mkSlot
+  parser.next()

@@ -144,7 +144,6 @@ create table {doctextTable} (
     ]
 
   for q in q:
-    echo q.string
     sq.exec(q)
 
 
@@ -301,7 +300,6 @@ insert into {entriesTable} (
 );
 """
 
-    # echo q
     prep.entry = sq.prepare(q)
 
   with prep.entry:
@@ -326,6 +324,12 @@ insert into {entriesTable} (
 
   sq.doExec(prep.entry)
 
+proc store*[E: enum](sq: DbConn, name: string, en: typedesc[E]) =
+  sq.exec(sql &"create table {name} (kind int, name text);")
+  for kind in low(E) .. high(E):
+    sq.exec(sql &"insert into {name} (kind, name) values ({kind.int}, \"{kind}\");")
+
+
 proc registerFullDb*(db: DocDb, sq: DbConn) =
   var prep: PrepStore
   for entry in allItems(db):
@@ -333,9 +337,11 @@ proc registerFullDb*(db: DocDb, sq: DbConn) =
 
   for field in fields(prep):
     field.finalize()
-  # prep.entry.finalize()
-  # prep.docText.finalize()
-  # prep.docType.finalize()
+
+  sq.store("entryKinds", DocEntryKind)
+  sq.store("occurKinds", DocOccurKind)
+  sq.store("typeKinds", DocTypeKind)
+
 
 proc writeDbSqlite*(db: DocDb, outFile: AbsFile) =
   if exists(outFile): rmFile outFile

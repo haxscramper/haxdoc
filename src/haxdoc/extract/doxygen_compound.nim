@@ -157,10 +157,10 @@ type
     referencedby*: seq[ReferenceType]
 
   DescriptionTypeKind* = enum
-    dtTitle1, dtPara, dtInternal, dtSect1, dtMixedStr
+    dtTitle, dtPara, dtInternal, dtSect1, dtMixedStr
   DescriptionTypeBody* = object
     case kind*: DescriptionTypeKind
-    of dtTitle1:
+    of dtTitle:
         fString*: string
 
     of dtPara:
@@ -180,20 +180,19 @@ type
     xsdChoice*: seq[DescriptionTypeBody]
 
   EnumvalueTypeKind* = enum
-    etName2, etInitializer1, etBriefdescription2, etDetaileddescription2,
-    etMixedStr1
+    etName, etInitializer, etBriefdescription, etDetaileddescription, etMixedStr
   EnumvalueTypeBody* = object
     case kind*: EnumvalueTypeKind
-    of etName2:
+    of etName:
         xmlNode*: XmlNode
 
-    of etInitializer1:
+    of etInitializer:
         linkedTextType*: LinkedTextType
 
-    of etBriefdescription2, etDetaileddescription2:
+    of etBriefdescription, etDetaileddescription:
         descriptionType*: DescriptionType
 
-    of etMixedStr1:
+    of etMixedStr:
         mixedStr*: string
 
   
@@ -216,13 +215,13 @@ type
     briefdescription*: Option[DescriptionType]
 
   LinkedTextTypeKind* = enum
-    lttRef, lttMixedStr2
+    lttRef, lttMixedStr
   LinkedTextTypeBody* = object
     case kind*: LinkedTextTypeKind
     of lttRef:
         refTextType*: RefTextType
 
-    of lttMixedStr2:
+    of lttMixedStr:
         mixedStr*: string
 
   
@@ -259,16 +258,16 @@ type
     highlight*: seq[HighlightType]
 
   HighlightTypeKind* = enum
-    htSp, htRef1, htMixedStr3
+    htSp, htRef, htMixedStr
   HighlightTypeBody* = object
     case kind*: HighlightTypeKind
     of htSp:
         spType*: SpType
 
-    of htRef1:
+    of htRef:
         refTextType*: RefTextType
 
-    of htMixedStr3:
+    of htMixedStr:
         mixedStr*: string
 
   
@@ -277,10 +276,10 @@ type
     xsdChoice*: seq[HighlightTypeBody]
 
   SpTypeKind* = enum
-    stMixedStr4
+    stMixedStr
   SpTypeBody* = object
     case kind*: SpTypeKind
-    of stMixedStr4:
+    of stMixedStr:
         mixedStr*: string
 
   
@@ -289,10 +288,10 @@ type
     xsdChoice*: seq[SpTypeBody]
 
   ReferenceTypeKind* = enum
-    rtMixedStr5
+    rtMixedStr
   ReferenceTypeBody* = object
     case kind*: ReferenceTypeKind
-    of rtMixedStr5:
+    of rtMixedStr:
         mixedStr*: string
 
   
@@ -315,13 +314,13 @@ type
     bodyend*: int
 
   DocSect1TypeKind* = enum
-    dstTitle2, dstMixedStr6
+    dstTitle, dstMixedStr
   DocSect1TypeBody* = object
     case kind*: DocSect1TypeKind
-    of dstTitle2:
+    of dstTitle:
         fString*: string
 
-    of dstMixedStr6:
+    of dstMixedStr:
         mixedStr*: string
 
   
@@ -330,13 +329,13 @@ type
     xsdChoice*: seq[DocSect1TypeBody]
 
   DocSect2TypeKind* = enum
-    dostTitle3, dostMixedStr7
+    dostTitle, dostMixedStr
   DocSect2TypeBody* = object
     case kind*: DocSect2TypeKind
-    of dostTitle3:
+    of dostTitle:
         fString*: string
 
-    of dostMixedStr7:
+    of dostMixedStr:
         mixedStr*: string
 
   
@@ -345,13 +344,13 @@ type
     xsdChoice*: seq[DocSect2TypeBody]
 
   DocSect3TypeKind* = enum
-    docstTitle4, docstMixedStr8
+    docstTitle, docstMixedStr
   DocSect3TypeBody* = object
     case kind*: DocSect3TypeKind
-    of docstTitle4:
+    of docstTitle:
         fString*: string
 
-    of docstMixedStr8:
+    of docstMixedStr:
         mixedStr*: string
 
   
@@ -360,13 +359,13 @@ type
     xsdChoice*: seq[DocSect3TypeBody]
 
   DocSect4TypeKind* = enum
-    docsetTitle5, docsetMixedStr9
+    docsetTitle, docsetMixedStr
   DocSect4TypeBody* = object
     case kind*: DocSect4TypeKind
-    of docsetTitle5:
+    of docsetTitle:
         fString*: string
 
-    of docsetMixedStr9:
+    of docsetMixedStr:
         mixedStr*: string
 
   
@@ -375,16 +374,16 @@ type
     xsdChoice*: seq[DocSect4TypeBody]
 
   DocInternalTypeKind* = enum
-    ditPara1, ditSect11, ditMixedStr10
+    ditPara, ditSect1, ditMixedStr
   DocInternalTypeBody* = object
     case kind*: DocInternalTypeKind
-    of ditPara1:
+    of ditPara:
         docParaType*: DocParaType
 
-    of ditSect11:
+    of ditSect1:
         docSect1Type*: DocSect1Type
 
-    of ditMixedStr10:
+    of ditMixedStr:
         mixedStr*: string
 
   
@@ -392,16 +391,16 @@ type
     xsdChoice*: seq[DocInternalTypeBody]
 
   DocInternalS1TypeKind* = enum
-    distPara2, distSect2, distMixedStr11
+    distPara, distSect2, distMixedStr
   DocInternalS1TypeBody* = object
     case kind*: DocInternalS1TypeKind
-    of distPara2:
+    of distPara:
         docParaType*: DocParaType
 
     of distSect2:
         docSect2Type*: DocSect2Type
 
-    of distMixedStr11:
+    of distMixedStr:
         mixedStr*: string
 
   
@@ -409,16 +408,16 @@ type
     xsdChoice*: seq[DocInternalS1TypeBody]
 
   DocInternalS2TypeKind* = enum
-    dis2tPara3, dis2tSect3, dis2tMixedStr12
+    dis2tPara, dis2tSect3, dis2tMixedStr
   DocInternalS2TypeBody* = object
     case kind*: DocInternalS2TypeKind
-    of dis2tPara3:
+    of dis2tPara:
         docParaType*: DocParaType
 
     of dis2tSect3:
         docSect3Type*: DocSect3Type
 
-    of dis2tMixedStr12:
+    of dis2tMixedStr:
         mixedStr*: string
 
   
@@ -426,16 +425,16 @@ type
     xsdChoice*: seq[DocInternalS2TypeBody]
 
   DocInternalS3TypeKind* = enum
-    dis3tPara4, dis3tSect31, dis3tMixedStr13
+    dis3tPara, dis3tSect3, dis3tMixedStr
   DocInternalS3TypeBody* = object
     case kind*: DocInternalS3TypeKind
-    of dis3tPara4:
+    of dis3tPara:
         docParaType*: DocParaType
 
-    of dis3tSect31:
+    of dis3tSect3:
         docSect4Type*: DocSect4Type
 
-    of dis3tMixedStr13:
+    of dis3tMixedStr:
         mixedStr*: string
 
   
@@ -443,13 +442,13 @@ type
     xsdChoice*: seq[DocInternalS3TypeBody]
 
   DocInternalS4TypeKind* = enum
-    dis4tPara5, dis4tMixedStr14
+    dis4tPara, dis4tMixedStr
   DocInternalS4TypeBody* = object
     case kind*: DocInternalS4TypeKind
-    of dis4tPara5:
+    of dis4tPara:
         docParaType*: DocParaType
 
-    of dis4tMixedStr14:
+    of dis4tMixedStr:
         mixedStr*: string
 
   
@@ -461,43 +460,42 @@ type
     dttComputeroutput, dttSubscript, dttSuperscript, dttCenter, dttSmall,
     dttDel, dttIns, dttHtmlonly, dttManonly, dttXmlonly, dttRtfonly,
     dttLatexonly, dttDocbookonly, dttImage, dttDot, dttMsc, dttPlantuml,
-    dttAnchor, dttFormula, dttRef2, dttEmoji, dttLinebreak,
-    dttNonbreakablespace, dttIexcl, dttCent, dttPound, dttCurren, dttYen,
-    dttBrvbar, dttSect, dttUmlaut, dttCopy, dttOrdf, dttLaquo, dttNot, dttShy,
-    dttRegistered, dttMacr, dttDeg, dttPlusmn, dttSup2, dttSup3, dttAcute,
-    dttMicro, dttPara6, dttMiddot, dttCedil, dttSup1, dttOrdm, dttRaquo,
-    dttFrac14, dttFrac12, dttFrac34, dttIquest, dttAgrave, dttAacute, dttAcirc,
-    dttAtilde, dttAumlaut, dttAring, dttAElig, dttCcedil, dttEgrave, dttEacute,
-    dttEcirc, dttEumlaut, dttIgrave, dttIacute, dttIcirc, dttIumlaut, dttETH,
-    dttNtilde, dttOgrave, dttOacute, dttOcirc, dttOtilde, dttOumlaut, dttTimes,
-    dttOslash, dttUgrave, dttUacute, dttUcirc, dttUumlaut, dttYacute, dttTHORN,
-    dttSzlig, dttAgrave1, dttAacute1, dttAcirc1, dttAtilde1, dttAumlaut1,
-    dttAring1, dttAelig1, dttCcedil1, dttEgrave1, dttEacute1, dttEcirc1,
-    dttEumlaut1, dttIgrave1, dttIacute1, dttIcirc1, dttIumlaut1, dttEth1,
-    dttNtilde1, dttOgrave1, dttOacute1, dttOcirc1, dttOtilde1, dttOumlaut1,
-    dttDivide, dttOslash1, dttUgrave1, dttUacute1, dttUcirc1, dttUumlaut1,
-    dttYacute1, dttThorn1, dttYumlaut, dttFnof, dttAlpha, dttBeta, dttGamma,
-    dttDelta, dttEpsilon, dttZeta, dttEta, dttTheta, dttIota, dttKappa,
-    dttLambda, dttMu, dttNu, dttXi, dttOmicron, dttPi, dttRho, dttSigma, dttTau,
-    dttUpsilon, dttPhi, dttChi, dttPsi, dttOmega, dttAlpha1, dttBeta1,
-    dttGamma1, dttDelta1, dttEpsilon1, dttZeta1, dttEta1, dttTheta1, dttIota1,
-    dttKappa1, dttLambda1, dttMu1, dttNu1, dttXi1, dttOmicron1, dttPi1, dttRho1,
-    dttSigmaf, dttSigma1, dttTau1, dttUpsilon1, dttPhi1, dttChi1, dttPsi1,
-    dttOmega1, dttThetasym, dttUpsih, dttPiv, dttBull, dttHellip, dttPrime,
-    dttPrime1, dttOline, dttFrasl, dttWeierp, dttImaginary, dttReal,
-    dttTrademark, dttAlefsym, dttLarr, dttUarr, dttRarr, dttDarr, dttHarr,
-    dttCrarr, dttLArr1, dttUArr1, dttRArr1, dttDArr1, dttHArr1, dttForall,
-    dttPart, dttExist, dttEmpty, dttNabla, dttIsin, dttNotin, dttNi, dttProd,
-    dttSum, dttMinus, dttLowast, dttRadic, dttProp, dttInfin, dttAng, dttAnd,
-    dttOr, dttCap, dttCup, dttInt, dttThere4, dttSim, dttCong, dttAsymp, dttNe,
-    dttEquiv, dttLe, dttGe, dttSub, dttSup, dttNsub, dttSube, dttSupe, dttOplus,
-    dttOtimes, dttPerp, dttSdot, dttLceil, dttRceil, dttLfloor, dttRfloor,
-    dttLang, dttRang, dttLoz, dttSpades, dttClubs, dttHearts, dttDiams,
-    dttOElig, dttOelig1, dttScaron, dttScaron1, dttYumlaut1, dttCirc, dttTilde,
-    dttEnsp, dttEmsp, dttThinsp, dttZwnj, dttZwj, dttLrm, dttRlm, dttNdash,
-    dttMdash, dttLsquo, dttRsquo, dttSbquo, dttLdquo, dttRdquo, dttBdquo,
-    dttDagger, dttDagger1, dttPermil, dttLsaquo, dttRsaquo, dttEuro, dttTm,
-    dttMixedStr15
+    dttAnchor, dttFormula, dttRef, dttEmoji, dttLinebreak, dttNonbreakablespace,
+    dttIexcl, dttCent, dttPound, dttCurren, dttYen, dttBrvbar, dttSect,
+    dttUmlaut, dttCopy, dttOrdf, dttLaquo, dttNot, dttShy, dttRegistered,
+    dttMacr, dttDeg, dttPlusmn, dttSup2, dttSup3, dttAcute, dttMicro, dttPara,
+    dttMiddot, dttCedil, dttSup1, dttOrdm, dttRaquo, dttFrac14, dttFrac12,
+    dttFrac34, dttIquest, dttAgrave, dttAacute, dttAcirc, dttAtilde, dttAumlaut,
+    dttAring, dttAElig, dttCcedil, dttEgrave, dttEacute, dttEcirc, dttEumlaut,
+    dttIgrave, dttIacute, dttIcirc, dttIumlaut, dttETH, dttNtilde, dttOgrave,
+    dttOacute, dttOcirc, dttOtilde, dttOumlaut, dttTimes, dttOslash, dttUgrave,
+    dttUacute, dttUcirc, dttUumlaut, dttYacute, dttTHORN, dttSzlig, dttAgrave1,
+    dttAacute1, dttAcirc1, dttAtilde1, dttAumlaut1, dttAring1, dttAelig1,
+    dttCcedil1, dttEgrave1, dttEacute1, dttEcirc1, dttEumlaut1, dttIgrave1,
+    dttIacute1, dttIcirc1, dttIumlaut1, dttEth1, dttNtilde1, dttOgrave1,
+    dttOacute1, dttOcirc1, dttOtilde1, dttOumlaut1, dttDivide, dttOslash1,
+    dttUgrave1, dttUacute1, dttUcirc1, dttUumlaut1, dttYacute1, dttThorn1,
+    dttYumlaut, dttFnof, dttAlpha, dttBeta, dttGamma, dttDelta, dttEpsilon,
+    dttZeta, dttEta, dttTheta, dttIota, dttKappa, dttLambda, dttMu, dttNu,
+    dttXi, dttOmicron, dttPi, dttRho, dttSigma, dttTau, dttUpsilon, dttPhi,
+    dttChi, dttPsi, dttOmega, dttAlpha1, dttBeta1, dttGamma1, dttDelta1,
+    dttEpsilon1, dttZeta1, dttEta1, dttTheta1, dttIota1, dttKappa1, dttLambda1,
+    dttMu1, dttNu1, dttXi1, dttOmicron1, dttPi1, dttRho1, dttSigmaf, dttSigma1,
+    dttTau1, dttUpsilon1, dttPhi1, dttChi1, dttPsi1, dttOmega1, dttThetasym,
+    dttUpsih, dttPiv, dttBull, dttHellip, dttPrime, dttPrime1, dttOline,
+    dttFrasl, dttWeierp, dttImaginary, dttReal, dttTrademark, dttAlefsym,
+    dttLarr, dttUarr, dttRarr, dttDarr, dttHarr, dttCrarr, dttLArr1, dttUArr1,
+    dttRArr1, dttDArr1, dttHArr1, dttForall, dttPart, dttExist, dttEmpty,
+    dttNabla, dttIsin, dttNotin, dttNi, dttProd, dttSum, dttMinus, dttLowast,
+    dttRadic, dttProp, dttInfin, dttAng, dttAnd, dttOr, dttCap, dttCup, dttInt,
+    dttThere4, dttSim, dttCong, dttAsymp, dttNe, dttEquiv, dttLe, dttGe, dttSub,
+    dttSup, dttNsub, dttSube, dttSupe, dttOplus, dttOtimes, dttPerp, dttSdot,
+    dttLceil, dttRceil, dttLfloor, dttRfloor, dttLang, dttRang, dttLoz,
+    dttSpades, dttClubs, dttHearts, dttDiams, dttOElig, dttOelig1, dttScaron,
+    dttScaron1, dttYumlaut1, dttCirc, dttTilde, dttEnsp, dttEmsp, dttThinsp,
+    dttZwnj, dttZwj, dttLrm, dttRlm, dttNdash, dttMdash, dttLsquo, dttRsquo,
+    dttSbquo, dttLdquo, dttRdquo, dttBdquo, dttDagger, dttDagger1, dttPermil,
+    dttLsaquo, dttRsaquo, dttEuro, dttTm, dttMixedStr
   DocTitleTypeBody* = object
     case kind*: DocTitleTypeKind
     of dttUlink:
@@ -522,7 +520,7 @@ type
     of dttFormula:
         docFormulaType*: DocFormulaType
 
-    of dttRef2:
+    of dttRef:
         docRefTextType*: DocRefTextType
 
     of dttEmoji:
@@ -531,7 +529,7 @@ type
     of dttLinebreak, dttNonbreakablespace, dttIexcl, dttCent, dttPound,
        dttCurren, dttYen, dttBrvbar, dttSect, dttUmlaut, dttCopy, dttOrdf,
        dttLaquo, dttNot, dttShy, dttRegistered, dttMacr, dttDeg, dttPlusmn,
-       dttSup2, dttSup3, dttAcute, dttMicro, dttPara6, dttMiddot, dttCedil,
+       dttSup2, dttSup3, dttAcute, dttMicro, dttPara, dttMiddot, dttCedil,
        dttSup1, dttOrdm, dttRaquo, dttFrac14, dttFrac12, dttFrac34, dttIquest,
        dttAgrave, dttAacute, dttAcirc, dttAtilde, dttAumlaut, dttAring,
        dttAElig, dttCcedil, dttEgrave, dttEacute, dttEcirc, dttEumlaut,
@@ -567,7 +565,7 @@ type
        dttPermil, dttLsaquo, dttRsaquo, dttEuro, dttTm:
         docEmptyType*: DocEmptyType
 
-    of dttMixedStr15:
+    of dttMixedStr:
         mixedStr*: string
 
   
@@ -575,11 +573,11 @@ type
     xsdChoice*: seq[DocTitleTypeBody]
 
   DocParaTypeKind* = enum
-    dptHruler, dptPreformatted, dptProgramlisting1, dptVerbatim, dptIndexentry,
-    dptOrderedlist, dptItemizedlist, dptSimplesect, dptTitle6, dptVariablelist,
+    dptHruler, dptPreformatted, dptProgramlisting, dptVerbatim, dptIndexentry,
+    dptOrderedlist, dptItemizedlist, dptSimplesect, dptTitle, dptVariablelist,
     dptTable, dptHeading, dptDotfile, dptMscfile, dptDiafile, dptToclist,
     dptLanguage, dptParameterlist, dptXrefsect, dptCopydoc, dptBlockquote,
-    dptParblock, dptMixedStr16
+    dptParblock, dptMixedStr
   DocParaTypeBody* = object
     case kind*: DocParaTypeKind
     of dptHruler:
@@ -588,7 +586,7 @@ type
     of dptPreformatted:
         docMarkupType*: DocMarkupType
 
-    of dptProgramlisting1:
+    of dptProgramlisting:
         listingType*: ListingType
 
     of dptVerbatim:
@@ -603,7 +601,7 @@ type
     of dptSimplesect:
         docSimpleSectType*: DocSimpleSectType
 
-    of dptTitle6:
+    of dptTitle:
         docTitleType*: DocTitleType
 
     of dptVariablelist:
@@ -639,7 +637,7 @@ type
     of dptParblock:
         docParBlockType*: DocParBlockType
 
-    of dptMixedStr16:
+    of dptMixedStr:
         mixedStr*: string
 
   
@@ -647,71 +645,71 @@ type
     xsdChoice*: seq[DocParaTypeBody]
 
   DocMarkupTypeKind* = enum
-    dmtHruler1, dmtPreformatted1, dmtProgramlisting2, dmtVerbatim1,
-    dmtIndexentry1, dmtOrderedlist1, dmtItemizedlist1, dmtSimplesect1,
-    dmtTitle7, dmtVariablelist1, dmtTable1, dmtHeading1, dmtDotfile1,
-    dmtMscfile1, dmtDiafile1, dmtToclist1, dmtLanguage1, dmtParameterlist1,
-    dmtXrefsect1, dmtCopydoc1, dmtBlockquote1, dmtParblock1, dmtMixedStr17
+    dmtHruler, dmtPreformatted, dmtProgramlisting, dmtVerbatim, dmtIndexentry,
+    dmtOrderedlist, dmtItemizedlist, dmtSimplesect, dmtTitle, dmtVariablelist,
+    dmtTable, dmtHeading, dmtDotfile, dmtMscfile, dmtDiafile, dmtToclist,
+    dmtLanguage, dmtParameterlist, dmtXrefsect, dmtCopydoc, dmtBlockquote,
+    dmtParblock, dmtMixedStr
   DocMarkupTypeBody* = object
     case kind*: DocMarkupTypeKind
-    of dmtHruler1:
+    of dmtHruler:
         docEmptyType*: DocEmptyType
 
-    of dmtPreformatted1:
+    of dmtPreformatted:
         docMarkupType*: DocMarkupType
 
-    of dmtProgramlisting2:
+    of dmtProgramlisting:
         listingType*: ListingType
 
-    of dmtVerbatim1:
+    of dmtVerbatim:
         fString*: string
 
-    of dmtIndexentry1:
+    of dmtIndexentry:
         docIndexEntryType*: DocIndexEntryType
 
-    of dmtOrderedlist1, dmtItemizedlist1:
+    of dmtOrderedlist, dmtItemizedlist:
         docListType*: DocListType
 
-    of dmtSimplesect1:
+    of dmtSimplesect:
         docSimpleSectType*: DocSimpleSectType
 
-    of dmtTitle7:
+    of dmtTitle:
         docTitleType*: DocTitleType
 
-    of dmtVariablelist1:
+    of dmtVariablelist:
         docVariableListType*: DocVariableListType
 
-    of dmtTable1:
+    of dmtTable:
         docTableType*: DocTableType
 
-    of dmtHeading1:
+    of dmtHeading:
         docHeadingType*: DocHeadingType
 
-    of dmtDotfile1, dmtMscfile1, dmtDiafile1:
+    of dmtDotfile, dmtMscfile, dmtDiafile:
         docImageType*: DocImageType
 
-    of dmtToclist1:
+    of dmtToclist:
         docTocListType*: DocTocListType
 
-    of dmtLanguage1:
+    of dmtLanguage:
         docLanguageType*: DocLanguageType
 
-    of dmtParameterlist1:
+    of dmtParameterlist:
         docParamListType*: DocParamListType
 
-    of dmtXrefsect1:
+    of dmtXrefsect:
         docXRefSectType*: DocXRefSectType
 
-    of dmtCopydoc1:
+    of dmtCopydoc:
         docCopyType*: DocCopyType
 
-    of dmtBlockquote1:
+    of dmtBlockquote:
         docBlockQuoteType*: DocBlockQuoteType
 
-    of dmtParblock1:
+    of dmtParblock:
         docParBlockType*: DocParBlockType
 
-    of dmtMixedStr17:
+    of dmtMixedStr:
         mixedStr*: string
 
   
@@ -719,123 +717,116 @@ type
     xsdChoice*: seq[DocMarkupTypeBody]
 
   DocURLLinkKind* = enum
-    dulUlink1, dulBold1, dulS1, dulStrike1, dulUnderline1, dulEmphasis1,
-    dulComputeroutput1, dulSubscript1, dulSuperscript1, dulCenter1, dulSmall1,
-    dulDel1, dulIns1, dulHtmlonly1, dulManonly1, dulXmlonly1, dulRtfonly1,
-    dulLatexonly1, dulDocbookonly1, dulImage1, dulDot1, dulMsc1, dulPlantuml1,
-    dulAnchor1, dulFormula1, dulRef3, dulEmoji1, dulLinebreak1,
-    dulNonbreakablespace1, dulIexcl1, dulCent1, dulPound1, dulCurren1, dulYen1,
-    dulBrvbar1, dulSect1, dulUmlaut1, dulCopy1, dulOrdf1, dulLaquo1, dulNot1,
-    dulShy1, dulRegistered1, dulMacr1, dulDeg1, dulPlusmn1, dulSup21, dulSup31,
-    dulAcute1, dulMicro1, dulPara7, dulMiddot1, dulCedil1, dulSup11, dulOrdm1,
-    dulRaquo1, dulFrac141, dulFrac121, dulFrac341, dulIquest1, dulAgrave2,
-    dulAacute2, dulAcirc2, dulAtilde2, dulAumlaut2, dulAring2, dulAElig2,
-    dulCcedil2, dulEgrave2, dulEacute2, dulEcirc2, dulEumlaut2, dulIgrave2,
-    dulIacute2, dulIcirc2, dulIumlaut2, dulETH2, dulNtilde2, dulOgrave2,
-    dulOacute2, dulOcirc2, dulOtilde2, dulOumlaut2, dulTimes1, dulOslash2,
-    dulUgrave2, dulUacute2, dulUcirc2, dulUumlaut2, dulYacute2, dulTHORN2,
-    dulSzlig1, dulAgrave3, dulAacute3, dulAcirc3, dulAtilde3, dulAumlaut3,
-    dulAring3, dulAelig3, dulCcedil3, dulEgrave3, dulEacute3, dulEcirc3,
-    dulEumlaut3, dulIgrave3, dulIacute3, dulIcirc3, dulIumlaut3, dulEth3,
-    dulNtilde3, dulOgrave3, dulOacute3, dulOcirc3, dulOtilde3, dulOumlaut3,
-    dulDivide1, dulOslash3, dulUgrave3, dulUacute3, dulUcirc3, dulUumlaut3,
-    dulYacute3, dulThorn3, dulYumlaut2, dulFnof1, dulAlpha2, dulBeta2,
-    dulGamma2, dulDelta2, dulEpsilon2, dulZeta2, dulEta2, dulTheta2, dulIota2,
-    dulKappa2, dulLambda2, dulMu2, dulNu2, dulXi2, dulOmicron2, dulPi2, dulRho2,
-    dulSigma2, dulTau2, dulUpsilon2, dulPhi2, dulChi2, dulPsi2, dulOmega2,
-    dulAlpha3, dulBeta3, dulGamma3, dulDelta3, dulEpsilon3, dulZeta3, dulEta3,
-    dulTheta3, dulIota3, dulKappa3, dulLambda3, dulMu3, dulNu3, dulXi3,
-    dulOmicron3, dulPi3, dulRho3, dulSigmaf1, dulSigma3, dulTau3, dulUpsilon3,
-    dulPhi3, dulChi3, dulPsi3, dulOmega3, dulThetasym1, dulUpsih1, dulPiv1,
-    dulBull1, dulHellip1, dulPrime2, dulPrime3, dulOline1, dulFrasl1,
-    dulWeierp1, dulImaginary1, dulReal1, dulTrademark1, dulAlefsym1, dulLarr2,
-    dulUarr2, dulRarr2, dulDarr2, dulHarr2, dulCrarr1, dulLArr3, dulUArr3,
-    dulRArr3, dulDArr3, dulHArr3, dulForall1, dulPart1, dulExist1, dulEmpty1,
-    dulNabla1, dulIsin1, dulNotin1, dulNi1, dulProd1, dulSum1, dulMinus1,
-    dulLowast1, dulRadic1, dulProp1, dulInfin1, dulAng1, dulAnd1, dulOr1,
-    dulCap1, dulCup1, dulInt1, dulThere41, dulSim1, dulCong1, dulAsymp1, dulNe1,
-    dulEquiv1, dulLe1, dulGe1, dulSub1, dulSup1, dulNsub1, dulSube1, dulSupe1,
-    dulOplus1, dulOtimes1, dulPerp1, dulSdot1, dulLceil1, dulRceil1, dulLfloor1,
-    dulRfloor1, dulLang1, dulRang1, dulLoz1, dulSpades1, dulClubs1, dulHearts1,
-    dulDiams1, dulOElig2, dulOelig3, dulScaron2, dulScaron3, dulYumlaut3,
-    dulCirc1, dulTilde1, dulEnsp1, dulEmsp1, dulThinsp1, dulZwnj1, dulZwj1,
-    dulLrm1, dulRlm1, dulNdash1, dulMdash1, dulLsquo1, dulRsquo1, dulSbquo1,
-    dulLdquo1, dulRdquo1, dulBdquo1, dulDagger2, dulDagger3, dulPermil1,
-    dulLsaquo1, dulRsaquo1, dulEuro1, dulTm1, dulMixedStr18
+    dulUlink, dulBold, dulS, dulStrike, dulUnderline, dulEmphasis,
+    dulComputeroutput, dulSubscript, dulSuperscript, dulCenter, dulSmall,
+    dulDel, dulIns, dulHtmlonly, dulManonly, dulXmlonly, dulRtfonly,
+    dulLatexonly, dulDocbookonly, dulImage, dulDot, dulMsc, dulPlantuml,
+    dulAnchor, dulFormula, dulRef, dulEmoji, dulLinebreak, dulNonbreakablespace,
+    dulIexcl, dulCent, dulPound, dulCurren, dulYen, dulBrvbar, dulSect,
+    dulUmlaut, dulCopy, dulOrdf, dulLaquo, dulNot, dulShy, dulRegistered,
+    dulMacr, dulDeg, dulPlusmn, dulSup2, dulSup3, dulAcute, dulMicro, dulPara,
+    dulMiddot, dulCedil, dulSup1, dulOrdm, dulRaquo, dulFrac14, dulFrac12,
+    dulFrac34, dulIquest, dulAgrave, dulAacute, dulAcirc, dulAtilde, dulAumlaut,
+    dulAring, dulAElig, dulCcedil, dulEgrave, dulEacute, dulEcirc, dulEumlaut,
+    dulIgrave, dulIacute, dulIcirc, dulIumlaut, dulETH, dulNtilde, dulOgrave,
+    dulOacute, dulOcirc, dulOtilde, dulOumlaut, dulTimes, dulOslash, dulUgrave,
+    dulUacute, dulUcirc, dulUumlaut, dulYacute, dulTHORN, dulSzlig, dulAgrave1,
+    dulAacute1, dulAcirc1, dulAtilde1, dulAumlaut1, dulAring1, dulAelig1,
+    dulCcedil1, dulEgrave1, dulEacute1, dulEcirc1, dulEumlaut1, dulIgrave1,
+    dulIacute1, dulIcirc1, dulIumlaut1, dulEth1, dulNtilde1, dulOgrave1,
+    dulOacute1, dulOcirc1, dulOtilde1, dulOumlaut1, dulDivide, dulOslash1,
+    dulUgrave1, dulUacute1, dulUcirc1, dulUumlaut1, dulYacute1, dulThorn1,
+    dulYumlaut, dulFnof, dulAlpha, dulBeta, dulGamma, dulDelta, dulEpsilon,
+    dulZeta, dulEta, dulTheta, dulIota, dulKappa, dulLambda, dulMu, dulNu,
+    dulXi, dulOmicron, dulPi, dulRho, dulSigma, dulTau, dulUpsilon, dulPhi,
+    dulChi, dulPsi, dulOmega, dulAlpha1, dulBeta1, dulGamma1, dulDelta1,
+    dulEpsilon1, dulZeta1, dulEta1, dulTheta1, dulIota1, dulKappa1, dulLambda1,
+    dulMu1, dulNu1, dulXi1, dulOmicron1, dulPi1, dulRho1, dulSigmaf, dulSigma1,
+    dulTau1, dulUpsilon1, dulPhi1, dulChi1, dulPsi1, dulOmega1, dulThetasym,
+    dulUpsih, dulPiv, dulBull, dulHellip, dulPrime, dulPrime1, dulOline,
+    dulFrasl, dulWeierp, dulImaginary, dulReal, dulTrademark, dulAlefsym,
+    dulLarr, dulUarr, dulRarr, dulDarr, dulHarr, dulCrarr, dulLArr1, dulUArr1,
+    dulRArr1, dulDArr1, dulHArr1, dulForall, dulPart, dulExist, dulEmpty,
+    dulNabla, dulIsin, dulNotin, dulNi, dulProd, dulSum, dulMinus, dulLowast,
+    dulRadic, dulProp, dulInfin, dulAng, dulAnd, dulOr, dulCap, dulCup, dulInt,
+    dulThere4, dulSim, dulCong, dulAsymp, dulNe, dulEquiv, dulLe, dulGe, dulSub,
+    dulSup, dulNsub, dulSube, dulSupe, dulOplus, dulOtimes, dulPerp, dulSdot,
+    dulLceil, dulRceil, dulLfloor, dulRfloor, dulLang, dulRang, dulLoz,
+    dulSpades, dulClubs, dulHearts, dulDiams, dulOElig, dulOelig1, dulScaron,
+    dulScaron1, dulYumlaut1, dulCirc, dulTilde, dulEnsp, dulEmsp, dulThinsp,
+    dulZwnj, dulZwj, dulLrm, dulRlm, dulNdash, dulMdash, dulLsquo, dulRsquo,
+    dulSbquo, dulLdquo, dulRdquo, dulBdquo, dulDagger, dulDagger1, dulPermil,
+    dulLsaquo, dulRsaquo, dulEuro, dulTm, dulMixedStr
   DocURLLinkBody* = object
     case kind*: DocURLLinkKind
-    of dulUlink1:
+    of dulUlink:
         docURLLink*: DocURLLink
 
-    of dulBold1, dulS1, dulStrike1, dulUnderline1, dulEmphasis1,
-       dulComputeroutput1, dulSubscript1, dulSuperscript1, dulCenter1,
-       dulSmall1, dulDel1, dulIns1:
+    of dulBold, dulS, dulStrike, dulUnderline, dulEmphasis, dulComputeroutput,
+       dulSubscript, dulSuperscript, dulCenter, dulSmall, dulDel, dulIns:
         docMarkupType*: DocMarkupType
 
-    of dulHtmlonly1:
+    of dulHtmlonly:
         docHtmlOnlyType*: DocHtmlOnlyType
 
-    of dulManonly1, dulXmlonly1, dulRtfonly1, dulLatexonly1, dulDocbookonly1:
+    of dulManonly, dulXmlonly, dulRtfonly, dulLatexonly, dulDocbookonly:
         fString*: string
 
-    of dulImage1, dulDot1, dulMsc1, dulPlantuml1:
+    of dulImage, dulDot, dulMsc, dulPlantuml:
         docImageType*: DocImageType
 
-    of dulAnchor1:
+    of dulAnchor:
         docAnchorType*: DocAnchorType
 
-    of dulFormula1:
+    of dulFormula:
         docFormulaType*: DocFormulaType
 
-    of dulRef3:
+    of dulRef:
         docRefTextType*: DocRefTextType
 
-    of dulEmoji1:
+    of dulEmoji:
         docEmojiType*: DocEmojiType
 
-    of dulLinebreak1, dulNonbreakablespace1, dulIexcl1, dulCent1, dulPound1,
-       dulCurren1, dulYen1, dulBrvbar1, dulSect1, dulUmlaut1, dulCopy1,
-       dulOrdf1, dulLaquo1, dulNot1, dulShy1, dulRegistered1, dulMacr1, dulDeg1,
-       dulPlusmn1, dulSup21, dulSup31, dulAcute1, dulMicro1, dulPara7,
-       dulMiddot1, dulCedil1, dulSup11, dulOrdm1, dulRaquo1, dulFrac141,
-       dulFrac121, dulFrac341, dulIquest1, dulAgrave2, dulAacute2, dulAcirc2,
-       dulAtilde2, dulAumlaut2, dulAring2, dulAElig2, dulCcedil2, dulEgrave2,
-       dulEacute2, dulEcirc2, dulEumlaut2, dulIgrave2, dulIacute2, dulIcirc2,
-       dulIumlaut2, dulETH2, dulNtilde2, dulOgrave2, dulOacute2, dulOcirc2,
-       dulOtilde2, dulOumlaut2, dulTimes1, dulOslash2, dulUgrave2, dulUacute2,
-       dulUcirc2, dulUumlaut2, dulYacute2, dulTHORN2, dulSzlig1, dulAgrave3,
-       dulAacute3, dulAcirc3, dulAtilde3, dulAumlaut3, dulAring3, dulAelig3,
-       dulCcedil3, dulEgrave3, dulEacute3, dulEcirc3, dulEumlaut3, dulIgrave3,
-       dulIacute3, dulIcirc3, dulIumlaut3, dulEth3, dulNtilde3, dulOgrave3,
-       dulOacute3, dulOcirc3, dulOtilde3, dulOumlaut3, dulDivide1, dulOslash3,
-       dulUgrave3, dulUacute3, dulUcirc3, dulUumlaut3, dulYacute3, dulThorn3,
-       dulYumlaut2, dulFnof1, dulAlpha2, dulBeta2, dulGamma2, dulDelta2,
-       dulEpsilon2, dulZeta2, dulEta2, dulTheta2, dulIota2, dulKappa2,
-       dulLambda2, dulMu2, dulNu2, dulXi2, dulOmicron2, dulPi2, dulRho2,
-       dulSigma2, dulTau2, dulUpsilon2, dulPhi2, dulChi2, dulPsi2, dulOmega2,
-       dulAlpha3, dulBeta3, dulGamma3, dulDelta3, dulEpsilon3, dulZeta3,
-       dulEta3, dulTheta3, dulIota3, dulKappa3, dulLambda3, dulMu3, dulNu3,
-       dulXi3, dulOmicron3, dulPi3, dulRho3, dulSigmaf1, dulSigma3, dulTau3,
-       dulUpsilon3, dulPhi3, dulChi3, dulPsi3, dulOmega3, dulThetasym1,
-       dulUpsih1, dulPiv1, dulBull1, dulHellip1, dulPrime2, dulPrime3,
-       dulOline1, dulFrasl1, dulWeierp1, dulImaginary1, dulReal1, dulTrademark1,
-       dulAlefsym1, dulLarr2, dulUarr2, dulRarr2, dulDarr2, dulHarr2, dulCrarr1,
-       dulLArr3, dulUArr3, dulRArr3, dulDArr3, dulHArr3, dulForall1, dulPart1,
-       dulExist1, dulEmpty1, dulNabla1, dulIsin1, dulNotin1, dulNi1, dulProd1,
-       dulSum1, dulMinus1, dulLowast1, dulRadic1, dulProp1, dulInfin1, dulAng1,
-       dulAnd1, dulOr1, dulCap1, dulCup1, dulInt1, dulThere41, dulSim1,
-       dulCong1, dulAsymp1, dulNe1, dulEquiv1, dulLe1, dulGe1, dulSub1, dulSup1,
-       dulNsub1, dulSube1, dulSupe1, dulOplus1, dulOtimes1, dulPerp1, dulSdot1,
-       dulLceil1, dulRceil1, dulLfloor1, dulRfloor1, dulLang1, dulRang1,
-       dulLoz1, dulSpades1, dulClubs1, dulHearts1, dulDiams1, dulOElig2,
-       dulOelig3, dulScaron2, dulScaron3, dulYumlaut3, dulCirc1, dulTilde1,
-       dulEnsp1, dulEmsp1, dulThinsp1, dulZwnj1, dulZwj1, dulLrm1, dulRlm1,
-       dulNdash1, dulMdash1, dulLsquo1, dulRsquo1, dulSbquo1, dulLdquo1,
-       dulRdquo1, dulBdquo1, dulDagger2, dulDagger3, dulPermil1, dulLsaquo1,
-       dulRsaquo1, dulEuro1, dulTm1:
+    of dulLinebreak, dulNonbreakablespace, dulIexcl, dulCent, dulPound,
+       dulCurren, dulYen, dulBrvbar, dulSect, dulUmlaut, dulCopy, dulOrdf,
+       dulLaquo, dulNot, dulShy, dulRegistered, dulMacr, dulDeg, dulPlusmn,
+       dulSup2, dulSup3, dulAcute, dulMicro, dulPara, dulMiddot, dulCedil,
+       dulSup1, dulOrdm, dulRaquo, dulFrac14, dulFrac12, dulFrac34, dulIquest,
+       dulAgrave, dulAacute, dulAcirc, dulAtilde, dulAumlaut, dulAring,
+       dulAElig, dulCcedil, dulEgrave, dulEacute, dulEcirc, dulEumlaut,
+       dulIgrave, dulIacute, dulIcirc, dulIumlaut, dulETH, dulNtilde, dulOgrave,
+       dulOacute, dulOcirc, dulOtilde, dulOumlaut, dulTimes, dulOslash,
+       dulUgrave, dulUacute, dulUcirc, dulUumlaut, dulYacute, dulTHORN,
+       dulSzlig, dulAgrave1, dulAacute1, dulAcirc1, dulAtilde1, dulAumlaut1,
+       dulAring1, dulAelig1, dulCcedil1, dulEgrave1, dulEacute1, dulEcirc1,
+       dulEumlaut1, dulIgrave1, dulIacute1, dulIcirc1, dulIumlaut1, dulEth1,
+       dulNtilde1, dulOgrave1, dulOacute1, dulOcirc1, dulOtilde1, dulOumlaut1,
+       dulDivide, dulOslash1, dulUgrave1, dulUacute1, dulUcirc1, dulUumlaut1,
+       dulYacute1, dulThorn1, dulYumlaut, dulFnof, dulAlpha, dulBeta, dulGamma,
+       dulDelta, dulEpsilon, dulZeta, dulEta, dulTheta, dulIota, dulKappa,
+       dulLambda, dulMu, dulNu, dulXi, dulOmicron, dulPi, dulRho, dulSigma,
+       dulTau, dulUpsilon, dulPhi, dulChi, dulPsi, dulOmega, dulAlpha1,
+       dulBeta1, dulGamma1, dulDelta1, dulEpsilon1, dulZeta1, dulEta1,
+       dulTheta1, dulIota1, dulKappa1, dulLambda1, dulMu1, dulNu1, dulXi1,
+       dulOmicron1, dulPi1, dulRho1, dulSigmaf, dulSigma1, dulTau1, dulUpsilon1,
+       dulPhi1, dulChi1, dulPsi1, dulOmega1, dulThetasym, dulUpsih, dulPiv,
+       dulBull, dulHellip, dulPrime, dulPrime1, dulOline, dulFrasl, dulWeierp,
+       dulImaginary, dulReal, dulTrademark, dulAlefsym, dulLarr, dulUarr,
+       dulRarr, dulDarr, dulHarr, dulCrarr, dulLArr1, dulUArr1, dulRArr1,
+       dulDArr1, dulHArr1, dulForall, dulPart, dulExist, dulEmpty, dulNabla,
+       dulIsin, dulNotin, dulNi, dulProd, dulSum, dulMinus, dulLowast, dulRadic,
+       dulProp, dulInfin, dulAng, dulAnd, dulOr, dulCap, dulCup, dulInt,
+       dulThere4, dulSim, dulCong, dulAsymp, dulNe, dulEquiv, dulLe, dulGe,
+       dulSub, dulSup, dulNsub, dulSube, dulSupe, dulOplus, dulOtimes, dulPerp,
+       dulSdot, dulLceil, dulRceil, dulLfloor, dulRfloor, dulLang, dulRang,
+       dulLoz, dulSpades, dulClubs, dulHearts, dulDiams, dulOElig, dulOelig1,
+       dulScaron, dulScaron1, dulYumlaut1, dulCirc, dulTilde, dulEnsp, dulEmsp,
+       dulThinsp, dulZwnj, dulZwj, dulLrm, dulRlm, dulNdash, dulMdash, dulLsquo,
+       dulRsquo, dulSbquo, dulLdquo, dulRdquo, dulBdquo, dulDagger, dulDagger1,
+       dulPermil, dulLsaquo, dulRsaquo, dulEuro, dulTm:
         docEmptyType*: DocEmptyType
 
-    of dulMixedStr18:
+    of dulMixedStr:
         mixedStr*: string
 
   
@@ -844,10 +835,10 @@ type
     xsdChoice*: seq[DocURLLinkBody]
 
   DocAnchorTypeKind* = enum
-    datMixedStr19
+    datMixedStr
   DocAnchorTypeBody* = object
     case kind*: DocAnchorTypeKind
-    of datMixedStr19:
+    of datMixedStr:
         mixedStr*: string
 
   
@@ -856,10 +847,10 @@ type
     xsdChoice*: seq[DocAnchorTypeBody]
 
   DocFormulaTypeKind* = enum
-    dftMixedStr20
+    dftMixedStr
   DocFormulaTypeBody* = object
     case kind*: DocFormulaTypeKind
-    of dftMixedStr20:
+    of dftMixedStr:
         mixedStr*: string
 
   
@@ -887,133 +878,125 @@ type
   DocVariableListType* = object
   
   DocRefTextTypeKind* = enum
-    drttUlink2, drttBold2, drttS2, drttStrike2, drttUnderline2, drttEmphasis2,
-    drttComputeroutput2, drttSubscript2, drttSuperscript2, drttCenter2,
-    drttSmall2, drttDel2, drttIns2, drttHtmlonly2, drttManonly2, drttXmlonly2,
-    drttRtfonly2, drttLatexonly2, drttDocbookonly2, drttImage2, drttDot2,
-    drttMsc2, drttPlantuml2, drttAnchor2, drttFormula2, drttRef4, drttEmoji2,
-    drttLinebreak2, drttNonbreakablespace2, drttIexcl2, drttCent2, drttPound2,
-    drttCurren2, drttYen2, drttBrvbar2, drttSect2, drttUmlaut2, drttCopy2,
-    drttOrdf2, drttLaquo2, drttNot2, drttShy2, drttRegistered2, drttMacr2,
-    drttDeg2, drttPlusmn2, drttSup22, drttSup32, drttAcute2, drttMicro2,
-    drttPara9, drttMiddot2, drttCedil2, drttSup12, drttOrdm2, drttRaquo2,
-    drttFrac142, drttFrac122, drttFrac342, drttIquest2, drttAgrave4,
-    drttAacute4, drttAcirc4, drttAtilde4, drttAumlaut4, drttAring4, drttAElig4,
-    drttCcedil4, drttEgrave4, drttEacute4, drttEcirc4, drttEumlaut4,
-    drttIgrave4, drttIacute4, drttIcirc4, drttIumlaut4, drttETH4, drttNtilde4,
-    drttOgrave4, drttOacute4, drttOcirc4, drttOtilde4, drttOumlaut4, drttTimes2,
-    drttOslash4, drttUgrave4, drttUacute4, drttUcirc4, drttUumlaut4,
-    drttYacute4, drttTHORN4, drttSzlig2, drttAgrave5, drttAacute5, drttAcirc5,
-    drttAtilde5, drttAumlaut5, drttAring5, drttAelig5, drttCcedil5, drttEgrave5,
-    drttEacute5, drttEcirc5, drttEumlaut5, drttIgrave5, drttIacute5, drttIcirc5,
-    drttIumlaut5, drttEth5, drttNtilde5, drttOgrave5, drttOacute5, drttOcirc5,
-    drttOtilde5, drttOumlaut5, drttDivide2, drttOslash5, drttUgrave5,
-    drttUacute5, drttUcirc5, drttUumlaut5, drttYacute5, drttThorn5,
-    drttYumlaut4, drttFnof2, drttAlpha4, drttBeta4, drttGamma4, drttDelta4,
-    drttEpsilon4, drttZeta4, drttEta4, drttTheta4, drttIota4, drttKappa4,
-    drttLambda4, drttMu4, drttNu4, drttXi4, drttOmicron4, drttPi4, drttRho4,
-    drttSigma4, drttTau4, drttUpsilon4, drttPhi4, drttChi4, drttPsi4,
-    drttOmega4, drttAlpha5, drttBeta5, drttGamma5, drttDelta5, drttEpsilon5,
-    drttZeta5, drttEta5, drttTheta5, drttIota5, drttKappa5, drttLambda5,
-    drttMu5, drttNu5, drttXi5, drttOmicron5, drttPi5, drttRho5, drttSigmaf2,
-    drttSigma5, drttTau5, drttUpsilon5, drttPhi5, drttChi5, drttPsi5,
-    drttOmega5, drttThetasym2, drttUpsih2, drttPiv2, drttBull2, drttHellip2,
-    drttPrime4, drttPrime5, drttOline2, drttFrasl2, drttWeierp2, drttImaginary2,
-    drttReal2, drttTrademark2, drttAlefsym2, drttLarr4, drttUarr4, drttRarr4,
-    drttDarr4, drttHarr4, drttCrarr2, drttLArr5, drttUArr5, drttRArr5,
-    drttDArr5, drttHArr5, drttForall2, drttPart2, drttExist2, drttEmpty2,
-    drttNabla2, drttIsin2, drttNotin2, drttNi2, drttProd2, drttSum2, drttMinus2,
-    drttLowast2, drttRadic2, drttProp2, drttInfin2, drttAng2, drttAnd2, drttOr2,
-    drttCap2, drttCup2, drttInt2, drttThere42, drttSim2, drttCong2, drttAsymp2,
-    drttNe2, drttEquiv2, drttLe2, drttGe2, drttSub2, drttSup2, drttNsub2,
-    drttSube2, drttSupe2, drttOplus2, drttOtimes2, drttPerp2, drttSdot2,
-    drttLceil2, drttRceil2, drttLfloor2, drttRfloor2, drttLang2, drttRang2,
-    drttLoz2, drttSpades2, drttClubs2, drttHearts2, drttDiams2, drttOElig4,
-    drttOelig5, drttScaron4, drttScaron5, drttYumlaut5, drttCirc2, drttTilde2,
-    drttEnsp2, drttEmsp2, drttThinsp2, drttZwnj2, drttZwj2, drttLrm2, drttRlm2,
-    drttNdash2, drttMdash2, drttLsquo2, drttRsquo2, drttSbquo2, drttLdquo2,
-    drttRdquo2, drttBdquo2, drttDagger4, drttDagger5, drttPermil2, drttLsaquo2,
-    drttRsaquo2, drttEuro2, drttTm2, drttMixedStr21
+    drttUlink, drttBold, drttS, drttStrike, drttUnderline, drttEmphasis,
+    drttComputeroutput, drttSubscript, drttSuperscript, drttCenter, drttSmall,
+    drttDel, drttIns, drttHtmlonly, drttManonly, drttXmlonly, drttRtfonly,
+    drttLatexonly, drttDocbookonly, drttImage, drttDot, drttMsc, drttPlantuml,
+    drttAnchor, drttFormula, drttRef, drttEmoji, drttLinebreak,
+    drttNonbreakablespace, drttIexcl, drttCent, drttPound, drttCurren, drttYen,
+    drttBrvbar, drttSect, drttUmlaut, drttCopy, drttOrdf, drttLaquo, drttNot,
+    drttShy, drttRegistered, drttMacr, drttDeg, drttPlusmn, drttSup2, drttSup3,
+    drttAcute, drttMicro, drttPara, drttMiddot, drttCedil, drttSup1, drttOrdm,
+    drttRaquo, drttFrac14, drttFrac12, drttFrac34, drttIquest, drttAgrave,
+    drttAacute, drttAcirc, drttAtilde, drttAumlaut, drttAring, drttAElig,
+    drttCcedil, drttEgrave, drttEacute, drttEcirc, drttEumlaut, drttIgrave,
+    drttIacute, drttIcirc, drttIumlaut, drttETH, drttNtilde, drttOgrave,
+    drttOacute, drttOcirc, drttOtilde, drttOumlaut, drttTimes, drttOslash,
+    drttUgrave, drttUacute, drttUcirc, drttUumlaut, drttYacute, drttTHORN,
+    drttSzlig, drttAgrave1, drttAacute1, drttAcirc1, drttAtilde1, drttAumlaut1,
+    drttAring1, drttAelig1, drttCcedil1, drttEgrave1, drttEacute1, drttEcirc1,
+    drttEumlaut1, drttIgrave1, drttIacute1, drttIcirc1, drttIumlaut1, drttEth1,
+    drttNtilde1, drttOgrave1, drttOacute1, drttOcirc1, drttOtilde1,
+    drttOumlaut1, drttDivide, drttOslash1, drttUgrave1, drttUacute1, drttUcirc1,
+    drttUumlaut1, drttYacute1, drttThorn1, drttYumlaut, drttFnof, drttAlpha,
+    drttBeta, drttGamma, drttDelta, drttEpsilon, drttZeta, drttEta, drttTheta,
+    drttIota, drttKappa, drttLambda, drttMu, drttNu, drttXi, drttOmicron,
+    drttPi, drttRho, drttSigma, drttTau, drttUpsilon, drttPhi, drttChi, drttPsi,
+    drttOmega, drttAlpha1, drttBeta1, drttGamma1, drttDelta1, drttEpsilon1,
+    drttZeta1, drttEta1, drttTheta1, drttIota1, drttKappa1, drttLambda1,
+    drttMu1, drttNu1, drttXi1, drttOmicron1, drttPi1, drttRho1, drttSigmaf,
+    drttSigma1, drttTau1, drttUpsilon1, drttPhi1, drttChi1, drttPsi1,
+    drttOmega1, drttThetasym, drttUpsih, drttPiv, drttBull, drttHellip,
+    drttPrime, drttPrime1, drttOline, drttFrasl, drttWeierp, drttImaginary,
+    drttReal, drttTrademark, drttAlefsym, drttLarr, drttUarr, drttRarr,
+    drttDarr, drttHarr, drttCrarr, drttLArr1, drttUArr1, drttRArr1, drttDArr1,
+    drttHArr1, drttForall, drttPart, drttExist, drttEmpty, drttNabla, drttIsin,
+    drttNotin, drttNi, drttProd, drttSum, drttMinus, drttLowast, drttRadic,
+    drttProp, drttInfin, drttAng, drttAnd, drttOr, drttCap, drttCup, drttInt,
+    drttThere4, drttSim, drttCong, drttAsymp, drttNe, drttEquiv, drttLe, drttGe,
+    drttSub, drttSup, drttNsub, drttSube, drttSupe, drttOplus, drttOtimes,
+    drttPerp, drttSdot, drttLceil, drttRceil, drttLfloor, drttRfloor, drttLang,
+    drttRang, drttLoz, drttSpades, drttClubs, drttHearts, drttDiams, drttOElig,
+    drttOelig1, drttScaron, drttScaron1, drttYumlaut1, drttCirc, drttTilde,
+    drttEnsp, drttEmsp, drttThinsp, drttZwnj, drttZwj, drttLrm, drttRlm,
+    drttNdash, drttMdash, drttLsquo, drttRsquo, drttSbquo, drttLdquo, drttRdquo,
+    drttBdquo, drttDagger, drttDagger1, drttPermil, drttLsaquo, drttRsaquo,
+    drttEuro, drttTm, drttMixedStr
   DocRefTextTypeBody* = object
     case kind*: DocRefTextTypeKind
-    of drttUlink2:
+    of drttUlink:
         docURLLink*: DocURLLink
 
-    of drttBold2, drttS2, drttStrike2, drttUnderline2, drttEmphasis2,
-       drttComputeroutput2, drttSubscript2, drttSuperscript2, drttCenter2,
-       drttSmall2, drttDel2, drttIns2:
+    of drttBold, drttS, drttStrike, drttUnderline, drttEmphasis,
+       drttComputeroutput, drttSubscript, drttSuperscript, drttCenter,
+       drttSmall, drttDel, drttIns:
         docMarkupType*: DocMarkupType
 
-    of drttHtmlonly2:
+    of drttHtmlonly:
         docHtmlOnlyType*: DocHtmlOnlyType
 
-    of drttManonly2, drttXmlonly2, drttRtfonly2, drttLatexonly2,
-       drttDocbookonly2:
+    of drttManonly, drttXmlonly, drttRtfonly, drttLatexonly, drttDocbookonly:
         fString*: string
 
-    of drttImage2, drttDot2, drttMsc2, drttPlantuml2:
+    of drttImage, drttDot, drttMsc, drttPlantuml:
         docImageType*: DocImageType
 
-    of drttAnchor2:
+    of drttAnchor:
         docAnchorType*: DocAnchorType
 
-    of drttFormula2:
+    of drttFormula:
         docFormulaType*: DocFormulaType
 
-    of drttRef4:
+    of drttRef:
         docRefTextType*: DocRefTextType
 
-    of drttEmoji2:
+    of drttEmoji:
         docEmojiType*: DocEmojiType
 
-    of drttLinebreak2, drttNonbreakablespace2, drttIexcl2, drttCent2,
-       drttPound2, drttCurren2, drttYen2, drttBrvbar2, drttSect2, drttUmlaut2,
-       drttCopy2, drttOrdf2, drttLaquo2, drttNot2, drttShy2, drttRegistered2,
-       drttMacr2, drttDeg2, drttPlusmn2, drttSup22, drttSup32, drttAcute2,
-       drttMicro2, drttPara9, drttMiddot2, drttCedil2, drttSup12, drttOrdm2,
-       drttRaquo2, drttFrac142, drttFrac122, drttFrac342, drttIquest2,
-       drttAgrave4, drttAacute4, drttAcirc4, drttAtilde4, drttAumlaut4,
-       drttAring4, drttAElig4, drttCcedil4, drttEgrave4, drttEacute4,
-       drttEcirc4, drttEumlaut4, drttIgrave4, drttIacute4, drttIcirc4,
-       drttIumlaut4, drttETH4, drttNtilde4, drttOgrave4, drttOacute4,
-       drttOcirc4, drttOtilde4, drttOumlaut4, drttTimes2, drttOslash4,
-       drttUgrave4, drttUacute4, drttUcirc4, drttUumlaut4, drttYacute4,
-       drttTHORN4, drttSzlig2, drttAgrave5, drttAacute5, drttAcirc5,
-       drttAtilde5, drttAumlaut5, drttAring5, drttAelig5, drttCcedil5,
-       drttEgrave5, drttEacute5, drttEcirc5, drttEumlaut5, drttIgrave5,
-       drttIacute5, drttIcirc5, drttIumlaut5, drttEth5, drttNtilde5,
-       drttOgrave5, drttOacute5, drttOcirc5, drttOtilde5, drttOumlaut5,
-       drttDivide2, drttOslash5, drttUgrave5, drttUacute5, drttUcirc5,
-       drttUumlaut5, drttYacute5, drttThorn5, drttYumlaut4, drttFnof2,
-       drttAlpha4, drttBeta4, drttGamma4, drttDelta4, drttEpsilon4, drttZeta4,
-       drttEta4, drttTheta4, drttIota4, drttKappa4, drttLambda4, drttMu4,
-       drttNu4, drttXi4, drttOmicron4, drttPi4, drttRho4, drttSigma4, drttTau4,
-       drttUpsilon4, drttPhi4, drttChi4, drttPsi4, drttOmega4, drttAlpha5,
-       drttBeta5, drttGamma5, drttDelta5, drttEpsilon5, drttZeta5, drttEta5,
-       drttTheta5, drttIota5, drttKappa5, drttLambda5, drttMu5, drttNu5,
-       drttXi5, drttOmicron5, drttPi5, drttRho5, drttSigmaf2, drttSigma5,
-       drttTau5, drttUpsilon5, drttPhi5, drttChi5, drttPsi5, drttOmega5,
-       drttThetasym2, drttUpsih2, drttPiv2, drttBull2, drttHellip2, drttPrime4,
-       drttPrime5, drttOline2, drttFrasl2, drttWeierp2, drttImaginary2,
-       drttReal2, drttTrademark2, drttAlefsym2, drttLarr4, drttUarr4, drttRarr4,
-       drttDarr4, drttHarr4, drttCrarr2, drttLArr5, drttUArr5, drttRArr5,
-       drttDArr5, drttHArr5, drttForall2, drttPart2, drttExist2, drttEmpty2,
-       drttNabla2, drttIsin2, drttNotin2, drttNi2, drttProd2, drttSum2,
-       drttMinus2, drttLowast2, drttRadic2, drttProp2, drttInfin2, drttAng2,
-       drttAnd2, drttOr2, drttCap2, drttCup2, drttInt2, drttThere42, drttSim2,
-       drttCong2, drttAsymp2, drttNe2, drttEquiv2, drttLe2, drttGe2, drttSub2,
-       drttSup2, drttNsub2, drttSube2, drttSupe2, drttOplus2, drttOtimes2,
-       drttPerp2, drttSdot2, drttLceil2, drttRceil2, drttLfloor2, drttRfloor2,
-       drttLang2, drttRang2, drttLoz2, drttSpades2, drttClubs2, drttHearts2,
-       drttDiams2, drttOElig4, drttOelig5, drttScaron4, drttScaron5,
-       drttYumlaut5, drttCirc2, drttTilde2, drttEnsp2, drttEmsp2, drttThinsp2,
-       drttZwnj2, drttZwj2, drttLrm2, drttRlm2, drttNdash2, drttMdash2,
-       drttLsquo2, drttRsquo2, drttSbquo2, drttLdquo2, drttRdquo2, drttBdquo2,
-       drttDagger4, drttDagger5, drttPermil2, drttLsaquo2, drttRsaquo2,
-       drttEuro2, drttTm2:
+    of drttLinebreak, drttNonbreakablespace, drttIexcl, drttCent, drttPound,
+       drttCurren, drttYen, drttBrvbar, drttSect, drttUmlaut, drttCopy,
+       drttOrdf, drttLaquo, drttNot, drttShy, drttRegistered, drttMacr, drttDeg,
+       drttPlusmn, drttSup2, drttSup3, drttAcute, drttMicro, drttPara,
+       drttMiddot, drttCedil, drttSup1, drttOrdm, drttRaquo, drttFrac14,
+       drttFrac12, drttFrac34, drttIquest, drttAgrave, drttAacute, drttAcirc,
+       drttAtilde, drttAumlaut, drttAring, drttAElig, drttCcedil, drttEgrave,
+       drttEacute, drttEcirc, drttEumlaut, drttIgrave, drttIacute, drttIcirc,
+       drttIumlaut, drttETH, drttNtilde, drttOgrave, drttOacute, drttOcirc,
+       drttOtilde, drttOumlaut, drttTimes, drttOslash, drttUgrave, drttUacute,
+       drttUcirc, drttUumlaut, drttYacute, drttTHORN, drttSzlig, drttAgrave1,
+       drttAacute1, drttAcirc1, drttAtilde1, drttAumlaut1, drttAring1,
+       drttAelig1, drttCcedil1, drttEgrave1, drttEacute1, drttEcirc1,
+       drttEumlaut1, drttIgrave1, drttIacute1, drttIcirc1, drttIumlaut1,
+       drttEth1, drttNtilde1, drttOgrave1, drttOacute1, drttOcirc1, drttOtilde1,
+       drttOumlaut1, drttDivide, drttOslash1, drttUgrave1, drttUacute1,
+       drttUcirc1, drttUumlaut1, drttYacute1, drttThorn1, drttYumlaut, drttFnof,
+       drttAlpha, drttBeta, drttGamma, drttDelta, drttEpsilon, drttZeta,
+       drttEta, drttTheta, drttIota, drttKappa, drttLambda, drttMu, drttNu,
+       drttXi, drttOmicron, drttPi, drttRho, drttSigma, drttTau, drttUpsilon,
+       drttPhi, drttChi, drttPsi, drttOmega, drttAlpha1, drttBeta1, drttGamma1,
+       drttDelta1, drttEpsilon1, drttZeta1, drttEta1, drttTheta1, drttIota1,
+       drttKappa1, drttLambda1, drttMu1, drttNu1, drttXi1, drttOmicron1,
+       drttPi1, drttRho1, drttSigmaf, drttSigma1, drttTau1, drttUpsilon1,
+       drttPhi1, drttChi1, drttPsi1, drttOmega1, drttThetasym, drttUpsih,
+       drttPiv, drttBull, drttHellip, drttPrime, drttPrime1, drttOline,
+       drttFrasl, drttWeierp, drttImaginary, drttReal, drttTrademark,
+       drttAlefsym, drttLarr, drttUarr, drttRarr, drttDarr, drttHarr, drttCrarr,
+       drttLArr1, drttUArr1, drttRArr1, drttDArr1, drttHArr1, drttForall,
+       drttPart, drttExist, drttEmpty, drttNabla, drttIsin, drttNotin, drttNi,
+       drttProd, drttSum, drttMinus, drttLowast, drttRadic, drttProp, drttInfin,
+       drttAng, drttAnd, drttOr, drttCap, drttCup, drttInt, drttThere4, drttSim,
+       drttCong, drttAsymp, drttNe, drttEquiv, drttLe, drttGe, drttSub, drttSup,
+       drttNsub, drttSube, drttSupe, drttOplus, drttOtimes, drttPerp, drttSdot,
+       drttLceil, drttRceil, drttLfloor, drttRfloor, drttLang, drttRang,
+       drttLoz, drttSpades, drttClubs, drttHearts, drttDiams, drttOElig,
+       drttOelig1, drttScaron, drttScaron1, drttYumlaut1, drttCirc, drttTilde,
+       drttEnsp, drttEmsp, drttThinsp, drttZwnj, drttZwj, drttLrm, drttRlm,
+       drttNdash, drttMdash, drttLsquo, drttRsquo, drttSbquo, drttLdquo,
+       drttRdquo, drttBdquo, drttDagger, drttDagger1, drttPermil, drttLsaquo,
+       drttRsaquo, drttEuro, drttTm:
         docEmptyType*: DocEmptyType
 
-    of drttMixedStr21:
+    of drttMixedStr:
         mixedStr*: string
 
   
@@ -1044,123 +1027,116 @@ type
     para*: seq[DocParaType]
 
   DocCaptionTypeKind* = enum
-    dctUlink3, dctBold3, dctS3, dctStrike3, dctUnderline3, dctEmphasis3,
-    dctComputeroutput3, dctSubscript3, dctSuperscript3, dctCenter3, dctSmall3,
-    dctDel3, dctIns3, dctHtmlonly3, dctManonly3, dctXmlonly3, dctRtfonly3,
-    dctLatexonly3, dctDocbookonly3, dctImage3, dctDot3, dctMsc3, dctPlantuml3,
-    dctAnchor3, dctFormula3, dctRef5, dctEmoji3, dctLinebreak3,
-    dctNonbreakablespace3, dctIexcl3, dctCent3, dctPound3, dctCurren3, dctYen3,
-    dctBrvbar3, dctSect3, dctUmlaut3, dctCopy3, dctOrdf3, dctLaquo3, dctNot3,
-    dctShy3, dctRegistered3, dctMacr3, dctDeg3, dctPlusmn3, dctSup23, dctSup33,
-    dctAcute3, dctMicro3, dctPara11, dctMiddot3, dctCedil3, dctSup13, dctOrdm3,
-    dctRaquo3, dctFrac143, dctFrac123, dctFrac343, dctIquest3, dctAgrave6,
-    dctAacute6, dctAcirc6, dctAtilde6, dctAumlaut6, dctAring6, dctAElig6,
-    dctCcedil6, dctEgrave6, dctEacute6, dctEcirc6, dctEumlaut6, dctIgrave6,
-    dctIacute6, dctIcirc6, dctIumlaut6, dctETH6, dctNtilde6, dctOgrave6,
-    dctOacute6, dctOcirc6, dctOtilde6, dctOumlaut6, dctTimes3, dctOslash6,
-    dctUgrave6, dctUacute6, dctUcirc6, dctUumlaut6, dctYacute6, dctTHORN6,
-    dctSzlig3, dctAgrave7, dctAacute7, dctAcirc7, dctAtilde7, dctAumlaut7,
-    dctAring7, dctAelig7, dctCcedil7, dctEgrave7, dctEacute7, dctEcirc7,
-    dctEumlaut7, dctIgrave7, dctIacute7, dctIcirc7, dctIumlaut7, dctEth7,
-    dctNtilde7, dctOgrave7, dctOacute7, dctOcirc7, dctOtilde7, dctOumlaut7,
-    dctDivide3, dctOslash7, dctUgrave7, dctUacute7, dctUcirc7, dctUumlaut7,
-    dctYacute7, dctThorn7, dctYumlaut6, dctFnof3, dctAlpha6, dctBeta6,
-    dctGamma6, dctDelta6, dctEpsilon6, dctZeta6, dctEta6, dctTheta6, dctIota6,
-    dctKappa6, dctLambda6, dctMu6, dctNu6, dctXi6, dctOmicron6, dctPi6, dctRho6,
-    dctSigma6, dctTau6, dctUpsilon6, dctPhi6, dctChi6, dctPsi6, dctOmega6,
-    dctAlpha7, dctBeta7, dctGamma7, dctDelta7, dctEpsilon7, dctZeta7, dctEta7,
-    dctTheta7, dctIota7, dctKappa7, dctLambda7, dctMu7, dctNu7, dctXi7,
-    dctOmicron7, dctPi7, dctRho7, dctSigmaf3, dctSigma7, dctTau7, dctUpsilon7,
-    dctPhi7, dctChi7, dctPsi7, dctOmega7, dctThetasym3, dctUpsih3, dctPiv3,
-    dctBull3, dctHellip3, dctPrime6, dctPrime7, dctOline3, dctFrasl3,
-    dctWeierp3, dctImaginary3, dctReal3, dctTrademark3, dctAlefsym3, dctLarr6,
-    dctUarr6, dctRarr6, dctDarr6, dctHarr6, dctCrarr3, dctLArr7, dctUArr7,
-    dctRArr7, dctDArr7, dctHArr7, dctForall3, dctPart3, dctExist3, dctEmpty3,
-    dctNabla3, dctIsin3, dctNotin3, dctNi3, dctProd3, dctSum3, dctMinus3,
-    dctLowast3, dctRadic3, dctProp3, dctInfin3, dctAng3, dctAnd3, dctOr3,
-    dctCap3, dctCup3, dctInt3, dctThere43, dctSim3, dctCong3, dctAsymp3, dctNe3,
-    dctEquiv3, dctLe3, dctGe3, dctSub3, dctSup3, dctNsub3, dctSube3, dctSupe3,
-    dctOplus3, dctOtimes3, dctPerp3, dctSdot3, dctLceil3, dctRceil3, dctLfloor3,
-    dctRfloor3, dctLang3, dctRang3, dctLoz3, dctSpades3, dctClubs3, dctHearts3,
-    dctDiams3, dctOElig6, dctOelig7, dctScaron6, dctScaron7, dctYumlaut7,
-    dctCirc3, dctTilde3, dctEnsp3, dctEmsp3, dctThinsp3, dctZwnj3, dctZwj3,
-    dctLrm3, dctRlm3, dctNdash3, dctMdash3, dctLsquo3, dctRsquo3, dctSbquo3,
-    dctLdquo3, dctRdquo3, dctBdquo3, dctDagger6, dctDagger7, dctPermil3,
-    dctLsaquo3, dctRsaquo3, dctEuro3, dctTm3, dctMixedStr22
+    dctUlink, dctBold, dctS, dctStrike, dctUnderline, dctEmphasis,
+    dctComputeroutput, dctSubscript, dctSuperscript, dctCenter, dctSmall,
+    dctDel, dctIns, dctHtmlonly, dctManonly, dctXmlonly, dctRtfonly,
+    dctLatexonly, dctDocbookonly, dctImage, dctDot, dctMsc, dctPlantuml,
+    dctAnchor, dctFormula, dctRef, dctEmoji, dctLinebreak, dctNonbreakablespace,
+    dctIexcl, dctCent, dctPound, dctCurren, dctYen, dctBrvbar, dctSect,
+    dctUmlaut, dctCopy, dctOrdf, dctLaquo, dctNot, dctShy, dctRegistered,
+    dctMacr, dctDeg, dctPlusmn, dctSup2, dctSup3, dctAcute, dctMicro, dctPara,
+    dctMiddot, dctCedil, dctSup1, dctOrdm, dctRaquo, dctFrac14, dctFrac12,
+    dctFrac34, dctIquest, dctAgrave, dctAacute, dctAcirc, dctAtilde, dctAumlaut,
+    dctAring, dctAElig, dctCcedil, dctEgrave, dctEacute, dctEcirc, dctEumlaut,
+    dctIgrave, dctIacute, dctIcirc, dctIumlaut, dctETH, dctNtilde, dctOgrave,
+    dctOacute, dctOcirc, dctOtilde, dctOumlaut, dctTimes, dctOslash, dctUgrave,
+    dctUacute, dctUcirc, dctUumlaut, dctYacute, dctTHORN, dctSzlig, dctAgrave1,
+    dctAacute1, dctAcirc1, dctAtilde1, dctAumlaut1, dctAring1, dctAelig1,
+    dctCcedil1, dctEgrave1, dctEacute1, dctEcirc1, dctEumlaut1, dctIgrave1,
+    dctIacute1, dctIcirc1, dctIumlaut1, dctEth1, dctNtilde1, dctOgrave1,
+    dctOacute1, dctOcirc1, dctOtilde1, dctOumlaut1, dctDivide, dctOslash1,
+    dctUgrave1, dctUacute1, dctUcirc1, dctUumlaut1, dctYacute1, dctThorn1,
+    dctYumlaut, dctFnof, dctAlpha, dctBeta, dctGamma, dctDelta, dctEpsilon,
+    dctZeta, dctEta, dctTheta, dctIota, dctKappa, dctLambda, dctMu, dctNu,
+    dctXi, dctOmicron, dctPi, dctRho, dctSigma, dctTau, dctUpsilon, dctPhi,
+    dctChi, dctPsi, dctOmega, dctAlpha1, dctBeta1, dctGamma1, dctDelta1,
+    dctEpsilon1, dctZeta1, dctEta1, dctTheta1, dctIota1, dctKappa1, dctLambda1,
+    dctMu1, dctNu1, dctXi1, dctOmicron1, dctPi1, dctRho1, dctSigmaf, dctSigma1,
+    dctTau1, dctUpsilon1, dctPhi1, dctChi1, dctPsi1, dctOmega1, dctThetasym,
+    dctUpsih, dctPiv, dctBull, dctHellip, dctPrime, dctPrime1, dctOline,
+    dctFrasl, dctWeierp, dctImaginary, dctReal, dctTrademark, dctAlefsym,
+    dctLarr, dctUarr, dctRarr, dctDarr, dctHarr, dctCrarr, dctLArr1, dctUArr1,
+    dctRArr1, dctDArr1, dctHArr1, dctForall, dctPart, dctExist, dctEmpty,
+    dctNabla, dctIsin, dctNotin, dctNi, dctProd, dctSum, dctMinus, dctLowast,
+    dctRadic, dctProp, dctInfin, dctAng, dctAnd, dctOr, dctCap, dctCup, dctInt,
+    dctThere4, dctSim, dctCong, dctAsymp, dctNe, dctEquiv, dctLe, dctGe, dctSub,
+    dctSup, dctNsub, dctSube, dctSupe, dctOplus, dctOtimes, dctPerp, dctSdot,
+    dctLceil, dctRceil, dctLfloor, dctRfloor, dctLang, dctRang, dctLoz,
+    dctSpades, dctClubs, dctHearts, dctDiams, dctOElig, dctOelig1, dctScaron,
+    dctScaron1, dctYumlaut1, dctCirc, dctTilde, dctEnsp, dctEmsp, dctThinsp,
+    dctZwnj, dctZwj, dctLrm, dctRlm, dctNdash, dctMdash, dctLsquo, dctRsquo,
+    dctSbquo, dctLdquo, dctRdquo, dctBdquo, dctDagger, dctDagger1, dctPermil,
+    dctLsaquo, dctRsaquo, dctEuro, dctTm, dctMixedStr
   DocCaptionTypeBody* = object
     case kind*: DocCaptionTypeKind
-    of dctUlink3:
+    of dctUlink:
         docURLLink*: DocURLLink
 
-    of dctBold3, dctS3, dctStrike3, dctUnderline3, dctEmphasis3,
-       dctComputeroutput3, dctSubscript3, dctSuperscript3, dctCenter3,
-       dctSmall3, dctDel3, dctIns3:
+    of dctBold, dctS, dctStrike, dctUnderline, dctEmphasis, dctComputeroutput,
+       dctSubscript, dctSuperscript, dctCenter, dctSmall, dctDel, dctIns:
         docMarkupType*: DocMarkupType
 
-    of dctHtmlonly3:
+    of dctHtmlonly:
         docHtmlOnlyType*: DocHtmlOnlyType
 
-    of dctManonly3, dctXmlonly3, dctRtfonly3, dctLatexonly3, dctDocbookonly3:
+    of dctManonly, dctXmlonly, dctRtfonly, dctLatexonly, dctDocbookonly:
         fString*: string
 
-    of dctImage3, dctDot3, dctMsc3, dctPlantuml3:
+    of dctImage, dctDot, dctMsc, dctPlantuml:
         docImageType*: DocImageType
 
-    of dctAnchor3:
+    of dctAnchor:
         docAnchorType*: DocAnchorType
 
-    of dctFormula3:
+    of dctFormula:
         docFormulaType*: DocFormulaType
 
-    of dctRef5:
+    of dctRef:
         docRefTextType*: DocRefTextType
 
-    of dctEmoji3:
+    of dctEmoji:
         docEmojiType*: DocEmojiType
 
-    of dctLinebreak3, dctNonbreakablespace3, dctIexcl3, dctCent3, dctPound3,
-       dctCurren3, dctYen3, dctBrvbar3, dctSect3, dctUmlaut3, dctCopy3,
-       dctOrdf3, dctLaquo3, dctNot3, dctShy3, dctRegistered3, dctMacr3, dctDeg3,
-       dctPlusmn3, dctSup23, dctSup33, dctAcute3, dctMicro3, dctPara11,
-       dctMiddot3, dctCedil3, dctSup13, dctOrdm3, dctRaquo3, dctFrac143,
-       dctFrac123, dctFrac343, dctIquest3, dctAgrave6, dctAacute6, dctAcirc6,
-       dctAtilde6, dctAumlaut6, dctAring6, dctAElig6, dctCcedil6, dctEgrave6,
-       dctEacute6, dctEcirc6, dctEumlaut6, dctIgrave6, dctIacute6, dctIcirc6,
-       dctIumlaut6, dctETH6, dctNtilde6, dctOgrave6, dctOacute6, dctOcirc6,
-       dctOtilde6, dctOumlaut6, dctTimes3, dctOslash6, dctUgrave6, dctUacute6,
-       dctUcirc6, dctUumlaut6, dctYacute6, dctTHORN6, dctSzlig3, dctAgrave7,
-       dctAacute7, dctAcirc7, dctAtilde7, dctAumlaut7, dctAring7, dctAelig7,
-       dctCcedil7, dctEgrave7, dctEacute7, dctEcirc7, dctEumlaut7, dctIgrave7,
-       dctIacute7, dctIcirc7, dctIumlaut7, dctEth7, dctNtilde7, dctOgrave7,
-       dctOacute7, dctOcirc7, dctOtilde7, dctOumlaut7, dctDivide3, dctOslash7,
-       dctUgrave7, dctUacute7, dctUcirc7, dctUumlaut7, dctYacute7, dctThorn7,
-       dctYumlaut6, dctFnof3, dctAlpha6, dctBeta6, dctGamma6, dctDelta6,
-       dctEpsilon6, dctZeta6, dctEta6, dctTheta6, dctIota6, dctKappa6,
-       dctLambda6, dctMu6, dctNu6, dctXi6, dctOmicron6, dctPi6, dctRho6,
-       dctSigma6, dctTau6, dctUpsilon6, dctPhi6, dctChi6, dctPsi6, dctOmega6,
-       dctAlpha7, dctBeta7, dctGamma7, dctDelta7, dctEpsilon7, dctZeta7,
-       dctEta7, dctTheta7, dctIota7, dctKappa7, dctLambda7, dctMu7, dctNu7,
-       dctXi7, dctOmicron7, dctPi7, dctRho7, dctSigmaf3, dctSigma7, dctTau7,
-       dctUpsilon7, dctPhi7, dctChi7, dctPsi7, dctOmega7, dctThetasym3,
-       dctUpsih3, dctPiv3, dctBull3, dctHellip3, dctPrime6, dctPrime7,
-       dctOline3, dctFrasl3, dctWeierp3, dctImaginary3, dctReal3, dctTrademark3,
-       dctAlefsym3, dctLarr6, dctUarr6, dctRarr6, dctDarr6, dctHarr6, dctCrarr3,
-       dctLArr7, dctUArr7, dctRArr7, dctDArr7, dctHArr7, dctForall3, dctPart3,
-       dctExist3, dctEmpty3, dctNabla3, dctIsin3, dctNotin3, dctNi3, dctProd3,
-       dctSum3, dctMinus3, dctLowast3, dctRadic3, dctProp3, dctInfin3, dctAng3,
-       dctAnd3, dctOr3, dctCap3, dctCup3, dctInt3, dctThere43, dctSim3,
-       dctCong3, dctAsymp3, dctNe3, dctEquiv3, dctLe3, dctGe3, dctSub3, dctSup3,
-       dctNsub3, dctSube3, dctSupe3, dctOplus3, dctOtimes3, dctPerp3, dctSdot3,
-       dctLceil3, dctRceil3, dctLfloor3, dctRfloor3, dctLang3, dctRang3,
-       dctLoz3, dctSpades3, dctClubs3, dctHearts3, dctDiams3, dctOElig6,
-       dctOelig7, dctScaron6, dctScaron7, dctYumlaut7, dctCirc3, dctTilde3,
-       dctEnsp3, dctEmsp3, dctThinsp3, dctZwnj3, dctZwj3, dctLrm3, dctRlm3,
-       dctNdash3, dctMdash3, dctLsquo3, dctRsquo3, dctSbquo3, dctLdquo3,
-       dctRdquo3, dctBdquo3, dctDagger6, dctDagger7, dctPermil3, dctLsaquo3,
-       dctRsaquo3, dctEuro3, dctTm3:
+    of dctLinebreak, dctNonbreakablespace, dctIexcl, dctCent, dctPound,
+       dctCurren, dctYen, dctBrvbar, dctSect, dctUmlaut, dctCopy, dctOrdf,
+       dctLaquo, dctNot, dctShy, dctRegistered, dctMacr, dctDeg, dctPlusmn,
+       dctSup2, dctSup3, dctAcute, dctMicro, dctPara, dctMiddot, dctCedil,
+       dctSup1, dctOrdm, dctRaquo, dctFrac14, dctFrac12, dctFrac34, dctIquest,
+       dctAgrave, dctAacute, dctAcirc, dctAtilde, dctAumlaut, dctAring,
+       dctAElig, dctCcedil, dctEgrave, dctEacute, dctEcirc, dctEumlaut,
+       dctIgrave, dctIacute, dctIcirc, dctIumlaut, dctETH, dctNtilde, dctOgrave,
+       dctOacute, dctOcirc, dctOtilde, dctOumlaut, dctTimes, dctOslash,
+       dctUgrave, dctUacute, dctUcirc, dctUumlaut, dctYacute, dctTHORN,
+       dctSzlig, dctAgrave1, dctAacute1, dctAcirc1, dctAtilde1, dctAumlaut1,
+       dctAring1, dctAelig1, dctCcedil1, dctEgrave1, dctEacute1, dctEcirc1,
+       dctEumlaut1, dctIgrave1, dctIacute1, dctIcirc1, dctIumlaut1, dctEth1,
+       dctNtilde1, dctOgrave1, dctOacute1, dctOcirc1, dctOtilde1, dctOumlaut1,
+       dctDivide, dctOslash1, dctUgrave1, dctUacute1, dctUcirc1, dctUumlaut1,
+       dctYacute1, dctThorn1, dctYumlaut, dctFnof, dctAlpha, dctBeta, dctGamma,
+       dctDelta, dctEpsilon, dctZeta, dctEta, dctTheta, dctIota, dctKappa,
+       dctLambda, dctMu, dctNu, dctXi, dctOmicron, dctPi, dctRho, dctSigma,
+       dctTau, dctUpsilon, dctPhi, dctChi, dctPsi, dctOmega, dctAlpha1,
+       dctBeta1, dctGamma1, dctDelta1, dctEpsilon1, dctZeta1, dctEta1,
+       dctTheta1, dctIota1, dctKappa1, dctLambda1, dctMu1, dctNu1, dctXi1,
+       dctOmicron1, dctPi1, dctRho1, dctSigmaf, dctSigma1, dctTau1, dctUpsilon1,
+       dctPhi1, dctChi1, dctPsi1, dctOmega1, dctThetasym, dctUpsih, dctPiv,
+       dctBull, dctHellip, dctPrime, dctPrime1, dctOline, dctFrasl, dctWeierp,
+       dctImaginary, dctReal, dctTrademark, dctAlefsym, dctLarr, dctUarr,
+       dctRarr, dctDarr, dctHarr, dctCrarr, dctLArr1, dctUArr1, dctRArr1,
+       dctDArr1, dctHArr1, dctForall, dctPart, dctExist, dctEmpty, dctNabla,
+       dctIsin, dctNotin, dctNi, dctProd, dctSum, dctMinus, dctLowast, dctRadic,
+       dctProp, dctInfin, dctAng, dctAnd, dctOr, dctCap, dctCup, dctInt,
+       dctThere4, dctSim, dctCong, dctAsymp, dctNe, dctEquiv, dctLe, dctGe,
+       dctSub, dctSup, dctNsub, dctSube, dctSupe, dctOplus, dctOtimes, dctPerp,
+       dctSdot, dctLceil, dctRceil, dctLfloor, dctRfloor, dctLang, dctRang,
+       dctLoz, dctSpades, dctClubs, dctHearts, dctDiams, dctOElig, dctOelig1,
+       dctScaron, dctScaron1, dctYumlaut1, dctCirc, dctTilde, dctEnsp, dctEmsp,
+       dctThinsp, dctZwnj, dctZwj, dctLrm, dctRlm, dctNdash, dctMdash, dctLsquo,
+       dctRsquo, dctSbquo, dctLdquo, dctRdquo, dctBdquo, dctDagger, dctDagger1,
+       dctPermil, dctLsaquo, dctRsaquo, dctEuro, dctTm:
         docEmptyType*: DocEmptyType
 
-    of dctMixedStr22:
+    of dctMixedStr:
         mixedStr*: string
 
   
@@ -1168,123 +1144,116 @@ type
     xsdChoice*: seq[DocCaptionTypeBody]
 
   DocHeadingTypeKind* = enum
-    dhtUlink4, dhtBold4, dhtS4, dhtStrike4, dhtUnderline4, dhtEmphasis4,
-    dhtComputeroutput4, dhtSubscript4, dhtSuperscript4, dhtCenter4, dhtSmall4,
-    dhtDel4, dhtIns4, dhtHtmlonly4, dhtManonly4, dhtXmlonly4, dhtRtfonly4,
-    dhtLatexonly4, dhtDocbookonly4, dhtImage4, dhtDot4, dhtMsc4, dhtPlantuml4,
-    dhtAnchor4, dhtFormula4, dhtRef6, dhtEmoji4, dhtLinebreak4,
-    dhtNonbreakablespace4, dhtIexcl4, dhtCent4, dhtPound4, dhtCurren4, dhtYen4,
-    dhtBrvbar4, dhtSect4, dhtUmlaut4, dhtCopy4, dhtOrdf4, dhtLaquo4, dhtNot4,
-    dhtShy4, dhtRegistered4, dhtMacr4, dhtDeg4, dhtPlusmn4, dhtSup24, dhtSup34,
-    dhtAcute4, dhtMicro4, dhtPara12, dhtMiddot4, dhtCedil4, dhtSup14, dhtOrdm4,
-    dhtRaquo4, dhtFrac144, dhtFrac124, dhtFrac344, dhtIquest4, dhtAgrave8,
-    dhtAacute8, dhtAcirc8, dhtAtilde8, dhtAumlaut8, dhtAring8, dhtAElig8,
-    dhtCcedil8, dhtEgrave8, dhtEacute8, dhtEcirc8, dhtEumlaut8, dhtIgrave8,
-    dhtIacute8, dhtIcirc8, dhtIumlaut8, dhtETH8, dhtNtilde8, dhtOgrave8,
-    dhtOacute8, dhtOcirc8, dhtOtilde8, dhtOumlaut8, dhtTimes4, dhtOslash8,
-    dhtUgrave8, dhtUacute8, dhtUcirc8, dhtUumlaut8, dhtYacute8, dhtTHORN8,
-    dhtSzlig4, dhtAgrave9, dhtAacute9, dhtAcirc9, dhtAtilde9, dhtAumlaut9,
-    dhtAring9, dhtAelig9, dhtCcedil9, dhtEgrave9, dhtEacute9, dhtEcirc9,
-    dhtEumlaut9, dhtIgrave9, dhtIacute9, dhtIcirc9, dhtIumlaut9, dhtEth9,
-    dhtNtilde9, dhtOgrave9, dhtOacute9, dhtOcirc9, dhtOtilde9, dhtOumlaut9,
-    dhtDivide4, dhtOslash9, dhtUgrave9, dhtUacute9, dhtUcirc9, dhtUumlaut9,
-    dhtYacute9, dhtThorn9, dhtYumlaut8, dhtFnof4, dhtAlpha8, dhtBeta8,
-    dhtGamma8, dhtDelta8, dhtEpsilon8, dhtZeta8, dhtEta8, dhtTheta8, dhtIota8,
-    dhtKappa8, dhtLambda8, dhtMu8, dhtNu8, dhtXi8, dhtOmicron8, dhtPi8, dhtRho8,
-    dhtSigma8, dhtTau8, dhtUpsilon8, dhtPhi8, dhtChi8, dhtPsi8, dhtOmega8,
-    dhtAlpha9, dhtBeta9, dhtGamma9, dhtDelta9, dhtEpsilon9, dhtZeta9, dhtEta9,
-    dhtTheta9, dhtIota9, dhtKappa9, dhtLambda9, dhtMu9, dhtNu9, dhtXi9,
-    dhtOmicron9, dhtPi9, dhtRho9, dhtSigmaf4, dhtSigma9, dhtTau9, dhtUpsilon9,
-    dhtPhi9, dhtChi9, dhtPsi9, dhtOmega9, dhtThetasym4, dhtUpsih4, dhtPiv4,
-    dhtBull4, dhtHellip4, dhtPrime8, dhtPrime9, dhtOline4, dhtFrasl4,
-    dhtWeierp4, dhtImaginary4, dhtReal4, dhtTrademark4, dhtAlefsym4, dhtLarr8,
-    dhtUarr8, dhtRarr8, dhtDarr8, dhtHarr8, dhtCrarr4, dhtLArr9, dhtUArr9,
-    dhtRArr9, dhtDArr9, dhtHArr9, dhtForall4, dhtPart4, dhtExist4, dhtEmpty4,
-    dhtNabla4, dhtIsin4, dhtNotin4, dhtNi4, dhtProd4, dhtSum4, dhtMinus4,
-    dhtLowast4, dhtRadic4, dhtProp4, dhtInfin4, dhtAng4, dhtAnd4, dhtOr4,
-    dhtCap4, dhtCup4, dhtInt4, dhtThere44, dhtSim4, dhtCong4, dhtAsymp4, dhtNe4,
-    dhtEquiv4, dhtLe4, dhtGe4, dhtSub4, dhtSup4, dhtNsub4, dhtSube4, dhtSupe4,
-    dhtOplus4, dhtOtimes4, dhtPerp4, dhtSdot4, dhtLceil4, dhtRceil4, dhtLfloor4,
-    dhtRfloor4, dhtLang4, dhtRang4, dhtLoz4, dhtSpades4, dhtClubs4, dhtHearts4,
-    dhtDiams4, dhtOElig8, dhtOelig9, dhtScaron8, dhtScaron9, dhtYumlaut9,
-    dhtCirc4, dhtTilde4, dhtEnsp4, dhtEmsp4, dhtThinsp4, dhtZwnj4, dhtZwj4,
-    dhtLrm4, dhtRlm4, dhtNdash4, dhtMdash4, dhtLsquo4, dhtRsquo4, dhtSbquo4,
-    dhtLdquo4, dhtRdquo4, dhtBdquo4, dhtDagger8, dhtDagger9, dhtPermil4,
-    dhtLsaquo4, dhtRsaquo4, dhtEuro4, dhtTm4, dhtMixedStr23
+    dhtUlink, dhtBold, dhtS, dhtStrike, dhtUnderline, dhtEmphasis,
+    dhtComputeroutput, dhtSubscript, dhtSuperscript, dhtCenter, dhtSmall,
+    dhtDel, dhtIns, dhtHtmlonly, dhtManonly, dhtXmlonly, dhtRtfonly,
+    dhtLatexonly, dhtDocbookonly, dhtImage, dhtDot, dhtMsc, dhtPlantuml,
+    dhtAnchor, dhtFormula, dhtRef, dhtEmoji, dhtLinebreak, dhtNonbreakablespace,
+    dhtIexcl, dhtCent, dhtPound, dhtCurren, dhtYen, dhtBrvbar, dhtSect,
+    dhtUmlaut, dhtCopy, dhtOrdf, dhtLaquo, dhtNot, dhtShy, dhtRegistered,
+    dhtMacr, dhtDeg, dhtPlusmn, dhtSup2, dhtSup3, dhtAcute, dhtMicro, dhtPara,
+    dhtMiddot, dhtCedil, dhtSup1, dhtOrdm, dhtRaquo, dhtFrac14, dhtFrac12,
+    dhtFrac34, dhtIquest, dhtAgrave, dhtAacute, dhtAcirc, dhtAtilde, dhtAumlaut,
+    dhtAring, dhtAElig, dhtCcedil, dhtEgrave, dhtEacute, dhtEcirc, dhtEumlaut,
+    dhtIgrave, dhtIacute, dhtIcirc, dhtIumlaut, dhtETH, dhtNtilde, dhtOgrave,
+    dhtOacute, dhtOcirc, dhtOtilde, dhtOumlaut, dhtTimes, dhtOslash, dhtUgrave,
+    dhtUacute, dhtUcirc, dhtUumlaut, dhtYacute, dhtTHORN, dhtSzlig, dhtAgrave1,
+    dhtAacute1, dhtAcirc1, dhtAtilde1, dhtAumlaut1, dhtAring1, dhtAelig1,
+    dhtCcedil1, dhtEgrave1, dhtEacute1, dhtEcirc1, dhtEumlaut1, dhtIgrave1,
+    dhtIacute1, dhtIcirc1, dhtIumlaut1, dhtEth1, dhtNtilde1, dhtOgrave1,
+    dhtOacute1, dhtOcirc1, dhtOtilde1, dhtOumlaut1, dhtDivide, dhtOslash1,
+    dhtUgrave1, dhtUacute1, dhtUcirc1, dhtUumlaut1, dhtYacute1, dhtThorn1,
+    dhtYumlaut, dhtFnof, dhtAlpha, dhtBeta, dhtGamma, dhtDelta, dhtEpsilon,
+    dhtZeta, dhtEta, dhtTheta, dhtIota, dhtKappa, dhtLambda, dhtMu, dhtNu,
+    dhtXi, dhtOmicron, dhtPi, dhtRho, dhtSigma, dhtTau, dhtUpsilon, dhtPhi,
+    dhtChi, dhtPsi, dhtOmega, dhtAlpha1, dhtBeta1, dhtGamma1, dhtDelta1,
+    dhtEpsilon1, dhtZeta1, dhtEta1, dhtTheta1, dhtIota1, dhtKappa1, dhtLambda1,
+    dhtMu1, dhtNu1, dhtXi1, dhtOmicron1, dhtPi1, dhtRho1, dhtSigmaf, dhtSigma1,
+    dhtTau1, dhtUpsilon1, dhtPhi1, dhtChi1, dhtPsi1, dhtOmega1, dhtThetasym,
+    dhtUpsih, dhtPiv, dhtBull, dhtHellip, dhtPrime, dhtPrime1, dhtOline,
+    dhtFrasl, dhtWeierp, dhtImaginary, dhtReal, dhtTrademark, dhtAlefsym,
+    dhtLarr, dhtUarr, dhtRarr, dhtDarr, dhtHarr, dhtCrarr, dhtLArr1, dhtUArr1,
+    dhtRArr1, dhtDArr1, dhtHArr1, dhtForall, dhtPart, dhtExist, dhtEmpty,
+    dhtNabla, dhtIsin, dhtNotin, dhtNi, dhtProd, dhtSum, dhtMinus, dhtLowast,
+    dhtRadic, dhtProp, dhtInfin, dhtAng, dhtAnd, dhtOr, dhtCap, dhtCup, dhtInt,
+    dhtThere4, dhtSim, dhtCong, dhtAsymp, dhtNe, dhtEquiv, dhtLe, dhtGe, dhtSub,
+    dhtSup, dhtNsub, dhtSube, dhtSupe, dhtOplus, dhtOtimes, dhtPerp, dhtSdot,
+    dhtLceil, dhtRceil, dhtLfloor, dhtRfloor, dhtLang, dhtRang, dhtLoz,
+    dhtSpades, dhtClubs, dhtHearts, dhtDiams, dhtOElig, dhtOelig1, dhtScaron,
+    dhtScaron1, dhtYumlaut1, dhtCirc, dhtTilde, dhtEnsp, dhtEmsp, dhtThinsp,
+    dhtZwnj, dhtZwj, dhtLrm, dhtRlm, dhtNdash, dhtMdash, dhtLsquo, dhtRsquo,
+    dhtSbquo, dhtLdquo, dhtRdquo, dhtBdquo, dhtDagger, dhtDagger1, dhtPermil,
+    dhtLsaquo, dhtRsaquo, dhtEuro, dhtTm, dhtMixedStr
   DocHeadingTypeBody* = object
     case kind*: DocHeadingTypeKind
-    of dhtUlink4:
+    of dhtUlink:
         docURLLink*: DocURLLink
 
-    of dhtBold4, dhtS4, dhtStrike4, dhtUnderline4, dhtEmphasis4,
-       dhtComputeroutput4, dhtSubscript4, dhtSuperscript4, dhtCenter4,
-       dhtSmall4, dhtDel4, dhtIns4:
+    of dhtBold, dhtS, dhtStrike, dhtUnderline, dhtEmphasis, dhtComputeroutput,
+       dhtSubscript, dhtSuperscript, dhtCenter, dhtSmall, dhtDel, dhtIns:
         docMarkupType*: DocMarkupType
 
-    of dhtHtmlonly4:
+    of dhtHtmlonly:
         docHtmlOnlyType*: DocHtmlOnlyType
 
-    of dhtManonly4, dhtXmlonly4, dhtRtfonly4, dhtLatexonly4, dhtDocbookonly4:
+    of dhtManonly, dhtXmlonly, dhtRtfonly, dhtLatexonly, dhtDocbookonly:
         fString*: string
 
-    of dhtImage4, dhtDot4, dhtMsc4, dhtPlantuml4:
+    of dhtImage, dhtDot, dhtMsc, dhtPlantuml:
         docImageType*: DocImageType
 
-    of dhtAnchor4:
+    of dhtAnchor:
         docAnchorType*: DocAnchorType
 
-    of dhtFormula4:
+    of dhtFormula:
         docFormulaType*: DocFormulaType
 
-    of dhtRef6:
+    of dhtRef:
         docRefTextType*: DocRefTextType
 
-    of dhtEmoji4:
+    of dhtEmoji:
         docEmojiType*: DocEmojiType
 
-    of dhtLinebreak4, dhtNonbreakablespace4, dhtIexcl4, dhtCent4, dhtPound4,
-       dhtCurren4, dhtYen4, dhtBrvbar4, dhtSect4, dhtUmlaut4, dhtCopy4,
-       dhtOrdf4, dhtLaquo4, dhtNot4, dhtShy4, dhtRegistered4, dhtMacr4, dhtDeg4,
-       dhtPlusmn4, dhtSup24, dhtSup34, dhtAcute4, dhtMicro4, dhtPara12,
-       dhtMiddot4, dhtCedil4, dhtSup14, dhtOrdm4, dhtRaquo4, dhtFrac144,
-       dhtFrac124, dhtFrac344, dhtIquest4, dhtAgrave8, dhtAacute8, dhtAcirc8,
-       dhtAtilde8, dhtAumlaut8, dhtAring8, dhtAElig8, dhtCcedil8, dhtEgrave8,
-       dhtEacute8, dhtEcirc8, dhtEumlaut8, dhtIgrave8, dhtIacute8, dhtIcirc8,
-       dhtIumlaut8, dhtETH8, dhtNtilde8, dhtOgrave8, dhtOacute8, dhtOcirc8,
-       dhtOtilde8, dhtOumlaut8, dhtTimes4, dhtOslash8, dhtUgrave8, dhtUacute8,
-       dhtUcirc8, dhtUumlaut8, dhtYacute8, dhtTHORN8, dhtSzlig4, dhtAgrave9,
-       dhtAacute9, dhtAcirc9, dhtAtilde9, dhtAumlaut9, dhtAring9, dhtAelig9,
-       dhtCcedil9, dhtEgrave9, dhtEacute9, dhtEcirc9, dhtEumlaut9, dhtIgrave9,
-       dhtIacute9, dhtIcirc9, dhtIumlaut9, dhtEth9, dhtNtilde9, dhtOgrave9,
-       dhtOacute9, dhtOcirc9, dhtOtilde9, dhtOumlaut9, dhtDivide4, dhtOslash9,
-       dhtUgrave9, dhtUacute9, dhtUcirc9, dhtUumlaut9, dhtYacute9, dhtThorn9,
-       dhtYumlaut8, dhtFnof4, dhtAlpha8, dhtBeta8, dhtGamma8, dhtDelta8,
-       dhtEpsilon8, dhtZeta8, dhtEta8, dhtTheta8, dhtIota8, dhtKappa8,
-       dhtLambda8, dhtMu8, dhtNu8, dhtXi8, dhtOmicron8, dhtPi8, dhtRho8,
-       dhtSigma8, dhtTau8, dhtUpsilon8, dhtPhi8, dhtChi8, dhtPsi8, dhtOmega8,
-       dhtAlpha9, dhtBeta9, dhtGamma9, dhtDelta9, dhtEpsilon9, dhtZeta9,
-       dhtEta9, dhtTheta9, dhtIota9, dhtKappa9, dhtLambda9, dhtMu9, dhtNu9,
-       dhtXi9, dhtOmicron9, dhtPi9, dhtRho9, dhtSigmaf4, dhtSigma9, dhtTau9,
-       dhtUpsilon9, dhtPhi9, dhtChi9, dhtPsi9, dhtOmega9, dhtThetasym4,
-       dhtUpsih4, dhtPiv4, dhtBull4, dhtHellip4, dhtPrime8, dhtPrime9,
-       dhtOline4, dhtFrasl4, dhtWeierp4, dhtImaginary4, dhtReal4, dhtTrademark4,
-       dhtAlefsym4, dhtLarr8, dhtUarr8, dhtRarr8, dhtDarr8, dhtHarr8, dhtCrarr4,
-       dhtLArr9, dhtUArr9, dhtRArr9, dhtDArr9, dhtHArr9, dhtForall4, dhtPart4,
-       dhtExist4, dhtEmpty4, dhtNabla4, dhtIsin4, dhtNotin4, dhtNi4, dhtProd4,
-       dhtSum4, dhtMinus4, dhtLowast4, dhtRadic4, dhtProp4, dhtInfin4, dhtAng4,
-       dhtAnd4, dhtOr4, dhtCap4, dhtCup4, dhtInt4, dhtThere44, dhtSim4,
-       dhtCong4, dhtAsymp4, dhtNe4, dhtEquiv4, dhtLe4, dhtGe4, dhtSub4, dhtSup4,
-       dhtNsub4, dhtSube4, dhtSupe4, dhtOplus4, dhtOtimes4, dhtPerp4, dhtSdot4,
-       dhtLceil4, dhtRceil4, dhtLfloor4, dhtRfloor4, dhtLang4, dhtRang4,
-       dhtLoz4, dhtSpades4, dhtClubs4, dhtHearts4, dhtDiams4, dhtOElig8,
-       dhtOelig9, dhtScaron8, dhtScaron9, dhtYumlaut9, dhtCirc4, dhtTilde4,
-       dhtEnsp4, dhtEmsp4, dhtThinsp4, dhtZwnj4, dhtZwj4, dhtLrm4, dhtRlm4,
-       dhtNdash4, dhtMdash4, dhtLsquo4, dhtRsquo4, dhtSbquo4, dhtLdquo4,
-       dhtRdquo4, dhtBdquo4, dhtDagger8, dhtDagger9, dhtPermil4, dhtLsaquo4,
-       dhtRsaquo4, dhtEuro4, dhtTm4:
+    of dhtLinebreak, dhtNonbreakablespace, dhtIexcl, dhtCent, dhtPound,
+       dhtCurren, dhtYen, dhtBrvbar, dhtSect, dhtUmlaut, dhtCopy, dhtOrdf,
+       dhtLaquo, dhtNot, dhtShy, dhtRegistered, dhtMacr, dhtDeg, dhtPlusmn,
+       dhtSup2, dhtSup3, dhtAcute, dhtMicro, dhtPara, dhtMiddot, dhtCedil,
+       dhtSup1, dhtOrdm, dhtRaquo, dhtFrac14, dhtFrac12, dhtFrac34, dhtIquest,
+       dhtAgrave, dhtAacute, dhtAcirc, dhtAtilde, dhtAumlaut, dhtAring,
+       dhtAElig, dhtCcedil, dhtEgrave, dhtEacute, dhtEcirc, dhtEumlaut,
+       dhtIgrave, dhtIacute, dhtIcirc, dhtIumlaut, dhtETH, dhtNtilde, dhtOgrave,
+       dhtOacute, dhtOcirc, dhtOtilde, dhtOumlaut, dhtTimes, dhtOslash,
+       dhtUgrave, dhtUacute, dhtUcirc, dhtUumlaut, dhtYacute, dhtTHORN,
+       dhtSzlig, dhtAgrave1, dhtAacute1, dhtAcirc1, dhtAtilde1, dhtAumlaut1,
+       dhtAring1, dhtAelig1, dhtCcedil1, dhtEgrave1, dhtEacute1, dhtEcirc1,
+       dhtEumlaut1, dhtIgrave1, dhtIacute1, dhtIcirc1, dhtIumlaut1, dhtEth1,
+       dhtNtilde1, dhtOgrave1, dhtOacute1, dhtOcirc1, dhtOtilde1, dhtOumlaut1,
+       dhtDivide, dhtOslash1, dhtUgrave1, dhtUacute1, dhtUcirc1, dhtUumlaut1,
+       dhtYacute1, dhtThorn1, dhtYumlaut, dhtFnof, dhtAlpha, dhtBeta, dhtGamma,
+       dhtDelta, dhtEpsilon, dhtZeta, dhtEta, dhtTheta, dhtIota, dhtKappa,
+       dhtLambda, dhtMu, dhtNu, dhtXi, dhtOmicron, dhtPi, dhtRho, dhtSigma,
+       dhtTau, dhtUpsilon, dhtPhi, dhtChi, dhtPsi, dhtOmega, dhtAlpha1,
+       dhtBeta1, dhtGamma1, dhtDelta1, dhtEpsilon1, dhtZeta1, dhtEta1,
+       dhtTheta1, dhtIota1, dhtKappa1, dhtLambda1, dhtMu1, dhtNu1, dhtXi1,
+       dhtOmicron1, dhtPi1, dhtRho1, dhtSigmaf, dhtSigma1, dhtTau1, dhtUpsilon1,
+       dhtPhi1, dhtChi1, dhtPsi1, dhtOmega1, dhtThetasym, dhtUpsih, dhtPiv,
+       dhtBull, dhtHellip, dhtPrime, dhtPrime1, dhtOline, dhtFrasl, dhtWeierp,
+       dhtImaginary, dhtReal, dhtTrademark, dhtAlefsym, dhtLarr, dhtUarr,
+       dhtRarr, dhtDarr, dhtHarr, dhtCrarr, dhtLArr1, dhtUArr1, dhtRArr1,
+       dhtDArr1, dhtHArr1, dhtForall, dhtPart, dhtExist, dhtEmpty, dhtNabla,
+       dhtIsin, dhtNotin, dhtNi, dhtProd, dhtSum, dhtMinus, dhtLowast, dhtRadic,
+       dhtProp, dhtInfin, dhtAng, dhtAnd, dhtOr, dhtCap, dhtCup, dhtInt,
+       dhtThere4, dhtSim, dhtCong, dhtAsymp, dhtNe, dhtEquiv, dhtLe, dhtGe,
+       dhtSub, dhtSup, dhtNsub, dhtSube, dhtSupe, dhtOplus, dhtOtimes, dhtPerp,
+       dhtSdot, dhtLceil, dhtRceil, dhtLfloor, dhtRfloor, dhtLang, dhtRang,
+       dhtLoz, dhtSpades, dhtClubs, dhtHearts, dhtDiams, dhtOElig, dhtOelig1,
+       dhtScaron, dhtScaron1, dhtYumlaut1, dhtCirc, dhtTilde, dhtEnsp, dhtEmsp,
+       dhtThinsp, dhtZwnj, dhtZwj, dhtLrm, dhtRlm, dhtNdash, dhtMdash, dhtLsquo,
+       dhtRsquo, dhtSbquo, dhtLdquo, dhtRdquo, dhtBdquo, dhtDagger, dhtDagger1,
+       dhtPermil, dhtLsaquo, dhtRsaquo, dhtEuro, dhtTm:
         docEmptyType*: DocEmptyType
 
-    of dhtMixedStr23:
+    of dhtMixedStr:
         mixedStr*: string
 
   
@@ -1293,136 +1262,125 @@ type
     xsdChoice*: seq[DocHeadingTypeBody]
 
   DocImageTypeKind* = enum
-    doitUlink5, doitBold5, doitS5, doitStrike5, doitUnderline5, doitEmphasis5,
-    doitComputeroutput5, doitSubscript5, doitSuperscript5, doitCenter5,
-    doitSmall5, doitDel5, doitIns5, doitHtmlonly5, doitManonly5, doitXmlonly5,
-    doitRtfonly5, doitLatexonly5, doitDocbookonly5, doitImage5, doitDot5,
-    doitMsc5, doitPlantuml5, doitAnchor5, doitFormula5, doitRef7, doitEmoji5,
-    doitLinebreak5, doitNonbreakablespace5, doitIexcl5, doitCent5, doitPound5,
-    doitCurren5, doitYen5, doitBrvbar5, doitSect5, doitUmlaut5, doitCopy5,
-    doitOrdf5, doitLaquo5, doitNot5, doitShy5, doitRegistered5, doitMacr5,
-    doitDeg5, doitPlusmn5, doitSup25, doitSup35, doitAcute5, doitMicro5,
-    doitPara13, doitMiddot5, doitCedil5, doitSup15, doitOrdm5, doitRaquo5,
-    doitFrac145, doitFrac125, doitFrac345, doitIquest5, doitAgrave10,
-    doitAacute10, doitAcirc10, doitAtilde10, doitAumlaut10, doitAring10,
-    doitAElig10, doitCcedil10, doitEgrave10, doitEacute10, doitEcirc10,
-    doitEumlaut10, doitIgrave10, doitIacute10, doitIcirc10, doitIumlaut10,
-    doitETH10, doitNtilde10, doitOgrave10, doitOacute10, doitOcirc10,
-    doitOtilde10, doitOumlaut10, doitTimes5, doitOslash10, doitUgrave10,
-    doitUacute10, doitUcirc10, doitUumlaut10, doitYacute10, doitTHORN10,
-    doitSzlig5, doitAgrave11, doitAacute11, doitAcirc11, doitAtilde11,
-    doitAumlaut11, doitAring11, doitAelig11, doitCcedil11, doitEgrave11,
-    doitEacute11, doitEcirc11, doitEumlaut11, doitIgrave11, doitIacute11,
-    doitIcirc11, doitIumlaut11, doitEth11, doitNtilde11, doitOgrave11,
-    doitOacute11, doitOcirc11, doitOtilde11, doitOumlaut11, doitDivide5,
-    doitOslash11, doitUgrave11, doitUacute11, doitUcirc11, doitUumlaut11,
-    doitYacute11, doitThorn11, doitYumlaut10, doitFnof5, doitAlpha10,
-    doitBeta10, doitGamma10, doitDelta10, doitEpsilon10, doitZeta10, doitEta10,
-    doitTheta10, doitIota10, doitKappa10, doitLambda10, doitMu10, doitNu10,
-    doitXi10, doitOmicron10, doitPi10, doitRho10, doitSigma10, doitTau10,
-    doitUpsilon10, doitPhi10, doitChi10, doitPsi10, doitOmega10, doitAlpha11,
-    doitBeta11, doitGamma11, doitDelta11, doitEpsilon11, doitZeta11, doitEta11,
-    doitTheta11, doitIota11, doitKappa11, doitLambda11, doitMu11, doitNu11,
-    doitXi11, doitOmicron11, doitPi11, doitRho11, doitSigmaf5, doitSigma11,
-    doitTau11, doitUpsilon11, doitPhi11, doitChi11, doitPsi11, doitOmega11,
-    doitThetasym5, doitUpsih5, doitPiv5, doitBull5, doitHellip5, doitPrime10,
-    doitPrime11, doitOline5, doitFrasl5, doitWeierp5, doitImaginary5, doitReal5,
-    doitTrademark5, doitAlefsym5, doitLarr10, doitUarr10, doitRarr10,
-    doitDarr10, doitHarr10, doitCrarr5, doitLArr11, doitUArr11, doitRArr11,
-    doitDArr11, doitHArr11, doitForall5, doitPart5, doitExist5, doitEmpty5,
-    doitNabla5, doitIsin5, doitNotin5, doitNi5, doitProd5, doitSum5, doitMinus5,
-    doitLowast5, doitRadic5, doitProp5, doitInfin5, doitAng5, doitAnd5, doitOr5,
-    doitCap5, doitCup5, doitInt5, doitThere45, doitSim5, doitCong5, doitAsymp5,
-    doitNe5, doitEquiv5, doitLe5, doitGe5, doitSub5, doitSup5, doitNsub5,
-    doitSube5, doitSupe5, doitOplus5, doitOtimes5, doitPerp5, doitSdot5,
-    doitLceil5, doitRceil5, doitLfloor5, doitRfloor5, doitLang5, doitRang5,
-    doitLoz5, doitSpades5, doitClubs5, doitHearts5, doitDiams5, doitOElig10,
-    doitOelig11, doitScaron10, doitScaron11, doitYumlaut11, doitCirc5,
-    doitTilde5, doitEnsp5, doitEmsp5, doitThinsp5, doitZwnj5, doitZwj5,
-    doitLrm5, doitRlm5, doitNdash5, doitMdash5, doitLsquo5, doitRsquo5,
-    doitSbquo5, doitLdquo5, doitRdquo5, doitBdquo5, doitDagger10, doitDagger11,
-    doitPermil5, doitLsaquo5, doitRsaquo5, doitEuro5, doitTm5, doitMixedStr24
+    doitUlink, doitBold, doitS, doitStrike, doitUnderline, doitEmphasis,
+    doitComputeroutput, doitSubscript, doitSuperscript, doitCenter, doitSmall,
+    doitDel, doitIns, doitHtmlonly, doitManonly, doitXmlonly, doitRtfonly,
+    doitLatexonly, doitDocbookonly, doitImage, doitDot, doitMsc, doitPlantuml,
+    doitAnchor, doitFormula, doitRef, doitEmoji, doitLinebreak,
+    doitNonbreakablespace, doitIexcl, doitCent, doitPound, doitCurren, doitYen,
+    doitBrvbar, doitSect, doitUmlaut, doitCopy, doitOrdf, doitLaquo, doitNot,
+    doitShy, doitRegistered, doitMacr, doitDeg, doitPlusmn, doitSup2, doitSup3,
+    doitAcute, doitMicro, doitPara, doitMiddot, doitCedil, doitSup1, doitOrdm,
+    doitRaquo, doitFrac14, doitFrac12, doitFrac34, doitIquest, doitAgrave,
+    doitAacute, doitAcirc, doitAtilde, doitAumlaut, doitAring, doitAElig,
+    doitCcedil, doitEgrave, doitEacute, doitEcirc, doitEumlaut, doitIgrave,
+    doitIacute, doitIcirc, doitIumlaut, doitETH, doitNtilde, doitOgrave,
+    doitOacute, doitOcirc, doitOtilde, doitOumlaut, doitTimes, doitOslash,
+    doitUgrave, doitUacute, doitUcirc, doitUumlaut, doitYacute, doitTHORN,
+    doitSzlig, doitAgrave1, doitAacute1, doitAcirc1, doitAtilde1, doitAumlaut1,
+    doitAring1, doitAelig1, doitCcedil1, doitEgrave1, doitEacute1, doitEcirc1,
+    doitEumlaut1, doitIgrave1, doitIacute1, doitIcirc1, doitIumlaut1, doitEth1,
+    doitNtilde1, doitOgrave1, doitOacute1, doitOcirc1, doitOtilde1,
+    doitOumlaut1, doitDivide, doitOslash1, doitUgrave1, doitUacute1, doitUcirc1,
+    doitUumlaut1, doitYacute1, doitThorn1, doitYumlaut, doitFnof, doitAlpha,
+    doitBeta, doitGamma, doitDelta, doitEpsilon, doitZeta, doitEta, doitTheta,
+    doitIota, doitKappa, doitLambda, doitMu, doitNu, doitXi, doitOmicron,
+    doitPi, doitRho, doitSigma, doitTau, doitUpsilon, doitPhi, doitChi, doitPsi,
+    doitOmega, doitAlpha1, doitBeta1, doitGamma1, doitDelta1, doitEpsilon1,
+    doitZeta1, doitEta1, doitTheta1, doitIota1, doitKappa1, doitLambda1,
+    doitMu1, doitNu1, doitXi1, doitOmicron1, doitPi1, doitRho1, doitSigmaf,
+    doitSigma1, doitTau1, doitUpsilon1, doitPhi1, doitChi1, doitPsi1,
+    doitOmega1, doitThetasym, doitUpsih, doitPiv, doitBull, doitHellip,
+    doitPrime, doitPrime1, doitOline, doitFrasl, doitWeierp, doitImaginary,
+    doitReal, doitTrademark, doitAlefsym, doitLarr, doitUarr, doitRarr,
+    doitDarr, doitHarr, doitCrarr, doitLArr1, doitUArr1, doitRArr1, doitDArr1,
+    doitHArr1, doitForall, doitPart, doitExist, doitEmpty, doitNabla, doitIsin,
+    doitNotin, doitNi, doitProd, doitSum, doitMinus, doitLowast, doitRadic,
+    doitProp, doitInfin, doitAng, doitAnd, doitOr, doitCap, doitCup, doitInt,
+    doitThere4, doitSim, doitCong, doitAsymp, doitNe, doitEquiv, doitLe, doitGe,
+    doitSub, doitSup, doitNsub, doitSube, doitSupe, doitOplus, doitOtimes,
+    doitPerp, doitSdot, doitLceil, doitRceil, doitLfloor, doitRfloor, doitLang,
+    doitRang, doitLoz, doitSpades, doitClubs, doitHearts, doitDiams, doitOElig,
+    doitOelig1, doitScaron, doitScaron1, doitYumlaut1, doitCirc, doitTilde,
+    doitEnsp, doitEmsp, doitThinsp, doitZwnj, doitZwj, doitLrm, doitRlm,
+    doitNdash, doitMdash, doitLsquo, doitRsquo, doitSbquo, doitLdquo, doitRdquo,
+    doitBdquo, doitDagger, doitDagger1, doitPermil, doitLsaquo, doitRsaquo,
+    doitEuro, doitTm, doitMixedStr
   DocImageTypeBody* = object
     case kind*: DocImageTypeKind
-    of doitUlink5:
+    of doitUlink:
         docURLLink*: DocURLLink
 
-    of doitBold5, doitS5, doitStrike5, doitUnderline5, doitEmphasis5,
-       doitComputeroutput5, doitSubscript5, doitSuperscript5, doitCenter5,
-       doitSmall5, doitDel5, doitIns5:
+    of doitBold, doitS, doitStrike, doitUnderline, doitEmphasis,
+       doitComputeroutput, doitSubscript, doitSuperscript, doitCenter,
+       doitSmall, doitDel, doitIns:
         docMarkupType*: DocMarkupType
 
-    of doitHtmlonly5:
+    of doitHtmlonly:
         docHtmlOnlyType*: DocHtmlOnlyType
 
-    of doitManonly5, doitXmlonly5, doitRtfonly5, doitLatexonly5,
-       doitDocbookonly5:
+    of doitManonly, doitXmlonly, doitRtfonly, doitLatexonly, doitDocbookonly:
         fString*: string
 
-    of doitImage5, doitDot5, doitMsc5, doitPlantuml5:
+    of doitImage, doitDot, doitMsc, doitPlantuml:
         docImageType*: DocImageType
 
-    of doitAnchor5:
+    of doitAnchor:
         docAnchorType*: DocAnchorType
 
-    of doitFormula5:
+    of doitFormula:
         docFormulaType*: DocFormulaType
 
-    of doitRef7:
+    of doitRef:
         docRefTextType*: DocRefTextType
 
-    of doitEmoji5:
+    of doitEmoji:
         docEmojiType*: DocEmojiType
 
-    of doitLinebreak5, doitNonbreakablespace5, doitIexcl5, doitCent5,
-       doitPound5, doitCurren5, doitYen5, doitBrvbar5, doitSect5, doitUmlaut5,
-       doitCopy5, doitOrdf5, doitLaquo5, doitNot5, doitShy5, doitRegistered5,
-       doitMacr5, doitDeg5, doitPlusmn5, doitSup25, doitSup35, doitAcute5,
-       doitMicro5, doitPara13, doitMiddot5, doitCedil5, doitSup15, doitOrdm5,
-       doitRaquo5, doitFrac145, doitFrac125, doitFrac345, doitIquest5,
-       doitAgrave10, doitAacute10, doitAcirc10, doitAtilde10, doitAumlaut10,
-       doitAring10, doitAElig10, doitCcedil10, doitEgrave10, doitEacute10,
-       doitEcirc10, doitEumlaut10, doitIgrave10, doitIacute10, doitIcirc10,
-       doitIumlaut10, doitETH10, doitNtilde10, doitOgrave10, doitOacute10,
-       doitOcirc10, doitOtilde10, doitOumlaut10, doitTimes5, doitOslash10,
-       doitUgrave10, doitUacute10, doitUcirc10, doitUumlaut10, doitYacute10,
-       doitTHORN10, doitSzlig5, doitAgrave11, doitAacute11, doitAcirc11,
-       doitAtilde11, doitAumlaut11, doitAring11, doitAelig11, doitCcedil11,
-       doitEgrave11, doitEacute11, doitEcirc11, doitEumlaut11, doitIgrave11,
-       doitIacute11, doitIcirc11, doitIumlaut11, doitEth11, doitNtilde11,
-       doitOgrave11, doitOacute11, doitOcirc11, doitOtilde11, doitOumlaut11,
-       doitDivide5, doitOslash11, doitUgrave11, doitUacute11, doitUcirc11,
-       doitUumlaut11, doitYacute11, doitThorn11, doitYumlaut10, doitFnof5,
-       doitAlpha10, doitBeta10, doitGamma10, doitDelta10, doitEpsilon10,
-       doitZeta10, doitEta10, doitTheta10, doitIota10, doitKappa10,
-       doitLambda10, doitMu10, doitNu10, doitXi10, doitOmicron10, doitPi10,
-       doitRho10, doitSigma10, doitTau10, doitUpsilon10, doitPhi10, doitChi10,
-       doitPsi10, doitOmega10, doitAlpha11, doitBeta11, doitGamma11,
-       doitDelta11, doitEpsilon11, doitZeta11, doitEta11, doitTheta11,
-       doitIota11, doitKappa11, doitLambda11, doitMu11, doitNu11, doitXi11,
-       doitOmicron11, doitPi11, doitRho11, doitSigmaf5, doitSigma11, doitTau11,
-       doitUpsilon11, doitPhi11, doitChi11, doitPsi11, doitOmega11,
-       doitThetasym5, doitUpsih5, doitPiv5, doitBull5, doitHellip5, doitPrime10,
-       doitPrime11, doitOline5, doitFrasl5, doitWeierp5, doitImaginary5,
-       doitReal5, doitTrademark5, doitAlefsym5, doitLarr10, doitUarr10,
-       doitRarr10, doitDarr10, doitHarr10, doitCrarr5, doitLArr11, doitUArr11,
-       doitRArr11, doitDArr11, doitHArr11, doitForall5, doitPart5, doitExist5,
-       doitEmpty5, doitNabla5, doitIsin5, doitNotin5, doitNi5, doitProd5,
-       doitSum5, doitMinus5, doitLowast5, doitRadic5, doitProp5, doitInfin5,
-       doitAng5, doitAnd5, doitOr5, doitCap5, doitCup5, doitInt5, doitThere45,
-       doitSim5, doitCong5, doitAsymp5, doitNe5, doitEquiv5, doitLe5, doitGe5,
-       doitSub5, doitSup5, doitNsub5, doitSube5, doitSupe5, doitOplus5,
-       doitOtimes5, doitPerp5, doitSdot5, doitLceil5, doitRceil5, doitLfloor5,
-       doitRfloor5, doitLang5, doitRang5, doitLoz5, doitSpades5, doitClubs5,
-       doitHearts5, doitDiams5, doitOElig10, doitOelig11, doitScaron10,
-       doitScaron11, doitYumlaut11, doitCirc5, doitTilde5, doitEnsp5, doitEmsp5,
-       doitThinsp5, doitZwnj5, doitZwj5, doitLrm5, doitRlm5, doitNdash5,
-       doitMdash5, doitLsquo5, doitRsquo5, doitSbquo5, doitLdquo5, doitRdquo5,
-       doitBdquo5, doitDagger10, doitDagger11, doitPermil5, doitLsaquo5,
-       doitRsaquo5, doitEuro5, doitTm5:
+    of doitLinebreak, doitNonbreakablespace, doitIexcl, doitCent, doitPound,
+       doitCurren, doitYen, doitBrvbar, doitSect, doitUmlaut, doitCopy,
+       doitOrdf, doitLaquo, doitNot, doitShy, doitRegistered, doitMacr, doitDeg,
+       doitPlusmn, doitSup2, doitSup3, doitAcute, doitMicro, doitPara,
+       doitMiddot, doitCedil, doitSup1, doitOrdm, doitRaquo, doitFrac14,
+       doitFrac12, doitFrac34, doitIquest, doitAgrave, doitAacute, doitAcirc,
+       doitAtilde, doitAumlaut, doitAring, doitAElig, doitCcedil, doitEgrave,
+       doitEacute, doitEcirc, doitEumlaut, doitIgrave, doitIacute, doitIcirc,
+       doitIumlaut, doitETH, doitNtilde, doitOgrave, doitOacute, doitOcirc,
+       doitOtilde, doitOumlaut, doitTimes, doitOslash, doitUgrave, doitUacute,
+       doitUcirc, doitUumlaut, doitYacute, doitTHORN, doitSzlig, doitAgrave1,
+       doitAacute1, doitAcirc1, doitAtilde1, doitAumlaut1, doitAring1,
+       doitAelig1, doitCcedil1, doitEgrave1, doitEacute1, doitEcirc1,
+       doitEumlaut1, doitIgrave1, doitIacute1, doitIcirc1, doitIumlaut1,
+       doitEth1, doitNtilde1, doitOgrave1, doitOacute1, doitOcirc1, doitOtilde1,
+       doitOumlaut1, doitDivide, doitOslash1, doitUgrave1, doitUacute1,
+       doitUcirc1, doitUumlaut1, doitYacute1, doitThorn1, doitYumlaut, doitFnof,
+       doitAlpha, doitBeta, doitGamma, doitDelta, doitEpsilon, doitZeta,
+       doitEta, doitTheta, doitIota, doitKappa, doitLambda, doitMu, doitNu,
+       doitXi, doitOmicron, doitPi, doitRho, doitSigma, doitTau, doitUpsilon,
+       doitPhi, doitChi, doitPsi, doitOmega, doitAlpha1, doitBeta1, doitGamma1,
+       doitDelta1, doitEpsilon1, doitZeta1, doitEta1, doitTheta1, doitIota1,
+       doitKappa1, doitLambda1, doitMu1, doitNu1, doitXi1, doitOmicron1,
+       doitPi1, doitRho1, doitSigmaf, doitSigma1, doitTau1, doitUpsilon1,
+       doitPhi1, doitChi1, doitPsi1, doitOmega1, doitThetasym, doitUpsih,
+       doitPiv, doitBull, doitHellip, doitPrime, doitPrime1, doitOline,
+       doitFrasl, doitWeierp, doitImaginary, doitReal, doitTrademark,
+       doitAlefsym, doitLarr, doitUarr, doitRarr, doitDarr, doitHarr, doitCrarr,
+       doitLArr1, doitUArr1, doitRArr1, doitDArr1, doitHArr1, doitForall,
+       doitPart, doitExist, doitEmpty, doitNabla, doitIsin, doitNotin, doitNi,
+       doitProd, doitSum, doitMinus, doitLowast, doitRadic, doitProp, doitInfin,
+       doitAng, doitAnd, doitOr, doitCap, doitCup, doitInt, doitThere4, doitSim,
+       doitCong, doitAsymp, doitNe, doitEquiv, doitLe, doitGe, doitSub, doitSup,
+       doitNsub, doitSube, doitSupe, doitOplus, doitOtimes, doitPerp, doitSdot,
+       doitLceil, doitRceil, doitLfloor, doitRfloor, doitLang, doitRang,
+       doitLoz, doitSpades, doitClubs, doitHearts, doitDiams, doitOElig,
+       doitOelig1, doitScaron, doitScaron1, doitYumlaut1, doitCirc, doitTilde,
+       doitEnsp, doitEmsp, doitThinsp, doitZwnj, doitZwj, doitLrm, doitRlm,
+       doitNdash, doitMdash, doitLsquo, doitRsquo, doitSbquo, doitLdquo,
+       doitRdquo, doitBdquo, doitDagger, doitDagger1, doitPermil, doitLsaquo,
+       doitRsaquo, doitEuro, doitTm:
         docEmptyType*: DocEmptyType
 
-    of doitMixedStr24:
+    of doitMixedStr:
         mixedStr*: string
 
   
@@ -1437,136 +1395,125 @@ type
     xsdChoice*: seq[DocImageTypeBody]
 
   DocTocItemTypeKind* = enum
-    dtitUlink6, dtitBold6, dtitS6, dtitStrike6, dtitUnderline6, dtitEmphasis6,
-    dtitComputeroutput6, dtitSubscript6, dtitSuperscript6, dtitCenter6,
-    dtitSmall6, dtitDel6, dtitIns6, dtitHtmlonly6, dtitManonly6, dtitXmlonly6,
-    dtitRtfonly6, dtitLatexonly6, dtitDocbookonly6, dtitImage6, dtitDot6,
-    dtitMsc6, dtitPlantuml6, dtitAnchor6, dtitFormula6, dtitRef8, dtitEmoji6,
-    dtitLinebreak6, dtitNonbreakablespace6, dtitIexcl6, dtitCent6, dtitPound6,
-    dtitCurren6, dtitYen6, dtitBrvbar6, dtitSect6, dtitUmlaut6, dtitCopy6,
-    dtitOrdf6, dtitLaquo6, dtitNot6, dtitShy6, dtitRegistered6, dtitMacr6,
-    dtitDeg6, dtitPlusmn6, dtitSup26, dtitSup36, dtitAcute6, dtitMicro6,
-    dtitPara14, dtitMiddot6, dtitCedil6, dtitSup16, dtitOrdm6, dtitRaquo6,
-    dtitFrac146, dtitFrac126, dtitFrac346, dtitIquest6, dtitAgrave12,
-    dtitAacute12, dtitAcirc12, dtitAtilde12, dtitAumlaut12, dtitAring12,
-    dtitAElig12, dtitCcedil12, dtitEgrave12, dtitEacute12, dtitEcirc12,
-    dtitEumlaut12, dtitIgrave12, dtitIacute12, dtitIcirc12, dtitIumlaut12,
-    dtitETH12, dtitNtilde12, dtitOgrave12, dtitOacute12, dtitOcirc12,
-    dtitOtilde12, dtitOumlaut12, dtitTimes6, dtitOslash12, dtitUgrave12,
-    dtitUacute12, dtitUcirc12, dtitUumlaut12, dtitYacute12, dtitTHORN12,
-    dtitSzlig6, dtitAgrave13, dtitAacute13, dtitAcirc13, dtitAtilde13,
-    dtitAumlaut13, dtitAring13, dtitAelig13, dtitCcedil13, dtitEgrave13,
-    dtitEacute13, dtitEcirc13, dtitEumlaut13, dtitIgrave13, dtitIacute13,
-    dtitIcirc13, dtitIumlaut13, dtitEth13, dtitNtilde13, dtitOgrave13,
-    dtitOacute13, dtitOcirc13, dtitOtilde13, dtitOumlaut13, dtitDivide6,
-    dtitOslash13, dtitUgrave13, dtitUacute13, dtitUcirc13, dtitUumlaut13,
-    dtitYacute13, dtitThorn13, dtitYumlaut12, dtitFnof6, dtitAlpha12,
-    dtitBeta12, dtitGamma12, dtitDelta12, dtitEpsilon12, dtitZeta12, dtitEta12,
-    dtitTheta12, dtitIota12, dtitKappa12, dtitLambda12, dtitMu12, dtitNu12,
-    dtitXi12, dtitOmicron12, dtitPi12, dtitRho12, dtitSigma12, dtitTau12,
-    dtitUpsilon12, dtitPhi12, dtitChi12, dtitPsi12, dtitOmega12, dtitAlpha13,
-    dtitBeta13, dtitGamma13, dtitDelta13, dtitEpsilon13, dtitZeta13, dtitEta13,
-    dtitTheta13, dtitIota13, dtitKappa13, dtitLambda13, dtitMu13, dtitNu13,
-    dtitXi13, dtitOmicron13, dtitPi13, dtitRho13, dtitSigmaf6, dtitSigma13,
-    dtitTau13, dtitUpsilon13, dtitPhi13, dtitChi13, dtitPsi13, dtitOmega13,
-    dtitThetasym6, dtitUpsih6, dtitPiv6, dtitBull6, dtitHellip6, dtitPrime12,
-    dtitPrime13, dtitOline6, dtitFrasl6, dtitWeierp6, dtitImaginary6, dtitReal6,
-    dtitTrademark6, dtitAlefsym6, dtitLarr12, dtitUarr12, dtitRarr12,
-    dtitDarr12, dtitHarr12, dtitCrarr6, dtitLArr13, dtitUArr13, dtitRArr13,
-    dtitDArr13, dtitHArr13, dtitForall6, dtitPart6, dtitExist6, dtitEmpty6,
-    dtitNabla6, dtitIsin6, dtitNotin6, dtitNi6, dtitProd6, dtitSum6, dtitMinus6,
-    dtitLowast6, dtitRadic6, dtitProp6, dtitInfin6, dtitAng6, dtitAnd6, dtitOr6,
-    dtitCap6, dtitCup6, dtitInt6, dtitThere46, dtitSim6, dtitCong6, dtitAsymp6,
-    dtitNe6, dtitEquiv6, dtitLe6, dtitGe6, dtitSub6, dtitSup6, dtitNsub6,
-    dtitSube6, dtitSupe6, dtitOplus6, dtitOtimes6, dtitPerp6, dtitSdot6,
-    dtitLceil6, dtitRceil6, dtitLfloor6, dtitRfloor6, dtitLang6, dtitRang6,
-    dtitLoz6, dtitSpades6, dtitClubs6, dtitHearts6, dtitDiams6, dtitOElig12,
-    dtitOelig13, dtitScaron12, dtitScaron13, dtitYumlaut13, dtitCirc6,
-    dtitTilde6, dtitEnsp6, dtitEmsp6, dtitThinsp6, dtitZwnj6, dtitZwj6,
-    dtitLrm6, dtitRlm6, dtitNdash6, dtitMdash6, dtitLsquo6, dtitRsquo6,
-    dtitSbquo6, dtitLdquo6, dtitRdquo6, dtitBdquo6, dtitDagger12, dtitDagger13,
-    dtitPermil6, dtitLsaquo6, dtitRsaquo6, dtitEuro6, dtitTm6, dtitMixedStr25
+    dtitUlink, dtitBold, dtitS, dtitStrike, dtitUnderline, dtitEmphasis,
+    dtitComputeroutput, dtitSubscript, dtitSuperscript, dtitCenter, dtitSmall,
+    dtitDel, dtitIns, dtitHtmlonly, dtitManonly, dtitXmlonly, dtitRtfonly,
+    dtitLatexonly, dtitDocbookonly, dtitImage, dtitDot, dtitMsc, dtitPlantuml,
+    dtitAnchor, dtitFormula, dtitRef, dtitEmoji, dtitLinebreak,
+    dtitNonbreakablespace, dtitIexcl, dtitCent, dtitPound, dtitCurren, dtitYen,
+    dtitBrvbar, dtitSect, dtitUmlaut, dtitCopy, dtitOrdf, dtitLaquo, dtitNot,
+    dtitShy, dtitRegistered, dtitMacr, dtitDeg, dtitPlusmn, dtitSup2, dtitSup3,
+    dtitAcute, dtitMicro, dtitPara, dtitMiddot, dtitCedil, dtitSup1, dtitOrdm,
+    dtitRaquo, dtitFrac14, dtitFrac12, dtitFrac34, dtitIquest, dtitAgrave,
+    dtitAacute, dtitAcirc, dtitAtilde, dtitAumlaut, dtitAring, dtitAElig,
+    dtitCcedil, dtitEgrave, dtitEacute, dtitEcirc, dtitEumlaut, dtitIgrave,
+    dtitIacute, dtitIcirc, dtitIumlaut, dtitETH, dtitNtilde, dtitOgrave,
+    dtitOacute, dtitOcirc, dtitOtilde, dtitOumlaut, dtitTimes, dtitOslash,
+    dtitUgrave, dtitUacute, dtitUcirc, dtitUumlaut, dtitYacute, dtitTHORN,
+    dtitSzlig, dtitAgrave1, dtitAacute1, dtitAcirc1, dtitAtilde1, dtitAumlaut1,
+    dtitAring1, dtitAelig1, dtitCcedil1, dtitEgrave1, dtitEacute1, dtitEcirc1,
+    dtitEumlaut1, dtitIgrave1, dtitIacute1, dtitIcirc1, dtitIumlaut1, dtitEth1,
+    dtitNtilde1, dtitOgrave1, dtitOacute1, dtitOcirc1, dtitOtilde1,
+    dtitOumlaut1, dtitDivide, dtitOslash1, dtitUgrave1, dtitUacute1, dtitUcirc1,
+    dtitUumlaut1, dtitYacute1, dtitThorn1, dtitYumlaut, dtitFnof, dtitAlpha,
+    dtitBeta, dtitGamma, dtitDelta, dtitEpsilon, dtitZeta, dtitEta, dtitTheta,
+    dtitIota, dtitKappa, dtitLambda, dtitMu, dtitNu, dtitXi, dtitOmicron,
+    dtitPi, dtitRho, dtitSigma, dtitTau, dtitUpsilon, dtitPhi, dtitChi, dtitPsi,
+    dtitOmega, dtitAlpha1, dtitBeta1, dtitGamma1, dtitDelta1, dtitEpsilon1,
+    dtitZeta1, dtitEta1, dtitTheta1, dtitIota1, dtitKappa1, dtitLambda1,
+    dtitMu1, dtitNu1, dtitXi1, dtitOmicron1, dtitPi1, dtitRho1, dtitSigmaf,
+    dtitSigma1, dtitTau1, dtitUpsilon1, dtitPhi1, dtitChi1, dtitPsi1,
+    dtitOmega1, dtitThetasym, dtitUpsih, dtitPiv, dtitBull, dtitHellip,
+    dtitPrime, dtitPrime1, dtitOline, dtitFrasl, dtitWeierp, dtitImaginary,
+    dtitReal, dtitTrademark, dtitAlefsym, dtitLarr, dtitUarr, dtitRarr,
+    dtitDarr, dtitHarr, dtitCrarr, dtitLArr1, dtitUArr1, dtitRArr1, dtitDArr1,
+    dtitHArr1, dtitForall, dtitPart, dtitExist, dtitEmpty, dtitNabla, dtitIsin,
+    dtitNotin, dtitNi, dtitProd, dtitSum, dtitMinus, dtitLowast, dtitRadic,
+    dtitProp, dtitInfin, dtitAng, dtitAnd, dtitOr, dtitCap, dtitCup, dtitInt,
+    dtitThere4, dtitSim, dtitCong, dtitAsymp, dtitNe, dtitEquiv, dtitLe, dtitGe,
+    dtitSub, dtitSup, dtitNsub, dtitSube, dtitSupe, dtitOplus, dtitOtimes,
+    dtitPerp, dtitSdot, dtitLceil, dtitRceil, dtitLfloor, dtitRfloor, dtitLang,
+    dtitRang, dtitLoz, dtitSpades, dtitClubs, dtitHearts, dtitDiams, dtitOElig,
+    dtitOelig1, dtitScaron, dtitScaron1, dtitYumlaut1, dtitCirc, dtitTilde,
+    dtitEnsp, dtitEmsp, dtitThinsp, dtitZwnj, dtitZwj, dtitLrm, dtitRlm,
+    dtitNdash, dtitMdash, dtitLsquo, dtitRsquo, dtitSbquo, dtitLdquo, dtitRdquo,
+    dtitBdquo, dtitDagger, dtitDagger1, dtitPermil, dtitLsaquo, dtitRsaquo,
+    dtitEuro, dtitTm, dtitMixedStr
   DocTocItemTypeBody* = object
     case kind*: DocTocItemTypeKind
-    of dtitUlink6:
+    of dtitUlink:
         docURLLink*: DocURLLink
 
-    of dtitBold6, dtitS6, dtitStrike6, dtitUnderline6, dtitEmphasis6,
-       dtitComputeroutput6, dtitSubscript6, dtitSuperscript6, dtitCenter6,
-       dtitSmall6, dtitDel6, dtitIns6:
+    of dtitBold, dtitS, dtitStrike, dtitUnderline, dtitEmphasis,
+       dtitComputeroutput, dtitSubscript, dtitSuperscript, dtitCenter,
+       dtitSmall, dtitDel, dtitIns:
         docMarkupType*: DocMarkupType
 
-    of dtitHtmlonly6:
+    of dtitHtmlonly:
         docHtmlOnlyType*: DocHtmlOnlyType
 
-    of dtitManonly6, dtitXmlonly6, dtitRtfonly6, dtitLatexonly6,
-       dtitDocbookonly6:
+    of dtitManonly, dtitXmlonly, dtitRtfonly, dtitLatexonly, dtitDocbookonly:
         fString*: string
 
-    of dtitImage6, dtitDot6, dtitMsc6, dtitPlantuml6:
+    of dtitImage, dtitDot, dtitMsc, dtitPlantuml:
         docImageType*: DocImageType
 
-    of dtitAnchor6:
+    of dtitAnchor:
         docAnchorType*: DocAnchorType
 
-    of dtitFormula6:
+    of dtitFormula:
         docFormulaType*: DocFormulaType
 
-    of dtitRef8:
+    of dtitRef:
         docRefTextType*: DocRefTextType
 
-    of dtitEmoji6:
+    of dtitEmoji:
         docEmojiType*: DocEmojiType
 
-    of dtitLinebreak6, dtitNonbreakablespace6, dtitIexcl6, dtitCent6,
-       dtitPound6, dtitCurren6, dtitYen6, dtitBrvbar6, dtitSect6, dtitUmlaut6,
-       dtitCopy6, dtitOrdf6, dtitLaquo6, dtitNot6, dtitShy6, dtitRegistered6,
-       dtitMacr6, dtitDeg6, dtitPlusmn6, dtitSup26, dtitSup36, dtitAcute6,
-       dtitMicro6, dtitPara14, dtitMiddot6, dtitCedil6, dtitSup16, dtitOrdm6,
-       dtitRaquo6, dtitFrac146, dtitFrac126, dtitFrac346, dtitIquest6,
-       dtitAgrave12, dtitAacute12, dtitAcirc12, dtitAtilde12, dtitAumlaut12,
-       dtitAring12, dtitAElig12, dtitCcedil12, dtitEgrave12, dtitEacute12,
-       dtitEcirc12, dtitEumlaut12, dtitIgrave12, dtitIacute12, dtitIcirc12,
-       dtitIumlaut12, dtitETH12, dtitNtilde12, dtitOgrave12, dtitOacute12,
-       dtitOcirc12, dtitOtilde12, dtitOumlaut12, dtitTimes6, dtitOslash12,
-       dtitUgrave12, dtitUacute12, dtitUcirc12, dtitUumlaut12, dtitYacute12,
-       dtitTHORN12, dtitSzlig6, dtitAgrave13, dtitAacute13, dtitAcirc13,
-       dtitAtilde13, dtitAumlaut13, dtitAring13, dtitAelig13, dtitCcedil13,
-       dtitEgrave13, dtitEacute13, dtitEcirc13, dtitEumlaut13, dtitIgrave13,
-       dtitIacute13, dtitIcirc13, dtitIumlaut13, dtitEth13, dtitNtilde13,
-       dtitOgrave13, dtitOacute13, dtitOcirc13, dtitOtilde13, dtitOumlaut13,
-       dtitDivide6, dtitOslash13, dtitUgrave13, dtitUacute13, dtitUcirc13,
-       dtitUumlaut13, dtitYacute13, dtitThorn13, dtitYumlaut12, dtitFnof6,
-       dtitAlpha12, dtitBeta12, dtitGamma12, dtitDelta12, dtitEpsilon12,
-       dtitZeta12, dtitEta12, dtitTheta12, dtitIota12, dtitKappa12,
-       dtitLambda12, dtitMu12, dtitNu12, dtitXi12, dtitOmicron12, dtitPi12,
-       dtitRho12, dtitSigma12, dtitTau12, dtitUpsilon12, dtitPhi12, dtitChi12,
-       dtitPsi12, dtitOmega12, dtitAlpha13, dtitBeta13, dtitGamma13,
-       dtitDelta13, dtitEpsilon13, dtitZeta13, dtitEta13, dtitTheta13,
-       dtitIota13, dtitKappa13, dtitLambda13, dtitMu13, dtitNu13, dtitXi13,
-       dtitOmicron13, dtitPi13, dtitRho13, dtitSigmaf6, dtitSigma13, dtitTau13,
-       dtitUpsilon13, dtitPhi13, dtitChi13, dtitPsi13, dtitOmega13,
-       dtitThetasym6, dtitUpsih6, dtitPiv6, dtitBull6, dtitHellip6, dtitPrime12,
-       dtitPrime13, dtitOline6, dtitFrasl6, dtitWeierp6, dtitImaginary6,
-       dtitReal6, dtitTrademark6, dtitAlefsym6, dtitLarr12, dtitUarr12,
-       dtitRarr12, dtitDarr12, dtitHarr12, dtitCrarr6, dtitLArr13, dtitUArr13,
-       dtitRArr13, dtitDArr13, dtitHArr13, dtitForall6, dtitPart6, dtitExist6,
-       dtitEmpty6, dtitNabla6, dtitIsin6, dtitNotin6, dtitNi6, dtitProd6,
-       dtitSum6, dtitMinus6, dtitLowast6, dtitRadic6, dtitProp6, dtitInfin6,
-       dtitAng6, dtitAnd6, dtitOr6, dtitCap6, dtitCup6, dtitInt6, dtitThere46,
-       dtitSim6, dtitCong6, dtitAsymp6, dtitNe6, dtitEquiv6, dtitLe6, dtitGe6,
-       dtitSub6, dtitSup6, dtitNsub6, dtitSube6, dtitSupe6, dtitOplus6,
-       dtitOtimes6, dtitPerp6, dtitSdot6, dtitLceil6, dtitRceil6, dtitLfloor6,
-       dtitRfloor6, dtitLang6, dtitRang6, dtitLoz6, dtitSpades6, dtitClubs6,
-       dtitHearts6, dtitDiams6, dtitOElig12, dtitOelig13, dtitScaron12,
-       dtitScaron13, dtitYumlaut13, dtitCirc6, dtitTilde6, dtitEnsp6, dtitEmsp6,
-       dtitThinsp6, dtitZwnj6, dtitZwj6, dtitLrm6, dtitRlm6, dtitNdash6,
-       dtitMdash6, dtitLsquo6, dtitRsquo6, dtitSbquo6, dtitLdquo6, dtitRdquo6,
-       dtitBdquo6, dtitDagger12, dtitDagger13, dtitPermil6, dtitLsaquo6,
-       dtitRsaquo6, dtitEuro6, dtitTm6:
+    of dtitLinebreak, dtitNonbreakablespace, dtitIexcl, dtitCent, dtitPound,
+       dtitCurren, dtitYen, dtitBrvbar, dtitSect, dtitUmlaut, dtitCopy,
+       dtitOrdf, dtitLaquo, dtitNot, dtitShy, dtitRegistered, dtitMacr, dtitDeg,
+       dtitPlusmn, dtitSup2, dtitSup3, dtitAcute, dtitMicro, dtitPara,
+       dtitMiddot, dtitCedil, dtitSup1, dtitOrdm, dtitRaquo, dtitFrac14,
+       dtitFrac12, dtitFrac34, dtitIquest, dtitAgrave, dtitAacute, dtitAcirc,
+       dtitAtilde, dtitAumlaut, dtitAring, dtitAElig, dtitCcedil, dtitEgrave,
+       dtitEacute, dtitEcirc, dtitEumlaut, dtitIgrave, dtitIacute, dtitIcirc,
+       dtitIumlaut, dtitETH, dtitNtilde, dtitOgrave, dtitOacute, dtitOcirc,
+       dtitOtilde, dtitOumlaut, dtitTimes, dtitOslash, dtitUgrave, dtitUacute,
+       dtitUcirc, dtitUumlaut, dtitYacute, dtitTHORN, dtitSzlig, dtitAgrave1,
+       dtitAacute1, dtitAcirc1, dtitAtilde1, dtitAumlaut1, dtitAring1,
+       dtitAelig1, dtitCcedil1, dtitEgrave1, dtitEacute1, dtitEcirc1,
+       dtitEumlaut1, dtitIgrave1, dtitIacute1, dtitIcirc1, dtitIumlaut1,
+       dtitEth1, dtitNtilde1, dtitOgrave1, dtitOacute1, dtitOcirc1, dtitOtilde1,
+       dtitOumlaut1, dtitDivide, dtitOslash1, dtitUgrave1, dtitUacute1,
+       dtitUcirc1, dtitUumlaut1, dtitYacute1, dtitThorn1, dtitYumlaut, dtitFnof,
+       dtitAlpha, dtitBeta, dtitGamma, dtitDelta, dtitEpsilon, dtitZeta,
+       dtitEta, dtitTheta, dtitIota, dtitKappa, dtitLambda, dtitMu, dtitNu,
+       dtitXi, dtitOmicron, dtitPi, dtitRho, dtitSigma, dtitTau, dtitUpsilon,
+       dtitPhi, dtitChi, dtitPsi, dtitOmega, dtitAlpha1, dtitBeta1, dtitGamma1,
+       dtitDelta1, dtitEpsilon1, dtitZeta1, dtitEta1, dtitTheta1, dtitIota1,
+       dtitKappa1, dtitLambda1, dtitMu1, dtitNu1, dtitXi1, dtitOmicron1,
+       dtitPi1, dtitRho1, dtitSigmaf, dtitSigma1, dtitTau1, dtitUpsilon1,
+       dtitPhi1, dtitChi1, dtitPsi1, dtitOmega1, dtitThetasym, dtitUpsih,
+       dtitPiv, dtitBull, dtitHellip, dtitPrime, dtitPrime1, dtitOline,
+       dtitFrasl, dtitWeierp, dtitImaginary, dtitReal, dtitTrademark,
+       dtitAlefsym, dtitLarr, dtitUarr, dtitRarr, dtitDarr, dtitHarr, dtitCrarr,
+       dtitLArr1, dtitUArr1, dtitRArr1, dtitDArr1, dtitHArr1, dtitForall,
+       dtitPart, dtitExist, dtitEmpty, dtitNabla, dtitIsin, dtitNotin, dtitNi,
+       dtitProd, dtitSum, dtitMinus, dtitLowast, dtitRadic, dtitProp, dtitInfin,
+       dtitAng, dtitAnd, dtitOr, dtitCap, dtitCup, dtitInt, dtitThere4, dtitSim,
+       dtitCong, dtitAsymp, dtitNe, dtitEquiv, dtitLe, dtitGe, dtitSub, dtitSup,
+       dtitNsub, dtitSube, dtitSupe, dtitOplus, dtitOtimes, dtitPerp, dtitSdot,
+       dtitLceil, dtitRceil, dtitLfloor, dtitRfloor, dtitLang, dtitRang,
+       dtitLoz, dtitSpades, dtitClubs, dtitHearts, dtitDiams, dtitOElig,
+       dtitOelig1, dtitScaron, dtitScaron1, dtitYumlaut1, dtitCirc, dtitTilde,
+       dtitEnsp, dtitEmsp, dtitThinsp, dtitZwnj, dtitZwj, dtitLrm, dtitRlm,
+       dtitNdash, dtitMdash, dtitLsquo, dtitRsquo, dtitSbquo, dtitLdquo,
+       dtitRdquo, dtitBdquo, dtitDagger, dtitDagger1, dtitPermil, dtitLsaquo,
+       dtitRsaquo, dtitEuro, dtitTm:
         docEmptyType*: DocEmptyType
 
-    of dtitMixedStr25:
+    of dtitMixedStr:
         mixedStr*: string
 
   
@@ -1594,13 +1541,13 @@ type
     parametername*: seq[DocParamName]
 
   DocParamTypeKind* = enum
-    doptRef9, doptMixedStr26
+    doptRef, doptMixedStr
   DocParamTypeBody* = object
     case kind*: DocParamTypeKind
-    of doptRef9:
+    of doptRef:
         refTextType*: RefTextType
 
-    of doptMixedStr26:
+    of doptMixedStr:
         mixedStr*: string
 
   
@@ -1608,13 +1555,13 @@ type
     xsdChoice*: seq[DocParamTypeBody]
 
   DocParamNameKind* = enum
-    dpnRef10, dpnMixedStr27
+    dpnRef, dpnMixedStr
   DocParamNameBody* = object
     case kind*: DocParamNameKind
-    of dpnRef10:
+    of dpnRef:
         refTextType*: RefTextType
 
-    of dpnMixedStr27:
+    of dpnMixedStr:
         mixedStr*: string
 
   
@@ -2084,7 +2031,7 @@ proc loadXml*(parser: var HXmlParser; target: var DoxVerticalAlign; tag: string)
 
 proc loadXml*(parser: var HXmlParser; target: var DoxygenType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2096,14 +2043,15 @@ proc loadXml*(parser: var HXmlParser; target: var DoxygenType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "compounddef":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.compounddef, "compounddef")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2119,14 +2067,14 @@ proc loadXml*(parser: var HXmlParser; target: var DoxygenType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var CompounddefType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2152,83 +2100,84 @@ proc loadXml*(parser: var HXmlParser; target: var CompounddefType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "compoundname":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.compoundname, "compoundname")
       of "title":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.title, "title")
       of "basecompoundref":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.basecompoundref, "basecompoundref")
       of "derivedcompoundref":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.derivedcompoundref, "derivedcompoundref")
       of "includes":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.includes, "includes")
       of "includedby":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.includedby, "includedby")
       of "incdepgraph":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.incdepgraph, "incdepgraph")
       of "invincdepgraph":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.invincdepgraph, "invincdepgraph")
       of "innerdir":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.innerdir, "innerdir")
       of "innerfile":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.innerfile, "innerfile")
       of "innerclass":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.innerclass, "innerclass")
       of "innernamespace":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.innernamespace, "innernamespace")
       of "innerpage":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.innerpage, "innerpage")
       of "innergroup":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.innergroup, "innergroup")
       of "templateparamlist":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.templateparamlist, "templateparamlist")
       of "sectiondef":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.sectiondef, "sectiondef")
       of "tableofcontents":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.tableofcontents, "tableofcontents")
       of "briefdescription":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.briefdescription, "briefdescription")
       of "detaileddescription":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.detaileddescription, "detaileddescription")
       of "inheritancegraph":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.inheritancegraph, "inheritancegraph")
       of "collaborationgraph":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.collaborationgraph, "collaborationgraph")
       of "programlisting":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.programlisting, "programlisting")
       of "location":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.location, "location")
       of "listofallmembers":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.listofallmembers, "listofallmembers")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2244,14 +2193,14 @@ proc loadXml*(parser: var HXmlParser; target: var CompounddefType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var ListofallmembersType;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2261,14 +2210,15 @@ proc loadXml*(parser: var HXmlParser; target: var ListofallmembersType;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "member":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.member, "member")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2284,14 +2234,14 @@ proc loadXml*(parser: var HXmlParser; target: var ListofallmembersType;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var MemberRefType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2309,17 +2259,18 @@ proc loadXml*(parser: var HXmlParser; target: var MemberRefType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "scope":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.scope, "scope")
       of "name":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.name, "name")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2335,14 +2286,14 @@ proc loadXml*(parser: var HXmlParser; target: var MemberRefType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocHtmlOnlyType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2354,16 +2305,17 @@ proc loadXml*(parser: var HXmlParser; target: var DocHtmlOnlyType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 557:8:xml_to_types.nim
+      ## 559:8:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       target.baseExt = tmp
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2379,14 +2331,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocHtmlOnlyType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var CompoundRefType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2402,16 +2354,17 @@ proc loadXml*(parser: var HXmlParser; target: var CompoundRefType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 557:8:xml_to_types.nim
+      ## 559:8:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       target.baseExt = tmp
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2427,14 +2380,14 @@ proc loadXml*(parser: var HXmlParser; target: var CompoundRefType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var ReimplementType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2446,16 +2399,17 @@ proc loadXml*(parser: var HXmlParser; target: var ReimplementType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 557:8:xml_to_types.nim
+      ## 559:8:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       target.baseExt = tmp
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2471,14 +2425,14 @@ proc loadXml*(parser: var HXmlParser; target: var ReimplementType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var IncType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2492,16 +2446,17 @@ proc loadXml*(parser: var HXmlParser; target: var IncType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 557:8:xml_to_types.nim
+      ## 559:8:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       target.baseExt = tmp
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2517,14 +2472,14 @@ proc loadXml*(parser: var HXmlParser; target: var IncType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var RefType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2540,16 +2495,17 @@ proc loadXml*(parser: var HXmlParser; target: var RefType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 557:8:xml_to_types.nim
+      ## 559:8:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       target.baseExt = tmp
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2565,14 +2521,14 @@ proc loadXml*(parser: var HXmlParser; target: var RefType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var RefTextType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2590,16 +2546,17 @@ proc loadXml*(parser: var HXmlParser; target: var RefTextType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 557:8:xml_to_types.nim
+      ## 559:8:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       target.baseExt = tmp
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2615,14 +2572,14 @@ proc loadXml*(parser: var HXmlParser; target: var RefTextType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var SectiondefType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2634,20 +2591,21 @@ proc loadXml*(parser: var HXmlParser; target: var SectiondefType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "header":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.header, "header")
       of "description":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.description, "description")
       of "memberdef":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.memberdef, "memberdef")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2663,14 +2621,14 @@ proc loadXml*(parser: var HXmlParser; target: var SectiondefType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var MemberdefType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2764,71 +2722,72 @@ proc loadXml*(parser: var HXmlParser; target: var MemberdefType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "templateparamlist":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.templateparamlist, "templateparamlist")
       of "type":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.fType, "type")
       of "definition":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.definition, "definition")
       of "argsstring":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.argsstring, "argsstring")
       of "name":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.name, "name")
       of "read":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.read, "read")
       of "write":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.write, "write")
       of "bitfield":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.bitfield, "bitfield")
       of "reimplements":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.reimplements, "reimplements")
       of "reimplementedby":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.reimplementedby, "reimplementedby")
       of "param":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.param, "param")
       of "enumvalue":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.enumvalue, "enumvalue")
       of "initializer":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.initializer, "initializer")
       of "exceptions":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.exceptions, "exceptions")
       of "briefdescription":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.briefdescription, "briefdescription")
       of "detaileddescription":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.detaileddescription, "detaileddescription")
       of "inbodydescription":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.inbodydescription, "inbodydescription")
       of "location":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.location, "location")
       of "references":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.references, "references")
       of "referencedby":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.referencedby, "referencedby")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2844,14 +2803,14 @@ proc loadXml*(parser: var HXmlParser; target: var MemberdefType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DescriptionType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2861,39 +2820,40 @@ proc loadXml*(parser: var HXmlParser; target: var DescriptionType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       add(target.xsdChoice, DescriptionTypeBody(kind: dtMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "title":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, DescriptionTypeBody(kind: dtTitle1, fString: tmp))
+        add(target.xsdChoice, DescriptionTypeBody(kind: dtTitle, fString: tmp))
       of "para":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocParaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DescriptionTypeBody(kind: dtPara, docParaType: tmp))
       of "internal":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocInternalType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DescriptionTypeBody(kind: dtInternal, docInternalType: tmp))
       of "sect1":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocSect1Type
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DescriptionTypeBody(kind: dtSect1, docSect1Type: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2909,14 +2869,14 @@ proc loadXml*(parser: var HXmlParser; target: var DescriptionType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var EnumvalueType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2930,41 +2890,42 @@ proc loadXml*(parser: var HXmlParser; target: var EnumvalueType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice, EnumvalueTypeBody(kind: etMixedStr1, mixedStr: tmp))
+      add(target.xsdChoice, EnumvalueTypeBody(kind: etMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "name":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: XmlNode
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, EnumvalueTypeBody(kind: etName2, xmlNode: tmp))
+        add(target.xsdChoice, EnumvalueTypeBody(kind: etName, xmlNode: tmp))
       of "initializer":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: LinkedTextType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            EnumvalueTypeBody(kind: etInitializer1, linkedTextType: tmp))
+            EnumvalueTypeBody(kind: etInitializer, linkedTextType: tmp))
       of "briefdescription", "detaileddescription":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "briefdescription":
-          etBriefdescription2
+          etBriefdescription
         of "detaileddescription":
-          etDetaileddescription2
+          etDetaileddescription
         else:
-          etBriefdescription2
+          etBriefdescription
         var tmp: DescriptionType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = EnumvalueTypeBody(kind: kind)
         tmp2.descriptionType = tmp
         add(target.xsdChoice, tmp2)
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -2980,14 +2941,14 @@ proc loadXml*(parser: var HXmlParser; target: var EnumvalueType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var TemplateparamlistType;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -2997,14 +2958,15 @@ proc loadXml*(parser: var HXmlParser; target: var TemplateparamlistType;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "param":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.param, "param")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3020,14 +2982,14 @@ proc loadXml*(parser: var HXmlParser; target: var TemplateparamlistType;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var ParamType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3037,35 +2999,36 @@ proc loadXml*(parser: var HXmlParser; target: var ParamType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "attributes":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.attributes, "attributes")
       of "type":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.fType, "type")
       of "declname":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.declname, "declname")
       of "defname":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.defname, "defname")
       of "array":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.array, "array")
       of "defval":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.defval, "defval")
       of "typeconstraint":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.typeconstraint, "typeconstraint")
       of "briefdescription":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.briefdescription, "briefdescription")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3081,14 +3044,14 @@ proc loadXml*(parser: var HXmlParser; target: var ParamType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var LinkedTextType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3098,22 +3061,22 @@ proc loadXml*(parser: var HXmlParser; target: var LinkedTextType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice,
-          LinkedTextTypeBody(kind: lttMixedStr2, mixedStr: tmp))
+      add(target.xsdChoice, LinkedTextTypeBody(kind: lttMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: RefTextType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice, LinkedTextTypeBody(kind: lttRef, refTextType: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3129,14 +3092,14 @@ proc loadXml*(parser: var HXmlParser; target: var LinkedTextType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var GraphType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3146,14 +3109,15 @@ proc loadXml*(parser: var HXmlParser; target: var GraphType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "node":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.node, "node")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3169,14 +3133,14 @@ proc loadXml*(parser: var HXmlParser; target: var GraphType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var NodeType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3188,20 +3152,21 @@ proc loadXml*(parser: var HXmlParser; target: var NodeType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "label":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.label, "label")
       of "link":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.link, "link")
       of "childnode":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.childnode, "childnode")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3217,14 +3182,14 @@ proc loadXml*(parser: var HXmlParser; target: var NodeType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var ChildnodeType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3238,14 +3203,15 @@ proc loadXml*(parser: var HXmlParser; target: var ChildnodeType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "edgelabel":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.edgelabel, "edgelabel")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3261,14 +3227,14 @@ proc loadXml*(parser: var HXmlParser; target: var ChildnodeType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var LinkType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3282,11 +3248,12 @@ proc loadXml*(parser: var HXmlParser; target: var LinkType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3302,14 +3269,14 @@ proc loadXml*(parser: var HXmlParser; target: var LinkType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var ListingType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3321,14 +3288,15 @@ proc loadXml*(parser: var HXmlParser; target: var ListingType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "codeline":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.codeline, "codeline")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3344,14 +3312,14 @@ proc loadXml*(parser: var HXmlParser; target: var ListingType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var CodelineType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3369,14 +3337,15 @@ proc loadXml*(parser: var HXmlParser; target: var CodelineType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "highlight":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.highlight, "highlight")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3392,14 +3361,14 @@ proc loadXml*(parser: var HXmlParser; target: var CodelineType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var HighlightType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3411,26 +3380,27 @@ proc loadXml*(parser: var HXmlParser; target: var HighlightType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice, HighlightTypeBody(kind: htMixedStr3, mixedStr: tmp))
+      add(target.xsdChoice, HighlightTypeBody(kind: htMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "sp":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: SpType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice, HighlightTypeBody(kind: htSp, spType: tmp))
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: RefTextType
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, HighlightTypeBody(kind: htRef1, refTextType: tmp))
+        add(target.xsdChoice, HighlightTypeBody(kind: htRef, refTextType: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3446,14 +3416,14 @@ proc loadXml*(parser: var HXmlParser; target: var HighlightType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var SpType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3465,16 +3435,17 @@ proc loadXml*(parser: var HXmlParser; target: var SpType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice, SpTypeBody(kind: stMixedStr4, mixedStr: tmp))
+      add(target.xsdChoice, SpTypeBody(kind: stMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3490,14 +3461,14 @@ proc loadXml*(parser: var HXmlParser; target: var SpType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var ReferenceType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3515,16 +3486,17 @@ proc loadXml*(parser: var HXmlParser; target: var ReferenceType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice, ReferenceTypeBody(kind: rtMixedStr5, mixedStr: tmp))
+      add(target.xsdChoice, ReferenceTypeBody(kind: rtMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3540,14 +3512,14 @@ proc loadXml*(parser: var HXmlParser; target: var ReferenceType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var LocationType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3575,11 +3547,12 @@ proc loadXml*(parser: var HXmlParser; target: var LocationType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3595,14 +3568,14 @@ proc loadXml*(parser: var HXmlParser; target: var LocationType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocSect1Type; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3614,21 +3587,22 @@ proc loadXml*(parser: var HXmlParser; target: var DocSect1Type; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice, DocSect1TypeBody(kind: dstMixedStr6, mixedStr: tmp))
+      add(target.xsdChoice, DocSect1TypeBody(kind: dstMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "title":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, DocSect1TypeBody(kind: dstTitle2, fString: tmp))
+        add(target.xsdChoice, DocSect1TypeBody(kind: dstTitle, fString: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3644,14 +3618,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocSect1Type; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocSect2Type; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3663,21 +3637,22 @@ proc loadXml*(parser: var HXmlParser; target: var DocSect2Type; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice, DocSect2TypeBody(kind: dostMixedStr7, mixedStr: tmp))
+      add(target.xsdChoice, DocSect2TypeBody(kind: dostMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "title":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, DocSect2TypeBody(kind: dostTitle3, fString: tmp))
+        add(target.xsdChoice, DocSect2TypeBody(kind: dostTitle, fString: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3693,14 +3668,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocSect2Type; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocSect3Type; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3712,22 +3687,22 @@ proc loadXml*(parser: var HXmlParser; target: var DocSect3Type; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice,
-          DocSect3TypeBody(kind: docstMixedStr8, mixedStr: tmp))
+      add(target.xsdChoice, DocSect3TypeBody(kind: docstMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "title":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, DocSect3TypeBody(kind: docstTitle4, fString: tmp))
+        add(target.xsdChoice, DocSect3TypeBody(kind: docstTitle, fString: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3743,14 +3718,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocSect3Type; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocSect4Type; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3762,22 +3737,23 @@ proc loadXml*(parser: var HXmlParser; target: var DocSect4Type; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       add(target.xsdChoice,
-          DocSect4TypeBody(kind: docsetMixedStr9, mixedStr: tmp))
+          DocSect4TypeBody(kind: docsetMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "title":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, DocSect4TypeBody(kind: docsetTitle5, fString: tmp))
+        add(target.xsdChoice, DocSect4TypeBody(kind: docsetTitle, fString: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3793,14 +3769,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocSect4Type; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocInternalType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3810,29 +3786,30 @@ proc loadXml*(parser: var HXmlParser; target: var DocInternalType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       add(target.xsdChoice,
-          DocInternalTypeBody(kind: ditMixedStr10, mixedStr: tmp))
+          DocInternalTypeBody(kind: ditMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocParaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocInternalTypeBody(kind: ditPara1, docParaType: tmp))
+            DocInternalTypeBody(kind: ditPara, docParaType: tmp))
       of "sect1":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocSect1Type
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocInternalTypeBody(kind: ditSect11, docSect1Type: tmp))
+            DocInternalTypeBody(kind: ditSect1, docSect1Type: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3848,14 +3825,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocInternalType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocInternalS1Type;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3865,29 +3842,30 @@ proc loadXml*(parser: var HXmlParser; target: var DocInternalS1Type;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       add(target.xsdChoice,
-          DocInternalS1TypeBody(kind: distMixedStr11, mixedStr: tmp))
+          DocInternalS1TypeBody(kind: distMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocParaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocInternalS1TypeBody(kind: distPara2, docParaType: tmp))
+            DocInternalS1TypeBody(kind: distPara, docParaType: tmp))
       of "sect2":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocSect2Type
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocInternalS1TypeBody(kind: distSect2, docSect2Type: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3903,14 +3881,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocInternalS1Type;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocInternalS2Type;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3920,29 +3898,30 @@ proc loadXml*(parser: var HXmlParser; target: var DocInternalS2Type;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       add(target.xsdChoice,
-          DocInternalS2TypeBody(kind: dis2tMixedStr12, mixedStr: tmp))
+          DocInternalS2TypeBody(kind: dis2tMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocParaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocInternalS2TypeBody(kind: dis2tPara3, docParaType: tmp))
+            DocInternalS2TypeBody(kind: dis2tPara, docParaType: tmp))
       of "sect3":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocSect3Type
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocInternalS2TypeBody(kind: dis2tSect3, docSect3Type: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -3958,14 +3937,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocInternalS2Type;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocInternalS3Type;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -3975,29 +3954,30 @@ proc loadXml*(parser: var HXmlParser; target: var DocInternalS3Type;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       add(target.xsdChoice,
-          DocInternalS3TypeBody(kind: dis3tMixedStr13, mixedStr: tmp))
+          DocInternalS3TypeBody(kind: dis3tMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocParaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocInternalS3TypeBody(kind: dis3tPara4, docParaType: tmp))
+            DocInternalS3TypeBody(kind: dis3tPara, docParaType: tmp))
       of "sect3":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocSect4Type
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocInternalS3TypeBody(kind: dis3tSect31, docSect4Type: tmp))
+            DocInternalS3TypeBody(kind: dis3tSect3, docSect4Type: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -4013,14 +3993,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocInternalS3Type;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocInternalS4Type;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -4030,23 +4010,24 @@ proc loadXml*(parser: var HXmlParser; target: var DocInternalS4Type;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       add(target.xsdChoice,
-          DocInternalS4TypeBody(kind: dis4tMixedStr14, mixedStr: tmp))
+          DocInternalS4TypeBody(kind: dis4tMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocParaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocInternalS4TypeBody(kind: dis4tPara5, docParaType: tmp))
+            DocInternalS4TypeBody(kind: dis4tPara, docParaType: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -4062,14 +4043,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocInternalS4Type;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocTitleType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -4079,22 +4060,23 @@ proc loadXml*(parser: var HXmlParser; target: var DocTitleType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice, DocTitleTypeBody(kind: dttMixedStr15, mixedStr: tmp))
+      add(target.xsdChoice, DocTitleTypeBody(kind: dttMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "ulink":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocURLLink
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice, DocTitleTypeBody(kind: dttUlink, docURLLink: tmp))
       of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
          "subscript", "superscript", "center", "small", "del", "ins":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "bold":
           dttBold
@@ -4128,13 +4110,13 @@ proc loadXml*(parser: var HXmlParser; target: var DocTitleType; tag: string;
         tmp2.docMarkupType = tmp
         add(target.xsdChoice, tmp2)
       of "htmlonly":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocHtmlOnlyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocTitleTypeBody(kind: dttHtmlonly, docHtmlOnlyType: tmp))
       of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "manonly":
           dttManonly
@@ -4154,7 +4136,7 @@ proc loadXml*(parser: var HXmlParser; target: var DocTitleType; tag: string;
         tmp2.fString = tmp
         add(target.xsdChoice, tmp2)
       of "image", "dot", "msc", "plantuml":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "image":
           dttImage
@@ -4172,25 +4154,25 @@ proc loadXml*(parser: var HXmlParser; target: var DocTitleType; tag: string;
         tmp2.docImageType = tmp
         add(target.xsdChoice, tmp2)
       of "anchor":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocAnchorType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocTitleTypeBody(kind: dttAnchor, docAnchorType: tmp))
       of "formula":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocFormulaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocTitleTypeBody(kind: dttFormula, docFormulaType: tmp))
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocRefTextType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocTitleTypeBody(kind: dttRef2, docRefTextType: tmp))
+            DocTitleTypeBody(kind: dttRef, docRefTextType: tmp))
       of "emoji":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocEmojiType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
@@ -4228,7 +4210,7 @@ proc loadXml*(parser: var HXmlParser; target: var DocTitleType; tag: string;
          "ensp", "emsp", "thinsp", "zwnj", "zwj", "lrm", "rlm", "ndash",
          "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo", "bdquo",
          "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro", "tm":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "linebreak":
           dttLinebreak
@@ -4277,7 +4259,7 @@ proc loadXml*(parser: var HXmlParser; target: var DocTitleType; tag: string;
         of "micro":
           dttMicro
         of "para":
-          dttPara6
+          dttPara
         of "middot":
           dttMiddot
         of "cedil":
@@ -4738,7 +4720,7 @@ proc loadXml*(parser: var HXmlParser; target: var DocTitleType; tag: string;
         tmp2.docEmptyType = tmp
         add(target.xsdChoice, tmp2)
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -4754,14 +4736,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocTitleType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocParaType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -4771,45 +4753,46 @@ proc loadXml*(parser: var HXmlParser; target: var DocParaType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice, DocParaTypeBody(kind: dptMixedStr16, mixedStr: tmp))
+      add(target.xsdChoice, DocParaTypeBody(kind: dptMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "hruler":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocEmptyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptHruler, docEmptyType: tmp))
       of "preformatted":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocMarkupType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptPreformatted, docMarkupType: tmp))
       of "programlisting":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: ListingType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocParaTypeBody(kind: dptProgramlisting1, listingType: tmp))
+            DocParaTypeBody(kind: dptProgramlisting, listingType: tmp))
       of "verbatim":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice, DocParaTypeBody(kind: dptVerbatim, fString: tmp))
       of "indexentry":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocIndexEntryType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptIndexentry, docIndexEntryType: tmp))
       of "orderedlist", "itemizedlist":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "orderedlist":
           dptOrderedlist
@@ -4823,36 +4806,35 @@ proc loadXml*(parser: var HXmlParser; target: var DocParaType; tag: string;
         tmp2.docListType = tmp
         add(target.xsdChoice, tmp2)
       of "simplesect":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocSimpleSectType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptSimplesect, docSimpleSectType: tmp))
       of "title":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocTitleType
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice,
-            DocParaTypeBody(kind: dptTitle6, docTitleType: tmp))
+        add(target.xsdChoice, DocParaTypeBody(kind: dptTitle, docTitleType: tmp))
       of "variablelist":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocVariableListType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptVariablelist, docVariableListType: tmp))
       of "table":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocTableType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice, DocParaTypeBody(kind: dptTable, docTableType: tmp))
       of "heading":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocHeadingType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptHeading, docHeadingType: tmp))
       of "dotfile", "mscfile", "diafile":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "dotfile":
           dptDotfile
@@ -4868,49 +4850,49 @@ proc loadXml*(parser: var HXmlParser; target: var DocParaType; tag: string;
         tmp2.docImageType = tmp
         add(target.xsdChoice, tmp2)
       of "toclist":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocTocListType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptToclist, docTocListType: tmp))
       of "language":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocLanguageType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptLanguage, docLanguageType: tmp))
       of "parameterlist":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocParamListType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptParameterlist, docParamListType: tmp))
       of "xrefsect":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocXRefSectType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptXrefsect, docXRefSectType: tmp))
       of "copydoc":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocCopyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptCopydoc, docCopyType: tmp))
       of "blockquote":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocBlockQuoteType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptBlockquote, docBlockQuoteType: tmp))
       of "parblock":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocParBlockType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
             DocParaTypeBody(kind: dptParblock, docParBlockType: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -4926,14 +4908,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocParaType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocMarkupType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -4943,149 +4925,148 @@ proc loadXml*(parser: var HXmlParser; target: var DocMarkupType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice,
-          DocMarkupTypeBody(kind: dmtMixedStr17, mixedStr: tmp))
+      add(target.xsdChoice, DocMarkupTypeBody(kind: dmtMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "hruler":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocEmptyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtHruler1, docEmptyType: tmp))
+            DocMarkupTypeBody(kind: dmtHruler, docEmptyType: tmp))
       of "preformatted":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocMarkupType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtPreformatted1, docMarkupType: tmp))
+            DocMarkupTypeBody(kind: dmtPreformatted, docMarkupType: tmp))
       of "programlisting":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: ListingType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtProgramlisting2, listingType: tmp))
+            DocMarkupTypeBody(kind: dmtProgramlisting, listingType: tmp))
       of "verbatim":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtVerbatim1, fString: tmp))
+        add(target.xsdChoice, DocMarkupTypeBody(kind: dmtVerbatim, fString: tmp))
       of "indexentry":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocIndexEntryType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtIndexentry1, docIndexEntryType: tmp))
+            DocMarkupTypeBody(kind: dmtIndexentry, docIndexEntryType: tmp))
       of "orderedlist", "itemizedlist":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "orderedlist":
-          dmtOrderedlist1
+          dmtOrderedlist
         of "itemizedlist":
-          dmtItemizedlist1
+          dmtItemizedlist
         else:
-          dmtOrderedlist1
+          dmtOrderedlist
         var tmp: DocListType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocMarkupTypeBody(kind: kind)
         tmp2.docListType = tmp
         add(target.xsdChoice, tmp2)
       of "simplesect":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocSimpleSectType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtSimplesect1, docSimpleSectType: tmp))
+            DocMarkupTypeBody(kind: dmtSimplesect, docSimpleSectType: tmp))
       of "title":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocTitleType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtTitle7, docTitleType: tmp))
+            DocMarkupTypeBody(kind: dmtTitle, docTitleType: tmp))
       of "variablelist":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocVariableListType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtVariablelist1, docVariableListType: tmp))
+            DocMarkupTypeBody(kind: dmtVariablelist, docVariableListType: tmp))
       of "table":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocTableType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtTable1, docTableType: tmp))
+            DocMarkupTypeBody(kind: dmtTable, docTableType: tmp))
       of "heading":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocHeadingType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtHeading1, docHeadingType: tmp))
+            DocMarkupTypeBody(kind: dmtHeading, docHeadingType: tmp))
       of "dotfile", "mscfile", "diafile":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "dotfile":
-          dmtDotfile1
+          dmtDotfile
         of "mscfile":
-          dmtMscfile1
+          dmtMscfile
         of "diafile":
-          dmtDiafile1
+          dmtDiafile
         else:
-          dmtDotfile1
+          dmtDotfile
         var tmp: DocImageType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocMarkupTypeBody(kind: kind)
         tmp2.docImageType = tmp
         add(target.xsdChoice, tmp2)
       of "toclist":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocTocListType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtToclist1, docTocListType: tmp))
+            DocMarkupTypeBody(kind: dmtToclist, docTocListType: tmp))
       of "language":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocLanguageType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtLanguage1, docLanguageType: tmp))
+            DocMarkupTypeBody(kind: dmtLanguage, docLanguageType: tmp))
       of "parameterlist":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocParamListType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtParameterlist1, docParamListType: tmp))
+            DocMarkupTypeBody(kind: dmtParameterlist, docParamListType: tmp))
       of "xrefsect":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocXRefSectType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtXrefsect1, docXRefSectType: tmp))
+            DocMarkupTypeBody(kind: dmtXrefsect, docXRefSectType: tmp))
       of "copydoc":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocCopyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtCopydoc1, docCopyType: tmp))
+            DocMarkupTypeBody(kind: dmtCopydoc, docCopyType: tmp))
       of "blockquote":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocBlockQuoteType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtBlockquote1, docBlockQuoteType: tmp))
+            DocMarkupTypeBody(kind: dmtBlockquote, docBlockQuoteType: tmp))
       of "parblock":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocParBlockType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocMarkupTypeBody(kind: dmtParblock1, docParBlockType: tmp))
+            DocMarkupTypeBody(kind: dmtParblock, docParBlockType: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -5101,14 +5082,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocMarkupType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocURLLink; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -5120,120 +5101,121 @@ proc loadXml*(parser: var HXmlParser; target: var DocURLLink; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice, DocURLLinkBody(kind: dulMixedStr18, mixedStr: tmp))
+      add(target.xsdChoice, DocURLLinkBody(kind: dulMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "ulink":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocURLLink
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, DocURLLinkBody(kind: dulUlink1, docURLLink: tmp))
+        add(target.xsdChoice, DocURLLinkBody(kind: dulUlink, docURLLink: tmp))
       of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
          "subscript", "superscript", "center", "small", "del", "ins":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "bold":
-          dulBold1
+          dulBold
         of "s":
-          dulS1
+          dulS
         of "strike":
-          dulStrike1
+          dulStrike
         of "underline":
-          dulUnderline1
+          dulUnderline
         of "emphasis":
-          dulEmphasis1
+          dulEmphasis
         of "computeroutput":
-          dulComputeroutput1
+          dulComputeroutput
         of "subscript":
-          dulSubscript1
+          dulSubscript
         of "superscript":
-          dulSuperscript1
+          dulSuperscript
         of "center":
-          dulCenter1
+          dulCenter
         of "small":
-          dulSmall1
+          dulSmall
         of "del":
-          dulDel1
+          dulDel
         of "ins":
-          dulIns1
+          dulIns
         else:
-          dulBold1
+          dulBold
         var tmp: DocMarkupType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocURLLinkBody(kind: kind)
         tmp2.docMarkupType = tmp
         add(target.xsdChoice, tmp2)
       of "htmlonly":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocHtmlOnlyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocURLLinkBody(kind: dulHtmlonly1, docHtmlOnlyType: tmp))
+            DocURLLinkBody(kind: dulHtmlonly, docHtmlOnlyType: tmp))
       of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "manonly":
-          dulManonly1
+          dulManonly
         of "xmlonly":
-          dulXmlonly1
+          dulXmlonly
         of "rtfonly":
-          dulRtfonly1
+          dulRtfonly
         of "latexonly":
-          dulLatexonly1
+          dulLatexonly
         of "docbookonly":
-          dulDocbookonly1
+          dulDocbookonly
         else:
-          dulManonly1
+          dulManonly
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocURLLinkBody(kind: kind)
         tmp2.fString = tmp
         add(target.xsdChoice, tmp2)
       of "image", "dot", "msc", "plantuml":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "image":
-          dulImage1
+          dulImage
         of "dot":
-          dulDot1
+          dulDot
         of "msc":
-          dulMsc1
+          dulMsc
         of "plantuml":
-          dulPlantuml1
+          dulPlantuml
         else:
-          dulImage1
+          dulImage
         var tmp: DocImageType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocURLLinkBody(kind: kind)
         tmp2.docImageType = tmp
         add(target.xsdChoice, tmp2)
       of "anchor":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocAnchorType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocURLLinkBody(kind: dulAnchor1, docAnchorType: tmp))
+            DocURLLinkBody(kind: dulAnchor, docAnchorType: tmp))
       of "formula":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocFormulaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocURLLinkBody(kind: dulFormula1, docFormulaType: tmp))
+            DocURLLinkBody(kind: dulFormula, docFormulaType: tmp))
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocRefTextType
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, DocURLLinkBody(kind: dulRef3, docRefTextType: tmp))
+        add(target.xsdChoice, DocURLLinkBody(kind: dulRef, docRefTextType: tmp))
       of "emoji":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocEmojiType
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, DocURLLinkBody(kind: dulEmoji1, docEmojiType: tmp))
+        add(target.xsdChoice, DocURLLinkBody(kind: dulEmoji, docEmojiType: tmp))
       of "linebreak", "nonbreakablespace", "iexcl", "cent", "pound", "curren",
          "yen", "brvbar", "sect", "umlaut", "copy", "ordf", "laquo", "not",
          "shy", "registered", "macr", "deg", "plusmn", "sup2", "sup3", "acute",
@@ -5267,517 +5249,517 @@ proc loadXml*(parser: var HXmlParser; target: var DocURLLink; tag: string;
          "ensp", "emsp", "thinsp", "zwnj", "zwj", "lrm", "rlm", "ndash",
          "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo", "bdquo",
          "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro", "tm":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "linebreak":
-          dulLinebreak1
+          dulLinebreak
         of "nonbreakablespace":
-          dulNonbreakablespace1
+          dulNonbreakablespace
         of "iexcl":
-          dulIexcl1
+          dulIexcl
         of "cent":
-          dulCent1
+          dulCent
         of "pound":
-          dulPound1
+          dulPound
         of "curren":
-          dulCurren1
+          dulCurren
         of "yen":
-          dulYen1
+          dulYen
         of "brvbar":
-          dulBrvbar1
+          dulBrvbar
         of "sect":
-          dulSect1
+          dulSect
         of "umlaut":
-          dulUmlaut1
+          dulUmlaut
         of "copy":
-          dulCopy1
+          dulCopy
         of "ordf":
-          dulOrdf1
+          dulOrdf
         of "laquo":
-          dulLaquo1
+          dulLaquo
         of "not":
-          dulNot1
+          dulNot
         of "shy":
-          dulShy1
+          dulShy
         of "registered":
-          dulRegistered1
+          dulRegistered
         of "macr":
-          dulMacr1
+          dulMacr
         of "deg":
-          dulDeg1
+          dulDeg
         of "plusmn":
-          dulPlusmn1
+          dulPlusmn
         of "sup2":
-          dulSup21
+          dulSup2
         of "sup3":
-          dulSup31
+          dulSup3
         of "acute":
-          dulAcute1
+          dulAcute
         of "micro":
-          dulMicro1
+          dulMicro
         of "para":
-          dulPara7
+          dulPara
         of "middot":
-          dulMiddot1
+          dulMiddot
         of "cedil":
-          dulCedil1
+          dulCedil
         of "sup1":
-          dulSup11
-        of "ordm":
-          dulOrdm1
-        of "raquo":
-          dulRaquo1
-        of "frac14":
-          dulFrac141
-        of "frac12":
-          dulFrac121
-        of "frac34":
-          dulFrac341
-        of "iquest":
-          dulIquest1
-        of "Agrave":
-          dulAgrave2
-        of "Aacute":
-          dulAacute2
-        of "Acirc":
-          dulAcirc2
-        of "Atilde":
-          dulAtilde2
-        of "Aumlaut":
-          dulAumlaut2
-        of "Aring":
-          dulAring2
-        of "AElig":
-          dulAElig2
-        of "Ccedil":
-          dulCcedil2
-        of "Egrave":
-          dulEgrave2
-        of "Eacute":
-          dulEacute2
-        of "Ecirc":
-          dulEcirc2
-        of "Eumlaut":
-          dulEumlaut2
-        of "Igrave":
-          dulIgrave2
-        of "Iacute":
-          dulIacute2
-        of "Icirc":
-          dulIcirc2
-        of "Iumlaut":
-          dulIumlaut2
-        of "ETH":
-          dulETH2
-        of "Ntilde":
-          dulNtilde2
-        of "Ograve":
-          dulOgrave2
-        of "Oacute":
-          dulOacute2
-        of "Ocirc":
-          dulOcirc2
-        of "Otilde":
-          dulOtilde2
-        of "Oumlaut":
-          dulOumlaut2
-        of "times":
-          dulTimes1
-        of "Oslash":
-          dulOslash2
-        of "Ugrave":
-          dulUgrave2
-        of "Uacute":
-          dulUacute2
-        of "Ucirc":
-          dulUcirc2
-        of "Uumlaut":
-          dulUumlaut2
-        of "Yacute":
-          dulYacute2
-        of "THORN":
-          dulTHORN2
-        of "szlig":
-          dulSzlig1
-        of "agrave":
-          dulAgrave3
-        of "aacute":
-          dulAacute3
-        of "acirc":
-          dulAcirc3
-        of "atilde":
-          dulAtilde3
-        of "aumlaut":
-          dulAumlaut3
-        of "aring":
-          dulAring3
-        of "aelig":
-          dulAelig3
-        of "ccedil":
-          dulCcedil3
-        of "egrave":
-          dulEgrave3
-        of "eacute":
-          dulEacute3
-        of "ecirc":
-          dulEcirc3
-        of "eumlaut":
-          dulEumlaut3
-        of "igrave":
-          dulIgrave3
-        of "iacute":
-          dulIacute3
-        of "icirc":
-          dulIcirc3
-        of "iumlaut":
-          dulIumlaut3
-        of "eth":
-          dulEth3
-        of "ntilde":
-          dulNtilde3
-        of "ograve":
-          dulOgrave3
-        of "oacute":
-          dulOacute3
-        of "ocirc":
-          dulOcirc3
-        of "otilde":
-          dulOtilde3
-        of "oumlaut":
-          dulOumlaut3
-        of "divide":
-          dulDivide1
-        of "oslash":
-          dulOslash3
-        of "ugrave":
-          dulUgrave3
-        of "uacute":
-          dulUacute3
-        of "ucirc":
-          dulUcirc3
-        of "uumlaut":
-          dulUumlaut3
-        of "yacute":
-          dulYacute3
-        of "thorn":
-          dulThorn3
-        of "yumlaut":
-          dulYumlaut2
-        of "fnof":
-          dulFnof1
-        of "Alpha":
-          dulAlpha2
-        of "Beta":
-          dulBeta2
-        of "Gamma":
-          dulGamma2
-        of "Delta":
-          dulDelta2
-        of "Epsilon":
-          dulEpsilon2
-        of "Zeta":
-          dulZeta2
-        of "Eta":
-          dulEta2
-        of "Theta":
-          dulTheta2
-        of "Iota":
-          dulIota2
-        of "Kappa":
-          dulKappa2
-        of "Lambda":
-          dulLambda2
-        of "Mu":
-          dulMu2
-        of "Nu":
-          dulNu2
-        of "Xi":
-          dulXi2
-        of "Omicron":
-          dulOmicron2
-        of "Pi":
-          dulPi2
-        of "Rho":
-          dulRho2
-        of "Sigma":
-          dulSigma2
-        of "Tau":
-          dulTau2
-        of "Upsilon":
-          dulUpsilon2
-        of "Phi":
-          dulPhi2
-        of "Chi":
-          dulChi2
-        of "Psi":
-          dulPsi2
-        of "Omega":
-          dulOmega2
-        of "alpha":
-          dulAlpha3
-        of "beta":
-          dulBeta3
-        of "gamma":
-          dulGamma3
-        of "delta":
-          dulDelta3
-        of "epsilon":
-          dulEpsilon3
-        of "zeta":
-          dulZeta3
-        of "eta":
-          dulEta3
-        of "theta":
-          dulTheta3
-        of "iota":
-          dulIota3
-        of "kappa":
-          dulKappa3
-        of "lambda":
-          dulLambda3
-        of "mu":
-          dulMu3
-        of "nu":
-          dulNu3
-        of "xi":
-          dulXi3
-        of "omicron":
-          dulOmicron3
-        of "pi":
-          dulPi3
-        of "rho":
-          dulRho3
-        of "sigmaf":
-          dulSigmaf1
-        of "sigma":
-          dulSigma3
-        of "tau":
-          dulTau3
-        of "upsilon":
-          dulUpsilon3
-        of "phi":
-          dulPhi3
-        of "chi":
-          dulChi3
-        of "psi":
-          dulPsi3
-        of "omega":
-          dulOmega3
-        of "thetasym":
-          dulThetasym1
-        of "upsih":
-          dulUpsih1
-        of "piv":
-          dulPiv1
-        of "bull":
-          dulBull1
-        of "hellip":
-          dulHellip1
-        of "prime":
-          dulPrime2
-        of "Prime":
-          dulPrime3
-        of "oline":
-          dulOline1
-        of "frasl":
-          dulFrasl1
-        of "weierp":
-          dulWeierp1
-        of "imaginary":
-          dulImaginary1
-        of "real":
-          dulReal1
-        of "trademark":
-          dulTrademark1
-        of "alefsym":
-          dulAlefsym1
-        of "larr":
-          dulLarr2
-        of "uarr":
-          dulUarr2
-        of "rarr":
-          dulRarr2
-        of "darr":
-          dulDarr2
-        of "harr":
-          dulHarr2
-        of "crarr":
-          dulCrarr1
-        of "lArr":
-          dulLArr3
-        of "uArr":
-          dulUArr3
-        of "rArr":
-          dulRArr3
-        of "dArr":
-          dulDArr3
-        of "hArr":
-          dulHArr3
-        of "forall":
-          dulForall1
-        of "part":
-          dulPart1
-        of "exist":
-          dulExist1
-        of "empty":
-          dulEmpty1
-        of "nabla":
-          dulNabla1
-        of "isin":
-          dulIsin1
-        of "notin":
-          dulNotin1
-        of "ni":
-          dulNi1
-        of "prod":
-          dulProd1
-        of "sum":
-          dulSum1
-        of "minus":
-          dulMinus1
-        of "lowast":
-          dulLowast1
-        of "radic":
-          dulRadic1
-        of "prop":
-          dulProp1
-        of "infin":
-          dulInfin1
-        of "ang":
-          dulAng1
-        of "and":
-          dulAnd1
-        of "or":
-          dulOr1
-        of "cap":
-          dulCap1
-        of "cup":
-          dulCup1
-        of "int":
-          dulInt1
-        of "there4":
-          dulThere41
-        of "sim":
-          dulSim1
-        of "cong":
-          dulCong1
-        of "asymp":
-          dulAsymp1
-        of "ne":
-          dulNe1
-        of "equiv":
-          dulEquiv1
-        of "le":
-          dulLe1
-        of "ge":
-          dulGe1
-        of "sub":
-          dulSub1
-        of "sup":
           dulSup1
+        of "ordm":
+          dulOrdm
+        of "raquo":
+          dulRaquo
+        of "frac14":
+          dulFrac14
+        of "frac12":
+          dulFrac12
+        of "frac34":
+          dulFrac34
+        of "iquest":
+          dulIquest
+        of "Agrave":
+          dulAgrave
+        of "Aacute":
+          dulAacute
+        of "Acirc":
+          dulAcirc
+        of "Atilde":
+          dulAtilde
+        of "Aumlaut":
+          dulAumlaut
+        of "Aring":
+          dulAring
+        of "AElig":
+          dulAElig
+        of "Ccedil":
+          dulCcedil
+        of "Egrave":
+          dulEgrave
+        of "Eacute":
+          dulEacute
+        of "Ecirc":
+          dulEcirc
+        of "Eumlaut":
+          dulEumlaut
+        of "Igrave":
+          dulIgrave
+        of "Iacute":
+          dulIacute
+        of "Icirc":
+          dulIcirc
+        of "Iumlaut":
+          dulIumlaut
+        of "ETH":
+          dulETH
+        of "Ntilde":
+          dulNtilde
+        of "Ograve":
+          dulOgrave
+        of "Oacute":
+          dulOacute
+        of "Ocirc":
+          dulOcirc
+        of "Otilde":
+          dulOtilde
+        of "Oumlaut":
+          dulOumlaut
+        of "times":
+          dulTimes
+        of "Oslash":
+          dulOslash
+        of "Ugrave":
+          dulUgrave
+        of "Uacute":
+          dulUacute
+        of "Ucirc":
+          dulUcirc
+        of "Uumlaut":
+          dulUumlaut
+        of "Yacute":
+          dulYacute
+        of "THORN":
+          dulTHORN
+        of "szlig":
+          dulSzlig
+        of "agrave":
+          dulAgrave1
+        of "aacute":
+          dulAacute1
+        of "acirc":
+          dulAcirc1
+        of "atilde":
+          dulAtilde1
+        of "aumlaut":
+          dulAumlaut1
+        of "aring":
+          dulAring1
+        of "aelig":
+          dulAelig1
+        of "ccedil":
+          dulCcedil1
+        of "egrave":
+          dulEgrave1
+        of "eacute":
+          dulEacute1
+        of "ecirc":
+          dulEcirc1
+        of "eumlaut":
+          dulEumlaut1
+        of "igrave":
+          dulIgrave1
+        of "iacute":
+          dulIacute1
+        of "icirc":
+          dulIcirc1
+        of "iumlaut":
+          dulIumlaut1
+        of "eth":
+          dulEth1
+        of "ntilde":
+          dulNtilde1
+        of "ograve":
+          dulOgrave1
+        of "oacute":
+          dulOacute1
+        of "ocirc":
+          dulOcirc1
+        of "otilde":
+          dulOtilde1
+        of "oumlaut":
+          dulOumlaut1
+        of "divide":
+          dulDivide
+        of "oslash":
+          dulOslash1
+        of "ugrave":
+          dulUgrave1
+        of "uacute":
+          dulUacute1
+        of "ucirc":
+          dulUcirc1
+        of "uumlaut":
+          dulUumlaut1
+        of "yacute":
+          dulYacute1
+        of "thorn":
+          dulThorn1
+        of "yumlaut":
+          dulYumlaut
+        of "fnof":
+          dulFnof
+        of "Alpha":
+          dulAlpha
+        of "Beta":
+          dulBeta
+        of "Gamma":
+          dulGamma
+        of "Delta":
+          dulDelta
+        of "Epsilon":
+          dulEpsilon
+        of "Zeta":
+          dulZeta
+        of "Eta":
+          dulEta
+        of "Theta":
+          dulTheta
+        of "Iota":
+          dulIota
+        of "Kappa":
+          dulKappa
+        of "Lambda":
+          dulLambda
+        of "Mu":
+          dulMu
+        of "Nu":
+          dulNu
+        of "Xi":
+          dulXi
+        of "Omicron":
+          dulOmicron
+        of "Pi":
+          dulPi
+        of "Rho":
+          dulRho
+        of "Sigma":
+          dulSigma
+        of "Tau":
+          dulTau
+        of "Upsilon":
+          dulUpsilon
+        of "Phi":
+          dulPhi
+        of "Chi":
+          dulChi
+        of "Psi":
+          dulPsi
+        of "Omega":
+          dulOmega
+        of "alpha":
+          dulAlpha1
+        of "beta":
+          dulBeta1
+        of "gamma":
+          dulGamma1
+        of "delta":
+          dulDelta1
+        of "epsilon":
+          dulEpsilon1
+        of "zeta":
+          dulZeta1
+        of "eta":
+          dulEta1
+        of "theta":
+          dulTheta1
+        of "iota":
+          dulIota1
+        of "kappa":
+          dulKappa1
+        of "lambda":
+          dulLambda1
+        of "mu":
+          dulMu1
+        of "nu":
+          dulNu1
+        of "xi":
+          dulXi1
+        of "omicron":
+          dulOmicron1
+        of "pi":
+          dulPi1
+        of "rho":
+          dulRho1
+        of "sigmaf":
+          dulSigmaf
+        of "sigma":
+          dulSigma1
+        of "tau":
+          dulTau1
+        of "upsilon":
+          dulUpsilon1
+        of "phi":
+          dulPhi1
+        of "chi":
+          dulChi1
+        of "psi":
+          dulPsi1
+        of "omega":
+          dulOmega1
+        of "thetasym":
+          dulThetasym
+        of "upsih":
+          dulUpsih
+        of "piv":
+          dulPiv
+        of "bull":
+          dulBull
+        of "hellip":
+          dulHellip
+        of "prime":
+          dulPrime
+        of "Prime":
+          dulPrime1
+        of "oline":
+          dulOline
+        of "frasl":
+          dulFrasl
+        of "weierp":
+          dulWeierp
+        of "imaginary":
+          dulImaginary
+        of "real":
+          dulReal
+        of "trademark":
+          dulTrademark
+        of "alefsym":
+          dulAlefsym
+        of "larr":
+          dulLarr
+        of "uarr":
+          dulUarr
+        of "rarr":
+          dulRarr
+        of "darr":
+          dulDarr
+        of "harr":
+          dulHarr
+        of "crarr":
+          dulCrarr
+        of "lArr":
+          dulLArr1
+        of "uArr":
+          dulUArr1
+        of "rArr":
+          dulRArr1
+        of "dArr":
+          dulDArr1
+        of "hArr":
+          dulHArr1
+        of "forall":
+          dulForall
+        of "part":
+          dulPart
+        of "exist":
+          dulExist
+        of "empty":
+          dulEmpty
+        of "nabla":
+          dulNabla
+        of "isin":
+          dulIsin
+        of "notin":
+          dulNotin
+        of "ni":
+          dulNi
+        of "prod":
+          dulProd
+        of "sum":
+          dulSum
+        of "minus":
+          dulMinus
+        of "lowast":
+          dulLowast
+        of "radic":
+          dulRadic
+        of "prop":
+          dulProp
+        of "infin":
+          dulInfin
+        of "ang":
+          dulAng
+        of "and":
+          dulAnd
+        of "or":
+          dulOr
+        of "cap":
+          dulCap
+        of "cup":
+          dulCup
+        of "int":
+          dulInt
+        of "there4":
+          dulThere4
+        of "sim":
+          dulSim
+        of "cong":
+          dulCong
+        of "asymp":
+          dulAsymp
+        of "ne":
+          dulNe
+        of "equiv":
+          dulEquiv
+        of "le":
+          dulLe
+        of "ge":
+          dulGe
+        of "sub":
+          dulSub
+        of "sup":
+          dulSup
         of "nsub":
-          dulNsub1
+          dulNsub
         of "sube":
-          dulSube1
+          dulSube
         of "supe":
-          dulSupe1
+          dulSupe
         of "oplus":
-          dulOplus1
+          dulOplus
         of "otimes":
-          dulOtimes1
+          dulOtimes
         of "perp":
-          dulPerp1
+          dulPerp
         of "sdot":
-          dulSdot1
+          dulSdot
         of "lceil":
-          dulLceil1
+          dulLceil
         of "rceil":
-          dulRceil1
+          dulRceil
         of "lfloor":
-          dulLfloor1
+          dulLfloor
         of "rfloor":
-          dulRfloor1
+          dulRfloor
         of "lang":
-          dulLang1
+          dulLang
         of "rang":
-          dulRang1
+          dulRang
         of "loz":
-          dulLoz1
+          dulLoz
         of "spades":
-          dulSpades1
+          dulSpades
         of "clubs":
-          dulClubs1
+          dulClubs
         of "hearts":
-          dulHearts1
+          dulHearts
         of "diams":
-          dulDiams1
+          dulDiams
         of "OElig":
-          dulOElig2
+          dulOElig
         of "oelig":
-          dulOelig3
+          dulOelig1
         of "Scaron":
-          dulScaron2
+          dulScaron
         of "scaron":
-          dulScaron3
+          dulScaron1
         of "Yumlaut":
-          dulYumlaut3
+          dulYumlaut1
         of "circ":
-          dulCirc1
+          dulCirc
         of "tilde":
-          dulTilde1
+          dulTilde
         of "ensp":
-          dulEnsp1
+          dulEnsp
         of "emsp":
-          dulEmsp1
+          dulEmsp
         of "thinsp":
-          dulThinsp1
+          dulThinsp
         of "zwnj":
-          dulZwnj1
+          dulZwnj
         of "zwj":
-          dulZwj1
+          dulZwj
         of "lrm":
-          dulLrm1
+          dulLrm
         of "rlm":
-          dulRlm1
+          dulRlm
         of "ndash":
-          dulNdash1
+          dulNdash
         of "mdash":
-          dulMdash1
+          dulMdash
         of "lsquo":
-          dulLsquo1
+          dulLsquo
         of "rsquo":
-          dulRsquo1
+          dulRsquo
         of "sbquo":
-          dulSbquo1
+          dulSbquo
         of "ldquo":
-          dulLdquo1
+          dulLdquo
         of "rdquo":
-          dulRdquo1
+          dulRdquo
         of "bdquo":
-          dulBdquo1
+          dulBdquo
         of "dagger":
-          dulDagger2
+          dulDagger
         of "Dagger":
-          dulDagger3
+          dulDagger1
         of "permil":
-          dulPermil1
+          dulPermil
         of "lsaquo":
-          dulLsaquo1
+          dulLsaquo
         of "rsaquo":
-          dulRsaquo1
+          dulRsaquo
         of "euro":
-          dulEuro1
+          dulEuro
         of "tm":
-          dulTm1
+          dulTm
         else:
-          dulLinebreak1
+          dulLinebreak
         var tmp: DocEmptyType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocURLLinkBody(kind: kind)
         tmp2.docEmptyType = tmp
         add(target.xsdChoice, tmp2)
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -5793,14 +5775,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocURLLink; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocAnchorType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -5812,17 +5794,17 @@ proc loadXml*(parser: var HXmlParser; target: var DocAnchorType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice,
-          DocAnchorTypeBody(kind: datMixedStr19, mixedStr: tmp))
+      add(target.xsdChoice, DocAnchorTypeBody(kind: datMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -5838,14 +5820,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocAnchorType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocFormulaType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -5857,17 +5839,17 @@ proc loadXml*(parser: var HXmlParser; target: var DocFormulaType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice,
-          DocFormulaTypeBody(kind: dftMixedStr20, mixedStr: tmp))
+      add(target.xsdChoice, DocFormulaTypeBody(kind: dftMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -5883,14 +5865,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocFormulaType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocIndexEntryType;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -5900,17 +5882,18 @@ proc loadXml*(parser: var HXmlParser; target: var DocIndexEntryType;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "primaryie":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.primaryie, "primaryie")
       of "secondaryie":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.secondaryie, "secondaryie")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -5926,14 +5909,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocIndexEntryType;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocListType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -5943,14 +5926,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocListType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "listitem":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.listitem, "listitem")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -5966,14 +5950,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocListType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocListItemType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -5983,14 +5967,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocListItemType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.para, "para")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -6006,14 +5991,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocListItemType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocSimpleSectType;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -6025,14 +6010,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocSimpleSectType;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "title":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.title, "title")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -6048,14 +6034,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocSimpleSectType;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocVarListEntryType;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -6065,14 +6051,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocVarListEntryType;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "term":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.term, "term")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -6088,14 +6075,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocVarListEntryType;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocVariableListType;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -6105,11 +6092,12 @@ proc loadXml*(parser: var HXmlParser; target: var DocVariableListType;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -6125,14 +6113,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocVariableListType;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocRefTextType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -6148,124 +6136,125 @@ proc loadXml*(parser: var HXmlParser; target: var DocRefTextType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       add(target.xsdChoice,
-          DocRefTextTypeBody(kind: drttMixedStr21, mixedStr: tmp))
+          DocRefTextTypeBody(kind: drttMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "ulink":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocURLLink
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocRefTextTypeBody(kind: drttUlink2, docURLLink: tmp))
+            DocRefTextTypeBody(kind: drttUlink, docURLLink: tmp))
       of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
          "subscript", "superscript", "center", "small", "del", "ins":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "bold":
-          drttBold2
+          drttBold
         of "s":
-          drttS2
+          drttS
         of "strike":
-          drttStrike2
+          drttStrike
         of "underline":
-          drttUnderline2
+          drttUnderline
         of "emphasis":
-          drttEmphasis2
+          drttEmphasis
         of "computeroutput":
-          drttComputeroutput2
+          drttComputeroutput
         of "subscript":
-          drttSubscript2
+          drttSubscript
         of "superscript":
-          drttSuperscript2
+          drttSuperscript
         of "center":
-          drttCenter2
+          drttCenter
         of "small":
-          drttSmall2
+          drttSmall
         of "del":
-          drttDel2
+          drttDel
         of "ins":
-          drttIns2
+          drttIns
         else:
-          drttBold2
+          drttBold
         var tmp: DocMarkupType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocRefTextTypeBody(kind: kind)
         tmp2.docMarkupType = tmp
         add(target.xsdChoice, tmp2)
       of "htmlonly":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocHtmlOnlyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocRefTextTypeBody(kind: drttHtmlonly2, docHtmlOnlyType: tmp))
+            DocRefTextTypeBody(kind: drttHtmlonly, docHtmlOnlyType: tmp))
       of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "manonly":
-          drttManonly2
+          drttManonly
         of "xmlonly":
-          drttXmlonly2
+          drttXmlonly
         of "rtfonly":
-          drttRtfonly2
+          drttRtfonly
         of "latexonly":
-          drttLatexonly2
+          drttLatexonly
         of "docbookonly":
-          drttDocbookonly2
+          drttDocbookonly
         else:
-          drttManonly2
+          drttManonly
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocRefTextTypeBody(kind: kind)
         tmp2.fString = tmp
         add(target.xsdChoice, tmp2)
       of "image", "dot", "msc", "plantuml":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "image":
-          drttImage2
+          drttImage
         of "dot":
-          drttDot2
+          drttDot
         of "msc":
-          drttMsc2
+          drttMsc
         of "plantuml":
-          drttPlantuml2
+          drttPlantuml
         else:
-          drttImage2
+          drttImage
         var tmp: DocImageType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocRefTextTypeBody(kind: kind)
         tmp2.docImageType = tmp
         add(target.xsdChoice, tmp2)
       of "anchor":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocAnchorType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocRefTextTypeBody(kind: drttAnchor2, docAnchorType: tmp))
+            DocRefTextTypeBody(kind: drttAnchor, docAnchorType: tmp))
       of "formula":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocFormulaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocRefTextTypeBody(kind: drttFormula2, docFormulaType: tmp))
+            DocRefTextTypeBody(kind: drttFormula, docFormulaType: tmp))
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocRefTextType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocRefTextTypeBody(kind: drttRef4, docRefTextType: tmp))
+            DocRefTextTypeBody(kind: drttRef, docRefTextType: tmp))
       of "emoji":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocEmojiType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocRefTextTypeBody(kind: drttEmoji2, docEmojiType: tmp))
+            DocRefTextTypeBody(kind: drttEmoji, docEmojiType: tmp))
       of "linebreak", "nonbreakablespace", "iexcl", "cent", "pound", "curren",
          "yen", "brvbar", "sect", "umlaut", "copy", "ordf", "laquo", "not",
          "shy", "registered", "macr", "deg", "plusmn", "sup2", "sup3", "acute",
@@ -6299,517 +6288,517 @@ proc loadXml*(parser: var HXmlParser; target: var DocRefTextType; tag: string;
          "ensp", "emsp", "thinsp", "zwnj", "zwj", "lrm", "rlm", "ndash",
          "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo", "bdquo",
          "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro", "tm":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "linebreak":
-          drttLinebreak2
+          drttLinebreak
         of "nonbreakablespace":
-          drttNonbreakablespace2
+          drttNonbreakablespace
         of "iexcl":
-          drttIexcl2
+          drttIexcl
         of "cent":
-          drttCent2
+          drttCent
         of "pound":
-          drttPound2
+          drttPound
         of "curren":
-          drttCurren2
+          drttCurren
         of "yen":
-          drttYen2
+          drttYen
         of "brvbar":
-          drttBrvbar2
+          drttBrvbar
         of "sect":
-          drttSect2
+          drttSect
         of "umlaut":
-          drttUmlaut2
+          drttUmlaut
         of "copy":
-          drttCopy2
+          drttCopy
         of "ordf":
-          drttOrdf2
+          drttOrdf
         of "laquo":
-          drttLaquo2
+          drttLaquo
         of "not":
-          drttNot2
+          drttNot
         of "shy":
-          drttShy2
+          drttShy
         of "registered":
-          drttRegistered2
+          drttRegistered
         of "macr":
-          drttMacr2
+          drttMacr
         of "deg":
-          drttDeg2
+          drttDeg
         of "plusmn":
-          drttPlusmn2
+          drttPlusmn
         of "sup2":
-          drttSup22
-        of "sup3":
-          drttSup32
-        of "acute":
-          drttAcute2
-        of "micro":
-          drttMicro2
-        of "para":
-          drttPara9
-        of "middot":
-          drttMiddot2
-        of "cedil":
-          drttCedil2
-        of "sup1":
-          drttSup12
-        of "ordm":
-          drttOrdm2
-        of "raquo":
-          drttRaquo2
-        of "frac14":
-          drttFrac142
-        of "frac12":
-          drttFrac122
-        of "frac34":
-          drttFrac342
-        of "iquest":
-          drttIquest2
-        of "Agrave":
-          drttAgrave4
-        of "Aacute":
-          drttAacute4
-        of "Acirc":
-          drttAcirc4
-        of "Atilde":
-          drttAtilde4
-        of "Aumlaut":
-          drttAumlaut4
-        of "Aring":
-          drttAring4
-        of "AElig":
-          drttAElig4
-        of "Ccedil":
-          drttCcedil4
-        of "Egrave":
-          drttEgrave4
-        of "Eacute":
-          drttEacute4
-        of "Ecirc":
-          drttEcirc4
-        of "Eumlaut":
-          drttEumlaut4
-        of "Igrave":
-          drttIgrave4
-        of "Iacute":
-          drttIacute4
-        of "Icirc":
-          drttIcirc4
-        of "Iumlaut":
-          drttIumlaut4
-        of "ETH":
-          drttETH4
-        of "Ntilde":
-          drttNtilde4
-        of "Ograve":
-          drttOgrave4
-        of "Oacute":
-          drttOacute4
-        of "Ocirc":
-          drttOcirc4
-        of "Otilde":
-          drttOtilde4
-        of "Oumlaut":
-          drttOumlaut4
-        of "times":
-          drttTimes2
-        of "Oslash":
-          drttOslash4
-        of "Ugrave":
-          drttUgrave4
-        of "Uacute":
-          drttUacute4
-        of "Ucirc":
-          drttUcirc4
-        of "Uumlaut":
-          drttUumlaut4
-        of "Yacute":
-          drttYacute4
-        of "THORN":
-          drttTHORN4
-        of "szlig":
-          drttSzlig2
-        of "agrave":
-          drttAgrave5
-        of "aacute":
-          drttAacute5
-        of "acirc":
-          drttAcirc5
-        of "atilde":
-          drttAtilde5
-        of "aumlaut":
-          drttAumlaut5
-        of "aring":
-          drttAring5
-        of "aelig":
-          drttAelig5
-        of "ccedil":
-          drttCcedil5
-        of "egrave":
-          drttEgrave5
-        of "eacute":
-          drttEacute5
-        of "ecirc":
-          drttEcirc5
-        of "eumlaut":
-          drttEumlaut5
-        of "igrave":
-          drttIgrave5
-        of "iacute":
-          drttIacute5
-        of "icirc":
-          drttIcirc5
-        of "iumlaut":
-          drttIumlaut5
-        of "eth":
-          drttEth5
-        of "ntilde":
-          drttNtilde5
-        of "ograve":
-          drttOgrave5
-        of "oacute":
-          drttOacute5
-        of "ocirc":
-          drttOcirc5
-        of "otilde":
-          drttOtilde5
-        of "oumlaut":
-          drttOumlaut5
-        of "divide":
-          drttDivide2
-        of "oslash":
-          drttOslash5
-        of "ugrave":
-          drttUgrave5
-        of "uacute":
-          drttUacute5
-        of "ucirc":
-          drttUcirc5
-        of "uumlaut":
-          drttUumlaut5
-        of "yacute":
-          drttYacute5
-        of "thorn":
-          drttThorn5
-        of "yumlaut":
-          drttYumlaut4
-        of "fnof":
-          drttFnof2
-        of "Alpha":
-          drttAlpha4
-        of "Beta":
-          drttBeta4
-        of "Gamma":
-          drttGamma4
-        of "Delta":
-          drttDelta4
-        of "Epsilon":
-          drttEpsilon4
-        of "Zeta":
-          drttZeta4
-        of "Eta":
-          drttEta4
-        of "Theta":
-          drttTheta4
-        of "Iota":
-          drttIota4
-        of "Kappa":
-          drttKappa4
-        of "Lambda":
-          drttLambda4
-        of "Mu":
-          drttMu4
-        of "Nu":
-          drttNu4
-        of "Xi":
-          drttXi4
-        of "Omicron":
-          drttOmicron4
-        of "Pi":
-          drttPi4
-        of "Rho":
-          drttRho4
-        of "Sigma":
-          drttSigma4
-        of "Tau":
-          drttTau4
-        of "Upsilon":
-          drttUpsilon4
-        of "Phi":
-          drttPhi4
-        of "Chi":
-          drttChi4
-        of "Psi":
-          drttPsi4
-        of "Omega":
-          drttOmega4
-        of "alpha":
-          drttAlpha5
-        of "beta":
-          drttBeta5
-        of "gamma":
-          drttGamma5
-        of "delta":
-          drttDelta5
-        of "epsilon":
-          drttEpsilon5
-        of "zeta":
-          drttZeta5
-        of "eta":
-          drttEta5
-        of "theta":
-          drttTheta5
-        of "iota":
-          drttIota5
-        of "kappa":
-          drttKappa5
-        of "lambda":
-          drttLambda5
-        of "mu":
-          drttMu5
-        of "nu":
-          drttNu5
-        of "xi":
-          drttXi5
-        of "omicron":
-          drttOmicron5
-        of "pi":
-          drttPi5
-        of "rho":
-          drttRho5
-        of "sigmaf":
-          drttSigmaf2
-        of "sigma":
-          drttSigma5
-        of "tau":
-          drttTau5
-        of "upsilon":
-          drttUpsilon5
-        of "phi":
-          drttPhi5
-        of "chi":
-          drttChi5
-        of "psi":
-          drttPsi5
-        of "omega":
-          drttOmega5
-        of "thetasym":
-          drttThetasym2
-        of "upsih":
-          drttUpsih2
-        of "piv":
-          drttPiv2
-        of "bull":
-          drttBull2
-        of "hellip":
-          drttHellip2
-        of "prime":
-          drttPrime4
-        of "Prime":
-          drttPrime5
-        of "oline":
-          drttOline2
-        of "frasl":
-          drttFrasl2
-        of "weierp":
-          drttWeierp2
-        of "imaginary":
-          drttImaginary2
-        of "real":
-          drttReal2
-        of "trademark":
-          drttTrademark2
-        of "alefsym":
-          drttAlefsym2
-        of "larr":
-          drttLarr4
-        of "uarr":
-          drttUarr4
-        of "rarr":
-          drttRarr4
-        of "darr":
-          drttDarr4
-        of "harr":
-          drttHarr4
-        of "crarr":
-          drttCrarr2
-        of "lArr":
-          drttLArr5
-        of "uArr":
-          drttUArr5
-        of "rArr":
-          drttRArr5
-        of "dArr":
-          drttDArr5
-        of "hArr":
-          drttHArr5
-        of "forall":
-          drttForall2
-        of "part":
-          drttPart2
-        of "exist":
-          drttExist2
-        of "empty":
-          drttEmpty2
-        of "nabla":
-          drttNabla2
-        of "isin":
-          drttIsin2
-        of "notin":
-          drttNotin2
-        of "ni":
-          drttNi2
-        of "prod":
-          drttProd2
-        of "sum":
-          drttSum2
-        of "minus":
-          drttMinus2
-        of "lowast":
-          drttLowast2
-        of "radic":
-          drttRadic2
-        of "prop":
-          drttProp2
-        of "infin":
-          drttInfin2
-        of "ang":
-          drttAng2
-        of "and":
-          drttAnd2
-        of "or":
-          drttOr2
-        of "cap":
-          drttCap2
-        of "cup":
-          drttCup2
-        of "int":
-          drttInt2
-        of "there4":
-          drttThere42
-        of "sim":
-          drttSim2
-        of "cong":
-          drttCong2
-        of "asymp":
-          drttAsymp2
-        of "ne":
-          drttNe2
-        of "equiv":
-          drttEquiv2
-        of "le":
-          drttLe2
-        of "ge":
-          drttGe2
-        of "sub":
-          drttSub2
-        of "sup":
           drttSup2
+        of "sup3":
+          drttSup3
+        of "acute":
+          drttAcute
+        of "micro":
+          drttMicro
+        of "para":
+          drttPara
+        of "middot":
+          drttMiddot
+        of "cedil":
+          drttCedil
+        of "sup1":
+          drttSup1
+        of "ordm":
+          drttOrdm
+        of "raquo":
+          drttRaquo
+        of "frac14":
+          drttFrac14
+        of "frac12":
+          drttFrac12
+        of "frac34":
+          drttFrac34
+        of "iquest":
+          drttIquest
+        of "Agrave":
+          drttAgrave
+        of "Aacute":
+          drttAacute
+        of "Acirc":
+          drttAcirc
+        of "Atilde":
+          drttAtilde
+        of "Aumlaut":
+          drttAumlaut
+        of "Aring":
+          drttAring
+        of "AElig":
+          drttAElig
+        of "Ccedil":
+          drttCcedil
+        of "Egrave":
+          drttEgrave
+        of "Eacute":
+          drttEacute
+        of "Ecirc":
+          drttEcirc
+        of "Eumlaut":
+          drttEumlaut
+        of "Igrave":
+          drttIgrave
+        of "Iacute":
+          drttIacute
+        of "Icirc":
+          drttIcirc
+        of "Iumlaut":
+          drttIumlaut
+        of "ETH":
+          drttETH
+        of "Ntilde":
+          drttNtilde
+        of "Ograve":
+          drttOgrave
+        of "Oacute":
+          drttOacute
+        of "Ocirc":
+          drttOcirc
+        of "Otilde":
+          drttOtilde
+        of "Oumlaut":
+          drttOumlaut
+        of "times":
+          drttTimes
+        of "Oslash":
+          drttOslash
+        of "Ugrave":
+          drttUgrave
+        of "Uacute":
+          drttUacute
+        of "Ucirc":
+          drttUcirc
+        of "Uumlaut":
+          drttUumlaut
+        of "Yacute":
+          drttYacute
+        of "THORN":
+          drttTHORN
+        of "szlig":
+          drttSzlig
+        of "agrave":
+          drttAgrave1
+        of "aacute":
+          drttAacute1
+        of "acirc":
+          drttAcirc1
+        of "atilde":
+          drttAtilde1
+        of "aumlaut":
+          drttAumlaut1
+        of "aring":
+          drttAring1
+        of "aelig":
+          drttAelig1
+        of "ccedil":
+          drttCcedil1
+        of "egrave":
+          drttEgrave1
+        of "eacute":
+          drttEacute1
+        of "ecirc":
+          drttEcirc1
+        of "eumlaut":
+          drttEumlaut1
+        of "igrave":
+          drttIgrave1
+        of "iacute":
+          drttIacute1
+        of "icirc":
+          drttIcirc1
+        of "iumlaut":
+          drttIumlaut1
+        of "eth":
+          drttEth1
+        of "ntilde":
+          drttNtilde1
+        of "ograve":
+          drttOgrave1
+        of "oacute":
+          drttOacute1
+        of "ocirc":
+          drttOcirc1
+        of "otilde":
+          drttOtilde1
+        of "oumlaut":
+          drttOumlaut1
+        of "divide":
+          drttDivide
+        of "oslash":
+          drttOslash1
+        of "ugrave":
+          drttUgrave1
+        of "uacute":
+          drttUacute1
+        of "ucirc":
+          drttUcirc1
+        of "uumlaut":
+          drttUumlaut1
+        of "yacute":
+          drttYacute1
+        of "thorn":
+          drttThorn1
+        of "yumlaut":
+          drttYumlaut
+        of "fnof":
+          drttFnof
+        of "Alpha":
+          drttAlpha
+        of "Beta":
+          drttBeta
+        of "Gamma":
+          drttGamma
+        of "Delta":
+          drttDelta
+        of "Epsilon":
+          drttEpsilon
+        of "Zeta":
+          drttZeta
+        of "Eta":
+          drttEta
+        of "Theta":
+          drttTheta
+        of "Iota":
+          drttIota
+        of "Kappa":
+          drttKappa
+        of "Lambda":
+          drttLambda
+        of "Mu":
+          drttMu
+        of "Nu":
+          drttNu
+        of "Xi":
+          drttXi
+        of "Omicron":
+          drttOmicron
+        of "Pi":
+          drttPi
+        of "Rho":
+          drttRho
+        of "Sigma":
+          drttSigma
+        of "Tau":
+          drttTau
+        of "Upsilon":
+          drttUpsilon
+        of "Phi":
+          drttPhi
+        of "Chi":
+          drttChi
+        of "Psi":
+          drttPsi
+        of "Omega":
+          drttOmega
+        of "alpha":
+          drttAlpha1
+        of "beta":
+          drttBeta1
+        of "gamma":
+          drttGamma1
+        of "delta":
+          drttDelta1
+        of "epsilon":
+          drttEpsilon1
+        of "zeta":
+          drttZeta1
+        of "eta":
+          drttEta1
+        of "theta":
+          drttTheta1
+        of "iota":
+          drttIota1
+        of "kappa":
+          drttKappa1
+        of "lambda":
+          drttLambda1
+        of "mu":
+          drttMu1
+        of "nu":
+          drttNu1
+        of "xi":
+          drttXi1
+        of "omicron":
+          drttOmicron1
+        of "pi":
+          drttPi1
+        of "rho":
+          drttRho1
+        of "sigmaf":
+          drttSigmaf
+        of "sigma":
+          drttSigma1
+        of "tau":
+          drttTau1
+        of "upsilon":
+          drttUpsilon1
+        of "phi":
+          drttPhi1
+        of "chi":
+          drttChi1
+        of "psi":
+          drttPsi1
+        of "omega":
+          drttOmega1
+        of "thetasym":
+          drttThetasym
+        of "upsih":
+          drttUpsih
+        of "piv":
+          drttPiv
+        of "bull":
+          drttBull
+        of "hellip":
+          drttHellip
+        of "prime":
+          drttPrime
+        of "Prime":
+          drttPrime1
+        of "oline":
+          drttOline
+        of "frasl":
+          drttFrasl
+        of "weierp":
+          drttWeierp
+        of "imaginary":
+          drttImaginary
+        of "real":
+          drttReal
+        of "trademark":
+          drttTrademark
+        of "alefsym":
+          drttAlefsym
+        of "larr":
+          drttLarr
+        of "uarr":
+          drttUarr
+        of "rarr":
+          drttRarr
+        of "darr":
+          drttDarr
+        of "harr":
+          drttHarr
+        of "crarr":
+          drttCrarr
+        of "lArr":
+          drttLArr1
+        of "uArr":
+          drttUArr1
+        of "rArr":
+          drttRArr1
+        of "dArr":
+          drttDArr1
+        of "hArr":
+          drttHArr1
+        of "forall":
+          drttForall
+        of "part":
+          drttPart
+        of "exist":
+          drttExist
+        of "empty":
+          drttEmpty
+        of "nabla":
+          drttNabla
+        of "isin":
+          drttIsin
+        of "notin":
+          drttNotin
+        of "ni":
+          drttNi
+        of "prod":
+          drttProd
+        of "sum":
+          drttSum
+        of "minus":
+          drttMinus
+        of "lowast":
+          drttLowast
+        of "radic":
+          drttRadic
+        of "prop":
+          drttProp
+        of "infin":
+          drttInfin
+        of "ang":
+          drttAng
+        of "and":
+          drttAnd
+        of "or":
+          drttOr
+        of "cap":
+          drttCap
+        of "cup":
+          drttCup
+        of "int":
+          drttInt
+        of "there4":
+          drttThere4
+        of "sim":
+          drttSim
+        of "cong":
+          drttCong
+        of "asymp":
+          drttAsymp
+        of "ne":
+          drttNe
+        of "equiv":
+          drttEquiv
+        of "le":
+          drttLe
+        of "ge":
+          drttGe
+        of "sub":
+          drttSub
+        of "sup":
+          drttSup
         of "nsub":
-          drttNsub2
+          drttNsub
         of "sube":
-          drttSube2
+          drttSube
         of "supe":
-          drttSupe2
+          drttSupe
         of "oplus":
-          drttOplus2
+          drttOplus
         of "otimes":
-          drttOtimes2
+          drttOtimes
         of "perp":
-          drttPerp2
+          drttPerp
         of "sdot":
-          drttSdot2
+          drttSdot
         of "lceil":
-          drttLceil2
+          drttLceil
         of "rceil":
-          drttRceil2
+          drttRceil
         of "lfloor":
-          drttLfloor2
+          drttLfloor
         of "rfloor":
-          drttRfloor2
+          drttRfloor
         of "lang":
-          drttLang2
+          drttLang
         of "rang":
-          drttRang2
+          drttRang
         of "loz":
-          drttLoz2
+          drttLoz
         of "spades":
-          drttSpades2
+          drttSpades
         of "clubs":
-          drttClubs2
+          drttClubs
         of "hearts":
-          drttHearts2
+          drttHearts
         of "diams":
-          drttDiams2
+          drttDiams
         of "OElig":
-          drttOElig4
+          drttOElig
         of "oelig":
-          drttOelig5
+          drttOelig1
         of "Scaron":
-          drttScaron4
+          drttScaron
         of "scaron":
-          drttScaron5
+          drttScaron1
         of "Yumlaut":
-          drttYumlaut5
+          drttYumlaut1
         of "circ":
-          drttCirc2
+          drttCirc
         of "tilde":
-          drttTilde2
+          drttTilde
         of "ensp":
-          drttEnsp2
+          drttEnsp
         of "emsp":
-          drttEmsp2
+          drttEmsp
         of "thinsp":
-          drttThinsp2
+          drttThinsp
         of "zwnj":
-          drttZwnj2
+          drttZwnj
         of "zwj":
-          drttZwj2
+          drttZwj
         of "lrm":
-          drttLrm2
+          drttLrm
         of "rlm":
-          drttRlm2
+          drttRlm
         of "ndash":
-          drttNdash2
+          drttNdash
         of "mdash":
-          drttMdash2
+          drttMdash
         of "lsquo":
-          drttLsquo2
+          drttLsquo
         of "rsquo":
-          drttRsquo2
+          drttRsquo
         of "sbquo":
-          drttSbquo2
+          drttSbquo
         of "ldquo":
-          drttLdquo2
+          drttLdquo
         of "rdquo":
-          drttRdquo2
+          drttRdquo
         of "bdquo":
-          drttBdquo2
+          drttBdquo
         of "dagger":
-          drttDagger4
+          drttDagger
         of "Dagger":
-          drttDagger5
+          drttDagger1
         of "permil":
-          drttPermil2
+          drttPermil
         of "lsaquo":
-          drttLsaquo2
+          drttLsaquo
         of "rsaquo":
-          drttRsaquo2
+          drttRsaquo
         of "euro":
-          drttEuro2
+          drttEuro
         of "tm":
-          drttTm2
+          drttTm
         else:
-          drttLinebreak2
+          drttLinebreak
         var tmp: DocEmptyType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocRefTextTypeBody(kind: kind)
         tmp2.docEmptyType = tmp
         add(target.xsdChoice, tmp2)
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -6825,14 +6814,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocRefTextType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocTableType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -6848,17 +6837,18 @@ proc loadXml*(parser: var HXmlParser; target: var DocTableType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "caption":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.caption, "caption")
       of "row":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.row, "row")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -6874,14 +6864,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocTableType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocRowType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -6891,14 +6881,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocRowType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "entry":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.entry, "entry")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -6914,14 +6905,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocRowType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocEntryType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -6945,14 +6936,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocEntryType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.para, "para")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -6968,14 +6960,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocEntryType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocCaptionType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -6985,124 +6977,124 @@ proc loadXml*(parser: var HXmlParser; target: var DocCaptionType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice,
-          DocCaptionTypeBody(kind: dctMixedStr22, mixedStr: tmp))
+      add(target.xsdChoice, DocCaptionTypeBody(kind: dctMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "ulink":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocURLLink
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocCaptionTypeBody(kind: dctUlink3, docURLLink: tmp))
+            DocCaptionTypeBody(kind: dctUlink, docURLLink: tmp))
       of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
          "subscript", "superscript", "center", "small", "del", "ins":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "bold":
-          dctBold3
+          dctBold
         of "s":
-          dctS3
+          dctS
         of "strike":
-          dctStrike3
+          dctStrike
         of "underline":
-          dctUnderline3
+          dctUnderline
         of "emphasis":
-          dctEmphasis3
+          dctEmphasis
         of "computeroutput":
-          dctComputeroutput3
+          dctComputeroutput
         of "subscript":
-          dctSubscript3
+          dctSubscript
         of "superscript":
-          dctSuperscript3
+          dctSuperscript
         of "center":
-          dctCenter3
+          dctCenter
         of "small":
-          dctSmall3
+          dctSmall
         of "del":
-          dctDel3
+          dctDel
         of "ins":
-          dctIns3
+          dctIns
         else:
-          dctBold3
+          dctBold
         var tmp: DocMarkupType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocCaptionTypeBody(kind: kind)
         tmp2.docMarkupType = tmp
         add(target.xsdChoice, tmp2)
       of "htmlonly":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocHtmlOnlyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocCaptionTypeBody(kind: dctHtmlonly3, docHtmlOnlyType: tmp))
+            DocCaptionTypeBody(kind: dctHtmlonly, docHtmlOnlyType: tmp))
       of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "manonly":
-          dctManonly3
+          dctManonly
         of "xmlonly":
-          dctXmlonly3
+          dctXmlonly
         of "rtfonly":
-          dctRtfonly3
+          dctRtfonly
         of "latexonly":
-          dctLatexonly3
+          dctLatexonly
         of "docbookonly":
-          dctDocbookonly3
+          dctDocbookonly
         else:
-          dctManonly3
+          dctManonly
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocCaptionTypeBody(kind: kind)
         tmp2.fString = tmp
         add(target.xsdChoice, tmp2)
       of "image", "dot", "msc", "plantuml":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "image":
-          dctImage3
+          dctImage
         of "dot":
-          dctDot3
+          dctDot
         of "msc":
-          dctMsc3
+          dctMsc
         of "plantuml":
-          dctPlantuml3
+          dctPlantuml
         else:
-          dctImage3
+          dctImage
         var tmp: DocImageType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocCaptionTypeBody(kind: kind)
         tmp2.docImageType = tmp
         add(target.xsdChoice, tmp2)
       of "anchor":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocAnchorType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocCaptionTypeBody(kind: dctAnchor3, docAnchorType: tmp))
+            DocCaptionTypeBody(kind: dctAnchor, docAnchorType: tmp))
       of "formula":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocFormulaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocCaptionTypeBody(kind: dctFormula3, docFormulaType: tmp))
+            DocCaptionTypeBody(kind: dctFormula, docFormulaType: tmp))
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocRefTextType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocCaptionTypeBody(kind: dctRef5, docRefTextType: tmp))
+            DocCaptionTypeBody(kind: dctRef, docRefTextType: tmp))
       of "emoji":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocEmojiType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocCaptionTypeBody(kind: dctEmoji3, docEmojiType: tmp))
+            DocCaptionTypeBody(kind: dctEmoji, docEmojiType: tmp))
       of "linebreak", "nonbreakablespace", "iexcl", "cent", "pound", "curren",
          "yen", "brvbar", "sect", "umlaut", "copy", "ordf", "laquo", "not",
          "shy", "registered", "macr", "deg", "plusmn", "sup2", "sup3", "acute",
@@ -7136,517 +7128,517 @@ proc loadXml*(parser: var HXmlParser; target: var DocCaptionType; tag: string;
          "ensp", "emsp", "thinsp", "zwnj", "zwj", "lrm", "rlm", "ndash",
          "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo", "bdquo",
          "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro", "tm":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "linebreak":
-          dctLinebreak3
+          dctLinebreak
         of "nonbreakablespace":
-          dctNonbreakablespace3
+          dctNonbreakablespace
         of "iexcl":
-          dctIexcl3
+          dctIexcl
         of "cent":
-          dctCent3
+          dctCent
         of "pound":
-          dctPound3
+          dctPound
         of "curren":
-          dctCurren3
+          dctCurren
         of "yen":
-          dctYen3
+          dctYen
         of "brvbar":
-          dctBrvbar3
+          dctBrvbar
         of "sect":
-          dctSect3
+          dctSect
         of "umlaut":
-          dctUmlaut3
+          dctUmlaut
         of "copy":
-          dctCopy3
+          dctCopy
         of "ordf":
-          dctOrdf3
+          dctOrdf
         of "laquo":
-          dctLaquo3
+          dctLaquo
         of "not":
-          dctNot3
+          dctNot
         of "shy":
-          dctShy3
+          dctShy
         of "registered":
-          dctRegistered3
+          dctRegistered
         of "macr":
-          dctMacr3
+          dctMacr
         of "deg":
-          dctDeg3
+          dctDeg
         of "plusmn":
-          dctPlusmn3
+          dctPlusmn
         of "sup2":
-          dctSup23
+          dctSup2
         of "sup3":
-          dctSup33
-        of "acute":
-          dctAcute3
-        of "micro":
-          dctMicro3
-        of "para":
-          dctPara11
-        of "middot":
-          dctMiddot3
-        of "cedil":
-          dctCedil3
-        of "sup1":
-          dctSup13
-        of "ordm":
-          dctOrdm3
-        of "raquo":
-          dctRaquo3
-        of "frac14":
-          dctFrac143
-        of "frac12":
-          dctFrac123
-        of "frac34":
-          dctFrac343
-        of "iquest":
-          dctIquest3
-        of "Agrave":
-          dctAgrave6
-        of "Aacute":
-          dctAacute6
-        of "Acirc":
-          dctAcirc6
-        of "Atilde":
-          dctAtilde6
-        of "Aumlaut":
-          dctAumlaut6
-        of "Aring":
-          dctAring6
-        of "AElig":
-          dctAElig6
-        of "Ccedil":
-          dctCcedil6
-        of "Egrave":
-          dctEgrave6
-        of "Eacute":
-          dctEacute6
-        of "Ecirc":
-          dctEcirc6
-        of "Eumlaut":
-          dctEumlaut6
-        of "Igrave":
-          dctIgrave6
-        of "Iacute":
-          dctIacute6
-        of "Icirc":
-          dctIcirc6
-        of "Iumlaut":
-          dctIumlaut6
-        of "ETH":
-          dctETH6
-        of "Ntilde":
-          dctNtilde6
-        of "Ograve":
-          dctOgrave6
-        of "Oacute":
-          dctOacute6
-        of "Ocirc":
-          dctOcirc6
-        of "Otilde":
-          dctOtilde6
-        of "Oumlaut":
-          dctOumlaut6
-        of "times":
-          dctTimes3
-        of "Oslash":
-          dctOslash6
-        of "Ugrave":
-          dctUgrave6
-        of "Uacute":
-          dctUacute6
-        of "Ucirc":
-          dctUcirc6
-        of "Uumlaut":
-          dctUumlaut6
-        of "Yacute":
-          dctYacute6
-        of "THORN":
-          dctTHORN6
-        of "szlig":
-          dctSzlig3
-        of "agrave":
-          dctAgrave7
-        of "aacute":
-          dctAacute7
-        of "acirc":
-          dctAcirc7
-        of "atilde":
-          dctAtilde7
-        of "aumlaut":
-          dctAumlaut7
-        of "aring":
-          dctAring7
-        of "aelig":
-          dctAelig7
-        of "ccedil":
-          dctCcedil7
-        of "egrave":
-          dctEgrave7
-        of "eacute":
-          dctEacute7
-        of "ecirc":
-          dctEcirc7
-        of "eumlaut":
-          dctEumlaut7
-        of "igrave":
-          dctIgrave7
-        of "iacute":
-          dctIacute7
-        of "icirc":
-          dctIcirc7
-        of "iumlaut":
-          dctIumlaut7
-        of "eth":
-          dctEth7
-        of "ntilde":
-          dctNtilde7
-        of "ograve":
-          dctOgrave7
-        of "oacute":
-          dctOacute7
-        of "ocirc":
-          dctOcirc7
-        of "otilde":
-          dctOtilde7
-        of "oumlaut":
-          dctOumlaut7
-        of "divide":
-          dctDivide3
-        of "oslash":
-          dctOslash7
-        of "ugrave":
-          dctUgrave7
-        of "uacute":
-          dctUacute7
-        of "ucirc":
-          dctUcirc7
-        of "uumlaut":
-          dctUumlaut7
-        of "yacute":
-          dctYacute7
-        of "thorn":
-          dctThorn7
-        of "yumlaut":
-          dctYumlaut6
-        of "fnof":
-          dctFnof3
-        of "Alpha":
-          dctAlpha6
-        of "Beta":
-          dctBeta6
-        of "Gamma":
-          dctGamma6
-        of "Delta":
-          dctDelta6
-        of "Epsilon":
-          dctEpsilon6
-        of "Zeta":
-          dctZeta6
-        of "Eta":
-          dctEta6
-        of "Theta":
-          dctTheta6
-        of "Iota":
-          dctIota6
-        of "Kappa":
-          dctKappa6
-        of "Lambda":
-          dctLambda6
-        of "Mu":
-          dctMu6
-        of "Nu":
-          dctNu6
-        of "Xi":
-          dctXi6
-        of "Omicron":
-          dctOmicron6
-        of "Pi":
-          dctPi6
-        of "Rho":
-          dctRho6
-        of "Sigma":
-          dctSigma6
-        of "Tau":
-          dctTau6
-        of "Upsilon":
-          dctUpsilon6
-        of "Phi":
-          dctPhi6
-        of "Chi":
-          dctChi6
-        of "Psi":
-          dctPsi6
-        of "Omega":
-          dctOmega6
-        of "alpha":
-          dctAlpha7
-        of "beta":
-          dctBeta7
-        of "gamma":
-          dctGamma7
-        of "delta":
-          dctDelta7
-        of "epsilon":
-          dctEpsilon7
-        of "zeta":
-          dctZeta7
-        of "eta":
-          dctEta7
-        of "theta":
-          dctTheta7
-        of "iota":
-          dctIota7
-        of "kappa":
-          dctKappa7
-        of "lambda":
-          dctLambda7
-        of "mu":
-          dctMu7
-        of "nu":
-          dctNu7
-        of "xi":
-          dctXi7
-        of "omicron":
-          dctOmicron7
-        of "pi":
-          dctPi7
-        of "rho":
-          dctRho7
-        of "sigmaf":
-          dctSigmaf3
-        of "sigma":
-          dctSigma7
-        of "tau":
-          dctTau7
-        of "upsilon":
-          dctUpsilon7
-        of "phi":
-          dctPhi7
-        of "chi":
-          dctChi7
-        of "psi":
-          dctPsi7
-        of "omega":
-          dctOmega7
-        of "thetasym":
-          dctThetasym3
-        of "upsih":
-          dctUpsih3
-        of "piv":
-          dctPiv3
-        of "bull":
-          dctBull3
-        of "hellip":
-          dctHellip3
-        of "prime":
-          dctPrime6
-        of "Prime":
-          dctPrime7
-        of "oline":
-          dctOline3
-        of "frasl":
-          dctFrasl3
-        of "weierp":
-          dctWeierp3
-        of "imaginary":
-          dctImaginary3
-        of "real":
-          dctReal3
-        of "trademark":
-          dctTrademark3
-        of "alefsym":
-          dctAlefsym3
-        of "larr":
-          dctLarr6
-        of "uarr":
-          dctUarr6
-        of "rarr":
-          dctRarr6
-        of "darr":
-          dctDarr6
-        of "harr":
-          dctHarr6
-        of "crarr":
-          dctCrarr3
-        of "lArr":
-          dctLArr7
-        of "uArr":
-          dctUArr7
-        of "rArr":
-          dctRArr7
-        of "dArr":
-          dctDArr7
-        of "hArr":
-          dctHArr7
-        of "forall":
-          dctForall3
-        of "part":
-          dctPart3
-        of "exist":
-          dctExist3
-        of "empty":
-          dctEmpty3
-        of "nabla":
-          dctNabla3
-        of "isin":
-          dctIsin3
-        of "notin":
-          dctNotin3
-        of "ni":
-          dctNi3
-        of "prod":
-          dctProd3
-        of "sum":
-          dctSum3
-        of "minus":
-          dctMinus3
-        of "lowast":
-          dctLowast3
-        of "radic":
-          dctRadic3
-        of "prop":
-          dctProp3
-        of "infin":
-          dctInfin3
-        of "ang":
-          dctAng3
-        of "and":
-          dctAnd3
-        of "or":
-          dctOr3
-        of "cap":
-          dctCap3
-        of "cup":
-          dctCup3
-        of "int":
-          dctInt3
-        of "there4":
-          dctThere43
-        of "sim":
-          dctSim3
-        of "cong":
-          dctCong3
-        of "asymp":
-          dctAsymp3
-        of "ne":
-          dctNe3
-        of "equiv":
-          dctEquiv3
-        of "le":
-          dctLe3
-        of "ge":
-          dctGe3
-        of "sub":
-          dctSub3
-        of "sup":
           dctSup3
+        of "acute":
+          dctAcute
+        of "micro":
+          dctMicro
+        of "para":
+          dctPara
+        of "middot":
+          dctMiddot
+        of "cedil":
+          dctCedil
+        of "sup1":
+          dctSup1
+        of "ordm":
+          dctOrdm
+        of "raquo":
+          dctRaquo
+        of "frac14":
+          dctFrac14
+        of "frac12":
+          dctFrac12
+        of "frac34":
+          dctFrac34
+        of "iquest":
+          dctIquest
+        of "Agrave":
+          dctAgrave
+        of "Aacute":
+          dctAacute
+        of "Acirc":
+          dctAcirc
+        of "Atilde":
+          dctAtilde
+        of "Aumlaut":
+          dctAumlaut
+        of "Aring":
+          dctAring
+        of "AElig":
+          dctAElig
+        of "Ccedil":
+          dctCcedil
+        of "Egrave":
+          dctEgrave
+        of "Eacute":
+          dctEacute
+        of "Ecirc":
+          dctEcirc
+        of "Eumlaut":
+          dctEumlaut
+        of "Igrave":
+          dctIgrave
+        of "Iacute":
+          dctIacute
+        of "Icirc":
+          dctIcirc
+        of "Iumlaut":
+          dctIumlaut
+        of "ETH":
+          dctETH
+        of "Ntilde":
+          dctNtilde
+        of "Ograve":
+          dctOgrave
+        of "Oacute":
+          dctOacute
+        of "Ocirc":
+          dctOcirc
+        of "Otilde":
+          dctOtilde
+        of "Oumlaut":
+          dctOumlaut
+        of "times":
+          dctTimes
+        of "Oslash":
+          dctOslash
+        of "Ugrave":
+          dctUgrave
+        of "Uacute":
+          dctUacute
+        of "Ucirc":
+          dctUcirc
+        of "Uumlaut":
+          dctUumlaut
+        of "Yacute":
+          dctYacute
+        of "THORN":
+          dctTHORN
+        of "szlig":
+          dctSzlig
+        of "agrave":
+          dctAgrave1
+        of "aacute":
+          dctAacute1
+        of "acirc":
+          dctAcirc1
+        of "atilde":
+          dctAtilde1
+        of "aumlaut":
+          dctAumlaut1
+        of "aring":
+          dctAring1
+        of "aelig":
+          dctAelig1
+        of "ccedil":
+          dctCcedil1
+        of "egrave":
+          dctEgrave1
+        of "eacute":
+          dctEacute1
+        of "ecirc":
+          dctEcirc1
+        of "eumlaut":
+          dctEumlaut1
+        of "igrave":
+          dctIgrave1
+        of "iacute":
+          dctIacute1
+        of "icirc":
+          dctIcirc1
+        of "iumlaut":
+          dctIumlaut1
+        of "eth":
+          dctEth1
+        of "ntilde":
+          dctNtilde1
+        of "ograve":
+          dctOgrave1
+        of "oacute":
+          dctOacute1
+        of "ocirc":
+          dctOcirc1
+        of "otilde":
+          dctOtilde1
+        of "oumlaut":
+          dctOumlaut1
+        of "divide":
+          dctDivide
+        of "oslash":
+          dctOslash1
+        of "ugrave":
+          dctUgrave1
+        of "uacute":
+          dctUacute1
+        of "ucirc":
+          dctUcirc1
+        of "uumlaut":
+          dctUumlaut1
+        of "yacute":
+          dctYacute1
+        of "thorn":
+          dctThorn1
+        of "yumlaut":
+          dctYumlaut
+        of "fnof":
+          dctFnof
+        of "Alpha":
+          dctAlpha
+        of "Beta":
+          dctBeta
+        of "Gamma":
+          dctGamma
+        of "Delta":
+          dctDelta
+        of "Epsilon":
+          dctEpsilon
+        of "Zeta":
+          dctZeta
+        of "Eta":
+          dctEta
+        of "Theta":
+          dctTheta
+        of "Iota":
+          dctIota
+        of "Kappa":
+          dctKappa
+        of "Lambda":
+          dctLambda
+        of "Mu":
+          dctMu
+        of "Nu":
+          dctNu
+        of "Xi":
+          dctXi
+        of "Omicron":
+          dctOmicron
+        of "Pi":
+          dctPi
+        of "Rho":
+          dctRho
+        of "Sigma":
+          dctSigma
+        of "Tau":
+          dctTau
+        of "Upsilon":
+          dctUpsilon
+        of "Phi":
+          dctPhi
+        of "Chi":
+          dctChi
+        of "Psi":
+          dctPsi
+        of "Omega":
+          dctOmega
+        of "alpha":
+          dctAlpha1
+        of "beta":
+          dctBeta1
+        of "gamma":
+          dctGamma1
+        of "delta":
+          dctDelta1
+        of "epsilon":
+          dctEpsilon1
+        of "zeta":
+          dctZeta1
+        of "eta":
+          dctEta1
+        of "theta":
+          dctTheta1
+        of "iota":
+          dctIota1
+        of "kappa":
+          dctKappa1
+        of "lambda":
+          dctLambda1
+        of "mu":
+          dctMu1
+        of "nu":
+          dctNu1
+        of "xi":
+          dctXi1
+        of "omicron":
+          dctOmicron1
+        of "pi":
+          dctPi1
+        of "rho":
+          dctRho1
+        of "sigmaf":
+          dctSigmaf
+        of "sigma":
+          dctSigma1
+        of "tau":
+          dctTau1
+        of "upsilon":
+          dctUpsilon1
+        of "phi":
+          dctPhi1
+        of "chi":
+          dctChi1
+        of "psi":
+          dctPsi1
+        of "omega":
+          dctOmega1
+        of "thetasym":
+          dctThetasym
+        of "upsih":
+          dctUpsih
+        of "piv":
+          dctPiv
+        of "bull":
+          dctBull
+        of "hellip":
+          dctHellip
+        of "prime":
+          dctPrime
+        of "Prime":
+          dctPrime1
+        of "oline":
+          dctOline
+        of "frasl":
+          dctFrasl
+        of "weierp":
+          dctWeierp
+        of "imaginary":
+          dctImaginary
+        of "real":
+          dctReal
+        of "trademark":
+          dctTrademark
+        of "alefsym":
+          dctAlefsym
+        of "larr":
+          dctLarr
+        of "uarr":
+          dctUarr
+        of "rarr":
+          dctRarr
+        of "darr":
+          dctDarr
+        of "harr":
+          dctHarr
+        of "crarr":
+          dctCrarr
+        of "lArr":
+          dctLArr1
+        of "uArr":
+          dctUArr1
+        of "rArr":
+          dctRArr1
+        of "dArr":
+          dctDArr1
+        of "hArr":
+          dctHArr1
+        of "forall":
+          dctForall
+        of "part":
+          dctPart
+        of "exist":
+          dctExist
+        of "empty":
+          dctEmpty
+        of "nabla":
+          dctNabla
+        of "isin":
+          dctIsin
+        of "notin":
+          dctNotin
+        of "ni":
+          dctNi
+        of "prod":
+          dctProd
+        of "sum":
+          dctSum
+        of "minus":
+          dctMinus
+        of "lowast":
+          dctLowast
+        of "radic":
+          dctRadic
+        of "prop":
+          dctProp
+        of "infin":
+          dctInfin
+        of "ang":
+          dctAng
+        of "and":
+          dctAnd
+        of "or":
+          dctOr
+        of "cap":
+          dctCap
+        of "cup":
+          dctCup
+        of "int":
+          dctInt
+        of "there4":
+          dctThere4
+        of "sim":
+          dctSim
+        of "cong":
+          dctCong
+        of "asymp":
+          dctAsymp
+        of "ne":
+          dctNe
+        of "equiv":
+          dctEquiv
+        of "le":
+          dctLe
+        of "ge":
+          dctGe
+        of "sub":
+          dctSub
+        of "sup":
+          dctSup
         of "nsub":
-          dctNsub3
+          dctNsub
         of "sube":
-          dctSube3
+          dctSube
         of "supe":
-          dctSupe3
+          dctSupe
         of "oplus":
-          dctOplus3
+          dctOplus
         of "otimes":
-          dctOtimes3
+          dctOtimes
         of "perp":
-          dctPerp3
+          dctPerp
         of "sdot":
-          dctSdot3
+          dctSdot
         of "lceil":
-          dctLceil3
+          dctLceil
         of "rceil":
-          dctRceil3
+          dctRceil
         of "lfloor":
-          dctLfloor3
+          dctLfloor
         of "rfloor":
-          dctRfloor3
+          dctRfloor
         of "lang":
-          dctLang3
+          dctLang
         of "rang":
-          dctRang3
+          dctRang
         of "loz":
-          dctLoz3
+          dctLoz
         of "spades":
-          dctSpades3
+          dctSpades
         of "clubs":
-          dctClubs3
+          dctClubs
         of "hearts":
-          dctHearts3
+          dctHearts
         of "diams":
-          dctDiams3
+          dctDiams
         of "OElig":
-          dctOElig6
+          dctOElig
         of "oelig":
-          dctOelig7
+          dctOelig1
         of "Scaron":
-          dctScaron6
+          dctScaron
         of "scaron":
-          dctScaron7
+          dctScaron1
         of "Yumlaut":
-          dctYumlaut7
+          dctYumlaut1
         of "circ":
-          dctCirc3
+          dctCirc
         of "tilde":
-          dctTilde3
+          dctTilde
         of "ensp":
-          dctEnsp3
+          dctEnsp
         of "emsp":
-          dctEmsp3
+          dctEmsp
         of "thinsp":
-          dctThinsp3
+          dctThinsp
         of "zwnj":
-          dctZwnj3
+          dctZwnj
         of "zwj":
-          dctZwj3
+          dctZwj
         of "lrm":
-          dctLrm3
+          dctLrm
         of "rlm":
-          dctRlm3
+          dctRlm
         of "ndash":
-          dctNdash3
+          dctNdash
         of "mdash":
-          dctMdash3
+          dctMdash
         of "lsquo":
-          dctLsquo3
+          dctLsquo
         of "rsquo":
-          dctRsquo3
+          dctRsquo
         of "sbquo":
-          dctSbquo3
+          dctSbquo
         of "ldquo":
-          dctLdquo3
+          dctLdquo
         of "rdquo":
-          dctRdquo3
+          dctRdquo
         of "bdquo":
-          dctBdquo3
+          dctBdquo
         of "dagger":
-          dctDagger6
+          dctDagger
         of "Dagger":
-          dctDagger7
+          dctDagger1
         of "permil":
-          dctPermil3
+          dctPermil
         of "lsaquo":
-          dctLsaquo3
+          dctLsaquo
         of "rsaquo":
-          dctRsaquo3
+          dctRsaquo
         of "euro":
-          dctEuro3
+          dctEuro
         of "tm":
-          dctTm3
+          dctTm
         else:
-          dctLinebreak3
+          dctLinebreak
         var tmp: DocEmptyType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocCaptionTypeBody(kind: kind)
         tmp2.docEmptyType = tmp
         add(target.xsdChoice, tmp2)
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -7662,14 +7654,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocCaptionType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocHeadingType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -7681,124 +7673,124 @@ proc loadXml*(parser: var HXmlParser; target: var DocHeadingType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice,
-          DocHeadingTypeBody(kind: dhtMixedStr23, mixedStr: tmp))
+      add(target.xsdChoice, DocHeadingTypeBody(kind: dhtMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "ulink":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocURLLink
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocHeadingTypeBody(kind: dhtUlink4, docURLLink: tmp))
+            DocHeadingTypeBody(kind: dhtUlink, docURLLink: tmp))
       of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
          "subscript", "superscript", "center", "small", "del", "ins":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "bold":
-          dhtBold4
+          dhtBold
         of "s":
-          dhtS4
+          dhtS
         of "strike":
-          dhtStrike4
+          dhtStrike
         of "underline":
-          dhtUnderline4
+          dhtUnderline
         of "emphasis":
-          dhtEmphasis4
+          dhtEmphasis
         of "computeroutput":
-          dhtComputeroutput4
+          dhtComputeroutput
         of "subscript":
-          dhtSubscript4
+          dhtSubscript
         of "superscript":
-          dhtSuperscript4
+          dhtSuperscript
         of "center":
-          dhtCenter4
+          dhtCenter
         of "small":
-          dhtSmall4
+          dhtSmall
         of "del":
-          dhtDel4
+          dhtDel
         of "ins":
-          dhtIns4
+          dhtIns
         else:
-          dhtBold4
+          dhtBold
         var tmp: DocMarkupType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocHeadingTypeBody(kind: kind)
         tmp2.docMarkupType = tmp
         add(target.xsdChoice, tmp2)
       of "htmlonly":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocHtmlOnlyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocHeadingTypeBody(kind: dhtHtmlonly4, docHtmlOnlyType: tmp))
+            DocHeadingTypeBody(kind: dhtHtmlonly, docHtmlOnlyType: tmp))
       of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "manonly":
-          dhtManonly4
+          dhtManonly
         of "xmlonly":
-          dhtXmlonly4
+          dhtXmlonly
         of "rtfonly":
-          dhtRtfonly4
+          dhtRtfonly
         of "latexonly":
-          dhtLatexonly4
+          dhtLatexonly
         of "docbookonly":
-          dhtDocbookonly4
+          dhtDocbookonly
         else:
-          dhtManonly4
+          dhtManonly
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocHeadingTypeBody(kind: kind)
         tmp2.fString = tmp
         add(target.xsdChoice, tmp2)
       of "image", "dot", "msc", "plantuml":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "image":
-          dhtImage4
+          dhtImage
         of "dot":
-          dhtDot4
+          dhtDot
         of "msc":
-          dhtMsc4
+          dhtMsc
         of "plantuml":
-          dhtPlantuml4
+          dhtPlantuml
         else:
-          dhtImage4
+          dhtImage
         var tmp: DocImageType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocHeadingTypeBody(kind: kind)
         tmp2.docImageType = tmp
         add(target.xsdChoice, tmp2)
       of "anchor":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocAnchorType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocHeadingTypeBody(kind: dhtAnchor4, docAnchorType: tmp))
+            DocHeadingTypeBody(kind: dhtAnchor, docAnchorType: tmp))
       of "formula":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocFormulaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocHeadingTypeBody(kind: dhtFormula4, docFormulaType: tmp))
+            DocHeadingTypeBody(kind: dhtFormula, docFormulaType: tmp))
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocRefTextType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocHeadingTypeBody(kind: dhtRef6, docRefTextType: tmp))
+            DocHeadingTypeBody(kind: dhtRef, docRefTextType: tmp))
       of "emoji":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocEmojiType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocHeadingTypeBody(kind: dhtEmoji4, docEmojiType: tmp))
+            DocHeadingTypeBody(kind: dhtEmoji, docEmojiType: tmp))
       of "linebreak", "nonbreakablespace", "iexcl", "cent", "pound", "curren",
          "yen", "brvbar", "sect", "umlaut", "copy", "ordf", "laquo", "not",
          "shy", "registered", "macr", "deg", "plusmn", "sup2", "sup3", "acute",
@@ -7832,517 +7824,517 @@ proc loadXml*(parser: var HXmlParser; target: var DocHeadingType; tag: string;
          "ensp", "emsp", "thinsp", "zwnj", "zwj", "lrm", "rlm", "ndash",
          "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo", "bdquo",
          "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro", "tm":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "linebreak":
-          dhtLinebreak4
+          dhtLinebreak
         of "nonbreakablespace":
-          dhtNonbreakablespace4
+          dhtNonbreakablespace
         of "iexcl":
-          dhtIexcl4
+          dhtIexcl
         of "cent":
-          dhtCent4
+          dhtCent
         of "pound":
-          dhtPound4
+          dhtPound
         of "curren":
-          dhtCurren4
+          dhtCurren
         of "yen":
-          dhtYen4
+          dhtYen
         of "brvbar":
-          dhtBrvbar4
+          dhtBrvbar
         of "sect":
-          dhtSect4
+          dhtSect
         of "umlaut":
-          dhtUmlaut4
+          dhtUmlaut
         of "copy":
-          dhtCopy4
+          dhtCopy
         of "ordf":
-          dhtOrdf4
+          dhtOrdf
         of "laquo":
-          dhtLaquo4
+          dhtLaquo
         of "not":
-          dhtNot4
+          dhtNot
         of "shy":
-          dhtShy4
+          dhtShy
         of "registered":
-          dhtRegistered4
+          dhtRegistered
         of "macr":
-          dhtMacr4
+          dhtMacr
         of "deg":
-          dhtDeg4
+          dhtDeg
         of "plusmn":
-          dhtPlusmn4
+          dhtPlusmn
         of "sup2":
-          dhtSup24
+          dhtSup2
         of "sup3":
-          dhtSup34
+          dhtSup3
         of "acute":
-          dhtAcute4
+          dhtAcute
         of "micro":
-          dhtMicro4
+          dhtMicro
         of "para":
-          dhtPara12
+          dhtPara
         of "middot":
-          dhtMiddot4
+          dhtMiddot
         of "cedil":
-          dhtCedil4
+          dhtCedil
         of "sup1":
-          dhtSup14
+          dhtSup1
         of "ordm":
-          dhtOrdm4
+          dhtOrdm
         of "raquo":
-          dhtRaquo4
+          dhtRaquo
         of "frac14":
-          dhtFrac144
+          dhtFrac14
         of "frac12":
-          dhtFrac124
+          dhtFrac12
         of "frac34":
-          dhtFrac344
+          dhtFrac34
         of "iquest":
-          dhtIquest4
+          dhtIquest
         of "Agrave":
-          dhtAgrave8
+          dhtAgrave
         of "Aacute":
-          dhtAacute8
+          dhtAacute
         of "Acirc":
-          dhtAcirc8
+          dhtAcirc
         of "Atilde":
-          dhtAtilde8
+          dhtAtilde
         of "Aumlaut":
-          dhtAumlaut8
+          dhtAumlaut
         of "Aring":
-          dhtAring8
+          dhtAring
         of "AElig":
-          dhtAElig8
+          dhtAElig
         of "Ccedil":
-          dhtCcedil8
+          dhtCcedil
         of "Egrave":
-          dhtEgrave8
+          dhtEgrave
         of "Eacute":
-          dhtEacute8
+          dhtEacute
         of "Ecirc":
-          dhtEcirc8
+          dhtEcirc
         of "Eumlaut":
-          dhtEumlaut8
+          dhtEumlaut
         of "Igrave":
-          dhtIgrave8
+          dhtIgrave
         of "Iacute":
-          dhtIacute8
+          dhtIacute
         of "Icirc":
-          dhtIcirc8
+          dhtIcirc
         of "Iumlaut":
-          dhtIumlaut8
+          dhtIumlaut
         of "ETH":
-          dhtETH8
+          dhtETH
         of "Ntilde":
-          dhtNtilde8
+          dhtNtilde
         of "Ograve":
-          dhtOgrave8
+          dhtOgrave
         of "Oacute":
-          dhtOacute8
+          dhtOacute
         of "Ocirc":
-          dhtOcirc8
+          dhtOcirc
         of "Otilde":
-          dhtOtilde8
+          dhtOtilde
         of "Oumlaut":
-          dhtOumlaut8
+          dhtOumlaut
         of "times":
-          dhtTimes4
+          dhtTimes
         of "Oslash":
-          dhtOslash8
+          dhtOslash
         of "Ugrave":
-          dhtUgrave8
+          dhtUgrave
         of "Uacute":
-          dhtUacute8
+          dhtUacute
         of "Ucirc":
-          dhtUcirc8
+          dhtUcirc
         of "Uumlaut":
-          dhtUumlaut8
+          dhtUumlaut
         of "Yacute":
-          dhtYacute8
+          dhtYacute
         of "THORN":
-          dhtTHORN8
+          dhtTHORN
         of "szlig":
-          dhtSzlig4
+          dhtSzlig
         of "agrave":
-          dhtAgrave9
+          dhtAgrave1
         of "aacute":
-          dhtAacute9
+          dhtAacute1
         of "acirc":
-          dhtAcirc9
+          dhtAcirc1
         of "atilde":
-          dhtAtilde9
+          dhtAtilde1
         of "aumlaut":
-          dhtAumlaut9
+          dhtAumlaut1
         of "aring":
-          dhtAring9
+          dhtAring1
         of "aelig":
-          dhtAelig9
+          dhtAelig1
         of "ccedil":
-          dhtCcedil9
+          dhtCcedil1
         of "egrave":
-          dhtEgrave9
+          dhtEgrave1
         of "eacute":
-          dhtEacute9
+          dhtEacute1
         of "ecirc":
-          dhtEcirc9
+          dhtEcirc1
         of "eumlaut":
-          dhtEumlaut9
+          dhtEumlaut1
         of "igrave":
-          dhtIgrave9
+          dhtIgrave1
         of "iacute":
-          dhtIacute9
+          dhtIacute1
         of "icirc":
-          dhtIcirc9
+          dhtIcirc1
         of "iumlaut":
-          dhtIumlaut9
+          dhtIumlaut1
         of "eth":
-          dhtEth9
+          dhtEth1
         of "ntilde":
-          dhtNtilde9
+          dhtNtilde1
         of "ograve":
-          dhtOgrave9
+          dhtOgrave1
         of "oacute":
-          dhtOacute9
+          dhtOacute1
         of "ocirc":
-          dhtOcirc9
+          dhtOcirc1
         of "otilde":
-          dhtOtilde9
+          dhtOtilde1
         of "oumlaut":
-          dhtOumlaut9
+          dhtOumlaut1
         of "divide":
-          dhtDivide4
+          dhtDivide
         of "oslash":
-          dhtOslash9
+          dhtOslash1
         of "ugrave":
-          dhtUgrave9
+          dhtUgrave1
         of "uacute":
-          dhtUacute9
+          dhtUacute1
         of "ucirc":
-          dhtUcirc9
+          dhtUcirc1
         of "uumlaut":
-          dhtUumlaut9
+          dhtUumlaut1
         of "yacute":
-          dhtYacute9
+          dhtYacute1
         of "thorn":
-          dhtThorn9
+          dhtThorn1
         of "yumlaut":
-          dhtYumlaut8
+          dhtYumlaut
         of "fnof":
-          dhtFnof4
+          dhtFnof
         of "Alpha":
-          dhtAlpha8
+          dhtAlpha
         of "Beta":
-          dhtBeta8
+          dhtBeta
         of "Gamma":
-          dhtGamma8
+          dhtGamma
         of "Delta":
-          dhtDelta8
+          dhtDelta
         of "Epsilon":
-          dhtEpsilon8
+          dhtEpsilon
         of "Zeta":
-          dhtZeta8
+          dhtZeta
         of "Eta":
-          dhtEta8
+          dhtEta
         of "Theta":
-          dhtTheta8
+          dhtTheta
         of "Iota":
-          dhtIota8
+          dhtIota
         of "Kappa":
-          dhtKappa8
+          dhtKappa
         of "Lambda":
-          dhtLambda8
+          dhtLambda
         of "Mu":
-          dhtMu8
+          dhtMu
         of "Nu":
-          dhtNu8
+          dhtNu
         of "Xi":
-          dhtXi8
+          dhtXi
         of "Omicron":
-          dhtOmicron8
+          dhtOmicron
         of "Pi":
-          dhtPi8
+          dhtPi
         of "Rho":
-          dhtRho8
+          dhtRho
         of "Sigma":
-          dhtSigma8
+          dhtSigma
         of "Tau":
-          dhtTau8
+          dhtTau
         of "Upsilon":
-          dhtUpsilon8
+          dhtUpsilon
         of "Phi":
-          dhtPhi8
+          dhtPhi
         of "Chi":
-          dhtChi8
+          dhtChi
         of "Psi":
-          dhtPsi8
+          dhtPsi
         of "Omega":
-          dhtOmega8
+          dhtOmega
         of "alpha":
-          dhtAlpha9
+          dhtAlpha1
         of "beta":
-          dhtBeta9
+          dhtBeta1
         of "gamma":
-          dhtGamma9
+          dhtGamma1
         of "delta":
-          dhtDelta9
+          dhtDelta1
         of "epsilon":
-          dhtEpsilon9
+          dhtEpsilon1
         of "zeta":
-          dhtZeta9
+          dhtZeta1
         of "eta":
-          dhtEta9
+          dhtEta1
         of "theta":
-          dhtTheta9
+          dhtTheta1
         of "iota":
-          dhtIota9
+          dhtIota1
         of "kappa":
-          dhtKappa9
+          dhtKappa1
         of "lambda":
-          dhtLambda9
+          dhtLambda1
         of "mu":
-          dhtMu9
+          dhtMu1
         of "nu":
-          dhtNu9
+          dhtNu1
         of "xi":
-          dhtXi9
+          dhtXi1
         of "omicron":
-          dhtOmicron9
+          dhtOmicron1
         of "pi":
-          dhtPi9
+          dhtPi1
         of "rho":
-          dhtRho9
+          dhtRho1
         of "sigmaf":
-          dhtSigmaf4
+          dhtSigmaf
         of "sigma":
-          dhtSigma9
+          dhtSigma1
         of "tau":
-          dhtTau9
+          dhtTau1
         of "upsilon":
-          dhtUpsilon9
+          dhtUpsilon1
         of "phi":
-          dhtPhi9
+          dhtPhi1
         of "chi":
-          dhtChi9
+          dhtChi1
         of "psi":
-          dhtPsi9
+          dhtPsi1
         of "omega":
-          dhtOmega9
+          dhtOmega1
         of "thetasym":
-          dhtThetasym4
+          dhtThetasym
         of "upsih":
-          dhtUpsih4
+          dhtUpsih
         of "piv":
-          dhtPiv4
+          dhtPiv
         of "bull":
-          dhtBull4
+          dhtBull
         of "hellip":
-          dhtHellip4
+          dhtHellip
         of "prime":
-          dhtPrime8
+          dhtPrime
         of "Prime":
-          dhtPrime9
+          dhtPrime1
         of "oline":
-          dhtOline4
+          dhtOline
         of "frasl":
-          dhtFrasl4
+          dhtFrasl
         of "weierp":
-          dhtWeierp4
+          dhtWeierp
         of "imaginary":
-          dhtImaginary4
+          dhtImaginary
         of "real":
-          dhtReal4
+          dhtReal
         of "trademark":
-          dhtTrademark4
+          dhtTrademark
         of "alefsym":
-          dhtAlefsym4
+          dhtAlefsym
         of "larr":
-          dhtLarr8
+          dhtLarr
         of "uarr":
-          dhtUarr8
+          dhtUarr
         of "rarr":
-          dhtRarr8
+          dhtRarr
         of "darr":
-          dhtDarr8
+          dhtDarr
         of "harr":
-          dhtHarr8
+          dhtHarr
         of "crarr":
-          dhtCrarr4
+          dhtCrarr
         of "lArr":
-          dhtLArr9
+          dhtLArr1
         of "uArr":
-          dhtUArr9
+          dhtUArr1
         of "rArr":
-          dhtRArr9
+          dhtRArr1
         of "dArr":
-          dhtDArr9
+          dhtDArr1
         of "hArr":
-          dhtHArr9
+          dhtHArr1
         of "forall":
-          dhtForall4
+          dhtForall
         of "part":
-          dhtPart4
+          dhtPart
         of "exist":
-          dhtExist4
+          dhtExist
         of "empty":
-          dhtEmpty4
+          dhtEmpty
         of "nabla":
-          dhtNabla4
+          dhtNabla
         of "isin":
-          dhtIsin4
+          dhtIsin
         of "notin":
-          dhtNotin4
+          dhtNotin
         of "ni":
-          dhtNi4
+          dhtNi
         of "prod":
-          dhtProd4
+          dhtProd
         of "sum":
-          dhtSum4
+          dhtSum
         of "minus":
-          dhtMinus4
+          dhtMinus
         of "lowast":
-          dhtLowast4
+          dhtLowast
         of "radic":
-          dhtRadic4
+          dhtRadic
         of "prop":
-          dhtProp4
+          dhtProp
         of "infin":
-          dhtInfin4
+          dhtInfin
         of "ang":
-          dhtAng4
+          dhtAng
         of "and":
-          dhtAnd4
+          dhtAnd
         of "or":
-          dhtOr4
+          dhtOr
         of "cap":
-          dhtCap4
+          dhtCap
         of "cup":
-          dhtCup4
+          dhtCup
         of "int":
-          dhtInt4
+          dhtInt
         of "there4":
-          dhtThere44
+          dhtThere4
         of "sim":
-          dhtSim4
+          dhtSim
         of "cong":
-          dhtCong4
+          dhtCong
         of "asymp":
-          dhtAsymp4
+          dhtAsymp
         of "ne":
-          dhtNe4
+          dhtNe
         of "equiv":
-          dhtEquiv4
+          dhtEquiv
         of "le":
-          dhtLe4
+          dhtLe
         of "ge":
-          dhtGe4
+          dhtGe
         of "sub":
-          dhtSub4
+          dhtSub
         of "sup":
-          dhtSup4
+          dhtSup
         of "nsub":
-          dhtNsub4
+          dhtNsub
         of "sube":
-          dhtSube4
+          dhtSube
         of "supe":
-          dhtSupe4
+          dhtSupe
         of "oplus":
-          dhtOplus4
+          dhtOplus
         of "otimes":
-          dhtOtimes4
+          dhtOtimes
         of "perp":
-          dhtPerp4
+          dhtPerp
         of "sdot":
-          dhtSdot4
+          dhtSdot
         of "lceil":
-          dhtLceil4
+          dhtLceil
         of "rceil":
-          dhtRceil4
+          dhtRceil
         of "lfloor":
-          dhtLfloor4
+          dhtLfloor
         of "rfloor":
-          dhtRfloor4
+          dhtRfloor
         of "lang":
-          dhtLang4
+          dhtLang
         of "rang":
-          dhtRang4
+          dhtRang
         of "loz":
-          dhtLoz4
+          dhtLoz
         of "spades":
-          dhtSpades4
+          dhtSpades
         of "clubs":
-          dhtClubs4
+          dhtClubs
         of "hearts":
-          dhtHearts4
+          dhtHearts
         of "diams":
-          dhtDiams4
+          dhtDiams
         of "OElig":
-          dhtOElig8
+          dhtOElig
         of "oelig":
-          dhtOelig9
+          dhtOelig1
         of "Scaron":
-          dhtScaron8
+          dhtScaron
         of "scaron":
-          dhtScaron9
+          dhtScaron1
         of "Yumlaut":
-          dhtYumlaut9
+          dhtYumlaut1
         of "circ":
-          dhtCirc4
+          dhtCirc
         of "tilde":
-          dhtTilde4
+          dhtTilde
         of "ensp":
-          dhtEnsp4
+          dhtEnsp
         of "emsp":
-          dhtEmsp4
+          dhtEmsp
         of "thinsp":
-          dhtThinsp4
+          dhtThinsp
         of "zwnj":
-          dhtZwnj4
+          dhtZwnj
         of "zwj":
-          dhtZwj4
+          dhtZwj
         of "lrm":
-          dhtLrm4
+          dhtLrm
         of "rlm":
-          dhtRlm4
+          dhtRlm
         of "ndash":
-          dhtNdash4
+          dhtNdash
         of "mdash":
-          dhtMdash4
+          dhtMdash
         of "lsquo":
-          dhtLsquo4
+          dhtLsquo
         of "rsquo":
-          dhtRsquo4
+          dhtRsquo
         of "sbquo":
-          dhtSbquo4
+          dhtSbquo
         of "ldquo":
-          dhtLdquo4
+          dhtLdquo
         of "rdquo":
-          dhtRdquo4
+          dhtRdquo
         of "bdquo":
-          dhtBdquo4
+          dhtBdquo
         of "dagger":
-          dhtDagger8
+          dhtDagger
         of "Dagger":
-          dhtDagger9
+          dhtDagger1
         of "permil":
-          dhtPermil4
+          dhtPermil
         of "lsaquo":
-          dhtLsaquo4
+          dhtLsaquo
         of "rsaquo":
-          dhtRsaquo4
+          dhtRsaquo
         of "euro":
-          dhtEuro4
+          dhtEuro
         of "tm":
-          dhtTm4
+          dhtTm
         else:
-          dhtLinebreak4
+          dhtLinebreak
         var tmp: DocEmptyType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocHeadingTypeBody(kind: kind)
         tmp2.docEmptyType = tmp
         add(target.xsdChoice, tmp2)
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -8358,14 +8350,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocHeadingType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocImageType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -8389,124 +8381,123 @@ proc loadXml*(parser: var HXmlParser; target: var DocImageType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice,
-          DocImageTypeBody(kind: doitMixedStr24, mixedStr: tmp))
+      add(target.xsdChoice, DocImageTypeBody(kind: doitMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "ulink":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocURLLink
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice,
-            DocImageTypeBody(kind: doitUlink5, docURLLink: tmp))
+        add(target.xsdChoice, DocImageTypeBody(kind: doitUlink, docURLLink: tmp))
       of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
          "subscript", "superscript", "center", "small", "del", "ins":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "bold":
-          doitBold5
+          doitBold
         of "s":
-          doitS5
+          doitS
         of "strike":
-          doitStrike5
+          doitStrike
         of "underline":
-          doitUnderline5
+          doitUnderline
         of "emphasis":
-          doitEmphasis5
+          doitEmphasis
         of "computeroutput":
-          doitComputeroutput5
+          doitComputeroutput
         of "subscript":
-          doitSubscript5
+          doitSubscript
         of "superscript":
-          doitSuperscript5
+          doitSuperscript
         of "center":
-          doitCenter5
+          doitCenter
         of "small":
-          doitSmall5
+          doitSmall
         of "del":
-          doitDel5
+          doitDel
         of "ins":
-          doitIns5
+          doitIns
         else:
-          doitBold5
+          doitBold
         var tmp: DocMarkupType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocImageTypeBody(kind: kind)
         tmp2.docMarkupType = tmp
         add(target.xsdChoice, tmp2)
       of "htmlonly":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocHtmlOnlyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocImageTypeBody(kind: doitHtmlonly5, docHtmlOnlyType: tmp))
+            DocImageTypeBody(kind: doitHtmlonly, docHtmlOnlyType: tmp))
       of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "manonly":
-          doitManonly5
+          doitManonly
         of "xmlonly":
-          doitXmlonly5
+          doitXmlonly
         of "rtfonly":
-          doitRtfonly5
+          doitRtfonly
         of "latexonly":
-          doitLatexonly5
+          doitLatexonly
         of "docbookonly":
-          doitDocbookonly5
+          doitDocbookonly
         else:
-          doitManonly5
+          doitManonly
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocImageTypeBody(kind: kind)
         tmp2.fString = tmp
         add(target.xsdChoice, tmp2)
       of "image", "dot", "msc", "plantuml":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "image":
-          doitImage5
+          doitImage
         of "dot":
-          doitDot5
+          doitDot
         of "msc":
-          doitMsc5
+          doitMsc
         of "plantuml":
-          doitPlantuml5
+          doitPlantuml
         else:
-          doitImage5
+          doitImage
         var tmp: DocImageType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocImageTypeBody(kind: kind)
         tmp2.docImageType = tmp
         add(target.xsdChoice, tmp2)
       of "anchor":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocAnchorType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocImageTypeBody(kind: doitAnchor5, docAnchorType: tmp))
+            DocImageTypeBody(kind: doitAnchor, docAnchorType: tmp))
       of "formula":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocFormulaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocImageTypeBody(kind: doitFormula5, docFormulaType: tmp))
+            DocImageTypeBody(kind: doitFormula, docFormulaType: tmp))
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocRefTextType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocImageTypeBody(kind: doitRef7, docRefTextType: tmp))
+            DocImageTypeBody(kind: doitRef, docRefTextType: tmp))
       of "emoji":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocEmojiType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocImageTypeBody(kind: doitEmoji5, docEmojiType: tmp))
+            DocImageTypeBody(kind: doitEmoji, docEmojiType: tmp))
       of "linebreak", "nonbreakablespace", "iexcl", "cent", "pound", "curren",
          "yen", "brvbar", "sect", "umlaut", "copy", "ordf", "laquo", "not",
          "shy", "registered", "macr", "deg", "plusmn", "sup2", "sup3", "acute",
@@ -8540,517 +8531,517 @@ proc loadXml*(parser: var HXmlParser; target: var DocImageType; tag: string;
          "ensp", "emsp", "thinsp", "zwnj", "zwj", "lrm", "rlm", "ndash",
          "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo", "bdquo",
          "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro", "tm":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "linebreak":
-          doitLinebreak5
+          doitLinebreak
         of "nonbreakablespace":
-          doitNonbreakablespace5
+          doitNonbreakablespace
         of "iexcl":
-          doitIexcl5
+          doitIexcl
         of "cent":
-          doitCent5
+          doitCent
         of "pound":
-          doitPound5
+          doitPound
         of "curren":
-          doitCurren5
+          doitCurren
         of "yen":
-          doitYen5
+          doitYen
         of "brvbar":
-          doitBrvbar5
+          doitBrvbar
         of "sect":
-          doitSect5
+          doitSect
         of "umlaut":
-          doitUmlaut5
+          doitUmlaut
         of "copy":
-          doitCopy5
+          doitCopy
         of "ordf":
-          doitOrdf5
+          doitOrdf
         of "laquo":
-          doitLaquo5
+          doitLaquo
         of "not":
-          doitNot5
+          doitNot
         of "shy":
-          doitShy5
+          doitShy
         of "registered":
-          doitRegistered5
+          doitRegistered
         of "macr":
-          doitMacr5
+          doitMacr
         of "deg":
-          doitDeg5
+          doitDeg
         of "plusmn":
-          doitPlusmn5
+          doitPlusmn
         of "sup2":
-          doitSup25
+          doitSup2
         of "sup3":
-          doitSup35
+          doitSup3
         of "acute":
-          doitAcute5
+          doitAcute
         of "micro":
-          doitMicro5
+          doitMicro
         of "para":
-          doitPara13
+          doitPara
         of "middot":
-          doitMiddot5
+          doitMiddot
         of "cedil":
-          doitCedil5
+          doitCedil
         of "sup1":
-          doitSup15
+          doitSup1
         of "ordm":
-          doitOrdm5
+          doitOrdm
         of "raquo":
-          doitRaquo5
+          doitRaquo
         of "frac14":
-          doitFrac145
+          doitFrac14
         of "frac12":
-          doitFrac125
+          doitFrac12
         of "frac34":
-          doitFrac345
+          doitFrac34
         of "iquest":
-          doitIquest5
+          doitIquest
         of "Agrave":
-          doitAgrave10
+          doitAgrave
         of "Aacute":
-          doitAacute10
+          doitAacute
         of "Acirc":
-          doitAcirc10
+          doitAcirc
         of "Atilde":
-          doitAtilde10
+          doitAtilde
         of "Aumlaut":
-          doitAumlaut10
+          doitAumlaut
         of "Aring":
-          doitAring10
+          doitAring
         of "AElig":
-          doitAElig10
+          doitAElig
         of "Ccedil":
-          doitCcedil10
+          doitCcedil
         of "Egrave":
-          doitEgrave10
+          doitEgrave
         of "Eacute":
-          doitEacute10
+          doitEacute
         of "Ecirc":
-          doitEcirc10
+          doitEcirc
         of "Eumlaut":
-          doitEumlaut10
+          doitEumlaut
         of "Igrave":
-          doitIgrave10
+          doitIgrave
         of "Iacute":
-          doitIacute10
+          doitIacute
         of "Icirc":
-          doitIcirc10
+          doitIcirc
         of "Iumlaut":
-          doitIumlaut10
+          doitIumlaut
         of "ETH":
-          doitETH10
+          doitETH
         of "Ntilde":
-          doitNtilde10
+          doitNtilde
         of "Ograve":
-          doitOgrave10
+          doitOgrave
         of "Oacute":
-          doitOacute10
+          doitOacute
         of "Ocirc":
-          doitOcirc10
+          doitOcirc
         of "Otilde":
-          doitOtilde10
+          doitOtilde
         of "Oumlaut":
-          doitOumlaut10
+          doitOumlaut
         of "times":
-          doitTimes5
+          doitTimes
         of "Oslash":
-          doitOslash10
+          doitOslash
         of "Ugrave":
-          doitUgrave10
+          doitUgrave
         of "Uacute":
-          doitUacute10
+          doitUacute
         of "Ucirc":
-          doitUcirc10
+          doitUcirc
         of "Uumlaut":
-          doitUumlaut10
+          doitUumlaut
         of "Yacute":
-          doitYacute10
+          doitYacute
         of "THORN":
-          doitTHORN10
+          doitTHORN
         of "szlig":
-          doitSzlig5
+          doitSzlig
         of "agrave":
-          doitAgrave11
+          doitAgrave1
         of "aacute":
-          doitAacute11
+          doitAacute1
         of "acirc":
-          doitAcirc11
+          doitAcirc1
         of "atilde":
-          doitAtilde11
+          doitAtilde1
         of "aumlaut":
-          doitAumlaut11
+          doitAumlaut1
         of "aring":
-          doitAring11
+          doitAring1
         of "aelig":
-          doitAelig11
+          doitAelig1
         of "ccedil":
-          doitCcedil11
+          doitCcedil1
         of "egrave":
-          doitEgrave11
+          doitEgrave1
         of "eacute":
-          doitEacute11
+          doitEacute1
         of "ecirc":
-          doitEcirc11
+          doitEcirc1
         of "eumlaut":
-          doitEumlaut11
+          doitEumlaut1
         of "igrave":
-          doitIgrave11
+          doitIgrave1
         of "iacute":
-          doitIacute11
+          doitIacute1
         of "icirc":
-          doitIcirc11
+          doitIcirc1
         of "iumlaut":
-          doitIumlaut11
+          doitIumlaut1
         of "eth":
-          doitEth11
+          doitEth1
         of "ntilde":
-          doitNtilde11
+          doitNtilde1
         of "ograve":
-          doitOgrave11
+          doitOgrave1
         of "oacute":
-          doitOacute11
+          doitOacute1
         of "ocirc":
-          doitOcirc11
+          doitOcirc1
         of "otilde":
-          doitOtilde11
+          doitOtilde1
         of "oumlaut":
-          doitOumlaut11
+          doitOumlaut1
         of "divide":
-          doitDivide5
+          doitDivide
         of "oslash":
-          doitOslash11
+          doitOslash1
         of "ugrave":
-          doitUgrave11
+          doitUgrave1
         of "uacute":
-          doitUacute11
+          doitUacute1
         of "ucirc":
-          doitUcirc11
+          doitUcirc1
         of "uumlaut":
-          doitUumlaut11
+          doitUumlaut1
         of "yacute":
-          doitYacute11
+          doitYacute1
         of "thorn":
-          doitThorn11
+          doitThorn1
         of "yumlaut":
-          doitYumlaut10
+          doitYumlaut
         of "fnof":
-          doitFnof5
+          doitFnof
         of "Alpha":
-          doitAlpha10
+          doitAlpha
         of "Beta":
-          doitBeta10
+          doitBeta
         of "Gamma":
-          doitGamma10
+          doitGamma
         of "Delta":
-          doitDelta10
+          doitDelta
         of "Epsilon":
-          doitEpsilon10
+          doitEpsilon
         of "Zeta":
-          doitZeta10
+          doitZeta
         of "Eta":
-          doitEta10
+          doitEta
         of "Theta":
-          doitTheta10
+          doitTheta
         of "Iota":
-          doitIota10
+          doitIota
         of "Kappa":
-          doitKappa10
+          doitKappa
         of "Lambda":
-          doitLambda10
+          doitLambda
         of "Mu":
-          doitMu10
+          doitMu
         of "Nu":
-          doitNu10
+          doitNu
         of "Xi":
-          doitXi10
+          doitXi
         of "Omicron":
-          doitOmicron10
+          doitOmicron
         of "Pi":
-          doitPi10
+          doitPi
         of "Rho":
-          doitRho10
+          doitRho
         of "Sigma":
-          doitSigma10
+          doitSigma
         of "Tau":
-          doitTau10
+          doitTau
         of "Upsilon":
-          doitUpsilon10
+          doitUpsilon
         of "Phi":
-          doitPhi10
+          doitPhi
         of "Chi":
-          doitChi10
+          doitChi
         of "Psi":
-          doitPsi10
+          doitPsi
         of "Omega":
-          doitOmega10
+          doitOmega
         of "alpha":
-          doitAlpha11
+          doitAlpha1
         of "beta":
-          doitBeta11
+          doitBeta1
         of "gamma":
-          doitGamma11
+          doitGamma1
         of "delta":
-          doitDelta11
+          doitDelta1
         of "epsilon":
-          doitEpsilon11
+          doitEpsilon1
         of "zeta":
-          doitZeta11
+          doitZeta1
         of "eta":
-          doitEta11
+          doitEta1
         of "theta":
-          doitTheta11
+          doitTheta1
         of "iota":
-          doitIota11
+          doitIota1
         of "kappa":
-          doitKappa11
+          doitKappa1
         of "lambda":
-          doitLambda11
+          doitLambda1
         of "mu":
-          doitMu11
+          doitMu1
         of "nu":
-          doitNu11
+          doitNu1
         of "xi":
-          doitXi11
+          doitXi1
         of "omicron":
-          doitOmicron11
+          doitOmicron1
         of "pi":
-          doitPi11
+          doitPi1
         of "rho":
-          doitRho11
+          doitRho1
         of "sigmaf":
-          doitSigmaf5
+          doitSigmaf
         of "sigma":
-          doitSigma11
+          doitSigma1
         of "tau":
-          doitTau11
+          doitTau1
         of "upsilon":
-          doitUpsilon11
+          doitUpsilon1
         of "phi":
-          doitPhi11
+          doitPhi1
         of "chi":
-          doitChi11
+          doitChi1
         of "psi":
-          doitPsi11
+          doitPsi1
         of "omega":
-          doitOmega11
+          doitOmega1
         of "thetasym":
-          doitThetasym5
+          doitThetasym
         of "upsih":
-          doitUpsih5
+          doitUpsih
         of "piv":
-          doitPiv5
+          doitPiv
         of "bull":
-          doitBull5
+          doitBull
         of "hellip":
-          doitHellip5
+          doitHellip
         of "prime":
-          doitPrime10
+          doitPrime
         of "Prime":
-          doitPrime11
+          doitPrime1
         of "oline":
-          doitOline5
+          doitOline
         of "frasl":
-          doitFrasl5
+          doitFrasl
         of "weierp":
-          doitWeierp5
+          doitWeierp
         of "imaginary":
-          doitImaginary5
+          doitImaginary
         of "real":
-          doitReal5
+          doitReal
         of "trademark":
-          doitTrademark5
+          doitTrademark
         of "alefsym":
-          doitAlefsym5
+          doitAlefsym
         of "larr":
-          doitLarr10
+          doitLarr
         of "uarr":
-          doitUarr10
+          doitUarr
         of "rarr":
-          doitRarr10
+          doitRarr
         of "darr":
-          doitDarr10
+          doitDarr
         of "harr":
-          doitHarr10
+          doitHarr
         of "crarr":
-          doitCrarr5
+          doitCrarr
         of "lArr":
-          doitLArr11
+          doitLArr1
         of "uArr":
-          doitUArr11
+          doitUArr1
         of "rArr":
-          doitRArr11
+          doitRArr1
         of "dArr":
-          doitDArr11
+          doitDArr1
         of "hArr":
-          doitHArr11
+          doitHArr1
         of "forall":
-          doitForall5
+          doitForall
         of "part":
-          doitPart5
+          doitPart
         of "exist":
-          doitExist5
+          doitExist
         of "empty":
-          doitEmpty5
+          doitEmpty
         of "nabla":
-          doitNabla5
+          doitNabla
         of "isin":
-          doitIsin5
+          doitIsin
         of "notin":
-          doitNotin5
+          doitNotin
         of "ni":
-          doitNi5
+          doitNi
         of "prod":
-          doitProd5
+          doitProd
         of "sum":
-          doitSum5
+          doitSum
         of "minus":
-          doitMinus5
+          doitMinus
         of "lowast":
-          doitLowast5
+          doitLowast
         of "radic":
-          doitRadic5
+          doitRadic
         of "prop":
-          doitProp5
+          doitProp
         of "infin":
-          doitInfin5
+          doitInfin
         of "ang":
-          doitAng5
+          doitAng
         of "and":
-          doitAnd5
+          doitAnd
         of "or":
-          doitOr5
+          doitOr
         of "cap":
-          doitCap5
+          doitCap
         of "cup":
-          doitCup5
+          doitCup
         of "int":
-          doitInt5
+          doitInt
         of "there4":
-          doitThere45
+          doitThere4
         of "sim":
-          doitSim5
+          doitSim
         of "cong":
-          doitCong5
+          doitCong
         of "asymp":
-          doitAsymp5
+          doitAsymp
         of "ne":
-          doitNe5
+          doitNe
         of "equiv":
-          doitEquiv5
+          doitEquiv
         of "le":
-          doitLe5
+          doitLe
         of "ge":
-          doitGe5
+          doitGe
         of "sub":
-          doitSub5
+          doitSub
         of "sup":
-          doitSup5
+          doitSup
         of "nsub":
-          doitNsub5
+          doitNsub
         of "sube":
-          doitSube5
+          doitSube
         of "supe":
-          doitSupe5
+          doitSupe
         of "oplus":
-          doitOplus5
+          doitOplus
         of "otimes":
-          doitOtimes5
+          doitOtimes
         of "perp":
-          doitPerp5
+          doitPerp
         of "sdot":
-          doitSdot5
+          doitSdot
         of "lceil":
-          doitLceil5
+          doitLceil
         of "rceil":
-          doitRceil5
+          doitRceil
         of "lfloor":
-          doitLfloor5
+          doitLfloor
         of "rfloor":
-          doitRfloor5
+          doitRfloor
         of "lang":
-          doitLang5
+          doitLang
         of "rang":
-          doitRang5
+          doitRang
         of "loz":
-          doitLoz5
+          doitLoz
         of "spades":
-          doitSpades5
+          doitSpades
         of "clubs":
-          doitClubs5
+          doitClubs
         of "hearts":
-          doitHearts5
+          doitHearts
         of "diams":
-          doitDiams5
+          doitDiams
         of "OElig":
-          doitOElig10
+          doitOElig
         of "oelig":
-          doitOelig11
+          doitOelig1
         of "Scaron":
-          doitScaron10
+          doitScaron
         of "scaron":
-          doitScaron11
+          doitScaron1
         of "Yumlaut":
-          doitYumlaut11
+          doitYumlaut1
         of "circ":
-          doitCirc5
+          doitCirc
         of "tilde":
-          doitTilde5
+          doitTilde
         of "ensp":
-          doitEnsp5
+          doitEnsp
         of "emsp":
-          doitEmsp5
+          doitEmsp
         of "thinsp":
-          doitThinsp5
+          doitThinsp
         of "zwnj":
-          doitZwnj5
+          doitZwnj
         of "zwj":
-          doitZwj5
+          doitZwj
         of "lrm":
-          doitLrm5
+          doitLrm
         of "rlm":
-          doitRlm5
+          doitRlm
         of "ndash":
-          doitNdash5
+          doitNdash
         of "mdash":
-          doitMdash5
+          doitMdash
         of "lsquo":
-          doitLsquo5
+          doitLsquo
         of "rsquo":
-          doitRsquo5
+          doitRsquo
         of "sbquo":
-          doitSbquo5
+          doitSbquo
         of "ldquo":
-          doitLdquo5
+          doitLdquo
         of "rdquo":
-          doitRdquo5
+          doitRdquo
         of "bdquo":
-          doitBdquo5
+          doitBdquo
         of "dagger":
-          doitDagger10
+          doitDagger
         of "Dagger":
-          doitDagger11
+          doitDagger1
         of "permil":
-          doitPermil5
+          doitPermil
         of "lsaquo":
-          doitLsaquo5
+          doitLsaquo
         of "rsaquo":
-          doitRsaquo5
+          doitRsaquo
         of "euro":
-          doitEuro5
+          doitEuro
         of "tm":
-          doitTm5
+          doitTm
         else:
-          doitLinebreak5
+          doitLinebreak
         var tmp: DocEmptyType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocImageTypeBody(kind: kind)
         tmp2.docEmptyType = tmp
         add(target.xsdChoice, tmp2)
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -9066,14 +9057,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocImageType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocTocItemType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -9085,124 +9076,125 @@ proc loadXml*(parser: var HXmlParser; target: var DocTocItemType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
       add(target.xsdChoice,
-          DocTocItemTypeBody(kind: dtitMixedStr25, mixedStr: tmp))
+          DocTocItemTypeBody(kind: dtitMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "ulink":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocURLLink
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocTocItemTypeBody(kind: dtitUlink6, docURLLink: tmp))
+            DocTocItemTypeBody(kind: dtitUlink, docURLLink: tmp))
       of "bold", "s", "strike", "underline", "emphasis", "computeroutput",
          "subscript", "superscript", "center", "small", "del", "ins":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "bold":
-          dtitBold6
+          dtitBold
         of "s":
-          dtitS6
+          dtitS
         of "strike":
-          dtitStrike6
+          dtitStrike
         of "underline":
-          dtitUnderline6
+          dtitUnderline
         of "emphasis":
-          dtitEmphasis6
+          dtitEmphasis
         of "computeroutput":
-          dtitComputeroutput6
+          dtitComputeroutput
         of "subscript":
-          dtitSubscript6
+          dtitSubscript
         of "superscript":
-          dtitSuperscript6
+          dtitSuperscript
         of "center":
-          dtitCenter6
+          dtitCenter
         of "small":
-          dtitSmall6
+          dtitSmall
         of "del":
-          dtitDel6
+          dtitDel
         of "ins":
-          dtitIns6
+          dtitIns
         else:
-          dtitBold6
+          dtitBold
         var tmp: DocMarkupType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocTocItemTypeBody(kind: kind)
         tmp2.docMarkupType = tmp
         add(target.xsdChoice, tmp2)
       of "htmlonly":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocHtmlOnlyType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocTocItemTypeBody(kind: dtitHtmlonly6, docHtmlOnlyType: tmp))
+            DocTocItemTypeBody(kind: dtitHtmlonly, docHtmlOnlyType: tmp))
       of "manonly", "xmlonly", "rtfonly", "latexonly", "docbookonly":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "manonly":
-          dtitManonly6
+          dtitManonly
         of "xmlonly":
-          dtitXmlonly6
+          dtitXmlonly
         of "rtfonly":
-          dtitRtfonly6
+          dtitRtfonly
         of "latexonly":
-          dtitLatexonly6
+          dtitLatexonly
         of "docbookonly":
-          dtitDocbookonly6
+          dtitDocbookonly
         else:
-          dtitManonly6
+          dtitManonly
         var tmp: string
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocTocItemTypeBody(kind: kind)
         tmp2.fString = tmp
         add(target.xsdChoice, tmp2)
       of "image", "dot", "msc", "plantuml":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "image":
-          dtitImage6
+          dtitImage
         of "dot":
-          dtitDot6
+          dtitDot
         of "msc":
-          dtitMsc6
+          dtitMsc
         of "plantuml":
-          dtitPlantuml6
+          dtitPlantuml
         else:
-          dtitImage6
+          dtitImage
         var tmp: DocImageType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocTocItemTypeBody(kind: kind)
         tmp2.docImageType = tmp
         add(target.xsdChoice, tmp2)
       of "anchor":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocAnchorType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocTocItemTypeBody(kind: dtitAnchor6, docAnchorType: tmp))
+            DocTocItemTypeBody(kind: dtitAnchor, docAnchorType: tmp))
       of "formula":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocFormulaType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocTocItemTypeBody(kind: dtitFormula6, docFormulaType: tmp))
+            DocTocItemTypeBody(kind: dtitFormula, docFormulaType: tmp))
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocRefTextType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocTocItemTypeBody(kind: dtitRef8, docRefTextType: tmp))
+            DocTocItemTypeBody(kind: dtitRef, docRefTextType: tmp))
       of "emoji":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: DocEmojiType
         loadXml(parser, tmp, parser.elementName())
         add(target.xsdChoice,
-            DocTocItemTypeBody(kind: dtitEmoji6, docEmojiType: tmp))
+            DocTocItemTypeBody(kind: dtitEmoji, docEmojiType: tmp))
       of "linebreak", "nonbreakablespace", "iexcl", "cent", "pound", "curren",
          "yen", "brvbar", "sect", "umlaut", "copy", "ordf", "laquo", "not",
          "shy", "registered", "macr", "deg", "plusmn", "sup2", "sup3", "acute",
@@ -9236,517 +9228,517 @@ proc loadXml*(parser: var HXmlParser; target: var DocTocItemType; tag: string;
          "ensp", "emsp", "thinsp", "zwnj", "zwj", "lrm", "rlm", "ndash",
          "mdash", "lsquo", "rsquo", "sbquo", "ldquo", "rdquo", "bdquo",
          "dagger", "Dagger", "permil", "lsaquo", "rsaquo", "euro", "tm":
-        ## 609:12:xml_to_types.nim
+        ## 611:12:xml_to_types.nim
         let kind = case parser.elementName()
         of "linebreak":
-          dtitLinebreak6
+          dtitLinebreak
         of "nonbreakablespace":
-          dtitNonbreakablespace6
+          dtitNonbreakablespace
         of "iexcl":
-          dtitIexcl6
+          dtitIexcl
         of "cent":
-          dtitCent6
+          dtitCent
         of "pound":
-          dtitPound6
+          dtitPound
         of "curren":
-          dtitCurren6
+          dtitCurren
         of "yen":
-          dtitYen6
+          dtitYen
         of "brvbar":
-          dtitBrvbar6
+          dtitBrvbar
         of "sect":
-          dtitSect6
+          dtitSect
         of "umlaut":
-          dtitUmlaut6
+          dtitUmlaut
         of "copy":
-          dtitCopy6
+          dtitCopy
         of "ordf":
-          dtitOrdf6
+          dtitOrdf
         of "laquo":
-          dtitLaquo6
+          dtitLaquo
         of "not":
-          dtitNot6
+          dtitNot
         of "shy":
-          dtitShy6
+          dtitShy
         of "registered":
-          dtitRegistered6
+          dtitRegistered
         of "macr":
-          dtitMacr6
+          dtitMacr
         of "deg":
-          dtitDeg6
+          dtitDeg
         of "plusmn":
-          dtitPlusmn6
+          dtitPlusmn
         of "sup2":
-          dtitSup26
+          dtitSup2
         of "sup3":
-          dtitSup36
+          dtitSup3
         of "acute":
-          dtitAcute6
+          dtitAcute
         of "micro":
-          dtitMicro6
+          dtitMicro
         of "para":
-          dtitPara14
+          dtitPara
         of "middot":
-          dtitMiddot6
+          dtitMiddot
         of "cedil":
-          dtitCedil6
+          dtitCedil
         of "sup1":
-          dtitSup16
+          dtitSup1
         of "ordm":
-          dtitOrdm6
+          dtitOrdm
         of "raquo":
-          dtitRaquo6
+          dtitRaquo
         of "frac14":
-          dtitFrac146
+          dtitFrac14
         of "frac12":
-          dtitFrac126
+          dtitFrac12
         of "frac34":
-          dtitFrac346
+          dtitFrac34
         of "iquest":
-          dtitIquest6
+          dtitIquest
         of "Agrave":
-          dtitAgrave12
+          dtitAgrave
         of "Aacute":
-          dtitAacute12
+          dtitAacute
         of "Acirc":
-          dtitAcirc12
+          dtitAcirc
         of "Atilde":
-          dtitAtilde12
+          dtitAtilde
         of "Aumlaut":
-          dtitAumlaut12
+          dtitAumlaut
         of "Aring":
-          dtitAring12
+          dtitAring
         of "AElig":
-          dtitAElig12
+          dtitAElig
         of "Ccedil":
-          dtitCcedil12
+          dtitCcedil
         of "Egrave":
-          dtitEgrave12
+          dtitEgrave
         of "Eacute":
-          dtitEacute12
+          dtitEacute
         of "Ecirc":
-          dtitEcirc12
+          dtitEcirc
         of "Eumlaut":
-          dtitEumlaut12
+          dtitEumlaut
         of "Igrave":
-          dtitIgrave12
+          dtitIgrave
         of "Iacute":
-          dtitIacute12
+          dtitIacute
         of "Icirc":
-          dtitIcirc12
+          dtitIcirc
         of "Iumlaut":
-          dtitIumlaut12
+          dtitIumlaut
         of "ETH":
-          dtitETH12
+          dtitETH
         of "Ntilde":
-          dtitNtilde12
+          dtitNtilde
         of "Ograve":
-          dtitOgrave12
+          dtitOgrave
         of "Oacute":
-          dtitOacute12
+          dtitOacute
         of "Ocirc":
-          dtitOcirc12
+          dtitOcirc
         of "Otilde":
-          dtitOtilde12
+          dtitOtilde
         of "Oumlaut":
-          dtitOumlaut12
+          dtitOumlaut
         of "times":
-          dtitTimes6
+          dtitTimes
         of "Oslash":
-          dtitOslash12
+          dtitOslash
         of "Ugrave":
-          dtitUgrave12
+          dtitUgrave
         of "Uacute":
-          dtitUacute12
+          dtitUacute
         of "Ucirc":
-          dtitUcirc12
+          dtitUcirc
         of "Uumlaut":
-          dtitUumlaut12
+          dtitUumlaut
         of "Yacute":
-          dtitYacute12
+          dtitYacute
         of "THORN":
-          dtitTHORN12
+          dtitTHORN
         of "szlig":
-          dtitSzlig6
+          dtitSzlig
         of "agrave":
-          dtitAgrave13
+          dtitAgrave1
         of "aacute":
-          dtitAacute13
+          dtitAacute1
         of "acirc":
-          dtitAcirc13
+          dtitAcirc1
         of "atilde":
-          dtitAtilde13
+          dtitAtilde1
         of "aumlaut":
-          dtitAumlaut13
+          dtitAumlaut1
         of "aring":
-          dtitAring13
+          dtitAring1
         of "aelig":
-          dtitAelig13
+          dtitAelig1
         of "ccedil":
-          dtitCcedil13
+          dtitCcedil1
         of "egrave":
-          dtitEgrave13
+          dtitEgrave1
         of "eacute":
-          dtitEacute13
+          dtitEacute1
         of "ecirc":
-          dtitEcirc13
+          dtitEcirc1
         of "eumlaut":
-          dtitEumlaut13
+          dtitEumlaut1
         of "igrave":
-          dtitIgrave13
+          dtitIgrave1
         of "iacute":
-          dtitIacute13
+          dtitIacute1
         of "icirc":
-          dtitIcirc13
+          dtitIcirc1
         of "iumlaut":
-          dtitIumlaut13
+          dtitIumlaut1
         of "eth":
-          dtitEth13
+          dtitEth1
         of "ntilde":
-          dtitNtilde13
+          dtitNtilde1
         of "ograve":
-          dtitOgrave13
+          dtitOgrave1
         of "oacute":
-          dtitOacute13
+          dtitOacute1
         of "ocirc":
-          dtitOcirc13
+          dtitOcirc1
         of "otilde":
-          dtitOtilde13
+          dtitOtilde1
         of "oumlaut":
-          dtitOumlaut13
+          dtitOumlaut1
         of "divide":
-          dtitDivide6
+          dtitDivide
         of "oslash":
-          dtitOslash13
+          dtitOslash1
         of "ugrave":
-          dtitUgrave13
+          dtitUgrave1
         of "uacute":
-          dtitUacute13
+          dtitUacute1
         of "ucirc":
-          dtitUcirc13
+          dtitUcirc1
         of "uumlaut":
-          dtitUumlaut13
+          dtitUumlaut1
         of "yacute":
-          dtitYacute13
+          dtitYacute1
         of "thorn":
-          dtitThorn13
+          dtitThorn1
         of "yumlaut":
-          dtitYumlaut12
+          dtitYumlaut
         of "fnof":
-          dtitFnof6
+          dtitFnof
         of "Alpha":
-          dtitAlpha12
+          dtitAlpha
         of "Beta":
-          dtitBeta12
+          dtitBeta
         of "Gamma":
-          dtitGamma12
+          dtitGamma
         of "Delta":
-          dtitDelta12
+          dtitDelta
         of "Epsilon":
-          dtitEpsilon12
+          dtitEpsilon
         of "Zeta":
-          dtitZeta12
+          dtitZeta
         of "Eta":
-          dtitEta12
+          dtitEta
         of "Theta":
-          dtitTheta12
+          dtitTheta
         of "Iota":
-          dtitIota12
+          dtitIota
         of "Kappa":
-          dtitKappa12
+          dtitKappa
         of "Lambda":
-          dtitLambda12
+          dtitLambda
         of "Mu":
-          dtitMu12
+          dtitMu
         of "Nu":
-          dtitNu12
+          dtitNu
         of "Xi":
-          dtitXi12
+          dtitXi
         of "Omicron":
-          dtitOmicron12
+          dtitOmicron
         of "Pi":
-          dtitPi12
+          dtitPi
         of "Rho":
-          dtitRho12
+          dtitRho
         of "Sigma":
-          dtitSigma12
+          dtitSigma
         of "Tau":
-          dtitTau12
+          dtitTau
         of "Upsilon":
-          dtitUpsilon12
+          dtitUpsilon
         of "Phi":
-          dtitPhi12
+          dtitPhi
         of "Chi":
-          dtitChi12
+          dtitChi
         of "Psi":
-          dtitPsi12
+          dtitPsi
         of "Omega":
-          dtitOmega12
+          dtitOmega
         of "alpha":
-          dtitAlpha13
+          dtitAlpha1
         of "beta":
-          dtitBeta13
+          dtitBeta1
         of "gamma":
-          dtitGamma13
+          dtitGamma1
         of "delta":
-          dtitDelta13
+          dtitDelta1
         of "epsilon":
-          dtitEpsilon13
+          dtitEpsilon1
         of "zeta":
-          dtitZeta13
+          dtitZeta1
         of "eta":
-          dtitEta13
+          dtitEta1
         of "theta":
-          dtitTheta13
+          dtitTheta1
         of "iota":
-          dtitIota13
+          dtitIota1
         of "kappa":
-          dtitKappa13
+          dtitKappa1
         of "lambda":
-          dtitLambda13
+          dtitLambda1
         of "mu":
-          dtitMu13
+          dtitMu1
         of "nu":
-          dtitNu13
+          dtitNu1
         of "xi":
-          dtitXi13
+          dtitXi1
         of "omicron":
-          dtitOmicron13
+          dtitOmicron1
         of "pi":
-          dtitPi13
+          dtitPi1
         of "rho":
-          dtitRho13
+          dtitRho1
         of "sigmaf":
-          dtitSigmaf6
+          dtitSigmaf
         of "sigma":
-          dtitSigma13
+          dtitSigma1
         of "tau":
-          dtitTau13
+          dtitTau1
         of "upsilon":
-          dtitUpsilon13
+          dtitUpsilon1
         of "phi":
-          dtitPhi13
+          dtitPhi1
         of "chi":
-          dtitChi13
+          dtitChi1
         of "psi":
-          dtitPsi13
+          dtitPsi1
         of "omega":
-          dtitOmega13
+          dtitOmega1
         of "thetasym":
-          dtitThetasym6
+          dtitThetasym
         of "upsih":
-          dtitUpsih6
+          dtitUpsih
         of "piv":
-          dtitPiv6
+          dtitPiv
         of "bull":
-          dtitBull6
+          dtitBull
         of "hellip":
-          dtitHellip6
+          dtitHellip
         of "prime":
-          dtitPrime12
+          dtitPrime
         of "Prime":
-          dtitPrime13
+          dtitPrime1
         of "oline":
-          dtitOline6
+          dtitOline
         of "frasl":
-          dtitFrasl6
+          dtitFrasl
         of "weierp":
-          dtitWeierp6
+          dtitWeierp
         of "imaginary":
-          dtitImaginary6
+          dtitImaginary
         of "real":
-          dtitReal6
+          dtitReal
         of "trademark":
-          dtitTrademark6
+          dtitTrademark
         of "alefsym":
-          dtitAlefsym6
+          dtitAlefsym
         of "larr":
-          dtitLarr12
+          dtitLarr
         of "uarr":
-          dtitUarr12
+          dtitUarr
         of "rarr":
-          dtitRarr12
+          dtitRarr
         of "darr":
-          dtitDarr12
+          dtitDarr
         of "harr":
-          dtitHarr12
+          dtitHarr
         of "crarr":
-          dtitCrarr6
+          dtitCrarr
         of "lArr":
-          dtitLArr13
+          dtitLArr1
         of "uArr":
-          dtitUArr13
+          dtitUArr1
         of "rArr":
-          dtitRArr13
+          dtitRArr1
         of "dArr":
-          dtitDArr13
+          dtitDArr1
         of "hArr":
-          dtitHArr13
+          dtitHArr1
         of "forall":
-          dtitForall6
+          dtitForall
         of "part":
-          dtitPart6
+          dtitPart
         of "exist":
-          dtitExist6
+          dtitExist
         of "empty":
-          dtitEmpty6
+          dtitEmpty
         of "nabla":
-          dtitNabla6
+          dtitNabla
         of "isin":
-          dtitIsin6
+          dtitIsin
         of "notin":
-          dtitNotin6
+          dtitNotin
         of "ni":
-          dtitNi6
+          dtitNi
         of "prod":
-          dtitProd6
+          dtitProd
         of "sum":
-          dtitSum6
+          dtitSum
         of "minus":
-          dtitMinus6
+          dtitMinus
         of "lowast":
-          dtitLowast6
+          dtitLowast
         of "radic":
-          dtitRadic6
+          dtitRadic
         of "prop":
-          dtitProp6
+          dtitProp
         of "infin":
-          dtitInfin6
+          dtitInfin
         of "ang":
-          dtitAng6
+          dtitAng
         of "and":
-          dtitAnd6
+          dtitAnd
         of "or":
-          dtitOr6
+          dtitOr
         of "cap":
-          dtitCap6
+          dtitCap
         of "cup":
-          dtitCup6
+          dtitCup
         of "int":
-          dtitInt6
+          dtitInt
         of "there4":
-          dtitThere46
+          dtitThere4
         of "sim":
-          dtitSim6
+          dtitSim
         of "cong":
-          dtitCong6
+          dtitCong
         of "asymp":
-          dtitAsymp6
+          dtitAsymp
         of "ne":
-          dtitNe6
+          dtitNe
         of "equiv":
-          dtitEquiv6
+          dtitEquiv
         of "le":
-          dtitLe6
+          dtitLe
         of "ge":
-          dtitGe6
+          dtitGe
         of "sub":
-          dtitSub6
+          dtitSub
         of "sup":
-          dtitSup6
+          dtitSup
         of "nsub":
-          dtitNsub6
+          dtitNsub
         of "sube":
-          dtitSube6
+          dtitSube
         of "supe":
-          dtitSupe6
+          dtitSupe
         of "oplus":
-          dtitOplus6
+          dtitOplus
         of "otimes":
-          dtitOtimes6
+          dtitOtimes
         of "perp":
-          dtitPerp6
+          dtitPerp
         of "sdot":
-          dtitSdot6
+          dtitSdot
         of "lceil":
-          dtitLceil6
+          dtitLceil
         of "rceil":
-          dtitRceil6
+          dtitRceil
         of "lfloor":
-          dtitLfloor6
+          dtitLfloor
         of "rfloor":
-          dtitRfloor6
+          dtitRfloor
         of "lang":
-          dtitLang6
+          dtitLang
         of "rang":
-          dtitRang6
+          dtitRang
         of "loz":
-          dtitLoz6
+          dtitLoz
         of "spades":
-          dtitSpades6
+          dtitSpades
         of "clubs":
-          dtitClubs6
+          dtitClubs
         of "hearts":
-          dtitHearts6
+          dtitHearts
         of "diams":
-          dtitDiams6
+          dtitDiams
         of "OElig":
-          dtitOElig12
+          dtitOElig
         of "oelig":
-          dtitOelig13
+          dtitOelig1
         of "Scaron":
-          dtitScaron12
+          dtitScaron
         of "scaron":
-          dtitScaron13
+          dtitScaron1
         of "Yumlaut":
-          dtitYumlaut13
+          dtitYumlaut1
         of "circ":
-          dtitCirc6
+          dtitCirc
         of "tilde":
-          dtitTilde6
+          dtitTilde
         of "ensp":
-          dtitEnsp6
+          dtitEnsp
         of "emsp":
-          dtitEmsp6
+          dtitEmsp
         of "thinsp":
-          dtitThinsp6
+          dtitThinsp
         of "zwnj":
-          dtitZwnj6
+          dtitZwnj
         of "zwj":
-          dtitZwj6
+          dtitZwj
         of "lrm":
-          dtitLrm6
+          dtitLrm
         of "rlm":
-          dtitRlm6
+          dtitRlm
         of "ndash":
-          dtitNdash6
+          dtitNdash
         of "mdash":
-          dtitMdash6
+          dtitMdash
         of "lsquo":
-          dtitLsquo6
+          dtitLsquo
         of "rsquo":
-          dtitRsquo6
+          dtitRsquo
         of "sbquo":
-          dtitSbquo6
+          dtitSbquo
         of "ldquo":
-          dtitLdquo6
+          dtitLdquo
         of "rdquo":
-          dtitRdquo6
+          dtitRdquo
         of "bdquo":
-          dtitBdquo6
+          dtitBdquo
         of "dagger":
-          dtitDagger12
+          dtitDagger
         of "Dagger":
-          dtitDagger13
+          dtitDagger1
         of "permil":
-          dtitPermil6
+          dtitPermil
         of "lsaquo":
-          dtitLsaquo6
+          dtitLsaquo
         of "rsaquo":
-          dtitRsaquo6
+          dtitRsaquo
         of "euro":
-          dtitEuro6
+          dtitEuro
         of "tm":
-          dtitTm6
+          dtitTm
         else:
-          dtitLinebreak6
+          dtitLinebreak
         var tmp: DocEmptyType
         loadXml(parser, tmp, parser.elementName())
         var tmp2 = DocTocItemTypeBody(kind: kind)
         tmp2.docEmptyType = tmp
         add(target.xsdChoice, tmp2)
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -9762,14 +9754,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocTocItemType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocTocListType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -9779,14 +9771,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocTocListType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "tocitem":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.tocitem, "tocitem")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -9802,14 +9795,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocTocListType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocLanguageType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -9821,14 +9814,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocLanguageType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.para, "para")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -9844,14 +9838,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocLanguageType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocParamListType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -9863,14 +9857,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocParamListType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "parameteritem":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.parameteritem, "parameteritem")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -9886,14 +9881,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocParamListType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocParamListItem; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -9903,17 +9898,18 @@ proc loadXml*(parser: var HXmlParser; target: var DocParamListItem; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "parameternamelist":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.parameternamelist, "parameternamelist")
       of "parameterdescription":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.parameterdescription, "parameterdescription")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -9929,14 +9925,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocParamListItem; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocParamNameList; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -9946,17 +9942,18 @@ proc loadXml*(parser: var HXmlParser; target: var DocParamNameList; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "parametertype":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.parametertype, "parametertype")
       of "parametername":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.parametername, "parametername")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -9972,14 +9969,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocParamNameList; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocParamType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -9989,22 +9986,22 @@ proc loadXml*(parser: var HXmlParser; target: var DocParamType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice,
-          DocParamTypeBody(kind: doptMixedStr26, mixedStr: tmp))
+      add(target.xsdChoice, DocParamTypeBody(kind: doptMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: RefTextType
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, DocParamTypeBody(kind: doptRef9, refTextType: tmp))
+        add(target.xsdChoice, DocParamTypeBody(kind: doptRef, refTextType: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -10020,14 +10017,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocParamType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocParamName; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -10039,21 +10036,22 @@ proc loadXml*(parser: var HXmlParser; target: var DocParamName; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of XmlEventKind.xmlCharData:
-      ## 630:10:xml_to_types.nim
+      ## 632:10:xml_to_types.nim
       var tmp: string
       parseXsdString(tmp, parser, "")
-      add(target.xsdChoice, DocParamNameBody(kind: dpnMixedStr27, mixedStr: tmp))
+      add(target.xsdChoice, DocParamNameBody(kind: dpnMixedStr, mixedStr: tmp))
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "ref":
-        ## 598:12:xml_to_types.nim
+        ## 600:12:xml_to_types.nim
         var tmp: RefTextType
         loadXml(parser, tmp, parser.elementName())
-        add(target.xsdChoice, DocParamNameBody(kind: dpnRef10, refTextType: tmp))
+        add(target.xsdChoice, DocParamNameBody(kind: dpnRef, refTextType: tmp))
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -10069,14 +10067,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocParamName; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlWhitespace,
         XmlEventKind.xmlComment, XmlEventKind.xmlPI, XmlEventKind.xmlCData,
         XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocXRefSectType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -10088,17 +10086,18 @@ proc loadXml*(parser: var HXmlParser; target: var DocXRefSectType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "xreftitle":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.xreftitle, "xreftitle")
       of "xrefdescription":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.xrefdescription, "xrefdescription")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -10114,14 +10113,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocXRefSectType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocCopyType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -10133,20 +10132,21 @@ proc loadXml*(parser: var HXmlParser; target: var DocCopyType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.para, "para")
       of "sect1":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.sect1, "sect1")
       of "internal":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.internal, "internal")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -10162,14 +10162,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocCopyType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocBlockQuoteType;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -10179,14 +10179,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocBlockQuoteType;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.para, "para")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -10202,14 +10203,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocBlockQuoteType;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocParBlockType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -10219,14 +10220,15 @@ proc loadXml*(parser: var HXmlParser; target: var DocParBlockType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "para":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.para, "para")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -10242,14 +10244,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocParBlockType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocEmptyType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -10259,11 +10261,12 @@ proc loadXml*(parser: var HXmlParser; target: var DocEmptyType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -10279,14 +10282,14 @@ proc loadXml*(parser: var HXmlParser; target: var DocEmptyType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var TableofcontentsType;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -10296,14 +10299,15 @@ proc loadXml*(parser: var HXmlParser; target: var TableofcontentsType;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "tocsect":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.tocsect, "tocsect")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -10319,14 +10323,14 @@ proc loadXml*(parser: var HXmlParser; target: var TableofcontentsType;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var TableofcontentsKindType;
               tag: string; inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -10336,20 +10340,21 @@ proc loadXml*(parser: var HXmlParser; target: var TableofcontentsKindType;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       of "name":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.name, "name")
       of "reference":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.reference, "reference")
       of "tableofcontents":
-        ## 670:48:xml_to_types.nim 
+        ## 665:48:xml_to_types.nim 
         loadXml(parser, target.tableofcontents, "tableofcontents")
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -10365,14 +10370,14 @@ proc loadXml*(parser: var HXmlParser; target: var TableofcontentsKindType;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DocEmojiType; tag: string;
               inMixed: bool = false) =
-  ## 706:4:xml_to_types.nim
+  ## 701:4:xml_to_types.nim
   next(parser)
   while true:
     case parser.kind
@@ -10386,11 +10391,12 @@ proc loadXml*(parser: var HXmlParser; target: var DocEmojiType; tag: string;
         ## 536:4:xml_to_types.nim
         if not(startsWith(parser.attrKey(), ["xmlns:", "xsi:", "xml:"])):
           raiseUnexpectedAttribute(parser)
-      parser.next()
+        else:
+          parser.next()
     of {XmlEventKind.xmlElementStart, XmlEventKind.xmlElementOpen}:
       case parser.elementName()
       else:
-        ## 675:4:xml_to_types.nim
+        ## 670:4:xml_to_types.nim
         if inMixed:
           return
         else:
@@ -10406,581 +10412,457 @@ proc loadXml*(parser: var HXmlParser; target: var DocEmojiType; tag: string;
     of {XmlEventKind.xmlError, XmlEventKind.xmlEof, XmlEventKind.xmlCharData,
         XmlEventKind.xmlWhitespace, XmlEventKind.xmlComment, XmlEventKind.xmlPI,
         XmlEventKind.xmlCData, XmlEventKind.xmlEntity, XmlEventKind.xmlSpecial}:
-      ## 699:6:xml_to_types.nim
+      ## 694:6:xml_to_types.nim
       echo parser.displayAt()
       assert false
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxBool; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "yes":
-      target = dbYes
-    of "no":
-      target = dbNo
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "yes":
+    target = dbYes
+  of "no":
+    target = dbNo
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxGraphRelation; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "include":
-      target = dgrInclude
-    of "usage":
-      target = dgrUsage
-    of "template-instance":
-      target = dgrTemplateInstance
-    of "public-inheritance":
-      target = dgrPublicInheritance
-    of "protected-inheritance":
-      target = dgrProtectedInheritance
-    of "private-inheritance":
-      target = dgrPrivateInheritance
-    of "type-constraint":
-      target = dgrTypeConstraint
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "include":
+    target = dgrInclude
+  of "usage":
+    target = dgrUsage
+  of "template-instance":
+    target = dgrTemplateInstance
+  of "public-inheritance":
+    target = dgrPublicInheritance
+  of "protected-inheritance":
+    target = dgrProtectedInheritance
+  of "private-inheritance":
+    target = dgrPrivateInheritance
+  of "type-constraint":
+    target = dgrTypeConstraint
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxRefKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "compound":
-      target = drkCompound
-    of "member":
-      target = drkMember
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "compound":
+    target = drkCompound
+  of "member":
+    target = drkMember
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxMemberKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "define":
-      target = dmkDefine
-    of "property":
-      target = dmkProperty
-    of "event":
-      target = dmkEvent
-    of "variable":
-      target = dmkVariable
-    of "typedef":
-      target = dmkTypedef
-    of "enum":
-      target = dmkEnum
-    of "function":
-      target = dmkFunction
-    of "signal":
-      target = dmkSignal
-    of "prototype":
-      target = dmkPrototype
-    of "friend":
-      target = dmkFriend
-    of "dcop":
-      target = dmkDcop
-    of "slot":
-      target = dmkSlot
-    of "interface":
-      target = dmkInterface
-    of "service":
-      target = dmkService
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "define":
+    target = dmkDefine
+  of "property":
+    target = dmkProperty
+  of "event":
+    target = dmkEvent
+  of "variable":
+    target = dmkVariable
+  of "typedef":
+    target = dmkTypedef
+  of "enum":
+    target = dmkEnum
+  of "function":
+    target = dmkFunction
+  of "signal":
+    target = dmkSignal
+  of "prototype":
+    target = dmkPrototype
+  of "friend":
+    target = dmkFriend
+  of "dcop":
+    target = dmkDcop
+  of "slot":
+    target = dmkSlot
+  of "interface":
+    target = dmkInterface
+  of "service":
+    target = dmkService
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxProtectionKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "public":
-      target = dpkPublic
-    of "protected":
-      target = dpkProtected
-    of "private":
-      target = dpkPrivate
-    of "package":
-      target = dpkPackage
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "public":
+    target = dpkPublic
+  of "protected":
+    target = dpkProtected
+  of "private":
+    target = dpkPrivate
+  of "package":
+    target = dpkPackage
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxRefQualifierKind;
               tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "lvalue":
-      target = drqkLvalue
-    of "rvalue":
-      target = drqkRvalue
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "lvalue":
+    target = drqkLvalue
+  of "rvalue":
+    target = drqkRvalue
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxLanguage; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "Unknown":
-      target = dlUnknown
-    of "IDL":
-      target = dlIDL
-    of "Java":
-      target = dlJava
-    of "C#":
-      target = dlCHash
-    of "D":
-      target = dlD
-    of "PHP":
-      target = dlPHP
-    of "Objective-C":
-      target = dlObjectiveC
-    of "C++":
-      target = dlCPlusPlus
-    of "JavaScript":
-      target = dlJavaScript
-    of "Python":
-      target = dlPython
-    of "Fortran":
-      target = dlFortran
-    of "VHDL":
-      target = dlVHDL
-    of "XML":
-      target = dlXML
-    of "SQL":
-      target = dlSQL
-    of "Markdown":
-      target = dlMarkdown
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "Unknown":
+    target = dlUnknown
+  of "IDL":
+    target = dlIDL
+  of "Java":
+    target = dlJava
+  of "C#":
+    target = dlCHash
+  of "D":
+    target = dlD
+  of "PHP":
+    target = dlPHP
+  of "Objective-C":
+    target = dlObjectiveC
+  of "C++":
+    target = dlCPlusPlus
+  of "JavaScript":
+    target = dlJavaScript
+  of "Python":
+    target = dlPython
+  of "Fortran":
+    target = dlFortran
+  of "VHDL":
+    target = dlVHDL
+  of "XML":
+    target = dlXML
+  of "SQL":
+    target = dlSQL
+  of "Markdown":
+    target = dlMarkdown
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxVirtualKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "non-virtual":
-      target = dvkNonVirtual
-    of "virtual":
-      target = dvkVirtual
-    of "pure-virtual":
-      target = dvkPureVirtual
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "non-virtual":
+    target = dvkNonVirtual
+  of "virtual":
+    target = dvkVirtual
+  of "pure-virtual":
+    target = dvkPureVirtual
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxCompoundKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "class":
-      target = dckClass
-    of "struct":
-      target = dckStruct
-    of "union":
-      target = dckUnion
-    of "interface":
-      target = dckInterface
-    of "protocol":
-      target = dckProtocol
-    of "category":
-      target = dckCategory
-    of "exception":
-      target = dckException
-    of "service":
-      target = dckService
-    of "singleton":
-      target = dckSingleton
-    of "module":
-      target = dckModule
-    of "type":
-      target = dckType
-    of "file":
-      target = dckFile
-    of "namespace":
-      target = dckNamespace
-    of "group":
-      target = dckGroup
-    of "page":
-      target = dckPage
-    of "example":
-      target = dckExample
-    of "dir":
-      target = dckDir
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "class":
+    target = dckClass
+  of "struct":
+    target = dckStruct
+  of "union":
+    target = dckUnion
+  of "interface":
+    target = dckInterface
+  of "protocol":
+    target = dckProtocol
+  of "category":
+    target = dckCategory
+  of "exception":
+    target = dckException
+  of "service":
+    target = dckService
+  of "singleton":
+    target = dckSingleton
+  of "module":
+    target = dckModule
+  of "type":
+    target = dckType
+  of "file":
+    target = dckFile
+  of "namespace":
+    target = dckNamespace
+  of "group":
+    target = dckGroup
+  of "page":
+    target = dckPage
+  of "example":
+    target = dckExample
+  of "dir":
+    target = dckDir
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxSectionKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "user-defined":
-      target = dskUserDefined
-    of "public-type":
-      target = dskPublicType
-    of "public-func":
-      target = dskPublicFunc
-    of "public-attrib":
-      target = dskPublicAttrib
-    of "public-slot":
-      target = dskPublicSlot
-    of "signal":
-      target = dskSignal
-    of "dcop-func":
-      target = dskDcopFunc
-    of "property":
-      target = dskProperty
-    of "event":
-      target = dskEvent
-    of "public-static-func":
-      target = dskPublicStaticFunc
-    of "public-static-attrib":
-      target = dskPublicStaticAttrib
-    of "protected-type":
-      target = dskProtectedType
-    of "protected-func":
-      target = dskProtectedFunc
-    of "protected-attrib":
-      target = dskProtectedAttrib
-    of "protected-slot":
-      target = dskProtectedSlot
-    of "protected-static-func":
-      target = dskProtectedStaticFunc
-    of "protected-static-attrib":
-      target = dskProtectedStaticAttrib
-    of "package-type":
-      target = dskPackageType
-    of "package-func":
-      target = dskPackageFunc
-    of "package-attrib":
-      target = dskPackageAttrib
-    of "package-static-func":
-      target = dskPackageStaticFunc
-    of "package-static-attrib":
-      target = dskPackageStaticAttrib
-    of "private-type":
-      target = dskPrivateType
-    of "private-func":
-      target = dskPrivateFunc
-    of "private-attrib":
-      target = dskPrivateAttrib
-    of "private-slot":
-      target = dskPrivateSlot
-    of "private-static-func":
-      target = dskPrivateStaticFunc
-    of "private-static-attrib":
-      target = dskPrivateStaticAttrib
-    of "friend":
-      target = dskFriend
-    of "related":
-      target = dskRelated
-    of "define":
-      target = dskDefine
-    of "prototype":
-      target = dskPrototype
-    of "typedef":
-      target = dskTypedef
-    of "enum":
-      target = dskEnum
-    of "func":
-      target = dskFunc
-    of "var":
-      target = dskVar
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "user-defined":
+    target = dskUserDefined
+  of "public-type":
+    target = dskPublicType
+  of "public-func":
+    target = dskPublicFunc
+  of "public-attrib":
+    target = dskPublicAttrib
+  of "public-slot":
+    target = dskPublicSlot
+  of "signal":
+    target = dskSignal
+  of "dcop-func":
+    target = dskDcopFunc
+  of "property":
+    target = dskProperty
+  of "event":
+    target = dskEvent
+  of "public-static-func":
+    target = dskPublicStaticFunc
+  of "public-static-attrib":
+    target = dskPublicStaticAttrib
+  of "protected-type":
+    target = dskProtectedType
+  of "protected-func":
+    target = dskProtectedFunc
+  of "protected-attrib":
+    target = dskProtectedAttrib
+  of "protected-slot":
+    target = dskProtectedSlot
+  of "protected-static-func":
+    target = dskProtectedStaticFunc
+  of "protected-static-attrib":
+    target = dskProtectedStaticAttrib
+  of "package-type":
+    target = dskPackageType
+  of "package-func":
+    target = dskPackageFunc
+  of "package-attrib":
+    target = dskPackageAttrib
+  of "package-static-func":
+    target = dskPackageStaticFunc
+  of "package-static-attrib":
+    target = dskPackageStaticAttrib
+  of "private-type":
+    target = dskPrivateType
+  of "private-func":
+    target = dskPrivateFunc
+  of "private-attrib":
+    target = dskPrivateAttrib
+  of "private-slot":
+    target = dskPrivateSlot
+  of "private-static-func":
+    target = dskPrivateStaticFunc
+  of "private-static-attrib":
+    target = dskPrivateStaticAttrib
+  of "friend":
+    target = dskFriend
+  of "related":
+    target = dskRelated
+  of "define":
+    target = dskDefine
+  of "prototype":
+    target = dskPrototype
+  of "typedef":
+    target = dskTypedef
+  of "enum":
+    target = dskEnum
+  of "func":
+    target = dskFunc
+  of "var":
+    target = dskVar
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxHighlightClass; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "comment":
-      target = dhcComment
-    of "normal":
-      target = dhcNormal
-    of "preprocessor":
-      target = dhcPreprocessor
-    of "keyword":
-      target = dhcKeyword
-    of "keywordtype":
-      target = dhcKeywordtype
-    of "keywordflow":
-      target = dhcKeywordflow
-    of "stringliteral":
-      target = dhcStringliteral
-    of "charliteral":
-      target = dhcCharliteral
-    of "vhdlkeyword":
-      target = dhcVhdlkeyword
-    of "vhdllogic":
-      target = dhcVhdllogic
-    of "vhdlchar":
-      target = dhcVhdlchar
-    of "vhdldigit":
-      target = dhcVhdldigit
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "comment":
+    target = dhcComment
+  of "normal":
+    target = dhcNormal
+  of "preprocessor":
+    target = dhcPreprocessor
+  of "keyword":
+    target = dhcKeyword
+  of "keywordtype":
+    target = dhcKeywordtype
+  of "keywordflow":
+    target = dhcKeywordflow
+  of "stringliteral":
+    target = dhcStringliteral
+  of "charliteral":
+    target = dhcCharliteral
+  of "vhdlkeyword":
+    target = dhcVhdlkeyword
+  of "vhdllogic":
+    target = dhcVhdllogic
+  of "vhdlchar":
+    target = dhcVhdlchar
+  of "vhdldigit":
+    target = dhcVhdldigit
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxSimpleSectKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "see":
-      target = dsskSee
-    of "return":
-      target = dsskReturn
-    of "author":
-      target = dsskAuthor
-    of "authors":
-      target = dsskAuthors
-    of "version":
-      target = dsskVersion
-    of "since":
-      target = dsskSince
-    of "date":
-      target = dsskDate
-    of "note":
-      target = dsskNote
-    of "warning":
-      target = dsskWarning
-    of "pre":
-      target = dsskPre
-    of "post":
-      target = dsskPost
-    of "copyright":
-      target = dsskCopyright
-    of "invariant":
-      target = dsskInvariant
-    of "remark":
-      target = dsskRemark
-    of "attention":
-      target = dsskAttention
-    of "par":
-      target = dsskPar
-    of "rcs":
-      target = dsskRcs
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "see":
+    target = dsskSee
+  of "return":
+    target = dsskReturn
+  of "author":
+    target = dsskAuthor
+  of "authors":
+    target = dsskAuthors
+  of "version":
+    target = dsskVersion
+  of "since":
+    target = dsskSince
+  of "date":
+    target = dsskDate
+  of "note":
+    target = dsskNote
+  of "warning":
+    target = dsskWarning
+  of "pre":
+    target = dsskPre
+  of "post":
+    target = dsskPost
+  of "copyright":
+    target = dsskCopyright
+  of "invariant":
+    target = dsskInvariant
+  of "remark":
+    target = dsskRemark
+  of "attention":
+    target = dsskAttention
+  of "par":
+    target = dsskPar
+  of "rcs":
+    target = dsskRcs
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxVersionNumber; tag: string) =
-  ## 772:4:xml_to_types.nim
+  ## 758:4:xml_to_types.nim
   var tmp: string
   parseXsdString(tmp, parser)
   target = DoxVersionNumber(tmp)
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxImageKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "html":
-      target = dikHtml
-    of "latex":
-      target = dikLatex
-    of "docbook":
-      target = dikDocbook
-    of "rtf":
-      target = dikRtf
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "html":
+    target = dikHtml
+  of "latex":
+    target = dikLatex
+  of "docbook":
+    target = dikDocbook
+  of "rtf":
+    target = dikRtf
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxParamListKind; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "param":
-      target = dplkParam
-    of "retval":
-      target = dplkRetval
-    of "exception":
-      target = dplkException
-    of "templateparam":
-      target = dplkTemplateparam
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "param":
+    target = dplkParam
+  of "retval":
+    target = dplkRetval
+  of "exception":
+    target = dplkException
+  of "templateparam":
+    target = dplkTemplateparam
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxCharRange; tag: string) =
-  ## 772:4:xml_to_types.nim
+  ## 758:4:xml_to_types.nim
   var tmp: string
   parseXsdString(tmp, parser)
   target = DoxCharRange(tmp)
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxParamDir; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "in":
-      target = dpdIn
-    of "out":
-      target = dpdOut
-    of "inout":
-      target = dpdInout
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "in":
+    target = dpdIn
+  of "out":
+    target = dpdOut
+  of "inout":
+    target = dpdInout
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxAccessor; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "retain":
-      target = daRetain
-    of "copy":
-      target = daCopy
-    of "assign":
-      target = daAssign
-    of "weak":
-      target = daWeak
-    of "strong":
-      target = daStrong
-    of "unretained":
-      target = daUnretained
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "retain":
+    target = daRetain
+  of "copy":
+    target = daCopy
+  of "assign":
+    target = daAssign
+  of "weak":
+    target = daWeak
+  of "strong":
+    target = daStrong
+  of "unretained":
+    target = daUnretained
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxAlign; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "left":
-      target = daLeft
-    of "right":
-      target = daRight
-    of "center":
-      target = daCenter
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "left":
+    target = daLeft
+  of "right":
+    target = daRight
+  of "center":
+    target = daCenter
+  parser.next()
 
 
 proc loadXml*(parser: var HXmlParser; target: var DoxVerticalAlign; tag: string) =
-  ## 739:4:xml_to_types.nim
-  when target is seq:
-    var res: typeof(target[0])
-    loadXml(res, parser, tag)
-    add(target, res)
-  elif target is Option:
-    var res: typeof(target.get())
-    loadXml(res, parser, tag)
-    target = some(res)
-  else:
-    case parser.strVal
-    of "bottom":
-      target = dvaBottom
-    of "top":
-      target = dvaTop
-    of "middle":
-      target = dvaMiddle
+  ## 734:4:xml_to_types.nim
+  mixin loadXml
+  case parser.strVal
+  of "bottom":
+    target = dvaBottom
+  of "top":
+    target = dvaTop
+  of "middle":
+    target = dvaMiddle
+  parser.next()
