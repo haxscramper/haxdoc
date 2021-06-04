@@ -21,6 +21,7 @@ type
   ConvertContext = object
     db: DocDb
     refidMap: RefidMap
+    doctext: Table[string, SemOrg]
 
 using ctx: var ConvertContext
 
@@ -36,88 +37,40 @@ using ctx: var ConvertContext
 
 # import hpprint
 
-# proc toSemOrg(dtb: DescriptionTypeBody): SemOrg =
-#   discard
+proc toSemOrg(dtb: DescriptionTypeBody): SemOrg =
+  discard
 
-# proc toSemOrg(dt: DescriptionType): SemOrg =
-#   result = onkStmtList.newSemOrg()
-#   for sub in dt.xsdChoice:
-#     result.add toSemOrg(sub)
-
-
-# proc toDocType(ctx; ltt: Option[LinkedTextType]): Option[DocType] =
-#   if ltt.isNone(): return
-#   let ltt = ltt.get()
-
-#   if ltt.len != 1:
-#     return some newDocType(dtkIdent, "<<<MULTIITEM>>>")
-
-#   else:
-#     case ltt[0].kind:
-#       of lttMixedStr:
-#         result = some newDocType(dtkIdent, ltt[0].mixedStr)
-
-#       of lttRef:
-#         let reft = ltt[0].refTextType
-#         if reft.refid in ctx:
-#           result = some newDocType(dtkIdent, reft.baseExt, ctx[reft.refid])
-
-#         else:
-#           result = some newDocType(dtkIdent, reft.baseExt)
+proc toSemOrg(dt: DescriptionType): SemOrg =
+  result = onkStmtList.newSemOrg()
+  for sub in dt.xsdChoice:
+    result.add toSemOrg(sub)
 
 
-# proc register(ctx; dox: SectionDefType) =
-#   for member in dox.memberdef:
-#     case member.kind:
-#       of dmkFunction:
-#         var pr = newDocType(dtkProc)
-#         for param in member.param:
-#           pr.add newDocIdent(
-#             $param.declname.get[0], ctx.toDocType(param.ftype).get())
 
-#         pr.returnType = ctx.toDocType(member.ftype)
-#         var entry = ctx.newDocEntry(dekProc, $member.name[0], pr)
-
-#       of dmkVariable:
-#         if ctx.inScope(dekStructKinds):
-#           var entry = ctx.newDocEntry(dekField, $member.name[0])
-#           entry.identType = ctx.toDocType(member.ftype)
-
-#         else:
-#           raise newImplementError("Variable not in scope of struct kinds")
-
-#       else:
-#         pprint member, ignore = @["**/*detailed*"]
+proc register(ctx; dox: SectionDefType) =
+  for member in dox.memberdef:
+    case member.kind:
+      else:
+        pprint member
 
 
-# proc register(ctx; dox: DoxCompound.CompoundDefType) =
-#   case dox.kind:
-#     of dckFile:
-#       for section in dox.sectiondef:
-#         ctx.register(section)
+proc register(ctx; dox: DoxCompound.CompoundDefType) =
+  case dox.kind:
+    of dckFile:
+      for section in dox.sectiondef:
+        ctx.register(section)
 
-#     of dckClass, dckStruct:
-#       var entry =
-#         if dox.kind == dckClass:
-#           ctx.newDocEntry(dekClass, dox.compoundName)
+    of dckClass, dckStruct:
+      # ctx[dox.id] = entry.id()
 
-#         else:
-#           ctx.newDocEntry(dekStruct, dox.compoundName)
+      for section in dox.sectionDef:
+        ctx.register(section)
 
-#       ctx[dox.id] = entry.id()
+    of dckDir:
+      discard
 
-#       ctx.pushScope entry
-
-#       for section in dox.sectionDef:
-#         ctx.register(section)
-
-#       ctx.popScope
-
-#     of dckDir:
-#       discard
-
-#     else:
-#       err dox.kind
+    else:
+      err dox.kind
 
 proc generateDocDb*(doxygenDir: AbsDir, refidMap: RefidMap): DocDb =
   var ctx = ConvertContext(refidMap: refidMap, db: newDocDb())
@@ -129,13 +82,9 @@ proc generateDocDb*(doxygenDir: AbsDir, refidMap: RefidMap): DocDb =
   for item in index.compound:
     let file = item.fileForItem(doxygenDir)
 
-
-    # ctx.file = file
-    # ctx.refid = item.refid
-
-    # let parsed = parseDoxygenFile(file)
-    # for comp in parsed.compounddef:
-    #   ctx.register(comp)
+    let parsed = parseDoxygenFile(file)
+    for comp in parsed.compounddef:
+      ctx.register(comp)
 
   return ctx.db
 
