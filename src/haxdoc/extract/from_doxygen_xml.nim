@@ -1,452 +1,182 @@
 import
-  ./doxygen_compound as DoxCompound,
-  ./doxygen_index as DoxIndex,
+  hcparse/dox_compound as DoxCompound,
+  hcparse/dox_index as DoxIndex,
+  hcparse/dox_xml,
   ../docentry,
   std/[strtabs, tables],
   haxorg/[semorg, ast],
   hmisc/hasts/[xml_ast],
-  hmisc/other/[oswrap, hshell],
-  hmisc/hdebug_misc
+  hmisc/other/[oswrap, hshell, colorlogger, hjson],
+  hmisc/algo/halgorithm,
+  hmisc/hdebug_misc,
+  hpprint
 
-const doxyfileText = """
-DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = "${project}"
-PROJECT_NUMBER         =
-PROJECT_BRIEF          =
-PROJECT_LOGO           =
-OUTPUT_DIRECTORY       = ${outdir}
-CREATE_SUBDIRS         = NO
-ALLOW_UNICODE_NAMES    = NO
-OUTPUT_LANGUAGE        = English
-OUTPUT_TEXT_DIRECTION  = None
-BRIEF_MEMBER_DESC      = YES
-REPEAT_BRIEF           = YES
-ABBREVIATE_BRIEF       = "The $$name class" \
-                         "The $$name widget" \
-                         "The $$name file" \
-                         is \
-                         provides \
-                         specifies \
-                         contains \
-                         represents \
-                         a \
-                         an \
-                         the
-ALWAYS_DETAILED_SEC    = NO
-INLINE_INHERITED_MEMB  = NO
-FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        =
-STRIP_FROM_INC_PATH    =
-SHORT_NAMES            = NO
-JAVADOC_AUTOBRIEF      = NO
-JAVADOC_BANNER         = NO
-QT_AUTOBRIEF           = NO
-MULTILINE_CPP_IS_BRIEF = NO
-PYTHON_DOCSTRING       = YES
-INHERIT_DOCS           = YES
-SEPARATE_MEMBER_PAGES  = NO
-TAB_SIZE               = 4
-ALIASES                =
-OPTIMIZE_OUTPUT_FOR_C  = NO
-OPTIMIZE_OUTPUT_JAVA   = NO
-OPTIMIZE_FOR_FORTRAN   = NO
-OPTIMIZE_OUTPUT_VHDL   = NO
-OPTIMIZE_OUTPUT_SLICE  = NO
-EXTENSION_MAPPING      =
-MARKDOWN_SUPPORT       = YES
-TOC_INCLUDE_HEADINGS   = 5
-AUTOLINK_SUPPORT       = YES
-BUILTIN_STL_SUPPORT    = NO
-CPP_CLI_SUPPORT        = NO
-SIP_SUPPORT            = NO
-IDL_PROPERTY_SUPPORT   = YES
-DISTRIBUTE_GROUP_DOC   = NO
-GROUP_NESTED_COMPOUNDS = NO
-SUBGROUPING            = YES
-INLINE_GROUPED_CLASSES = NO
-INLINE_SIMPLE_STRUCTS  = NO
-TYPEDEF_HIDES_STRUCT   = NO
-LOOKUP_CACHE_SIZE      = 0
-NUM_PROC_THREADS       = 1
-EXTRACT_ALL            = YES
-EXTRACT_PRIVATE        = YES
-EXTRACT_PRIV_VIRTUAL   = YES
-EXTRACT_PACKAGE        = YES
-EXTRACT_STATIC         = YES
-EXTRACT_LOCAL_CLASSES  = YES
-EXTRACT_LOCAL_METHODS  = YES
-EXTRACT_ANON_NSPACES   = YES
-RESOLVE_UNNAMED_PARAMS = YES
-HIDE_UNDOC_MEMBERS     = NO
-HIDE_UNDOC_CLASSES     = NO
-HIDE_FRIEND_COMPOUNDS  = NO
-HIDE_IN_BODY_DOCS      = NO
-INTERNAL_DOCS          = YES
-CASE_SENSE_NAMES       = YES
-HIDE_SCOPE_NAMES       = NO
-HIDE_COMPOUND_REFERENCE= NO
-SHOW_INCLUDE_FILES     = YES
-SHOW_GROUPED_MEMB_INC  = NO
-FORCE_LOCAL_INCLUDES   = NO
-INLINE_INFO            = YES
-SORT_MEMBER_DOCS       = YES
-SORT_BRIEF_DOCS        = NO
-SORT_MEMBERS_CTORS_1ST = NO
-SORT_GROUP_NAMES       = NO
-SORT_BY_SCOPE_NAME     = NO
-STRICT_PROTO_MATCHING  = NO
-GENERATE_TODOLIST      = YES
-GENERATE_TESTLIST      = YES
-GENERATE_BUGLIST       = YES
-GENERATE_DEPRECATEDLIST= YES
-ENABLED_SECTIONS       =
-MAX_INITIALIZER_LINES  = 30
-SHOW_USED_FILES        = YES
-SHOW_FILES             = YES
-SHOW_NAMESPACES        = YES
-FILE_VERSION_FILTER    =
-LAYOUT_FILE            =
-CITE_BIB_FILES         =
-QUIET                  = NO
-WARNINGS               = NO
-WARN_IF_UNDOCUMENTED   = YES
-WARN_IF_DOC_ERROR      = YES
-WARN_NO_PARAMDOC       = NO
-WARN_AS_ERROR          = NO
-WARN_FORMAT            = "$$file:$$line: $$text"
-WARN_LOGFILE           =
-INPUT                  = ${input}
-INPUT_ENCODING         = UTF-8
-FILE_PATTERNS          = *.c \
-                         *.cc \
-                         *.cxx \
-                         *.cpp \
-                         *.c++ \
-                         *.java \
-                         *.ii \
-                         *.ixx \
-                         *.ipp \
-                         *.i++ \
-                         *.inl \
-                         *.idl \
-                         *.ddl \
-                         *.odl \
-                         *.h \
-                         *.hh \
-                         *.hxx \
-                         *.hpp \
-                         *.h++ \
-                         *.cs \
-                         *.d \
-                         *.php \
-                         *.php4 \
-                         *.php5 \
-                         *.phtml \
-                         *.inc \
-                         *.m \
-                         *.markdown \
-                         *.md \
-                         *.mm \
-                         *.dox \
-                         *.py \
-                         *.pyw \
-                         *.f90 \
-                         *.f95 \
-                         *.f03 \
-                         *.f08 \
-                         *.f18 \
-                         *.f \
-                         *.for \
-                         *.vhd \
-                         *.vhdl \
-                         *.ucf \
-                         *.qsf \
-                         *.ice
-RECURSIVE              = ${recurse}
-EXCLUDE                =
-EXCLUDE_SYMLINKS       = NO
-EXCLUDE_PATTERNS       =
-EXCLUDE_SYMBOLS        =
-EXAMPLE_PATH           =
-EXAMPLE_PATTERNS       = *
-EXAMPLE_RECURSIVE      = NO
-IMAGE_PATH             =
-INPUT_FILTER           =
-FILTER_PATTERNS        =
-FILTER_SOURCE_FILES    = NO
-FILTER_SOURCE_PATTERNS =
-USE_MDFILE_AS_MAINPAGE =
-SOURCE_BROWSER         = NO
-INLINE_SOURCES         = NO
-STRIP_CODE_COMMENTS    = YES
-REFERENCED_BY_RELATION = NO
-REFERENCES_RELATION    = NO
-REFERENCES_LINK_SOURCE = YES
-SOURCE_TOOLTIPS        = YES
-USE_HTAGS              = NO
-VERBATIM_HEADERS       = YES
-ALPHABETICAL_INDEX     = YES
-IGNORE_PREFIX          =
-GENERATE_HTML          = NO
-HTML_OUTPUT            = html
-HTML_FILE_EXTENSION    = .html
-HTML_HEADER            =
-HTML_FOOTER            =
-HTML_STYLESHEET        =
-HTML_EXTRA_STYLESHEET  =
-HTML_EXTRA_FILES       =
-HTML_COLORSTYLE_HUE    = 220
-HTML_COLORSTYLE_SAT    = 100
-HTML_COLORSTYLE_GAMMA  = 80
-HTML_TIMESTAMP         = NO
-HTML_DYNAMIC_MENUS     = YES
-HTML_DYNAMIC_SECTIONS  = NO
-HTML_INDEX_NUM_ENTRIES = 100
-GENERATE_DOCSET        = NO
-DOCSET_FEEDNAME        = "Doxygen generated docs"
-DOCSET_BUNDLE_ID       = org.doxygen.Project
-DOCSET_PUBLISHER_ID    = org.doxygen.Publisher
-DOCSET_PUBLISHER_NAME  = Publisher
-GENERATE_HTMLHELP      = NO
-CHM_FILE               =
-HHC_LOCATION           =
-GENERATE_CHI           = NO
-CHM_INDEX_ENCODING     =
-BINARY_TOC             = NO
-TOC_EXPAND             = NO
-GENERATE_QHP           = NO
-QCH_FILE               =
-QHP_NAMESPACE          = org.doxygen.Project
-QHP_VIRTUAL_FOLDER     = doc
-QHP_CUST_FILTER_NAME   =
-QHP_CUST_FILTER_ATTRS  =
-QHP_SECT_FILTER_ATTRS  =
-QHG_LOCATION           =
-GENERATE_ECLIPSEHELP   = NO
-ECLIPSE_DOC_ID         = org.doxygen.Project
-DISABLE_INDEX          = NO
-GENERATE_TREEVIEW      = NO
-ENUM_VALUES_PER_LINE   = 4
-TREEVIEW_WIDTH         = 250
-EXT_LINKS_IN_WINDOW    = NO
-HTML_FORMULA_FORMAT    = png
-FORMULA_FONTSIZE       = 10
-FORMULA_TRANSPARENT    = YES
-FORMULA_MACROFILE      =
-USE_MATHJAX            = NO
-MATHJAX_FORMAT         = HTML-CSS
-MATHJAX_RELPATH        = https://cdn.jsdelivr.net/npm/mathjax@2
-MATHJAX_EXTENSIONS     =
-MATHJAX_CODEFILE       =
-SEARCHENGINE           = YES
-SERVER_BASED_SEARCH    = NO
-EXTERNAL_SEARCH        = NO
-SEARCHENGINE_URL       =
-SEARCHDATA_FILE        = searchdata.xml
-EXTERNAL_SEARCH_ID     =
-EXTRA_SEARCH_MAPPINGS  =
-GENERATE_LATEX         = NO
-LATEX_OUTPUT           = latex
-LATEX_CMD_NAME         =
-MAKEINDEX_CMD_NAME     = makeindex
-LATEX_MAKEINDEX_CMD    = makeindex
-COMPACT_LATEX          = NO
-PAPER_TYPE             = a4
-EXTRA_PACKAGES         =
-LATEX_HEADER           =
-LATEX_FOOTER           =
-LATEX_EXTRA_STYLESHEET =
-LATEX_EXTRA_FILES      =
-PDF_HYPERLINKS         = YES
-USE_PDFLATEX           = YES
-LATEX_BATCHMODE        = NO
-LATEX_HIDE_INDICES     = NO
-LATEX_SOURCE_CODE      = NO
-LATEX_BIB_STYLE        = plain
-LATEX_TIMESTAMP        = NO
-LATEX_EMOJI_DIRECTORY  =
-GENERATE_RTF           = NO
-RTF_OUTPUT             = rtf
-COMPACT_RTF            = NO
-RTF_HYPERLINKS         = NO
-RTF_STYLESHEET_FILE    =
-RTF_EXTENSIONS_FILE    =
-RTF_SOURCE_CODE        = NO
-GENERATE_MAN           = NO
-MAN_OUTPUT             = man
-MAN_EXTENSION          = .3
-MAN_SUBDIR             =
-MAN_LINKS              = NO
-GENERATE_XML           = YES
-XML_OUTPUT             = xml
-XML_PROGRAMLISTING     = YES
-XML_NS_MEMB_FILE_SCOPE = NO
-GENERATE_DOCBOOK       = NO
-DOCBOOK_OUTPUT         = docbook
-DOCBOOK_PROGRAMLISTING = NO
-GENERATE_AUTOGEN_DEF   = NO
-GENERATE_PERLMOD       = NO
-PERLMOD_LATEX          = NO
-PERLMOD_PRETTY         = YES
-PERLMOD_MAKEVAR_PREFIX =
-ENABLE_PREPROCESSING   = YES
-MACRO_EXPANSION        = NO
-EXPAND_ONLY_PREDEF     = NO
-SEARCH_INCLUDES        = YES
-INCLUDE_PATH           =
-INCLUDE_FILE_PATTERNS  =
-PREDEFINED             =
-EXPAND_AS_DEFINED      =
-SKIP_FUNCTION_MACROS   = YES
-TAGFILES               =
-GENERATE_TAGFILE       =
-ALLEXTERNALS           = NO
-EXTERNAL_GROUPS        = YES
-EXTERNAL_PAGES         = YES
-CLASS_DIAGRAMS         = NO
-DIA_PATH               =
-HIDE_UNDOC_RELATIONS   = YES
-HAVE_DOT               = NO
-DOT_NUM_THREADS        = 0
-DOT_FONTNAME           = Helvetica
-DOT_FONTSIZE           = 10
-DOT_FONTPATH           =
-CLASS_GRAPH            = YES
-COLLABORATION_GRAPH    = YES
-GROUP_GRAPHS           = YES
-UML_LOOK               = NO
-UML_LIMIT_NUM_FIELDS   = 10
-DOT_UML_DETAILS        = NO
-DOT_WRAP_THRESHOLD     = 17
-TEMPLATE_RELATIONS     = NO
-INCLUDE_GRAPH          = YES
-INCLUDED_BY_GRAPH      = YES
-CALL_GRAPH             = NO
-CALLER_GRAPH           = NO
-GRAPHICAL_HIERARCHY    = YES
-DIRECTORY_GRAPH        = YES
-DOT_IMAGE_FORMAT       = png
-INTERACTIVE_SVG        = NO
-DOT_PATH               =
-DOTFILE_DIRS           =
-MSCFILE_DIRS           =
-DIAFILE_DIRS           =
-PLANTUML_JAR_PATH      =
-PLANTUML_CFG_FILE      =
-PLANTUML_INCLUDE_PATH  =
-DOT_GRAPH_MAX_NODES    = 50
-MAX_DOT_GRAPH_DEPTH    = 0
-DOT_TRANSPARENT        = NO
-DOT_MULTI_TARGETS      = NO
-GENERATE_LEGEND        = YES
-DOT_CLEANUP            = YES
-"""
+
+export dox_xml
 
 type
+  RefidMap = object
+    map: Table[string, DocFullIdent]
+
   ConvertContext = object
     db: DocDb
-    refidMap: Table[string, DocId]
+    refidMap: RefidMap
 
 using ctx: var ConvertContext
 
+# proc newDocEntry(
+#     ctx; kind: DocEntryKind, name: string, procType: DocType = nil
+#   ): DocEntry =
 
-proc doxygenXmlForDir*(
-    fromDir: AbsDir,
-    toDir: AbsDir,
-    project: string = "doxproject",
-    doxyfilePattern: string = "Doxyfile_XXXXXX",
-    recurse: bool = true
-  ) =
-  ## Generate documentation for source code located in @arg{fromDir} and
-  ## place generated XML files in @arg{toDir}.
-  let table = newStringTable({
-    "outdir": getStr(toDir),
-    "project": project,
-    "recurse": (if recurse: "YES" else: "NO"),
-    "input": $fromDir
-  })
+#   if ctx.scope.len == 0:
+#     return ctx.db.newDocEntry(kind, name, procType)
 
-  let doxFile = getTempFile(fromDir, doxyfilePattern)
-  doxFile.writeFile(doxyfileText % table)
+#   else:
+#     return ctx.scope[^1].newDocEntry(kind, name, procType)
 
-  try:
-    discard runShell shellCmd(doxygen, $doxFile)
+# import hpprint
 
-  finally:
-    discard
-    # rmFile doxFile
+# proc toSemOrg(dtb: DescriptionTypeBody): SemOrg =
+#   discard
 
-proc parseDoxygenIndex*(xml: AbsFile): DoxIndex.DoxygenType =
-  var parser = newHXmlParser(xml)
-  parser.loadXml(result, "doxygenindex")
-
-proc parseDoxygenFile*(xml: AbsFile): DoxCompound.DoxygenType =
-  var parser = newHXmlParser(xml)
-  parser.loadXml(result, "doxygen")
-
-const
-  allDoxIndexKinds* = {low(DoxIndex.CompoundKind) .. high(DoxIndex.CompoundKind)}
-
-proc indexForDir*(toDir: AbsDir): DoxIndex.DoxygenType =
-  parseDoxygenIndex(toDir / "xml" /. "index.xml")
-
-proc listGeneratedFiles*(
-    toDir: AbsDir,
-    filter: set[CompoundKind] = {ckFile, ckDir}
-  ): seq[AbsFile] =
-
-  # let index = parseDoxygenIndex(toDir / "xml" /. "index.xml")
-  for item in toDir.indexForDir().compound:
-    if item.kind in filter:
-      result.add toDir / "xml" /. (item.refid & ".xml")
+# proc toSemOrg(dt: DescriptionType): SemOrg =
+#   result = onkStmtList.newSemOrg()
+#   for sub in dt.xsdChoice:
+#     result.add toSemOrg(sub)
 
 
-import hpprint
+# proc toDocType(ctx; ltt: Option[LinkedTextType]): Option[DocType] =
+#   if ltt.isNone(): return
+#   let ltt = ltt.get()
+
+#   if ltt.len != 1:
+#     return some newDocType(dtkIdent, "<<<MULTIITEM>>>")
+
+#   else:
+#     case ltt[0].kind:
+#       of lttMixedStr:
+#         result = some newDocType(dtkIdent, ltt[0].mixedStr)
+
+#       of lttRef:
+#         let reft = ltt[0].refTextType
+#         if reft.refid in ctx:
+#           result = some newDocType(dtkIdent, reft.baseExt, ctx[reft.refid])
+
+#         else:
+#           result = some newDocType(dtkIdent, reft.baseExt)
 
 
-proc toSemOrg(dtb: DescriptionTypeBody): SemOrg =
-  discard
+# proc register(ctx; dox: SectionDefType) =
+#   for member in dox.memberdef:
+#     case member.kind:
+#       of dmkFunction:
+#         var pr = newDocType(dtkProc)
+#         for param in member.param:
+#           pr.add newDocIdent(
+#             $param.declname.get[0], ctx.toDocType(param.ftype).get())
 
-proc toSemOrg(dt: DescriptionType): SemOrg =
-  result = onkStmtList.newSemOrg()
-  for sub in dt.xsdChoice:
-    result.add toSemOrg(sub)
+#         pr.returnType = ctx.toDocType(member.ftype)
+#         var entry = ctx.newDocEntry(dekProc, $member.name[0], pr)
 
-proc register(db: var DocDb, dox: SectionDefType) =
-  for member in dox.memberdef:
-    case member.kind:
-      of dmkFunction:
-        pprint member, ignore = @["**/*detailed*"]
-        var pr = newDocType(dtkProc)
-        for param in member.param:
-          pr.add newDocIdent(
-            $param.declname.get[0], newDocType(dtkIdent, ""))
+#       of dmkVariable:
+#         if ctx.inScope(dekStructKinds):
+#           var entry = ctx.newDocEntry(dekField, $member.name[0])
+#           entry.identType = ctx.toDocType(member.ftype)
 
-        var entry = db.newDocEntry(dekProc, $member.name, pr)
+#         else:
+#           raise newImplementError("Variable not in scope of struct kinds")
 
-      else:
-        discard
+#       else:
+#         pprint member, ignore = @["**/*detailed*"]
 
-proc toDocType(db: var DocDb, ltt: LinkedTextType): DocType =
-  discard
 
-proc register(db: var DocDb, dox: DoxCompound.CompoundDefType) =
-  if dox.kind in {dckFile}:
-    for section in dox.sectiondef:
-      db.register(section)
+# proc register(ctx; dox: DoxCompound.CompoundDefType) =
+#   case dox.kind:
+#     of dckFile:
+#       for section in dox.sectiondef:
+#         ctx.register(section)
 
-proc generateDocDb*(doxygenDir: AbsDir): DocDb =
-  var db = newDocDb()
+#     of dckClass, dckStruct:
+#       var entry =
+#         if dox.kind == dckClass:
+#           ctx.newDocEntry(dekClass, dox.compoundName)
 
+#         else:
+#           ctx.newDocEntry(dekStruct, dox.compoundName)
+
+#       ctx[dox.id] = entry.id()
+
+#       ctx.pushScope entry
+
+#       for section in dox.sectionDef:
+#         ctx.register(section)
+
+#       ctx.popScope
+
+#     of dckDir:
+#       discard
+
+#     else:
+#       err dox.kind
+
+proc generateDocDb*(doxygenDir: AbsDir, refidMap: RefidMap): DocDb =
+  var ctx = ConvertContext(refidMap: refidMap, db: newDocDb())
   assertExists(
     doxygenDir / "xml",
     "Could not find generated doxygen XML directory")
 
-  let files = listGeneratedFiles(doxygenDir)
   let index = indexForDir(doxygenDir)
-  for file in files:
-    let parsed = parseDoxygenFile(file)
-    for comp in parsed.compounddef:
-      db.register(comp)
+  for item in index.compound:
+    let file = item.fileForItem(doxygenDir)
 
-  return db
+
+    # ctx.file = file
+    # ctx.refid = item.refid
+
+    # let parsed = parseDoxygenFile(file)
+    # for comp in parsed.compounddef:
+    #   ctx.register(comp)
+
+  return ctx.db
+
+proc toDocType*(j: JsonNode): DocType =
+  case j["kind"].asStr():
+    of "Ident":
+      result = newDocType(dtkIdent, j["name"].asStr())
+
+    of "Proc":
+      result = newDocType(dtkProc)
+      result.returnType = some toDocType(j["returnType"])
+      for arg in j["arguments"]:
+        result.add newDocIdent(
+          arg["ident"].asStr(),
+          arg["identType"].toDocType())
+
+
+    else:
+      raise newImplementError(j["kind"].asStr())
+
+
+
+proc loadRefidMap*(file: AbsFile): RefidMap =
+  let json = parseJson(file)
+
+  for entry in json:
+    var ident: DocFullIdent
+    for part in entry[0]:
+      case part["kind"].asStr():
+        of "Class":
+          ident.add initIdentPart(dekClass, part["name"].asStr())
+
+        of "Proc":
+          ident.add initIdentPart(
+            dekProc, part["name"].asStr(), part["procType"].toDocType())
+
+        else:
+          raise newUnexpectedKindError(part["kind"].asStr())
+
+
+    mutHash(ident)
+    result.map[entry[1].asStr()] = ident
+
+  pprint result

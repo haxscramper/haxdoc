@@ -53,7 +53,9 @@ type
 
     # new type kinds start
     dekBuiltin ## Builtin type, not defined using any other types
-    dekObject ## class/structure/object definition
+    dekObject
+    dekClass
+    dekStruct
     dekException ## Exception object
     dekDefect ## Nim defect object
     dekConcept ## General concept
@@ -108,6 +110,13 @@ type
 
     dekKeyword ## Language or macro DSL keyword
 
+    # REVIEW
+    dekErrorMsg
+    dekWarningMsg
+    dekHintMsg
+
+    dekLibSym
+
   DocProcKind* = enum
     dpkRegular
     dpkOperator
@@ -125,7 +134,9 @@ const
   dekNewtypeKinds* = { dekObject .. dekDistinctAlias }
   dekAliasKinds* = { dekTypeclass, dekAlias, dekDistinctAlias,
                      dekRefAlias }
-  dekStructKinds* = { dekObject, dekDefect, dekException, dekEffect }
+  dekStructKinds* = {
+    dekObject, dekDefect, dekException, dekEffect, dekClass, dekStruct
+  }
   dekAllKinds* = { low(DocEntryKind) .. high(DocEntryKind) }
 
 
@@ -667,19 +678,16 @@ proc hash*(part: DocIdentPart): Hash =
 
   return !$result
 
-func hash*(full: var DocFullIdent): Hash =
+func mutHash*(full: var DocFullIdent) =
   # Full identifier hash should be very stable (only changed if the name of
   # the entry is changed)
-  if full.docId.id != 0:
-    return full.docId.id
+  var h: Hash
+  {.cast(noSideEffect).}:
+    for part in full.parts:
+      h = h !& hash(part)
 
-  else:
-    {.cast(noSideEffect).}:
-      for part in full.parts:
-        result = result !& hash(part)
-
-    result = !$result
-    full.docId.id = result
+  full.docId.id = !$h
+  full.parts[0].id = full.docId
 
 func hash*(full: DocFullIdent): Hash = full.docId.id
 func `==`*(a, b: DocIdentPart): bool = a.kind == b.kind
@@ -848,6 +856,10 @@ proc newDocType*(kind: DocTypeKind, head: DocEntry): DocType =
   result = DocType(kind: kind)
   result.head = head.id()
 
+proc newDocType*(kind: DocTypeKind, name: string, id: DocId): DocType =
+  result = DocType(kind: kind, name: name)
+  result.head = id
+
 proc newDocType*(kind: DocTypeKind, name: string = ""): DocType =
   result = DocType(kind: kind, name: name)
 
@@ -871,7 +883,10 @@ proc initIdentPart*(
 
 proc initFullIdent*(parts: sink seq[DocIdentPart]): DocFullIdent =
   result = DocFullIdent(parts: parts)
-  discard hash(result)
+  mutHash(result)
+
+proc add*(ident: var DocFullIdent, part: DocIdentPart) =
+  ident.parts.add part
 
 func len*(ident: DocFullIdent): int = ident.parts.len
 func hasParent*(ident: DocFullIdent): bool = ident.parts.len > 1
