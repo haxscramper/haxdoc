@@ -25,7 +25,7 @@ suite "From doxygen for simple code sample":
   test "Generate":
     inputFile.writeFile("""
 
-class Main { int field; };
+class Main { public: int field; };
 
 
 /// \arg arg1 Documentation for second argument
@@ -57,10 +57,7 @@ Main method(int arg1, int arg2) {}
         findPackage("hcparse", newVRAny()).get().projectImportPath(): "hcparse",
         findPackage("hmisc", newVRAny()).get().projectImportPath(): "hmisc"
       },
-      conf = baseNimDocgenConf.withIt((
-        it.isOrgCommentSyntax =
-          (proc(lib: DocLib): bool = lib.name == "finalize")
-      ))
+      rstComments = @["finalize"]
     )
 
     db.writeDbXml(dir, "doxygen")

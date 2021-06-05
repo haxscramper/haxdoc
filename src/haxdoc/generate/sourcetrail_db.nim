@@ -17,7 +17,7 @@ proc getFile(writer: var SourcetrailDbWriter, path, lang: string): cint =
   discard writer.recordFileLanguage(result, lang)
 
 
-proc toTrailName(ident: DocFullIdent): SourcetrailNameHierarchy =
+proc toTrailName(ident: DocLink): SourcetrailNameHierarchy =
   var parts: seq[tuple[prefix, name, postfix: string]]
   for part in ident.parts:
     if part.kind in dekProcKinds:

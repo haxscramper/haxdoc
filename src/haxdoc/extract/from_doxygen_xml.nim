@@ -16,7 +16,7 @@ export dox_xml
 
 type
   RefidMap = object
-    map: Table[string, DocFullIdent]
+    map: Table[string, DocLink]
 
   ConvertContext = object
     db: DocDb
@@ -25,33 +25,22 @@ type
 
 using ctx: var ConvertContext
 
-# proc newDocEntry(
-#     ctx; kind: DocEntryKind, name: string, procType: DocType = nil
-#   ): DocEntry =
+proc toSemOrg(ctx; dtb: DescriptionTypeBody): SemOrg =
+  pprint dtb
 
-#   if ctx.scope.len == 0:
-#     return ctx.db.newDocEntry(kind, name, procType)
-
-#   else:
-#     return ctx.scope[^1].newDocEntry(kind, name, procType)
-
-# import hpprint
-
-proc toSemOrg(dtb: DescriptionTypeBody): SemOrg =
-  discard
-
-proc toSemOrg(dt: DescriptionType): SemOrg =
+proc toSemOrg(ctx; dt: DescriptionType): SemOrg =
   result = onkStmtList.newSemOrg()
   for sub in dt.xsdChoice:
-    result.add toSemOrg(sub)
+    result.add ctx.toSemOrg(sub)
 
 
 
 proc register(ctx; dox: SectionDefType) =
   for member in dox.memberdef:
-    case member.kind:
-      else:
-        pprint member
+    let ident = ctx.refidMap.map[member.id]
+    var entry = ctx.db.newDocEntry(ident)
+    if member.detailedDescription.getSome(desc):
+      entry.docText.docBody = ctx.toSemOrg(desc)
 
 
 proc register(ctx; dox: DoxCompound.CompoundDefType) =
@@ -61,8 +50,6 @@ proc register(ctx; dox: DoxCompound.CompoundDefType) =
         ctx.register(section)
 
     of dckClass, dckStruct:
-      # ctx[dox.id] = entry.id()
-
       for section in dox.sectionDef:
         ctx.register(section)
 
@@ -111,11 +98,14 @@ proc loadRefidMap*(file: AbsFile): RefidMap =
   let json = parseJson(file)
 
   for entry in json:
-    var ident: DocFullIdent
+    var ident: DocLink
     for part in entry[0]:
       case part["kind"].asStr():
         of "Class":
           ident.add initIdentPart(dekClass, part["name"].asStr())
+
+        of "Field":
+          ident.add initIdentPart(dekField, part["name"].asStr())
 
         of "Proc":
           ident.add initIdentPart(
@@ -127,5 +117,3 @@ proc loadRefidMap*(file: AbsFile): RefidMap =
 
     mutHash(ident)
     result.map[entry[1].asStr()] = ident
-
-  pprint result

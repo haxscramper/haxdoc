@@ -970,11 +970,8 @@ proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
 proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
   let package = ctx.db.getLibForPath(ctx.graph.getFilePath(node))
   if ctx.conf.isOrgCommentSyntax(package):
-    notice text
     let tree = parseOrg(text)
-    # debug tree.treeRepr()
     result = tree.toSemOrg(ctx.conf.orgRunConf)
-    # debug result.treeRepr()
 
   else:
     let file = AbsFile($ctx.graph.getFilePath(node))
@@ -1233,8 +1230,17 @@ proc registerToplevel(ctx, node) =
 proc loggerImpl(
     config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
   if config.errorCounter >= config.errorMax:
-    err msg
-    err info, config.getFilePath(info)
+    if level == Severity.Error:
+      err msg
+      err info, config.getFilePath(info)
+
+    elif level == Severity.Warning:
+      warn msg
+      warn info, config.getFilePath(info)
+
+    else:
+      notice msg
+      notice info, config.getFilePath(info)
 
 let
   baseNimDocgenConf* = NimDocgenConf(
@@ -1247,7 +1253,8 @@ proc registerDocPass(
     graph: ModuleGraph, file: AbsFile, stdpath: AbsDir,
     extraLibs: seq[(AbsDir, string)] = @[],
     startDb: DocDb = newDocDb(),
-    conf: NimDocgenConf = baseNimDocgenConf
+    conf: NimDocgenConf = baseNimDocgenConf,
+    rstComments: seq[string] = @[]
   ): DocDb =
   ## Create new documentation generator graph
 
@@ -1257,12 +1264,15 @@ proc registerDocPass(
 
   db = startDb
 
+  tmpConf.isOrgCommentSyntax = proc(lib: DocLib): bool =
+    lib.name in rstComments
+
   tmpConf.orgRunConf.linkResolver = proc(
     linkName: string, linkText: PosStr): OrgLink =
       echo linkName
       db.resolveFullIdent(parseFullIdent(linkText)).newOrgLink()
 
-  tmpConf.rstConvertCOnf.linkResolver = proc(
+  tmpConf.rstConvertConf.linkResolver = proc(
     linkName: string, linkText: PosStr): OrgLink =
       discard
 
@@ -1320,7 +1330,8 @@ proc generateDocDb*(
     fileLib: Option[string] = none(string),
     defines: seq[string] = @["nimdoc", "haxdoc"],
     startDb: DocDb = newDocDB(),
-    conf: NimDocgenConf = baseNimDocgenConf
+    conf: NimDocgenConf = baseNimDocgenConf,
+    rstComments: seq[string] = @[]
   ): DocDb =
 
   assertExists(
@@ -1338,7 +1349,8 @@ proc generateDocDb*(
     file, stdpath, loggerImpl, symDefines = defines)
 
   var db = graph.registerDocPass(
-    file, stdpath, extraLibs, startDb = startDb, conf = conf)
+    file, stdpath, extraLibs, startDb = startDb,
+    conf = conf, rstComments = rstComments)
 
 
   for (dir, name) in extraLibs:
@@ -1373,7 +1385,8 @@ proc docDbFromPackage*(
     ignored: seq[GitGlob] = @[],
     searchDir: AbsDir = nimbleSearchDir(),
     defines: seq[string] = @["nimdoc", "haxdoc"],
-    conf: NimDocgenConf = baseNimDocgenConf
+    conf: NimDocgenConf = baseNimDocgenConf,
+    rstComments: seq[string] = @[]
   ): DocDb =
 
   let
@@ -1391,7 +1404,8 @@ proc docDbFromPackage*(
     info dep.projectPath(), dep.name
 
   if files.len == 1:
-    result = generateDocDb(files[0], stdpath, extraLibs)
+    result = generateDocDb(
+      files[0], stdpath, extraLibs, rstComments = rstComments)
 
   else:
     var graph {.global.}: ModuleGraph
@@ -1413,7 +1427,9 @@ proc docDbFromPackage*(
       debug dir, name
 
     result = graph.registerDocPass(
-      moduleName, stdpath, extraLibs, conf = conf)
+      moduleName, stdpath, extraLibs, conf = conf,
+      rstComments = rstComments
+    )
 
     var m = graph.makeModule(moduleName.string)
     graph.vm = setupVM(m, graph.cache, moduleName.string, graph)

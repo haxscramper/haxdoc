@@ -61,11 +61,11 @@ proc loadXml*(r; it: var DocId, tag)
 proc writeXml*(w; it: DocText, tag)
 proc loadXml*(r; it: var DocText, tag)
 
-proc writeXml*(w; it: DocIdentPart, tag)
-proc loadXml*(r; it: var DocIdentPart, tag)
+proc writeXml*(w; it: DocLinkPart, tag)
+proc loadXml*(r; it: var DocLinkPart, tag)
 
-proc writeXml*(w; it: DocFullIdent, tag)
-proc loadXml*(r; it: var DocFullIdent, tag)
+proc writeXml*(w; it: DocLink, tag)
+proc loadXml*(r; it: var DocLink, tag)
 
 proc writeXml*(w; it: DocType, tag)
 proc loadXml*(r; it: var DocType, tag)
@@ -293,23 +293,23 @@ proc loadXml*(r; it: var DocIdSet, tag) =
 
   r.skipEnd(tag)
 
-proc loadXml*(r; it: var DocIdentPart, tag) =
-  genXmlLoader(DocIdentPart, it, r, tag,
-               newObjExpr = DocIdentPart(kind: kind))
+proc loadXml*(r; it: var DocLinkPart, tag) =
+  genXmlLoader(DocLinkPart, it, r, tag,
+               newObjExpr = DocLinkPart(kind: kind))
 
 
 
 
-proc writeXml*(w; it: DocIdentPart, tag) =
+proc writeXml*(w; it: DocLinkPart, tag) =
   genXmlWriter(
-    DocIdentPart, it, w, tag,
+    DocLinkPart, it, w, tag,
     hasFieldsExpr = (it.kind in dekProcKinds))
 
-proc loadXml*(r; it: var DocFullIdent, tag) =
-  genXmlLoader(DocFullIdent, it, r, tag, newObjExpr = DocFullIdent())
+proc loadXml*(r; it: var DocLink, tag) =
+  genXmlLoader(DocLink, it, r, tag, newObjExpr = DocLink())
 
-proc writeXml*(w; it: DocFullIdent, tag) =
-  genXmlWriter(DocFullIdent, it, w, tag)
+proc writeXml*(w; it: DocLink, tag) =
+  genXmlWriter(DocLink, it, w, tag)
 
 proc loadXml*(r; it: var DocType, tag) =
   genXmlLoader(DocType, it, r, tag, newObjExpr = DocType(kind: kind))

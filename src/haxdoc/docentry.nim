@@ -298,7 +298,7 @@ type
     entries*: seq[DocEntry]
     nested*: seq[DocEntryGroup]
 
-  DocIdentPart* = object
+  DocLinkPart* = object
     ## Part of fully scoped document identifier.
     ##
     ## - DESIGN :: Format closely maps to
@@ -314,10 +314,10 @@ type
       else:
         discard
 
-  DocFullIdent* = object
+  DocLink* = object
     ## Full scoped identifier for an entry
     docId*: DocId ## Cached identifier value
-    parts*: seq[DocIdentPart]
+    parts*: seq[DocLinkPart]
 
   DocPragma* = object
     name* {.Attr.}: string
@@ -331,6 +331,8 @@ type
     dtukGcRefTo ## Traced pointer to type
     dtukByrefTo ## Reference to lvalue
     dtukRvalueTo ## Temporary (rvalue/sink) reference
+    dtukConst
+    dtukVolatile
 
   DocType* = ref object
     ## Single **use** of a type in any documentable context (procedure
@@ -434,7 +436,7 @@ type
     name* {.Attr.}: string
     visibility* {.Attr.}: DocVisibilityKind
     deprecatedMsg* {.Attr.}: Option[string]
-    fullIdent*: DocFullIdent ## Fully scoped identifier for a name
+    fullIdent*: DocLink ## Fully scoped identifier for a name
 
     docText*: DocText
 
@@ -506,8 +508,8 @@ type
     # resolved through iteger identifiers. This is slower but does not
     # require expensive `ref` graph reconstruction during serialization.
     entries*: Table[DocId, DocEntry]
-    fullIdents*: OrderedTable[DocFullIdent, DocId]
-    top*: OrderedTable[DocIdentPart, DocEntry]
+    fullIdents*: OrderedTable[DocLink, DocId]
+    top*: OrderedTable[DocLinkPart, DocEntry]
     files*: seq[DocFile]
     knownLibs: seq[DocLib]
     currentTop*: DocEntry
@@ -526,8 +528,8 @@ storeTraits(DocOccur, dokLocalKinds)
 storeTraits(DocTypeHeadKind)
 storeTraits(DocIdentKind)
 storeTraits(DocId)
-storeTraits(DocIdentPart, dekProcKinds)
-storeTraits(DocFullIdent)
+storeTraits(DocLinkPart, dekProcKinds)
+storeTraits(DocLink)
 storeTraits(DocType)
 storeTraits(DocFile)
 storeTraits(DocDb)
@@ -671,14 +673,14 @@ func `[]`*(table: DocIdTableN, id: DocId): DocIdSet {.inline.} =
 func `[]=`*(table: var DocIdTableN, id: DocId, idset: DocIdSet) =
   table.table[id] = idset
 
-proc hash*(part: DocIdentPart): Hash =
+proc hash*(part: DocLinkPart): Hash =
   result = hash(part.kind) !& hash(part.name)
   if part.kind in dekProcKinds:
     result = result !& hash($part.procType)
 
   return !$result
 
-func mutHash*(full: var DocFullIdent) =
+func mutHash*(full: var DocLink) =
   # Full identifier hash should be very stable (only changed if the name of
   # the entry is changed)
   var h: Hash
@@ -689,13 +691,13 @@ func mutHash*(full: var DocFullIdent) =
   full.docId.id = !$h
   full.parts[^1].id = full.docId
 
-func hash*(full: DocFullIdent): Hash = full.docId.id
-func `==`*(a, b: DocIdentPart): bool = a.kind == b.kind
-func `==`*(a, b: DocFullIdent): bool = a.parts == b.parts
+func hash*(full: DocLink): Hash = full.docId.id
+func `==`*(a, b: DocLinkPart): bool = a.kind == b.kind
+func `==`*(a, b: DocLink): bool = a.parts == b.parts
 
 
 
-proc `$`*(ident: DocIdentPart): string =
+proc `$`*(ident: DocLinkPart): string =
  result = "[" & ident.name & " "
  if ident.kind in dekProcKinds:
    if ident.procType.isNil():
@@ -706,7 +708,7 @@ proc `$`*(ident: DocIdentPart): string =
 
  result &= $ident.kind & "]"
 
-proc `$`*(ident: DocFullIdent): string =
+proc `$`*(ident: DocLink): string =
   for idx, part in ident.parts:
     if idx > 0:
       result.add "/"
@@ -732,7 +734,7 @@ func incl*(table: var DocIdTableN, idKey, idVal: DocId) =
 
 
 func isExported*(e: DocEntry): bool = e.visibility in {dvkPublic}
-func id*(full: var DocFullIdent): DocId {.inline.} = DocId(id: hash(full))
+func id*(full: var DocLink): DocId {.inline.} = DocId(id: hash(full))
 func id*(de: DocEntry): DocId {.inline.} = de.fullident.id
 func id*(docType: DocType): DocId =
   case docType.kind:
@@ -821,7 +823,7 @@ iterator items*(
     if e.kind in accepted:
       yield e
 
-iterator items*(ident: DocFullIdent): DocIdentPart =
+iterator items*(ident: DocLink): DocLinkPart =
   for part in items(ident.parts):
     yield part
 
@@ -876,30 +878,30 @@ func add*(t: var DocType, ident: DocIdent) =
 
 proc initIdentPart*(
     kind: DocEntryKind, name: string,
-    procType: DocType = nil): DocIdentPart =
-  result = DocIdentPart(kind: kind, name: name)
+    procType: DocType = nil): DocLinkPart =
+  result = DocLinkPart(kind: kind, name: name)
   if kind in dekProcKinds:
     result.procType = procType
 
-proc initFullIdent*(parts: sink seq[DocIdentPart]): DocFullIdent =
-  result = DocFullIdent(parts: parts)
+proc initFullIdent*(parts: sink seq[DocLinkPart]): DocLink =
+  result = DocLink(parts: parts)
   mutHash(result)
 
-proc add*(ident: var DocFullIdent, part: DocIdentPart) =
+proc add*(ident: var DocLink, part: DocLinkPart) =
   ident.parts.add part
 
-func len*(ident: DocFullIdent): int = ident.parts.len
-func hasParent*(ident: DocFullIdent): bool = ident.parts.len > 1
+func len*(ident: DocLink): int = ident.parts.len
+func hasParent*(ident: DocLink): bool = ident.parts.len > 1
 func hasParent*(entry: DocEntry): bool = entry.fullIdent.parts.len > 1
 
 
-proc lastIdentPart*(entry: var DocEntry): var DocIdentPart =
+proc lastIdentPart*(entry: var DocEntry): var DocLinkPart =
   if entry.fullIdent.parts.len == 0:
     raiseArgumentError("Cannot return last ident part")
 
   return entry.fullIdent.parts[^1]
 
-proc parentIdentPart*(entry: DocEntry): DocIdentPart =
+proc parentIdentPart*(entry: DocEntry): DocLinkPart =
   let l = entry.fullIdent.parts.len
   if l < 2:
     raise newArgumentError(
@@ -948,6 +950,27 @@ proc newDocEntry*(
   parent.db.entries[result.id()] = result
   parent.db.fullIdents[result.fullIdent] = result.id()
   parent.nested.add result.id()
+
+proc newDocEntry*(db: var DocDb, ident: DocLink): DocEntry =
+  for part in ident.parts:
+    if part.id notin db:
+      if isNil(result):
+        if part.kind in dekProcKinds:
+          result = db.newDocEntry(part.kind, part.name, part.procType)
+
+        else:
+          result = db.newDocEntry(part.kind, part.name)
+
+      else:
+        if part.kind in dekProcKinds:
+          result = result.newDocEntry(part.kind, part.name, part.procType)
+
+        else:
+          result = result.newDocEntry(part.kind, part.name)
+
+    else:
+      result = db[part.id]
+
 
 proc registerNested*(db: var DocDb, parent, nested: DocEntry) =
   nested.db = db
@@ -1008,7 +1031,7 @@ proc getLibForName*(db: DocDb, name: string): DocLib =
   raiseArgumentError(
     "No known library for name " & $name)
 
-func package*(ident: DocFullIdent): string =
+func package*(ident: DocLink): string =
   if ident.parts.len == 0 or
      ident.parts[0].kind != dekPackage:
     raiseArgumentError(
@@ -1026,7 +1049,7 @@ func getPackage*(entry: DocEntry): DocId =
   else:
     return entry.fullIdent.parts[0].id
 
-proc getPathForPackage*(db: DocDb, ident: DocFullIdent): AbsDir =
+proc getPathForPackage*(db: DocDb, ident: DocLink): AbsDir =
   let package = ident.package()
   for lib in db.knownLibs:
     if lib.name == package:
@@ -1241,12 +1264,11 @@ proc newOccur*(
   db.files[fileIdx].body.add newCodePart(position, occur)
 
 
-proc parseFullIdent*(pos: PosStr): DocFullIdent =
+proc parseFullIdent*(pos: PosStr): DocLink =
   var str = pos
-  echo str[0 ..^ 1]
 
-proc resolveFullIdent*(db: DocDb, ident: DocFullIdent): DocId =
-  discard
+proc resolveFullIdent*(db: DocDb, ident: DocLink): DocId =
+  echo "Request to resolve full ident"
 
 type
   DocCodeLink = ref object of OrgUserLink
