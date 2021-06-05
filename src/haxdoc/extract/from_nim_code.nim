@@ -1159,6 +1159,11 @@ proc registerDeclSection(ctx; node; nodeKind: DocEntryKind = dekGlobalVar) =
         ctx.registerDeclSection(subnode, nodeKind)
 
     of nkConstDef, nkIdentDefs:
+      let pragma = node.parseSomePragma()
+      var nodeKind = nodeKind
+      if pragma.isSome() and pragma.get().hasElem(@["intdefine", "strdefine", "booldefine"]):
+        nodeKind = dekCompileDefine
+
       var def = ctx.module.newDocEntry(nodeKind, $node[0].declHead)
       if parseIdentName(node).exported:
         def.visibility = dvkPublic

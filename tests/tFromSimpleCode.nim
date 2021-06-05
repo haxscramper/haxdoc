@@ -126,6 +126,8 @@ proc recFirst() =
 proc vDist(a: var Dist) = discard
 proc vBase(a: var Base) = discard
 
+const FooBar {.intdefine.}: int = 5
+echo FooBar
 """
 
 startHax()
@@ -316,7 +318,7 @@ requires {req}
       getPackageInfo(dir / "main"),
       searchDir = dir)
 
-    db.writeSourcetrailDb(dir /. "multiPackage")
+    db.writeDbSourcetrail(dir /. "multiPackage")
     db.writeDbXml(dir, "multiPackage")
 
     if hasCmd shellCmd("dot"):
