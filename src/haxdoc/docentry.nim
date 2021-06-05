@@ -2,8 +2,8 @@
 
 import haxorg/[ast, semorg]
 import hmisc/other/[oswrap]
-import hmisc/algo/[hseq_mapping, halgorithm]
-import hmisc/[hdebug_misc, helpers]
+import hmisc/algo/[hseq_mapping, halgorithm, hlex_base]
+import hmisc/[hdebug_misc, helpers, hexceptions]
 import std/[options, tables, hashes, enumerate,
             strformat, sequtils, intsets]
 import nimtraits
@@ -687,7 +687,7 @@ func mutHash*(full: var DocFullIdent) =
       h = h !& hash(part)
 
   full.docId.id = !$h
-  full.parts[0].id = full.docId
+  full.parts[^1].id = full.docId
 
 func hash*(full: DocFullIdent): Hash = full.docId.id
 func `==`*(a, b: DocIdentPart): bool = a.kind == b.kind
@@ -1239,3 +1239,17 @@ proc newOccur*(
     fileIdx = db.files.high
 
   db.files[fileIdx].body.add newCodePart(position, occur)
+
+
+proc parseFullIdent*(pos: PosStr): DocFullIdent =
+  var str = pos
+  echo str[0 ..^ 1]
+
+proc resolveFullIdent*(db: DocDb, ident: DocFullIdent): DocId =
+  discard
+
+type
+  DocCodeLink = ref object of OrgUserLink
+
+proc newOrgLink*(id: DocId): OrgLink =
+  OrgLink(kind: olkCode, codeLink: DocCodeLink())

@@ -17,10 +17,10 @@ import
   hnimast,
   hmisc/[hdebug_misc, helpers],
   hmisc/other/[oswrap, colorlogger],
-  hmisc/algo/[hstring_algo, halgorithm, hseq_distance]
+  hmisc/algo/[hstring_algo, halgorithm, hseq_distance, hlex_base]
 
 import
-  haxorg/[semorg, ast, importer_nim_rst]
+  haxorg/[semorg, ast, importer_nim_rst, parser]
 
 import hpprint
 
@@ -159,6 +159,12 @@ type
     allModules: seq[DocEntry]
     module: DocEntry
     sigmap: TableRef[PSym, DocId]
+    conf: NimDocgenConf
+
+  NimDocgenConf* = object
+    isOrgCommentSyntax*: proc(lib: DocLib): bool
+    orgRunConf*: RunConf
+    rstConvertConf*: RunConf
 
   RegisterStateKind = enum
     rskTopLevel
@@ -962,18 +968,27 @@ proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
       raiseImplementKindError(nt)
 
 proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
-  let file = AbsFile($ctx.graph.getFilePath(node))
-  try:
-    let org = text.strip().parseRstString(file).toOrgNode()
-    return toSemOrg(org)
+  let package = ctx.db.getLibForPath(ctx.graph.getFilePath(node))
+  if ctx.conf.isOrgCommentSyntax(package):
+    notice text
+    let tree = parseOrg(text)
+    # debug tree.treeRepr()
+    result = tree.toSemOrg(ctx.conf.orgRunConf)
+    # debug result.treeRepr()
 
-  except EParseError as e:
-    err e.msg
-    return onkRawText.newTree(e.msg).toSemOrg()
+  else:
+    let file = AbsFile($ctx.graph.getFilePath(node))
+    try:
+      let org = text.strip().parseRstString(file).toOrgNode()
+      return toSemOrg(org, ctx.conf.rstConvertConf)
 
-  except ImplementKindError as e:
-    err ctx.graph.getFilePath(node), node.getInfo()
-    raise e
+    except EParseError as e:
+      err e.msg
+      return onkRawText.newTree(e.msg).toSemOrg()
+
+    except ImplementKindError as e:
+      err ctx.graph.getFilePath(node), node.getInfo()
+      raise e
 
 
 
@@ -1221,14 +1236,36 @@ proc loggerImpl(
     err msg
     err info, config.getFilePath(info)
 
+let
+  baseNimDocgenConf* = NimDocgenConf(
+    orgRunConf: defaultRunConf,
+    rstConvertConf: defaultRunConf
+  )
+
+
 proc registerDocPass(
     graph: ModuleGraph, file: AbsFile, stdpath: AbsDir,
-    extraLibs: seq[(AbsDir, string)] = @[]
-     ): DocDb =
+    extraLibs: seq[(AbsDir, string)] = @[],
+    startDb: DocDb = newDocDb(),
+    conf: NimDocgenConf = baseNimDocgenConf
+  ): DocDb =
   ## Create new documentation generator graph
 
   var db {.global.}: DocDb
-  db = newDocDb()
+  var tmpConf {.global.}: NimDocgenConf
+  tmpConf = conf
+
+  db = startDb
+
+  tmpConf.orgRunConf.linkResolver = proc(
+    linkName: string, linkText: PosStr): OrgLink =
+      echo linkName
+      db.resolveFullIdent(parseFullIdent(linkText)).newOrgLink()
+
+  tmpConf.rstConvertCOnf.linkResolver = proc(
+    linkName: string, linkText: PosStr): OrgLink =
+      discard
+
   db.addKnownLib(AbsDir(($stdPath).dropSuffix("lib")), "std")
   for (path, lib) in extraLibs:
     db.addKnownLib(path, lib)
@@ -1244,7 +1281,8 @@ proc registerDocPass(
         proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
           info "Processing ", module
           var
-            context = DocContext(db: db, graph: graph, sigmap: sigmap)
+            context = DocContext(
+              db: db, graph: graph, sigmap: sigmap, conf: tmpConf)
             file = graph.getFilePath(module)
             package = db.getOrNewPackage(file)
 
@@ -1275,24 +1313,20 @@ proc registerDocPass(
   return db
 
 
-
 proc generateDocDb*(
     file: AbsFile,
     stdpath: AbsDir = getStdPath(),
-    otherPaths: seq[AbsDir] = @[],
     extraLibs: seq[(AbsDir, string)] = @[],
     fileLib: Option[string] = none(string),
-    defines: seq[string] = @["nimdoc", "haxdoc"]
+    defines: seq[string] = @["nimdoc", "haxdoc"],
+    startDb: DocDb = newDocDB(),
+    conf: NimDocgenConf = baseNimDocgenConf
   ): DocDb =
 
-  info "input file:", file
-  if exists(stdpath):
-    info "stdpath:", stdpath
-  else:
-    err "Could not find stdlib at ", stdpath
-    debug "Either explicitly specify library path via `--stdpath`"
-    debug "Or run trail analysis with choosenim toolchain for correct version"
-    raiseArgumentError("")
+  assertExists(
+    stdpath,
+    "Could not find stdlib for nim database compilation"
+  )
 
   var extraLibs = extraLibs
   if fileLib.isSome():
@@ -1303,7 +1337,9 @@ proc generateDocDb*(
   graph = newModuleGraph(
     file, stdpath, loggerImpl, symDefines = defines)
 
-  var db = graph.registerDocPass(file, stdpath, extraLibs)
+  var db = graph.registerDocPass(
+    file, stdpath, extraLibs, startDb = startDb, conf = conf)
+
 
   for (dir, name) in extraLibs:
     assertExists(dir, &"Path for package {name}")
@@ -1335,7 +1371,9 @@ proc docDbFromPackage*(
     package: PackageInfo,
     stdpath: AbsDir = getStdPath(),
     ignored: seq[GitGlob] = @[],
-    searchDir: AbsDir = nimbleSearchDir()
+    searchDir: AbsDir = nimbleSearchDir(),
+    defines: seq[string] = @["nimdoc", "haxdoc"],
+    conf: NimDocgenConf = baseNimDocgenConf
   ): DocDb =
 
   let
@@ -1353,13 +1391,14 @@ proc docDbFromPackage*(
     info dep.projectPath(), dep.name
 
   if files.len == 1:
-    result = generateDocDb(files[0], stdpath, depPaths, extraLibs)
+    result = generateDocDb(files[0], stdpath, extraLibs)
 
   else:
     var graph {.global.}: ModuleGraph
     let moduleName = ignoredAbsFile
     graph = newModuleGraph(
-      moduleName, stdpath, loggerImpl, symDefines = @["nimdoc"])
+      moduleName, stdpath, loggerImpl,
+      symDefines = defines)
 
     var fakeFile: string
     for dep in depPaths:
@@ -1373,7 +1412,8 @@ proc docDbFromPackage*(
     for (dir, name) in extraLibs:
       debug dir, name
 
-    result = graph.registerDocPass(moduleName, stdpath, extraLibs)
+    result = graph.registerDocPass(
+      moduleName, stdpath, extraLibs, conf = conf)
 
     var m = graph.makeModule(moduleName.string)
     graph.vm = setupVM(m, graph.cache, moduleName.string, graph)
