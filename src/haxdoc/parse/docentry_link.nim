@@ -2,7 +2,7 @@ import
   ../docentry_types,
   ../docentry,
   hmisc/algo/[hparse_base, hlex_base],
-  hmisc/[hdebug_misc, base_errors],
+  hmisc/[hdebug_misc, base_errors, hexceptions],
   std/[options],
   haxorg/semorg
 
@@ -180,7 +180,6 @@ proc resolveFullIdent*(db: DocDb, selector: DocSelector): DocId =
 
   if len(seed) == 1:
     result = seed.pop
-    echov "resolved to", db[result]
 
   else:
     raise newImplementError()
@@ -188,10 +187,11 @@ proc resolveFullIdent*(db: DocDb, selector: DocSelector): DocId =
 
 
 type
-  DocCodeLink = ref object of OrgUserLink
+  DocCodeLink* = ref object of OrgUserLink
+    id*: DocId
 
 proc newOrgLink*(id: DocId): OrgLink =
-  OrgLink(kind: olkCode, codeLink: DocCodeLink())
+  OrgLink(kind: olkCode, codeLink: DocCodeLink(id: id))
 
 
 when isMainModule:
