@@ -1093,6 +1093,8 @@ proc registerTypeDef(ctx; node) =
       ctx.addSigmap(nimField.declNode.get(), field)
 
   elif node[2].kind == nkEnumTy:
+    # echo node.treeRepr1()
+
     let enumDecl: PEnumDecl = parseEnum(node)
     var entry = ctx.module.newDocEntry(dekEnum, enumDecl.name)
 
@@ -1106,6 +1108,9 @@ proc registerTypeDef(ctx; node) =
     for enField in enumDecl.values:
       var field = entry.newDocEntry(dekEnumField, enField.name)
       field.visibility = entry.visibility
+      # info enField.docComment
+      field.docText.docBody = ctx.convertComment(
+        enField.docComment, enField.declNode.get())
       ctx.setLocation(field, enField.declNode.get())
       ctx.addSigmap(enField.declNode.get(), field)
 

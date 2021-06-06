@@ -1266,6 +1266,7 @@ proc newOccur*(
 
 proc parseFullIdent*(pos: PosStr): DocLink =
   var str = pos
+  echo str[0..^1]
 
 proc resolveFullIdent*(db: DocDb, ident: DocLink): DocId =
   echo "Request to resolve full ident"
