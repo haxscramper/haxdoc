@@ -36,7 +36,6 @@ proc writeJson*(db: DocDB, target: AnyFile) =
     buf.add toJson(entry)
 
   let res = toPretty(buf, 100)
-  echo res
 
   target.writeFile(res)
 
@@ -237,11 +236,8 @@ proc toDocEntry*(ctx: DocContext, node: PNode): DocEntry =
 proc registerTopLevel(ctx: DocContext, n: PNode) =
   case n.kind:
     of nkProcDef:
-      echo treeRepr(n)
       let parsed = parseProc(n)
       let node = parseOrg(parsed.docComment)
-
-      echo treeRepr(node)
       var semNode = toSemOrgDocument(node)
 
       var admonitions: seq[(OrgBigIdentKind, SemOrg)]

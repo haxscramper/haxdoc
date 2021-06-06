@@ -970,8 +970,7 @@ proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
 proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
   let package = ctx.db.getLibForPath(ctx.graph.getFilePath(node))
   if ctx.conf.isOrgCommentSyntax(package):
-    let tree = parseOrg(text)
-    result = tree.toSemOrg(ctx.conf.orgRunConf)
+    result = parseOrg(text).toSemOrg(ctx.conf.orgRunConf)
 
   else:
     let file = AbsFile($ctx.graph.getFilePath(node))
@@ -1093,14 +1092,13 @@ proc registerTypeDef(ctx; node) =
       ctx.addSigmap(nimField.declNode.get(), field)
 
   elif node[2].kind == nkEnumTy:
-    # echo node.treeRepr1()
-
     let enumDecl: PEnumDecl = parseEnum(node)
     var entry = ctx.module.newDocEntry(dekEnum, enumDecl.name)
 
     entry.setDeprecated(node)
     ctx.setLocation(entry, node)
     ctx.addSigmap(node, entry)
+    entry.docText.docBody = ctx.convertComment(enumDecl.docComment, node)
 
     if enumDecl.exported:
       entry.visibility = dvkPublic
@@ -1274,7 +1272,9 @@ proc registerDocPass(
 
   tmpConf.orgRunConf.linkResolver = proc(
     linkName: string, linkText: PosStr): OrgLink =
-      echo linkName
+      if linkName == "":
+        raise newArgumentError(
+          "Link name cannot be empty")
       db.resolveFullIdent(parseFullIdent(linkText)).newOrgLink()
 
   tmpConf.rstConvertConf.linkResolver = proc(
