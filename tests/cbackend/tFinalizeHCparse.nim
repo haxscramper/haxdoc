@@ -25,12 +25,20 @@ suite "From doxygen for simple code sample":
   test "Generate":
     inputFile.writeFile("""
 
-class Main { public: int field; };
+/// Documentation for main class
+class Main {
+  public:
+    int field; ///< Field documentation
+};
 
 
-/// \arg arg1 Documentation for second argument
-/// \arg arg2 Documentation for the first argument
+/*!
+  \param arg1 Documentation for second argument
+  \param arg2 Documentation for the first argument
+*/
 Main method(int arg1, int arg2) {}
+
+enum test { FIRST, SECOND };
 
 """)
 

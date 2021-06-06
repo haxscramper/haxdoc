@@ -25,13 +25,46 @@ type
 
 using ctx: var ConvertContext
 
-proc toSemOrg(ctx; dtb: DescriptionTypeBody): SemOrg =
-  pprint dtb
 
-proc toSemOrg(ctx; dt: DescriptionType): SemOrg =
-  result = onkStmtList.newSemOrg()
+proc toOrg(ctx; dt: DescriptionType): OrgNode
+
+proc toOrg(ctx; body: DocParamListType): OrgNode =
+  result = onkList.newTree()
+  for item in body.parameterItem:
+    var listItem = onkListItem.newTree()
+    listItem["tag"] = onkInlineStmtList.newTree()
+    for param in item.parameterNameList:
+      listItem["tag"].add onkMetaTag.newTree(
+        newOrgIdent("arg"),
+        onkRawText.newTree(param.parameterName[0][0].mixedStr)
+      )
+
+    listItem["body"] = ctx.toOrg(item.parameterDescription)
+
+    result.add listItem
+
+proc toOrg(ctx; body: DocParaTypeBody): OrgNode =
+  case body.kind:
+    of dptParameterList: result = ctx.toOrg(body.docParamListType)
+    of dptMixedStr: result = onkWord.newTree(body.mixedStr)
+
+    else:
+      raise newUnexpectedKindError(body, pstring(body))
+
+proc toOrg(ctx; dtb: DescriptionTypeBody): OrgNode =
+  case dtb.kind:
+    of dtPara:
+      result = onkStmtList.newTree()
+      for item in dtb.docParaType:
+        result.add ctx.toOrg(item)
+
+    else:
+      raise newUnexpectedKindError(dtb, pstring(dtb))
+
+proc toOrg(ctx; dt: DescriptionType): OrgNode =
+  result = onkStmtList.newTree()
   for sub in dt.xsdChoice:
-    result.add ctx.toSemOrg(sub)
+    result.add ctx.toOrg(sub)
 
 
 
@@ -40,7 +73,8 @@ proc register(ctx; dox: SectionDefType) =
     let ident = ctx.refidMap.map[member.id]
     var entry = ctx.db.newDocEntry(ident)
     if member.detailedDescription.getSome(desc):
-      entry.docText.docBody = ctx.toSemOrg(desc)
+      entry.docText.docBody = ctx.toOrg(desc).toSemOrg()
+      info entry.docText.docBody.treeRepr()
 
 
 proc register(ctx; dox: DoxCompound.CompoundDefType) =
@@ -100,12 +134,12 @@ proc loadRefidMap*(file: AbsFile): RefidMap =
   for entry in json:
     var ident: DocLink
     for part in entry[0]:
+      let name = part["name"].asStr()
       case part["kind"].asStr():
-        of "Class":
-          ident.add initIdentPart(dekClass, part["name"].asStr())
-
-        of "Field":
-          ident.add initIdentPart(dekField, part["name"].asStr())
+        of "Class":     ident.add initIdentPart(dekClass, name)
+        of "Field":     ident.add initIdentPart(dekField, name)
+        of "Enum":      ident.add initIdentPart(dekEnum, name)
+        of "EnumField": ident.add initIdentPart(dekEnumField, name)
 
         of "Proc":
           ident.add initIdentPart(
