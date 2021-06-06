@@ -74,7 +74,6 @@ proc register(ctx; dox: SectionDefType) =
     var entry = ctx.db.newDocEntry(ident)
     if member.detailedDescription.getSome(desc):
       entry.docText.docBody = ctx.toOrg(desc).toSemOrg()
-      info entry.docText.docBody.treeRepr()
 
 
 proc register(ctx; dox: DoxCompound.CompoundDefType) =

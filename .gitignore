@@ -1,5 +1,7 @@
 **/cache
 bin
 **/*.srctrl*
-tests/*
-!tests/*.*
+tests/**/*
+!tests/**/*.*
+docs
+nimdoc.cfg
