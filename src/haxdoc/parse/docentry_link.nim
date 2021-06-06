@@ -1,5 +1,6 @@
 import
   ../docentry_types,
+  ../docentry,
   hmisc/algo/[hparse_base, hlex_base],
   hmisc/[hdebug_misc, base_errors],
   std/[options],
@@ -137,6 +138,9 @@ proc parseIdentPart(lex: var LinkLex): DocSelectorPart =
     else:
       raise newUnexpectedKindError(lex[])
 
+import hpprint
+
+
 proc parseFullIdent*(pos: PosStr): DocSelector =
   var str = pos
   var lex = initLexer(str, lexLink, true)
@@ -145,8 +149,43 @@ proc parseFullIdent*(pos: PosStr): DocSelector =
     if lex[{ltDot, ltNamespace}]:
       lex.advance()
 
+proc unif*(t1, t2: DocType): bool =
+  t1 == t2
+
+proc matches(entry: DocEntry, part: DocSelectorPart): bool =
+  if entry.kind in part.expected and
+     entry.name == part.name:
+    if len(part.expected * dekProcKinds) > 0:
+      result = unif(entry.procType(), part.procType)
+
+    else:
+      result = true
+
+
 proc resolveFullIdent*(db: DocDb, selector: DocSelector): DocId =
-  discard
+  var seed: DocIdSet
+
+  for item in topItems(db, selector.parts[0].expected):
+    if item.matches(selector.parts[0]):
+      seed.incl item
+
+  for part in selector.parts[1..^1]:
+    var next: DocIdSet
+    for item in seed:
+      for nested in db[item]:
+        if nested.matches(part):
+          next.incl nested
+
+    seed = next
+
+  if len(seed) == 1:
+    result = seed.pop
+    echov "resolved to", db[result]
+
+  else:
+    raise newImplementError()
+
+
 
 type
   DocCodeLink = ref object of OrgUserLink
@@ -154,7 +193,6 @@ type
 proc newOrgLink*(id: DocId): OrgLink =
   OrgLink(kind: olkCode, codeLink: DocCodeLink())
 
-import hpprint
 
 when isMainModule:
   for s in [

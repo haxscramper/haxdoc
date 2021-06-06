@@ -38,6 +38,29 @@ storeTraits(DocCodeSlice)
 storeTraits(DocCodeLine)
 # storeTraits(DocRequires)
 
+proc newDocIdent*(name: string, idType: DocType): DocIdent =
+  DocIdent(ident: name, identType: idType)
+
+proc newDocType*(args: seq[DocType], returnType: Option[DocType]): DocType =
+  result = DocType(kind: dtkProc)
+  for arg in args:
+    result.arguments.add newDocIdent("", arg)
+
+  result.returnType = returnType
+
+
+
+proc newDocType*(kind: DocTypeKind, head: DocEntry): DocType =
+  result = DocType(kind: kind)
+  result.head = head.fullIdent.docId
+
+proc newDocType*(kind: DocTypeKind, name: string, id: DocId): DocType =
+  result = DocType(kind: kind, name: name)
+  result.head = id
+
+proc newDocType*(kind: DocTypeKind, name: string = ""): DocType =
+  result = DocType(kind: kind, name: name)
+
 proc newDocRequires*(): DocRequires = discard
 
 proc vaType*(t: DocType): DocType =
@@ -192,6 +215,64 @@ func hash*(full: DocLink): Hash = full.docId.id
 func `==`*(a, b: DocLinkPart): bool = a.kind == b.kind
 func `==`*(a, b: DocLink): bool = a.parts == b.parts
 
+func `==`*(t1, t2: DocType): bool =
+  t1.name == t2.name and
+  t1.useKind == t2.useKind and
+  t1.kind == t2.kind and (
+    case t1.kind:
+      of dtkIdent, dtkGenericSpec, dtkAnonTuple, dtkVarargs:
+        # head* {.Attr.}: DocId ## Documentation entry
+        t1.identKind == t2.identKind and
+        t1.genParams == t2.genParams
+
+      of dtkGenericParam:
+        t1.paramName == t2.paramName
+
+      of dtkProc, dtkNamedTuple:
+        var res = true
+        if (t1.returnType.isSome() and t2.returnType.isNone()) or
+           (t1.returnType.isNone() and t2.returnType.isSome()):
+          res = false
+
+        if res:
+          if t1.returnType.isSome():
+            res = t1.returnType.get() == t2.returnType.get()
+
+        if res:
+          res = t1.arguments.len == t2.arguments.len
+
+        if res:
+          for idx in 0 ..< t1.arguments.len:
+            res = t1.arguments[idx].identType ==
+                  t2.arguments[idx].identType
+
+            if not res:
+              break
+
+        # if res:
+        # pragmas*: seq[DocPragma]
+        # effects*: seq[DocId]
+        # raises*: seq[DocId]
+
+
+
+        res
+
+
+
+      of dtkRange:
+        t1.rngStart == t2.rngStart and
+        t1.rngEnd == t2.rngEnd
+
+      of dtkValue, dtkTypeofExpr:
+        t1.value == t2.value
+
+      of dtkNone:
+        true
+
+      of dtkFile, dtkDir, dtkString:
+        t1.strVal == t2.strVal
+  )
 
 
 proc `$`*(ident: DocLinkPart): string =
@@ -219,11 +300,19 @@ func incl*(s: var DocIdSet, id: DocId) =
   if id.id.int != 0:
     s.ids.incl id.id.int
 
+
+
 func excl*(s: var DocIdSet, id: DocId) = s.ids.excl id.id.int
 func contains*(s: DocIdSet, id: DocId): bool = id.id.int in s.ids
 iterator items*(s: DocIdSet): DocId =
   for i in s.ids:
     yield DocId(id: i)
+
+func pop*(s: var DocIdSet): DocId =
+  for it in s:
+    result = it
+    s.excl result
+
 
 
 func incl*(table: var DocIdTableN, idKey, idVal: DocId) =
@@ -231,6 +320,9 @@ func incl*(table: var DocIdTableN, idKey, idVal: DocId) =
 
 func id*(full: var DocLink): DocId {.inline.} = DocId(id: hash(full))
 func id*(de: DocEntry): DocId {.inline.} = de.fullident.id
+func incl*(s: var DocIdSet, entry: DocEntry) =
+  s.incl entry.id()
+
 func isExported*(e: DocEntry): bool = e.visibility in {dvkPublic}
 func id*(docType: DocType): DocId =
   case docType.kind:
@@ -734,6 +826,3 @@ proc newOccur*(
     fileIdx = db.files.high
 
   db.files[fileIdx].body.add newCodePart(position, occur)
-
-import ./parse/docentry_link
-export docentry_link

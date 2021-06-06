@@ -517,27 +517,3 @@ type
     files*: seq[DocFile]
     knownLibs*: seq[DocLib]
     currentTop*: DocEntry
-
-
-proc newDocIdent*(name: string, idType: DocType): DocIdent =
-  DocIdent(ident: name, identType: idType)
-
-proc newDocType*(args: seq[DocType], returnType: Option[DocType]): DocType =
-  result = DocType(kind: dtkProc)
-  for arg in args:
-    result.arguments.add newDocIdent("", arg)
-
-  result.returnType = returnType
-
-
-
-proc newDocType*(kind: DocTypeKind, head: DocEntry): DocType =
-  result = DocType(kind: kind)
-  result.head = head.fullIdent.docId
-
-proc newDocType*(kind: DocTypeKind, name: string, id: DocId): DocType =
-  result = DocType(kind: kind, name: name)
-  result.head = id
-
-proc newDocType*(kind: DocTypeKind, name: string = ""): DocType =
-  result = DocType(kind: kind, name: name)

@@ -1,6 +1,7 @@
 import
   ../docentry,
-  ../docentry_io
+  ../docentry_io,
+  ../parse/docentry_link
 
 import
   hnimast/[compiler_aux],
