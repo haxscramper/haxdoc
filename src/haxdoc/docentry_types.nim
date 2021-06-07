@@ -2,6 +2,7 @@ import
   haxorg/[semorg, ast],
   std/[tables, options, intsets, hashes],
   hmisc/other/oswrap,
+  hmisc/types/hmap,
   nimtraits
 
 type
@@ -401,6 +402,10 @@ type
     file* {.Attr.}: string
     absFile* {.Skip(IO).}: AbsFile
     pos* {.Attr.}: DocPos
+
+  DocLocationMap* = object
+    files*: Table[AbsFile, Map[int,
+                  seq[tuple[location: DocPos, link: DocLink]]]]
 
   DocExtent* = object
     start* {.Attr.}: DocPos

@@ -15,12 +15,9 @@ import
 export dox_xml
 
 type
-  RefidMap = object
-    map: Table[string, DocLink]
-
   ConvertContext = object
     db: DocDb
-    refidMap: RefidMap
+    refidMap: DocLocationMap
     doctext: Table[string, SemOrg]
 
 using ctx: var ConvertContext
@@ -68,10 +65,19 @@ proc toOrg(ctx; dt: DescriptionType): OrgNode =
 
 
 
+proc newEntryForLocation(
+    ctx; loc: LocationType, name: string): DocEntry =
+  let link = ctx.refidMap.findLinkForLocation(
+    initDocLocation(AbsFile(loc.file), loc.line, loc.column.get(0)),
+    name
+  )
+
+  return ctx.db.newDocEntry(link.get())
+
 proc register(ctx; dox: SectionDefType) =
   for member in dox.memberdef:
-    let ident = ctx.refidMap.map[member.id]
-    var entry = ctx.db.newDocEntry(ident)
+    var entry = ctx.newEntryForLocation(
+      member.location, $member.name[0])
     if member.detailedDescription.getSome(desc):
       entry.docText.docBody = ctx.toOrg(desc).toSemOrg()
 
@@ -92,7 +98,8 @@ proc register(ctx; dox: DoxCompound.CompoundDefType) =
     else:
       err dox.kind
 
-proc generateDocDb*(doxygenDir: AbsDir, refidMap: RefidMap): DocDb =
+proc generateDocDb*(
+    doxygenDir: AbsDir, refidMap: DocLocationMap): DocDb =
   var ctx = ConvertContext(refidMap: refidMap, db: newDocDb())
   assertExists(
     doxygenDir / "xml",
@@ -107,46 +114,3 @@ proc generateDocDb*(doxygenDir: AbsDir, refidMap: RefidMap): DocDb =
       ctx.register(comp)
 
   return ctx.db
-
-proc toDocType*(j: JsonNode): DocType =
-  case j["kind"].asStr():
-    of "Ident":
-      result = newDocType(dtkIdent, j["name"].asStr())
-
-    of "Proc":
-      result = newDocType(dtkProc)
-      result.returnType = some toDocType(j["returnType"])
-      for arg in j["arguments"]:
-        result.add newDocIdent(
-          arg["ident"].asStr(),
-          arg["identType"].toDocType())
-
-
-    else:
-      raise newImplementError(j["kind"].asStr())
-
-
-
-proc loadRefidMap*(file: AbsFile): RefidMap =
-  let json = parseJson(file)
-
-  for entry in json:
-    var ident: DocLink
-    for part in entry[0]:
-      let name = part["name"].asStr()
-      case part["kind"].asStr():
-        of "Class":     ident.add initIdentPart(dekClass, name)
-        of "Field":     ident.add initIdentPart(dekField, name)
-        of "Enum":      ident.add initIdentPart(dekEnum, name)
-        of "EnumField": ident.add initIdentPart(dekEnumField, name)
-
-        of "Proc":
-          ident.add initIdentPart(
-            dekProc, part["name"].asStr(), part["procType"].toDocType())
-
-        else:
-          raise newUnexpectedKindError(part["kind"].asStr())
-
-
-    mutHash(ident)
-    result.map[entry[1].asStr()] = ident

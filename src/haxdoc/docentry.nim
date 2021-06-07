@@ -1,7 +1,8 @@
 ## Definition of shared documentable entry
 
 import haxorg/[ast, semorg]
-import hmisc/other/[oswrap]
+import hmisc/other/[oswrap, hjson]
+import hmisc/types/hmap
 import hmisc/algo/[hseq_mapping, halgorithm, hlex_base]
 import hmisc/[hdebug_misc, helpers, hexceptions]
 import std/[options, tables, hashes, enumerate,
@@ -421,6 +422,7 @@ iterator pairs*(
     if de.db[id].kind in accepted:
       yield (idx, de.db[id])
 
+func lastName*(link: DocLink): string = link.parts[^1].name
 
 func newEntryGroup*(e: DocEntry): DocEntryGroup =
   DocEntryGroup(entries: @[e])
@@ -826,3 +828,70 @@ proc newOccur*(
     fileIdx = db.files.high
 
   db.files[fileIdx].body.add newCodePart(position, occur)
+
+
+
+proc toDocType*(j: JsonNode): DocType =
+  case j["kind"].asStr():
+    of "Ident":
+      result = newDocType(dtkIdent, j["name"].asStr())
+
+    of "Proc":
+      result = newDocType(dtkProc)
+      result.returnType = some toDocType(j["returnType"])
+      for arg in j["arguments"]:
+        result.add newDocIdent(
+          arg["ident"].asStr(),
+          arg["identType"].toDocType())
+
+
+    else:
+      raise newImplementError(j["kind"].asStr())
+
+
+
+proc loadLocationMap*(file: AbsFile): DocLocationMap =
+  let json = parseJson(file)
+
+  for entry in json:
+    var link: DocLink
+    for part in entry[0]:
+      let name = part["name"].asStr()
+      case part["kind"].asStr():
+        of "Class":     link.add initIdentPart(dekClass, name)
+        of "Field":     link.add initIdentPart(dekField, name)
+        of "Enum":      link.add initIdentPart(dekEnum, name)
+        of "EnumField": link.add initIdentPart(dekEnumField, name)
+
+        of "Proc":
+          link.add initIdentPart(
+            dekProc, part["name"].asStr(), part["procType"].toDocType())
+
+        else:
+          raise newUnexpectedKindError(part["kind"].asStr())
+
+
+    mutHash(link)
+
+    let line = entry[1]["line"].asInt()
+    result.files.mgetOrPut(
+      AbsFile(entry[1]["file"].asStr()),
+      initMap[int, seq[tuple[location: DocPos, link: DocLink]]]()
+    ).mgetOrPut(line, @[]).add((
+      location: DocPos(
+        line: line,
+        column: entry[1]["column"].asInt()),
+      link: link
+    ))
+
+
+proc initDocLocation*(file: AbsFile, line, column: int): DocLocation =
+  DocLocation(absFile: file, pos: DocPos(line: line, column: column))
+
+proc findLinkForLocation*(
+    map: DocLocationMap, loc: DocLocation, name: string): Option[DocLink] =
+  if loc.absFile in map.files:
+    for it in map.files[loc.absFile].valuesFrom(loc.pos.line - 2):
+      for (location, link) in it:
+        if link.lastName() == name:
+          return some link

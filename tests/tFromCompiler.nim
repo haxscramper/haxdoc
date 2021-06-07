@@ -32,8 +32,7 @@ info "Starting compilation from ", compFile
 
 let db = generateDocDb(
   compFile, fileLib = some("compiler"),
-  defines = @["nimpretty", "haxdoc", "nimdoc"],
-  rstComments = @["stdlib", "compiler"]
+  defines = @["nimpretty", "haxdoc", "nimdoc"]
 )
 
 echo "Db compilation done"

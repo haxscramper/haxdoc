@@ -143,7 +143,10 @@ suite "Generate DB":
     file.writeFile code
 
     block: # Generate initial DB
-      let db = generateDocDb(file, fileLIb = some("main"))
+      let db = generateDocDb(
+        file, fileLIb = some("main")
+      )
+
       db.writeDbXml(dir, "compile-db")
 
 

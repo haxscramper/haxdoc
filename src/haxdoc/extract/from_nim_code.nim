@@ -971,6 +971,7 @@ proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
 proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
   let package = ctx.db.getLibForPath(ctx.graph.getFilePath(node))
   if ctx.conf.isOrgCommentSyntax(package):
+    echov package
     result = parseOrg(text).toSemOrg(ctx.conf.orgRunConf)
 
   else:
@@ -1256,9 +1257,9 @@ let
 proc registerDocPass(
     graph: ModuleGraph, file: AbsFile, stdpath: AbsDir,
     extraLibs: seq[(AbsDir, string)] = @[],
-    startDb: DocDb = newDocDb(),
-    conf: NimDocgenConf = baseNimDocgenConf,
-    rstComments: seq[string] = @[]
+    startDb: DocDb                   = newDocDb(),
+    conf: NimDocgenConf              = baseNimDocgenConf,
+    orgComments: seq[string]         = @[]
   ): DocDb =
   ## Create new documentation generator graph
 
@@ -1269,7 +1270,7 @@ proc registerDocPass(
   db = startDb
 
   tmpConf.isOrgCommentSyntax = proc(lib: DocLib): bool =
-    lib.name in rstComments
+    lib.name in orgComments
 
   tmpConf.orgRunConf.linkResolver = proc(
     linkName: string, linkText: PosStr): OrgLink =
@@ -1337,7 +1338,7 @@ proc generateDocDb*(
     defines: seq[string] = @["nimdoc", "haxdoc"],
     startDb: DocDb = newDocDB(),
     conf: NimDocgenConf = baseNimDocgenConf,
-    rstComments: seq[string] = @[]
+    orgComments: seq[string] = @[]
   ): DocDb =
 
   assertExists(
@@ -1356,7 +1357,7 @@ proc generateDocDb*(
 
   var db = graph.registerDocPass(
     file, stdpath, extraLibs, startDb = startDb,
-    conf = conf, rstComments = rstComments)
+    conf = conf, orgComments = orgComments)
 
 
   for (dir, name) in extraLibs:
@@ -1392,7 +1393,7 @@ proc docDbFromPackage*(
     searchDir: AbsDir = nimbleSearchDir(),
     defines: seq[string] = @["nimdoc", "haxdoc"],
     conf: NimDocgenConf = baseNimDocgenConf,
-    rstComments: seq[string] = @[]
+    orgComments: seq[string] = @[]
   ): DocDb =
 
   let
@@ -1411,7 +1412,7 @@ proc docDbFromPackage*(
 
   if files.len == 1:
     result = generateDocDb(
-      files[0], stdpath, extraLibs, rstComments = rstComments)
+      files[0], stdpath, extraLibs, orgComments = orgComments)
 
   else:
     var graph {.global.}: ModuleGraph
@@ -1434,7 +1435,7 @@ proc docDbFromPackage*(
 
     result = graph.registerDocPass(
       moduleName, stdpath, extraLibs, conf = conf,
-      rstComments = rstComments
+      orgComments = orgComments
     )
 
     var m = graph.makeModule(moduleName.string)

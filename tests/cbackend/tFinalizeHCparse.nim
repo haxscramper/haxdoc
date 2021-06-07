@@ -47,14 +47,13 @@ enum test { FIRST, SECOND };
   test "Generate C++ wrappers":
     let wrapConf = baseCppWrapConf.withDeepIt do:
       it.baseDir = dir
-      it.refidMap = getRefidLocations(toDir)
+      # it.refidMap = getRefidLocations(toDir)
       it.codegenDir = some codegenDir
 
-    # let res = dir /. "finalize.nim"
     wrapWithConf(inputFile, res, wrapConf, baseCppParseConf)
 
   test "Create DB":
-    let db = generateDocDb(toDir, loadRefidMap(
+    let db = generateDocDb(toDir, loadLocationMap(
       codegenDir / baseCppWrapConf.refidFile))
 
     discard generateDocDb(
@@ -65,7 +64,7 @@ enum test { FIRST, SECOND };
         findPackage("hcparse", newVRAny()).get().projectImportPath(): "hcparse",
         findPackage("hmisc", newVRAny()).get().projectImportPath(): "hmisc"
       },
-      rstComments = @["finalize"]
+      orgComments = @["finalize"]
     )
 
     db.writeDbXml(dir, "doxygen")

@@ -20,7 +20,7 @@ func toLink*(t: DocType): string =
     else:
       result = $t
 
-func toLink*(full: DocFullIdent): string =
+func toLink*(full: DocLink): string =
   for part in full.parts:
     case part.kind:
       of dekModule, dekPackage, dekNewtypeKinds:

@@ -27,7 +27,8 @@ suite "From project dependency":
 
     mkDir outDir
 
-    let db = docDbFromPackage(findPackage("hmisc", newVRAny()).get())
+    let db = docDbFromPackage(
+      findPackage("hmisc", newVRAny()).get())
 
     db.writeDbXml(outDir, "package")
     writeSourcetrailDb(db, outDir /. "package")
