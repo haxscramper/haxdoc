@@ -103,12 +103,8 @@ when isMainModule:
       files.add file
   wrapAllFiles(files, wrapConf, parseConf)
 
-  # for file in wrapConf.nimOutDir.walkDir(AbsFile, exts = @["nim"]):
-  #   notice file.name()
-  #   execShell shellCmd(nim, check, warnings = off, errormax = 1, $file)
-
   notice "Conversion done"
   execShell shellCmd(
-    nim, c, warnings = off, "../../tests/tUsingNim.nim")
+    nim, c, warnings = off, "tests/tUsingNim.nim")
 
   notice "compilation ok"
