@@ -859,6 +859,7 @@ proc loadLocationMap*(file: AbsFile): DocLocationMap =
       let name = part["name"].asStr()
       case part["kind"].asStr():
         of "Class":     link.add initIdentPart(dekClass, name)
+        of "Struct":    link.add initIdentPart(dekStruct, name)
         of "Field":     link.add initIdentPart(dekField, name)
         of "Enum":      link.add initIdentPart(dekEnum, name)
         of "EnumField": link.add initIdentPart(dekEnumField, name)

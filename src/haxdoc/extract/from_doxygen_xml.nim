@@ -3,7 +3,7 @@ import
   hcparse/dox_index as DoxIndex,
   hcparse/dox_xml,
   ../docentry,
-  std/[strtabs, tables],
+  std/[strtabs, tables, strformat],
   haxorg/[semorg, ast],
   hmisc/hasts/[xml_ast],
   hmisc/other/[oswrap, hshell, colorlogger, hjson],
@@ -71,6 +71,12 @@ proc newEntryForLocation(
     initDocLocation(AbsFile(loc.file), loc.line, loc.column.get(0)),
     name
   )
+
+  if link.isNone():
+    raise newArgumentError(
+      "Could not find corresponding documentable entry for location",
+      &"{loc.file}:{loc.line}:{loc.column}"
+    )
 
   return ctx.db.newDocEntry(link.get())
 

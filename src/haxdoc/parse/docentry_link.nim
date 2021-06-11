@@ -84,6 +84,7 @@ func selectorToKinds*(str: string): set[DocEntryKind] =
     of "enumfield": r.incl dekEnumField
     of "field": r.incl dekField
     of "proc": r.incl dekProc
+    of "struct": r.incl dekStruct
     else:
       raise newUnexpectedKindError(str.normalize())
 

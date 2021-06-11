@@ -20,6 +20,7 @@ let parseConf = baseCppParseConf.withIt do:
 let wrapConf = baseCWrapConf.withDeepIt do:
   it.baseDir = toAbsDir(inDir)
   it.nimOutDir = resDir
+  it.wrapName = some "mandoc"
   it.ignoreCursor = (
     proc(cursor: CXCursor, conf: WrapConf): bool {.closure.} =
       if cursor.isFromFile(inDir /. "main.h"):
@@ -83,9 +84,6 @@ let wrapConf = baseCWrapConf.withDeepIt do:
 
   it.userCode = (
     proc(file: WrappedFile): tuple[node: PNode, postTypes: bool] =
-      if not file.isGenerated:
-        notice "Additional import for ", file.baseFile
-
       result.node = pquote do:
         import mandoc_common
   )
@@ -115,7 +113,7 @@ when isMainModule:
   #   wrapWithConfig(inDir / file, res, wrapConf, parseCOnf)
 
   for file in wrapConf.nimOutDir.walkDir(AbsFile, exts = @["nim"]):
-    execShell shellCmd(nim, check, warnings = off, errormax = 2, $file)
+    execShell shellCmd(nim, check, warnings = off, errormax = 1, $file)
 
   # info "Nimmandoc wrapper finished"
 

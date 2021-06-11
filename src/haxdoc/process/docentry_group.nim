@@ -61,7 +61,7 @@ proc inheritDotGraph*(db: DocDb): DotGraph =
   let inherit = db.inheritGraph()
 
   result = inherit.dotRepr(
-    proc(id: DocId): DotNode =
+    proc(id: DocId, _: HNode): DotNode =
       if not id.isValid():
         result = makeDotNode(0, "--")
 

@@ -13,17 +13,38 @@ startHax()
 startColorlogger()
 
 let
-  dir = getNewTempDir("tFromDoxygenXml")
+  dir = getAppTempDir()
   toDir = dir / "doxygen_xml"
   codegenDir = dir / "codegen"
   inputFile = dir /. "file.cpp"
-  res = dir /. "finalize.nim"
 
 mkDir codegenDir
 
 suite "From doxygen for simple code sample":
   test "Generate":
-    inputFile.writeFile("""
+    mkWithDirStructure dir:
+      file inputFile:
+        """
+struct LocForward1;
+struct LocForward2;
+
+struct LocForwardUser { LocForward2* forward2; LocForward1* forward1; };
+
+struct LocForward1 {};
+struct LocForward2 {};
+
+struct LocUser { LocForward2* forward2; LocForward1* forward1; };
+
+struct Forward2;
+struct Forward1;
+
+struct ForwardUser { Forward2* forward2; Forward1* forward1; };
+
+#include "forward1.hpp"
+#include "forward2.hpp"
+
+struct User { Forward2 forward2; Forward1 forward1; };
+
 
 /// Documentation for main class
 class Main {
@@ -40,28 +61,50 @@ Main method(int arg1, int arg2) {}
 
 enum test { FIRST, SECOND };
 
-""")
+"""
+      file "forward2.hpp":
+        """
+struct Forward1;
+struct Forward2 { Forward1* forward1; };
+
+Forward2 forward2Proc() {}
+Forward1* forward1PtrProc() {}
+"""
+      file "forward1.hpp":
+        """
+struct Forward2;
+struct Forward1 { Forward2* forward2; };
+
+Forward1 forward1Proc() {}
+Forward2* forward2PtrProc() {}
+"""
 
     doxygenXmlForDir(dir, toDir, doxyfilePattern = "Doxyfile")
 
   test "Generate C++ wrappers":
     let wrapConf = baseCppWrapConf.withDeepIt do:
       it.baseDir = dir
+      it.nimOutDir = dir / "nimout"
       # it.refidMap = getRefidLocations(toDir)
       it.codegenDir = some codegenDir
 
-    wrapWithConf(inputFile, res, wrapConf, baseCppParseConf)
+    mkDir wrapConf.nimOutDir
+
+    let files = listFiles(dir, @["hpp", "cpp"])
+    echov files
+    wrapWithConf(files, wrapConf, baseCppParseConf)
 
   test "Create DB":
     let db = generateDocDb(toDir, loadLocationMap(
       codegenDir / baseCppWrapConf.refidFile))
 
     discard generateDocDb(
-      res,
+      dir / "nimout" /. "file.nim",
       startDb = db,
       fileLib = some("finalize"),
       extraLibs = @{
-        findPackage("hcparse", newVRAny()).get().projectImportPath(): "hcparse",
+        findPackage(
+          "hcparse", newVRAny()).get().projectImportPath(): "hcparse",
         findPackage("hmisc", newVRAny()).get().projectImportPath(): "hmisc"
       },
       orgComments = @["finalize"]
