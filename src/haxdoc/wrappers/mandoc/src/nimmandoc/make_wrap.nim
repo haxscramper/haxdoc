@@ -101,22 +101,14 @@ when isMainModule:
       "mandoc_aux", "mandoc_parse", "main", "tbl", "eqn"
     ]:
       files.add file
-
-    # else:
-    #   info "Skipping", file.name()
-
   wrapAllFiles(files, wrapConf, parseConf)
 
-  # for file in files:
-  #   info file
-  #   let res = cwd() / file.withExt("nim")
-  #   wrapWithConfig(inDir / file, res, wrapConf, parseCOnf)
+  # for file in wrapConf.nimOutDir.walkDir(AbsFile, exts = @["nim"]):
+  #   notice file.name()
+  #   execShell shellCmd(nim, check, warnings = off, errormax = 1, $file)
 
-  for file in wrapConf.nimOutDir.walkDir(AbsFile, exts = @["nim"]):
-    execShell shellCmd(nim, check, warnings = off, errormax = 1, $file)
+  notice "Conversion done"
+  execShell shellCmd(
+    nim, c, warnings = off, "../../tests/tUsingNim.nim")
 
-  # info "Nimmandoc wrapper finished"
-
-  # execShell shCmd(nim, c, warnings=off, "../../tests/tUsingNim.nim")
-
-echo "done"
+  notice "compilation ok"
