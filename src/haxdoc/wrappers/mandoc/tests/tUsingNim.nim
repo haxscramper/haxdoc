@@ -4,13 +4,6 @@ import
   hmisc/other/oswrap
 
 
-mcharsAlloc()
-var mp = mparseAlloc(
-  toCInt({mpSO, mpUTF8, mpLatiN1, mpValidate}),
-  mdosOther,
-  "linux".cstring
-)
-
 var file: AbsFile
 
 if false:
@@ -43,18 +36,27 @@ output version information and exit
   """)
 
 else:
-  file = AbsFile("/usr/share/man/man1/ls.1.gz")
+  file = findManpage("ls")
+  # file = AbsFile("/usr/share/man/man1/ls.1.gz")
   # file = AbsFile("/tmp/Untitled-1.troff")
 
+echo file
+
+mcharsAlloc()
+var mp = mparseAlloc(
+  toCInt({mpSO, mpUTF8, mpLatiN1, mpValidate}),
+  mdosOther,
+  "linux".cstring
+)
 
 
-var fd = mp.mparseOpen(file.string.cstring)
-mparseReadfd(mp, fd, file.string.cstring)
-var meta = mparseResult(mp)
-treeMan(nil, meta)
+var fd = mp.mparseopen(file.string.cstring)
+mparsereadfd(mp, fd, file.string.cstring)
+var meta = mparseresult(mp)
+# treeman(nil, meta)
 
-startHax()
-echo treeRepr(meta.first)
+starthax()
+# echo treerepr(meta.first)
 
-let nroff = meta.first.toNRoffNode()
+let nroff = meta.first.tonroffnode()
 echo nroff.treeRepr()

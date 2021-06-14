@@ -1,5 +1,6 @@
 import make_wrap
 import hmisc/other/oswrap
+import hmisc/algo/hseq_distance
 import hpprint
 import hmisc/algo/clformat
 
@@ -412,9 +413,7 @@ type
         subnodes*: seq[NRoffNode]
 
 import std/sets
-RS [indent]
-              Start a new relative inset level, moving the left margin
-              right
+
 
 func treeRepr*(
     nr: NRoffNode, opts: HDisplayOpts = defaultHDisplay): string =
@@ -463,6 +462,14 @@ func add*(r: var NRoffNode, other: NRoffNode | seq[NRoffNode]) =
 func len*(n: NRoffNode): int = n.subnodes.len
 func `[]`*(n: NRoffNode, idx: int | BackwardsIndex): NRoffNode =
   n.subnodes[idx]
+
+iterator items*(n: NRoffNode): NRoffNode =
+  for sub in n.subnodes:
+    yield sub
+
+iterator pairs*(n: NRoffNode): (int, NRoffNode) =
+  for idx, sub in pairs(n.subnodes):
+    yield (idx, sub)
 
 
 func mergeNode*(roff: var NRoffNode, other: NRoffNode, sep: char = '\n') =
@@ -628,3 +635,37 @@ func toNRoffNode*(roff: PRoffNode): NRoffNode =
 
   result.line = roff.line
   result.column = roff.pos
+
+proc parseNRoff*(file: AbsFile): NRoffNode =
+  mcharsAlloc()
+  var mp = mparseAlloc(
+    toCInt({mpSO, mpUTF8, mpLatiN1, mpValidate}),
+    mdosOther,
+    "linux".cstring
+  )
+
+
+
+  var fd = mp.mparseopen(file.string.cstring)
+  mparsereadfd(mp, fd, file.string.cstring)
+  var meta = mparseresult(mp)
+  return meta.first.tonroffnode()
+
+proc getManpageDirs*(): seq[AbsDir] =
+  @[
+    AbsDir("/usr/share/man/man0"),
+    AbsDir("/usr/share/man/man1"),
+    AbsDir("/usr/share/man/man2"),
+    AbsDir("/usr/share/man/man3"),
+    AbsDir("/usr/share/man/man4"),
+    AbsDir("/usr/share/man/man5"),
+    AbsDir("/usr/share/man/man6"),
+    AbsDir("/usr/share/man/man7"),
+    AbsDir("/usr/share/man/man8"),
+    AbsDir("/usr/share/man/mann")
+  ]
+
+proc findManpage*(
+  name: string, extensions: seq[GitGlob] = @[**"?.gz", **"?"]): AbsFile =
+
+  findFile(getManpageDirs(), name, extensions)
