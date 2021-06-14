@@ -67,7 +67,7 @@ let wrapConf = baseCWrapConf.withDeepIt do:
       genProc: var GenProc, conf: WrapConf, cache: var WrapCache
     ): seq[WrappedEntry] =
       return errorCodesToException(genProc, conf, cache, @{
-        toScopedIdent("mparse_open") : negativeError("Cannot open file"),
+        toScopedIdent("mparse_open") : negativeError("Cannot open file", {1}),
       })
   )
 
@@ -105,6 +105,6 @@ when isMainModule:
 
   notice "Conversion done"
   execShell shellCmd(
-    nim, c, warnings = off, "tests/tUsingNim.nim")
+    nim, c, -r, warnings = off, "tests/tUsingNim.nim")
 
   notice "compilation ok"

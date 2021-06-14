@@ -1,3 +1,7 @@
+
+{.push, warning[UnusedImport]: off.}
+
+
 import
   hcparse / wraphelp, std / bitops, ./mandoc_parse_roff_eqn_main_tbl_mdoc
 
@@ -105,14 +109,19 @@ proc mparseOpenRaw*(a0: ptr Mparse; a1: cstring): cint {.
 
 
 
-# Declaration created in: hc_impls.nim(67, 56)
+# Declaration created in: hc_impls.nim(104, 56)
 # Wrapper for `mparse_open`
 # Declared in mandoc_parse.h:40
 proc mparseOpen*(a0: ptr Mparse; a1: cstring): cint =
   ## @import{[[code:proc!mparse_open(ptr[mparse], ptr[const[char]]): int]]}
   result = mparseOpenRaw(a0, a1)
   if result notin cint(0) .. cint(2147483647):
-    raise newException(ValueError, "Result value not in valid range #FIXME")
+    var errMsg = "Return value of the mparse_open is not in valid range - expected [0 .. high(cint)], but got " &
+        $result &
+        ". Cannot open file. Arguments were \'"
+    errMsg &= $(a1)
+    errMsg &= "\'."
+    raise newException(ValueError, errMsg)
 
 
 

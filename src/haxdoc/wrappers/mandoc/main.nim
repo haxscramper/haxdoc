@@ -1,3 +1,7 @@
+
+{.push, warning[UnusedImport]: off.}
+
+
 import
   hcparse / wraphelp, std / bitops, ./main_manconf,
   ./mandoc_parse_roff_eqn_main_tbl_mdoc

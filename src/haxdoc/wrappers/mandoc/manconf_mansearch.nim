@@ -1,3 +1,7 @@
+
+{.push, warning[UnusedImport]: off.}
+
+
 import
   hcparse / wraphelp, std / bitops, cstd / stddef, file
 
