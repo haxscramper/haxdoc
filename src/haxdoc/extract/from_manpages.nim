@@ -1,10 +1,13 @@
 import
   ../wrappers/mandoc/nimmandoc,
   ../docentry,
-  std/[strutils],
-  hmisc/other/oswrap,
+  ../docentry_io,
+  std/[strutils, sequtils, tables, sets],
+  hmisc/other/[oswrap, cliparse],
   hmisc/[base_errors, hdebug_misc],
-  haxorg/semorg
+  hmisc/algo/[hlex_base, htemplates, hstring_algo],
+  haxorg/semorg,
+  hpprint
 
 type
   ConvertContext = enum
@@ -37,13 +40,28 @@ proc toSemOrg(node): SemOrg = discard
 func isOptStart(node): bool =
   case node.kind:
     of rnkText:
-      echov node.textVal
+      # echov node.textVal
       node.textVal.startsWith("-"):
 
     else:
       node[0].isOptStart()
 
+func isPunctuation(node): bool =
+  if node.kind == rnkText and
+     node.textVal.allIt(it in PunctSentenceChars + AllSpace):
+    true
 
+  else:
+    false
+
+func isKvSeparator(node): bool =
+  node.kind == rnkText and
+  node.textVal.allIt(it in {'=', '['} + AllSpace) and
+  node.textVal.anyIt(it in {'=', '[', ':'})
+
+func isOptionalKv(node): bool =
+  node.kind == rnkText and
+  node.textVal.startsWith("[=")
 
 func findLikeOpt(node): int =
   var
@@ -58,6 +76,7 @@ func findLikeOpt(node): int =
       else:
         failColumn = sub.column
         failLine = sub.line
+        echov failColumn
         result = -1
 
     else:
@@ -65,32 +84,81 @@ func findLikeOpt(node): int =
         return idx
 
 
+func toOpt(node): CliOpt =
+  func aux(n: NRoffNode, opt: var CliOpt) =
+    case n.kind:
+      of rnkText:
+        opt.keyPath = @[n.textVal]
 
-func newOpts(ctx; node) =
-  raise newUnexpectedKindError(node, node.treeRepr())
+      else:
+        for sub in n:
+          aux(sub, opt)
+
+  aux(node, result)
+
+func flatPlainText(node): string =
+  case node.kind:
+    of rnkText: result = node.textVal
+    else:
+      for sub in node:
+        result &= sub.flatPlaintext()
+
+func splitFlags(node): tuple[opts: seq[CliOpt], docs: NRoffNode] =
+  var idx = 0
+  while idx < node[0].len:
+    let it = node[0][idx]
+    if it.isOptStart():
+      result.opts.add it.toOpt()
+
+    elif it.isPunctuation():
+      discard
+
+    elif it.isKvSeparator():
+      inc idx
+      result.opts[^1].valStr = node[0][idx].flatPlaintext()
+      if it.isOptionalKv():
+        inc idx
+
+    else:
+      raise newUnexpectedKindError(
+        it, node[0].treeRepr())
+
+    inc idx
+
+  result.docs = node[1]
+
+
+
+func newOpts(ctx; node): DocEntry =
+  let (opts, docs) = node.splitFlags()
+  let name = opts.getMaxIt(it.key.len()).key.dropPrefix(
+    toStrPart ["--", "-"])
+
+  result = ctx.top.newDocEntry(dekShellOption, name)
+
+
 
 proc registerDesc(ctx; node; reg: RegStack) =
-  var inOpts = false
+  var lastOpt: DocEntry
   for sub in node:
-    if not inOpts:
-      case sub.kind:
-        of rnkText: discard # TODO add text
-        of rnkParagraph: discard
-        of rnkSection, rnkStmtList:
-          let idx = sub.findLikeOpt()
-          echov idx
-          if idx != -1:
-            inOpts = true
+    case sub.kind:
+      of rnkText: discard # TODO add text
+      of rnkParagraph: discard
+      of rnkSection, rnkStmtList:
+        if sub.isOptStart():
+          lastOpt = ctx.newOpts(sub)
 
         else:
-          raise newUnexpectedKindError(sub.kind)
+          registerDesc(ctx, sub, reg)
 
-    if inOpts:
-      let offset = sub.findLikeOpt()
+      of rnkIndented:
+        let org = sub.toSemOrg()
+        # TODO append documentation to last option
 
-      for idx, entry in sub:
-        if idx < offset: continue
-        ctx.newOpts(entry)
+      else:
+        raise newUnexpectedKindError(
+          sub.kind, sub.treeREpr())
+
 
 proc register(ctx; node; reg: RegStack) =
   case node.kind:
@@ -105,6 +173,9 @@ proc register(ctx; node; reg: RegStack) =
       case node[0].textVal:
         of "NAME": ctx.top.docText.docBrief = node[1].toSemOrg()
         of "SYNOPSIS": discard
+        of "SEE ALSO": discard # TODO implement mapping to code links
+        of "AUTHOR", "REPORTING BUGS", "COPYRIGHT":
+          discard
         of "DESCRIPTION":
           ctx.registerDesc(node, reg + ccDescription)
 
@@ -125,6 +196,11 @@ proc generateDocDb*(file: AbsFile, startDb: DocDb = newDocDb()): DocDb =
 
   ctx.register(node, RegStack(context: @[ccNone]))
 
+  return ctx.db
+
 when isMainModule:
   startHax()
   let db = findManpage("ls").generateDocDb()
+  # pprint db
+  db.writeDbXml(getAppTempDir(), "ls")
+  echov "ok"
