@@ -3,7 +3,12 @@
 
 
 import
-  hcparse / wraphelp, std / bitops, cstd / stddef, file
+  std / bitops, cstd / stddef, file, hmisc / wrappers / wraphelp
+
+
+
+export
+  wraphelp
 
 
 
@@ -16,14 +21,14 @@ import
 
 type
 
-  # Declaration created in: hc_wrapgen.nim(1221, 42)
+  # Declaration created in: hc_wrapgen.nim(1258, 42)
   MaAscii* = enum
-    maBreak = 29,             ## @import{[[code:cmacro!ASCII_BREAK]]}
-    maHyph = 30                ## @import{[[code:cmacro!ASCII_HYPH]]}
+    maBreak = 29,             ## @import{[[code:cmacro!tkInvalid]]}
+    maHyph = 30                ## @import{[[code:cmacro!tkInvalid]]}
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `mandoclevel`
   # Declared in mandoc.h:31
   MandoclevelC* {.importc: "enum mandoclevel", header: allHeaders.} = enum ## @import{[[code:enum!mandoclevel]]}
@@ -34,7 +39,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `mandocerr`
   # Declared in mandoc.h:46
   MandocerrC* {.importc: "enum mandocerr", header: allHeaders.} = enum ## @import{[[code:enum!mandocerr]]}
@@ -131,7 +136,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   Mandoclevel* = enum
     mlOk,                     ## @import{[[code:enum!mandoclevel.enumField!MANDOCLEVEL_OK]]}
     mlStyle,                  ## @import{[[code:enum!mandoclevel.enumField!MANDOCLEVEL_STYLE]]}
@@ -144,7 +149,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   Mandocerr* = enum
     meOk,                     ## @import{[[code:enum!mandocerr.enumField!MANDOCERR_OK]]}
     meBase,                   ## @import{[[code:enum!mandocerr.enumField!MANDOCERR_BASE]]}
@@ -319,7 +324,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   MandocEsc* = enum
     mscError,                 ## @import{[[code:enum!mandoc_esc.enumField!ESCAPE_ERROR]]}
     mscUnsupp,                ## @import{[[code:enum!mandoc_esc.enumField!ESCAPE_UNSUPP]]}
@@ -345,7 +350,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `mandoc_esc`
   # Declared in mandoc.h:248
   MandocEscC* {.importc: "enum mandoc_esc", header: allHeaders.} = enum ## @import{[[code:enum!mandoc_esc]]}
@@ -1489,7 +1494,7 @@ converter toMandocerrC*(en: Mandocerr): MandocerrC {.inline.} =
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_font`
 # Declared in mandoc.h:273
 proc mandocFont*(a1: cstring; sz: cint): MandocEsc {.importc: r"mandoc_font",
@@ -1498,7 +1503,7 @@ proc mandocFont*(a1: cstring; sz: cint): MandocEsc {.importc: r"mandoc_font",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_escape`
 # Declared in mandoc.h:274
 proc mandocEscape*(a1: cstringArray; a2: cstringArray; a3: ptr cint): MandocEsc {.
@@ -1507,7 +1512,7 @@ proc mandocEscape*(a1: cstringArray; a2: cstringArray; a3: ptr cint): MandocEsc 
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_msg_setoutfile`
 # Declared in mandoc.h:275
 proc mandocMsgSetoutfile*(a0: ptr FILE): void {.
@@ -1516,7 +1521,7 @@ proc mandocMsgSetoutfile*(a0: ptr FILE): void {.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_msg_getinfilename`
 # Declared in mandoc.h:276
 proc mandocMsgGetinfilename*(): cstring {.importc: r"mandoc_msg_getinfilename",
@@ -1525,7 +1530,7 @@ proc mandocMsgGetinfilename*(): cstring {.importc: r"mandoc_msg_getinfilename",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_msg_setinfilename`
 # Declared in mandoc.h:277
 proc mandocMsgSetinfilename*(a0: cstring): void {.
@@ -1534,7 +1539,7 @@ proc mandocMsgSetinfilename*(a0: cstring): void {.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_msg_getmin`
 # Declared in mandoc.h:278
 proc mandocMsgGetmin*(): Mandocerr {.importc: r"mandoc_msg_getmin",
@@ -1543,7 +1548,7 @@ proc mandocMsgGetmin*(): Mandocerr {.importc: r"mandoc_msg_getmin",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_msg_setmin`
 # Declared in mandoc.h:279
 proc mandocMsgSetmin*(a0: MandocerrC): void {.importc: r"mandoc_msg_setmin",
@@ -1552,7 +1557,7 @@ proc mandocMsgSetmin*(a0: MandocerrC): void {.importc: r"mandoc_msg_setmin",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_msg_getrc`
 # Declared in mandoc.h:280
 proc mandocMsgGetrc*(): Mandoclevel {.importc: r"mandoc_msg_getrc",
@@ -1561,7 +1566,7 @@ proc mandocMsgGetrc*(): Mandoclevel {.importc: r"mandoc_msg_getrc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_msg_setrc`
 # Declared in mandoc.h:281
 proc mandocMsgSetrc*(a0: MandoclevelC): void {.importc: r"mandoc_msg_setrc",
@@ -1570,7 +1575,7 @@ proc mandocMsgSetrc*(a0: MandoclevelC): void {.importc: r"mandoc_msg_setrc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_msg`
 # Declared in mandoc.h:282
 proc mandocMsg*(a1: MandocerrC; a2: cint; a3: cint; a4: cstring): void {.
@@ -1579,7 +1584,7 @@ proc mandocMsg*(a1: MandocerrC; a2: cint; a3: cint; a4: cstring): void {.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mchars_alloc`
 # Declared in mandoc.h:284
 proc mcharsAlloc*(): void {.importc: r"mchars_alloc", header: allHeaders.}
@@ -1587,7 +1592,7 @@ proc mcharsAlloc*(): void {.importc: r"mchars_alloc", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mchars_free`
 # Declared in mandoc.h:285
 proc mcharsFree*(): void {.importc: r"mchars_free", header: allHeaders.}
@@ -1595,7 +1600,7 @@ proc mcharsFree*(): void {.importc: r"mchars_free", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mchars_num2char`
 # Declared in mandoc.h:286
 proc mcharsNum2char*(a0: cstring; a1: SizeT): cint {.
@@ -1604,7 +1609,7 @@ proc mcharsNum2char*(a0: cstring; a1: SizeT): cint {.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mchars_uc2str`
 # Declared in mandoc.h:287
 proc mcharsUc2str*(a0: cint): cstring {.importc: r"mchars_uc2str",
@@ -1613,7 +1618,7 @@ proc mcharsUc2str*(a0: cint): cstring {.importc: r"mchars_uc2str",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mchars_num2uc`
 # Declared in mandoc.h:288
 proc mcharsNum2uc*(a0: cstring; a1: SizeT): cint {.importc: r"mchars_num2uc",
@@ -1622,7 +1627,7 @@ proc mcharsNum2uc*(a0: cstring; a1: SizeT): cint {.importc: r"mchars_num2uc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mchars_spec2cp`
 # Declared in mandoc.h:289
 proc mcharsSpec2cp*(a0: cstring; a1: SizeT): cint {.importc: r"mchars_spec2cp",
@@ -1631,7 +1636,7 @@ proc mcharsSpec2cp*(a0: cstring; a1: SizeT): cint {.importc: r"mchars_spec2cp",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mchars_spec2str`
 # Declared in mandoc.h:290
 proc mcharsSpec2str*(a0: cstring; a1: SizeT; a2: ptr SizeT): cstring {.

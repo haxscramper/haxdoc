@@ -17,7 +17,7 @@ export options
 import
   hnimast,
   hmisc/[hdebug_misc, helpers],
-  hmisc/other/[oswrap, colorlogger],
+  hmisc/other/[oswrap, hlogger],
   hmisc/algo/[hstring_algo, halgorithm, hseq_distance, hlex_base]
 
 import
@@ -25,7 +25,7 @@ import
 
 import hpprint
 
-proc headSym(node: PNode): PSym =
+proc headSym*(node: PNode): PSym =
   case node.kind:
     of nkProcDeclKinds, nkDistinctTy, nkVarTy, nkAccQuoted,
        nkBracketExpr, nkTypeDef, nkPragmaExpr, nkPar, nkEnumFieldDef,
@@ -161,6 +161,7 @@ type
     module: DocEntry
     sigmap: TableRef[PSym, DocId]
     conf: NimDocgenConf
+    logger: HLogger
 
   NimDocgenConf* = object
     isOrgCommentSyntax*: proc(lib: DocLib): bool
@@ -199,6 +200,8 @@ type
     moduleId: DocId
     user: Option[DocId]
     hasInit: bool
+
+DocContext.loggerField(logger)
 
 using
   ctx: DocContext
@@ -429,7 +432,7 @@ proc occur(
   ) =
   let path = ctx.graph.getfilepath(node).string.AbsFile()
   if not isabsolute(path):
-    warn "invalid file position for", ctx.nodeposdisplay(node)
+    ctx.warn "invalid file position for", ctx.nodeposdisplay(node)
 
   else:
     var occur = DocOccur(kind: kind)
@@ -981,11 +984,11 @@ proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
       return toSemOrg(org, ctx.conf.rstConvertConf)
 
     except EParseError as e:
-      err e.msg
+      ctx.err e.msg
       return onkRawText.newTree(e.msg).toSemOrg()
 
     except ImplementKindError as e:
-      err ctx.graph.getFilePath(node), node.getInfo()
+      ctx.err ctx.graph.getFilePath(node), node.getInfo()
       raise e
 
 
@@ -1159,9 +1162,9 @@ proc registerTypeDef(ctx; node) =
     discard
 
   else:
-    warn node[2].kind
-    debug node
-    debug treeRepr(node)
+    ctx.warn node[2].kind
+    ctx.debug node
+    ctx.debug treeRepr(node)
 
 proc registerDeclSection(ctx; node; nodeKind: DocEntryKind = dekGlobalVar) =
   case node.kind:
@@ -1229,23 +1232,25 @@ proc registerToplevel(ctx, node) =
     ctx.registerUses(node, state)
 
   except:
-    err ctx.nodePosDisplay(node)
+    ctx.err ctx.nodePosDisplay(node)
     raise
 
-proc loggerImpl(
-    config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
-  if config.errorCounter >= config.errorMax:
-    if level == Severity.Error:
-      err msg
-      err info, config.getFilePath(info)
+template initLoggerCb(logger: untyped): untyped =
+  proc cb(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
+    if config.errorCounter >= config.errorMax:
+      if level == Severity.Error:
+        `logger`.err msg
+        `logger`.err info, config.getFilePath(info)
 
-    elif level == Severity.Warning:
-      warn msg
-      warn info, config.getFilePath(info)
+      elif level == Severity.Warning:
+        `logger`.warn msg
+        `logger`.warn info, config.getFilePath(info)
 
-    else:
-      notice msg
-      notice info, config.getFilePath(info)
+      else:
+        `logger`.notice msg
+        `logger`.notice info, config.getFilePath(info)
+
+  cb
 
 let
   baseNimDocgenConf* = NimDocgenConf(
@@ -1259,15 +1264,19 @@ proc registerDocPass(
     extraLibs: seq[(AbsDir, string)] = @[],
     startDb: DocDb                   = newDocDb(),
     conf: NimDocgenConf              = baseNimDocgenConf,
-    orgComments: seq[string]         = @[]
+    orgComments: seq[string]         = @[],
+    logger: HLogger                  = newTermLogger()
   ): DocDb =
   ## Create new documentation generator graph
 
-  var db {.global.}: DocDb
-  var tmpConf {.global.}: NimDocgenConf
-  tmpConf = conf
+  var
+    db {.global.}: DocDb
+    tmpConf {.global.}: NimDocgenConf
+    doclogger {.global.}: HLogger
 
+  tmpConf = conf
   db = startDb
+  doclogger = logger
 
   tmpConf.isOrgCommentSyntax = proc(lib: DocLib): bool =
     lib.name in orgComments
@@ -1296,12 +1305,14 @@ proc registerDocPass(
     graph, makePass(
       (
         proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
-          info "Processing ", module
           var
             context = DocContext(
-              db: db, graph: graph, sigmap: sigmap, conf: tmpConf)
+              db: db, graph: graph, sigmap: sigmap,
+              conf: tmpConf, logger: doclogger)
             file = graph.getFilePath(module)
             package = db.getOrNewPackage(file)
+
+          context.info "Processing", module
 
           context.module = package.newDocEntry(dekModule, module.getStrVal())
 
@@ -1338,7 +1349,8 @@ proc generateDocDb*(
     defines: seq[string] = @["nimdoc", "haxdoc"],
     startDb: DocDb = newDocDB(),
     conf: NimDocgenConf = baseNimDocgenConf,
-    orgComments: seq[string] = @[]
+    orgComments: seq[string] = @[],
+    logger: HLogger = newTermLogger()
   ): DocDb =
 
   assertExists(
@@ -1353,7 +1365,7 @@ proc generateDocDb*(
 
   var graph {.global.}: ModuleGraph
   graph = newModuleGraph(
-    file, stdpath, loggerImpl, symDefines = defines)
+    file, stdpath, initLoggerCb(logger), symDefines = defines)
 
   var db = graph.registerDocPass(
     file, stdpath, extraLibs, startDb = startDb,
@@ -1364,14 +1376,17 @@ proc generateDocDb*(
     assertExists(dir, &"Path for package {name}")
     graph.config.searchPaths.add dir
 
-  logIndented:
+  logger.indented:
     compileProject(graph)
 
   return db
 
 
 proc projectFiles*(
-    sourceDir: AbsDir, ignored: seq[GitGlob] = @[]): seq[AbsFile] =
+    sourceDir: AbsDir,
+    logger: HLogger,
+    ignored: seq[GitGlob] = @[],
+  ): seq[AbsFile] =
   ## Return list of project files.
   ##
   ## - TODO :: Allow user to specify lista of target files
@@ -1382,7 +1397,7 @@ proc projectFiles*(
       result.add file
 
     else:
-      notice "Ignored", file
+      logger.notice "Ignored", file
 
 
 
@@ -1393,12 +1408,13 @@ proc docDbFromPackage*(
     searchDir: AbsDir = nimbleSearchDir(),
     defines: seq[string] = @["nimdoc", "haxdoc"],
     conf: NimDocgenConf = baseNimDocgenConf,
-    orgComments: seq[string] = @[]
+    orgComments: seq[string] = @[],
+    logger: HLogger = newTermLogger()
   ): DocDb =
 
   let
     projectFile = package.projectFile()
-    files = package.projectImportPath().projectFiles(ignored)
+    files = package.projectImportPath().projectFiles(logger, ignored)
     deps = projectFile.resolveNimbleDeps(searchDir).fromMinimal()
 
   var depPaths = deps.mapIt(it.projectImportPath())
@@ -1408,7 +1424,7 @@ proc docDbFromPackage*(
   var extraLibs = @[(package.projectPath(), package.name)]
   for dep in deps:
     extraLibs.add((dep.projectPath(), dep.name))
-    info dep.projectPath(), dep.name
+    logger.info dep.projectPath(), dep.name
 
   if files.len == 1:
     result = generateDocDb(
@@ -1418,7 +1434,7 @@ proc docDbFromPackage*(
     var graph {.global.}: ModuleGraph
     let moduleName = ignoredAbsFile
     graph = newModuleGraph(
-      moduleName, stdpath, loggerImpl,
+      moduleName, stdpath, initLoggerCb(logger),
       symDefines = defines)
 
     var fakeFile: string
@@ -1431,17 +1447,18 @@ proc docDbFromPackage*(
 
 
     for (dir, name) in extraLibs:
-      debug dir, name
+      logger.debug dir, name
 
     result = graph.registerDocPass(
       moduleName, stdpath, extraLibs, conf = conf,
-      orgComments = orgComments
+      orgComments = orgComments,
+      logger = logger
     )
 
     var m = graph.makeModule(moduleName.string)
     graph.vm = setupVM(m, graph.cache, moduleName.string, graph)
     graph.compileSystemModule()
-    logIndented:
+    logger.indented:
       discard graph.processModule(m, llStreamOpen(fakeFile))
 
   for info in @[package] & deps:

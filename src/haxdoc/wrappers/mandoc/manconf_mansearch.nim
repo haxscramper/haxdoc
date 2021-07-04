@@ -3,7 +3,12 @@
 
 
 import
-  hcparse / wraphelp, std / bitops, cstd / stddef, file
+  std / bitops, cstd / stddef, file, hmisc / wrappers / wraphelp
+
+
+
+export
+  wraphelp
 
 
 
@@ -16,7 +21,7 @@ import
 
 type
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `manpaths`
   # Declared in manconf.h:21
   Manpaths* {.bycopy, importc: "struct manpaths", header: allHeaders.} = object
@@ -29,7 +34,7 @@ type
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `manpaths`
 # Declared in manconf.h:21
 proc cnewManpaths*(): ptr Manpaths {.importc: r"new manpaths()",
@@ -38,7 +43,7 @@ proc cnewManpaths*(): ptr Manpaths {.importc: r"new manpaths()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `manpaths`
 # Declared in manconf.h:21
 proc destroyManpaths*(obj: ptr Manpaths): void {.importc: r"#.~manpaths()",
@@ -47,7 +52,7 @@ proc destroyManpaths*(obj: ptr Manpaths): void {.importc: r"#.~manpaths()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `manpaths`
 # Declared in manconf.h:21
 proc newManpaths*(): ref Manpaths =

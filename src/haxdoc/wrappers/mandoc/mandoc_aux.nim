@@ -3,7 +3,12 @@
 
 
 import
-  hcparse / wraphelp, std / bitops, cstd / stddef
+  std / bitops, cstd / stddef, hmisc / wrappers / wraphelp
+
+
+
+export
+  wraphelp
 
 
 
@@ -15,7 +20,7 @@ import
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_asprintf`
 # Declared in mandoc_aux.h:19
 proc mandocAsprintf*(a1: cstringArray; a2: cstring): cint {.varargs,
@@ -24,7 +29,7 @@ proc mandocAsprintf*(a1: cstringArray; a2: cstring): cint {.varargs,
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_calloc`
 # Declared in mandoc_aux.h:21
 proc mandocCalloc*(a0: SizeT; a1: SizeT): pointer {.importc: r"mandoc_calloc",
@@ -33,7 +38,7 @@ proc mandocCalloc*(a0: SizeT; a1: SizeT): pointer {.importc: r"mandoc_calloc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_malloc`
 # Declared in mandoc_aux.h:22
 proc mandocMalloc*(a0: SizeT): pointer {.importc: r"mandoc_malloc",
@@ -42,7 +47,7 @@ proc mandocMalloc*(a0: SizeT): pointer {.importc: r"mandoc_malloc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_realloc`
 # Declared in mandoc_aux.h:23
 proc mandocRealloc*(a0: pointer; a1: SizeT): pointer {.
@@ -51,7 +56,7 @@ proc mandocRealloc*(a0: pointer; a1: SizeT): pointer {.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_reallocarray`
 # Declared in mandoc_aux.h:24
 proc mandocReallocarray*(a0: pointer; a1: SizeT; a2: SizeT): pointer {.
@@ -60,7 +65,7 @@ proc mandocReallocarray*(a0: pointer; a1: SizeT; a2: SizeT): pointer {.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_recallocarray`
 # Declared in mandoc_aux.h:25
 proc mandocRecallocarray*(a0: pointer; a1: SizeT; a2: SizeT; a3: SizeT): pointer {.
@@ -69,7 +74,7 @@ proc mandocRecallocarray*(a0: pointer; a1: SizeT; a2: SizeT; a3: SizeT): pointer
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_strdup`
 # Declared in mandoc_aux.h:26
 proc mandocStrdup*(a0: cstring): cstring {.importc: r"mandoc_strdup",
@@ -78,7 +83,7 @@ proc mandocStrdup*(a0: cstring): cstring {.importc: r"mandoc_strdup",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mandoc_strndup`
 # Declared in mandoc_aux.h:27
 proc mandocStrndup*(a0: cstring; a1: SizeT): cstring {.

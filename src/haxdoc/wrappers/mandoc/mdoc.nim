@@ -3,13 +3,13 @@
 
 
 import
-  hcparse / wraphelp, std / bitops, cstd / stddef,
-  ./mandoc_parse_roff_eqn_main_tbl_mdoc
+  std / bitops, cstd / stddef, ./mandoc_parse_roff_eqn_main_tbl_mdoc,
+  hmisc / wrappers / wraphelp
 
 
 
 export
-  mandoc_parse_roff_eqn_main_tbl_mdoc
+  mandoc_parse_roff_eqn_main_tbl_mdoc, wraphelp
 
 
 
@@ -22,7 +22,7 @@ import
 
 type
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `roff_man`
   # Declared in mdoc.h:20
   RoffMan* {.bycopy, importc: "struct roff_man", header: allHeaders.} = object
@@ -33,7 +33,7 @@ type
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `roff_man`
 # Declared in mdoc.h:20
 proc cnewRoffMan*(): ptr RoffMan {.importc: r"new roff_man()",
@@ -42,7 +42,7 @@ proc cnewRoffMan*(): ptr RoffMan {.importc: r"new roff_man()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `roff_man`
 # Declared in mdoc.h:20
 proc destroyRoffMan*(obj: ptr RoffMan): void {.importc: r"#.~roff_man()",
@@ -51,7 +51,7 @@ proc destroyRoffMan*(obj: ptr RoffMan): void {.importc: r"#.~roff_man()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `roff_man`
 # Declared in mdoc.h:20
 proc newRoffMan*(): ref RoffMan =
@@ -64,7 +64,7 @@ proc newRoffMan*(): ref RoffMan =
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mdoc_validate`
 # Declared in mdoc.h:158
 proc mdocValidate*(a0: ptr RoffMan): void {.importc: r"mdoc_validate",

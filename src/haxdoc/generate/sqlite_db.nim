@@ -1,27 +1,21 @@
 import
   ../docentry
 
+import
+  std/[strformat, with, macros, hashes, options, sequtils, intsets, sugar]
 
 import
-  std/[db_sqlite, strformat, with, sqlite3, macros, hashes,
-       options, sequtils, intsets, sugar],
-  hmisc/other/[oswrap],
-  hmisc/[helpers, hdebug_misc, base_errors],
-  hnimast, hnimast/store_decl,
+  hmisc/other/[oswrap, sqlite_extra],
+  hmisc/[helpers, hdebug_misc, base_errors]
+
+import
+  hnimast, hnimast/store_decl
+
+import
   haxorg/[semorg]
 
 startHax()
 
-
-proc bindParam[T](ps: SqlPrepared, idx: int, opt: Option[T]) =
-  if opt.isSome():
-    bindParam(ps, idx, opt.get())
-
-  else:
-    bindNull(ps, idx)
-
-proc bindParam[E: enum](ps: SqlPrepared, idx: int, opt: E) =
-  bindParam(ps, idx, opt.int)
 
 proc bindParam(ps: SqlPrepared, idx: int, id: DocId) =
   bindParam(ps, idx, id.id.int)
@@ -46,13 +40,9 @@ var
 proc finalizePrepared() =
   finalize(registerPrep)
 
-proc toSqlite*(t: typedesc[int]): string = "integer"
-proc toSqlite*(t: typedesc[bool]): string = "integer"
-proc toSqlite*(t: typedesc[DocId]): string =
-     &"integer references {entriesTable}(id)"
 
-proc toSqlite*(t: typedesc[string]): string = "text"
-proc toSqlite*(t: typedesc[enum]): string = "integer"
+
+
 
 proc toSQLite*(t: typedesc[DocType]): string =
   &"integer references {typeInstanceTable}(id)"
@@ -62,26 +52,9 @@ proc toSqlite*(t: typedesc[DocText]): string =
 
 proc toSqlite*(t: typedesc[SemOrg]): string = "blob"
 
-proc toSqlite*[T](t: typedesc[Option[T]]): string =
-  toSqlite(typeof Option[T]().get())
+proc toSqlite*(t: typedesc[DocId]): string =
+     &"integer references {entriesTable}(id)"
 
-template sq*(expr: untyped): untyped =
-  toSqlite(typeof expr)
-
-proc sqlite3_expanded_sql(sqlite3_stmt: PStmt): cstring {.
-  importc, dynlib: "libsqlite3.so(|.0)", cdecl.}
-
-
-
-proc `$`*(pstmt: SqlPrepared): string =
-  $sqlite3_expanded_sql(pstmt.PStmt)
-
-proc reset*(p: SqlPrepared) =
-  discard reset(p.PStmt)
-
-proc doExec(sq: DbConn, prep: SqlPrepared) =
-  sq.exec(prep)
-  reset(prep)
 
 proc createTables(sq: DbConn) =
   let q =
@@ -181,15 +154,6 @@ template checkSeen(hash: Hash): bool =
     store.incl hash
     false
 
-proc newInsert(table: string, columns: openarray[(string, int)]): string =
-  "insert into " & table & " (\n  " &
-    columns.mapIt(it[0]).join(", ") & "\n) values ( \n" & join(
-      collect(
-        newSeq,
-        for idx, (name, val) in columns:
-         "  ?" & $val & tern(idx < columns.high, ",", " ") & " -- " & name
-      ), "\n"
-    ) & "\n);"
 
 
 
@@ -352,9 +316,8 @@ proc writeDbSqlite*(db: DocDb, outFile: AbsFile) =
     db.registerFullDb(conn)
 
   except DbError:
-    echo errmsg(conn)
-    echo errcode(conn)
+    echo connError(conn)
     raise
 
   finalizePrepared()
-  db_sqlite.close(conn)
+  close(conn)

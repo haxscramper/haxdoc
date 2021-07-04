@@ -3,7 +3,12 @@
 
 
 import
-  hcparse / wraphelp, std / bitops, cstd / stddef, file
+  std / bitops, cstd / stddef, file, hmisc / wrappers / wraphelp
+
+
+
+export
+  wraphelp
 
 
 
@@ -16,7 +21,7 @@ import
 
 type
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `roff_tok`
   # Declared in roff.h:73
   RoffTokC* {.importc: "enum roff_tok", header: allHeaders.} = enum ## @import{[[code:enum!roff_tok]]}
@@ -163,7 +168,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   Mdocargt* = enum
     mSplit,                   ## @import{[[code:enum!mdocargt.enumField!MDOC_Split]]}
     mNosplit,                 ## @import{[[code:enum!mdocargt.enumField!MDOC_Nosplit]]}
@@ -196,7 +201,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `mdoc_bd`
   # Declared in mdoc.h:113
   MdocBd* {.bycopy, importc: "struct mdoc_bd", header: allHeaders.} = object
@@ -208,7 +213,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `eqn_post`
   # Declared in eqn.h:37
   EqnPostC* {.importc: "enum eqn_post", header: allHeaders.} = enum ## @import{[[code:enum!eqn_post]]}
@@ -219,7 +224,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `tbl_cellt`
   # Declared in tbl.h:36
   TblCelltC* {.importc: "enum tbl_cellt", header: allHeaders.} = enum ## @import{[[code:enum!tbl_cellt]]}
@@ -231,7 +236,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `eqn_boxt`
   # Declared in eqn.h:20
   EqnBoxtC* {.importc: "enum eqn_boxt", header: allHeaders.} = enum ## @import{[[code:enum!eqn_boxt]]}
@@ -240,7 +245,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `mdoc_data`
   # Declared in mdoc.h:146
   MdocData* {.bycopy, importc: "struct mdoc_data", header: allHeaders, union.} = object
@@ -255,7 +260,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   MdocList* = enum
     mlNone,                   ## @import{[[code:enum!mdoc_list.enumField!LIST__NONE]]}
     mlBullet,                 ## @import{[[code:enum!mdoc_list.enumField!LIST_bullet]]}
@@ -273,7 +278,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `mdoc_list`
   # Declared in mdoc.h:75
   MdocListC* {.importc: "enum mdoc_list", header: allHeaders.} = enum ## @import{[[code:enum!mdoc_list]]}
@@ -285,7 +290,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   MandocOs* = enum
     mdosOther,                ## @import{[[code:enum!mandoc_os.enumField!MANDOC_OS_OTHER]]}
     mdosNetbsd,               ## @import{[[code:enum!mandoc_os.enumField!MANDOC_OS_NETBSD]]}
@@ -293,7 +298,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   RoffSec* = enum
     rsNone,                   ## @import{[[code:enum!roff_sec.enumField!SEC_NONE]]}
     rsName,                   ## @import{[[code:enum!roff_sec.enumField!SEC_NAME]]}
@@ -322,7 +327,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   EqnBoxt* = enum
     ebText,                   ## @import{[[code:enum!eqn_boxt.enumField!EQN_TEXT]]}
     ebSubexpr,                ## @import{[[code:enum!eqn_boxt.enumField!EQN_SUBEXPR]]}
@@ -332,7 +337,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `mdoc_bl`
   # Declared in mdoc.h:119
   MdocBl* {.bycopy, importc: "struct mdoc_bl", header: allHeaders.} = object
@@ -348,7 +353,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `mdoc_an`
   # Declared in mdoc.h:133
   MdocAn* {.bycopy, importc: "struct mdoc_an", header: allHeaders.} = object
@@ -358,7 +363,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `roff_type`
   # Declared in roff.h:60
   RoffTypeC* {.importc: "enum roff_type", header: allHeaders.} = enum ## @import{[[code:enum!roff_type]]}
@@ -369,14 +374,14 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   MdocEndbody* = enum
     meNot,                    ## @import{[[code:enum!mdoc_endbody.enumField!ENDBODY_NOT]]}
     meSpace                    ## @import{[[code:enum!mdoc_endbody.enumField!ENDBODY_SPACE]]}
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `eqn_fontt`
   # Declared in eqn.h:28
   EqnFonttC* {.importc: "enum eqn_fontt", header: allHeaders.} = enum ## @import{[[code:enum!eqn_fontt]]}
@@ -386,7 +391,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `tbl_datt`
   # Declared in tbl.h:81
   TblDattC* {.importc: "enum tbl_datt", header: allHeaders.} = enum ## @import{[[code:enum!tbl_datt]]}
@@ -396,7 +401,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   MdocDisp* = enum
     mdNone,                   ## @import{[[code:enum!mdoc_disp.enumField!DISP__NONE]]}
     mdCentered,               ## @import{[[code:enum!mdoc_disp.enumField!DISP_centered]]}
@@ -407,7 +412,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `mdoc_font`
   # Declared in mdoc.h:106
   MdocFontC* {.importc: "enum mdoc_font", header: allHeaders.} = enum ## @import{[[code:enum!mdoc_font]]}
@@ -416,7 +421,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   EqnFontt* = enum
     efNone,                   ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_NONE]]}
     efRoman,                  ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_ROMAN]]}
@@ -427,7 +432,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `tbl_spant`
   # Declared in tbl.h:104
   TblSpantC* {.importc: "enum tbl_spant", header: allHeaders.} = enum ## @import{[[code:enum!tbl_spant]]}
@@ -436,7 +441,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   MdocFont* = enum
     mfNone,                   ## @import{[[code:enum!mdoc_font.enumField!FONT__NONE]]}
     mfEm,                     ## @import{[[code:enum!mdoc_font.enumField!FONT_Em]]}
@@ -445,7 +450,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `tbl_span`
   # Declared in tbl.h:113
   TblSpan* {.bycopy, importc: "struct tbl_span", header: allHeaders.} = object
@@ -462,7 +467,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `roff_meta`
   # Declared in roff.h:532
   RoffMeta* {.bycopy, importc: "struct roff_meta", header: allHeaders.} = object
@@ -484,7 +489,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `mdoc_auth`
   # Declared in mdoc.h:100
   MdocAuthC* {.importc: "enum mdoc_auth", header: allHeaders.} = enum ## @import{[[code:enum!mdoc_auth]]}
@@ -492,7 +497,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `tbl_row`
   # Declared in tbl.h:74
   TblRow* {.bycopy, importc: "struct tbl_row", header: allHeaders.} = object
@@ -505,7 +510,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `tbl_opts`
   # Declared in tbl.h:19
   TblOpts* {.bycopy, importc: "struct tbl_opts", header: allHeaders.} = object
@@ -520,7 +525,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `mdoc_disp`
   # Declared in mdoc.h:91
   MdocDispC* {.importc: "enum mdoc_disp", header: allHeaders.} = enum ## @import{[[code:enum!mdoc_disp]]}
@@ -530,7 +535,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   RoffTok* = enum
     rtRoffBr,                 ## @import{[[code:enum!roff_tok.enumField!ROFF_br]]}
     rtRoffCe,                 ## @import{[[code:enum!roff_tok.enumField!ROFF_ce]]}
@@ -939,7 +944,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `mdoc_rs`
   # Declared in mdoc.h:137
   MdocRs* {.bycopy, importc: "struct mdoc_rs", header: allHeaders.} = object
@@ -949,7 +954,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `tbl_dat`
   # Declared in tbl.h:94
   TblDat* {.bycopy, importc: "struct tbl_dat", header: allHeaders.} = object
@@ -965,7 +970,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   MdocAuth* = enum
     maNone,                   ## @import{[[code:enum!mdoc_auth.enumField!AUTH__NONE]]}
     maSplit,                  ## @import{[[code:enum!mdoc_auth.enumField!AUTH_split]]}
@@ -973,7 +978,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `roff_macroset`
   # Declared in roff.h:27
   RoffMacrosetC* {.importc: "enum roff_macroset", header: allHeaders.} = enum ## @import{[[code:enum!roff_macroset]]}
@@ -982,7 +987,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `mdocargt`
   # Declared in mdoc.h:22
   MdocargtC* {.importc: "enum mdocargt", header: allHeaders.} = enum ## @import{[[code:enum!mdocargt]]}
@@ -1000,7 +1005,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `eqn_box`
   # Declared in eqn.h:54
   EqnBox* {.bycopy, importc: "struct eqn_box", header: allHeaders.} = object
@@ -1025,7 +1030,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `tbl_cell`
   # Declared in tbl.h:52
   TblCell* {.bycopy, importc: "struct tbl_cell", header: allHeaders.} = object
@@ -1042,7 +1047,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   TblDatt* = enum
     tdNone,                   ## @import{[[code:enum!tbl_datt.enumField!TBL_DATA_NONE]]}
     tdData,                   ## @import{[[code:enum!tbl_datt.enumField!TBL_DATA_DATA]]}
@@ -1053,7 +1058,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   TblSpant* = enum
     tsData,                   ## @import{[[code:enum!tbl_spant.enumField!TBL_SPAN_DATA]]}
     tsHoriz,                  ## @import{[[code:enum!tbl_spant.enumField!TBL_SPAN_HORIZ]]}
@@ -1061,7 +1066,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   TblCellt* = enum
     tcCentre,                 ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_CENTRE]]}
     tcRight,                  ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_RIGHT]]}
@@ -1076,7 +1081,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `mdoc_argv`
   # Declared in mdoc.h:56
   MdocArgv* {.bycopy, importc: "struct mdoc_argv", header: allHeaders.} = object
@@ -1090,7 +1095,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `roff_sec`
   # Declared in roff.h:33
   RoffSecC* {.importc: "enum roff_sec", header: allHeaders.} = enum ## @import{[[code:enum!roff_sec]]}
@@ -1108,7 +1113,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   EqnPost* = enum
     epNone,                   ## @import{[[code:enum!eqn_post.enumField!EQNPOS_NONE]]}
     epSup,                    ## @import{[[code:enum!eqn_post.enumField!EQNPOS_SUP]]}
@@ -1123,7 +1128,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `mdoc_endbody`
   # Declared in roff.h:485
   MdocEndbodyC* {.importc: "enum mdoc_endbody", header: allHeaders.} = enum ## @import{[[code:enum!mdoc_endbody]]}
@@ -1131,7 +1136,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   RoffMacroset* = enum
     rmNone,                   ## @import{[[code:enum!roff_macroset.enumField!MACROSET_NONE]]}
     rmMdoc,                   ## @import{[[code:enum!roff_macroset.enumField!MACROSET_MDOC]]}
@@ -1139,7 +1144,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `mdoc_bf`
   # Declared in mdoc.h:129
   MdocBf* {.bycopy, importc: "struct mdoc_bf", header: allHeaders.} = object
@@ -1149,7 +1154,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   RoffType* = enum
     rtRoot,                   ## @import{[[code:enum!roff_type.enumField!ROFFT_ROOT]]}
     rtBlock,                  ## @import{[[code:enum!roff_type.enumField!ROFFT_BLOCK]]}
@@ -1164,7 +1169,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `mdoc_arg`
   # Declared in mdoc.h:69
   MdocArg* {.bycopy, importc: "struct mdoc_arg", header: allHeaders.} = object
@@ -1176,7 +1181,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `mandoc_os`
   # Declared in roff.h:490
   MandocOsC* {.importc: "enum mandoc_os", header: allHeaders.} = enum ## @import{[[code:enum!mandoc_os]]}
@@ -1185,7 +1190,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `roff_node`
   # Declared in roff.h:496
   RoffNode* {.bycopy, importc: "struct roff_node", header: allHeaders.} = object
@@ -1218,7 +1223,7 @@ type
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `tbl_opts`
 # Declared in tbl.h:19
 proc cnewTblOpts*(): ptr TblOpts {.importc: r"new tbl_opts()",
@@ -1227,7 +1232,7 @@ proc cnewTblOpts*(): ptr TblOpts {.importc: r"new tbl_opts()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `tbl_opts`
 # Declared in tbl.h:19
 proc destroyTblOpts*(obj: ptr TblOpts): void {.importc: r"#.~tbl_opts()",
@@ -1236,7 +1241,7 @@ proc destroyTblOpts*(obj: ptr TblOpts): void {.importc: r"#.~tbl_opts()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `tbl_opts`
 # Declared in tbl.h:19
 proc newTblOpts*(): ref TblOpts =
@@ -1334,7 +1339,7 @@ converter toTblCelltC*(en: TblCellt): TblCelltC {.inline.} =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `tbl_cell`
 # Declared in tbl.h:52
 proc cnewTblCell*(): ptr TblCell {.importc: r"new tbl_cell()",
@@ -1343,7 +1348,7 @@ proc cnewTblCell*(): ptr TblCell {.importc: r"new tbl_cell()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `tbl_cell`
 # Declared in tbl.h:52
 proc destroyTblCell*(obj: ptr TblCell): void {.importc: r"#.~tbl_cell()",
@@ -1352,7 +1357,7 @@ proc destroyTblCell*(obj: ptr TblCell): void {.importc: r"#.~tbl_cell()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `tbl_cell`
 # Declared in tbl.h:52
 proc newTblCell*(): ref TblCell =
@@ -1365,7 +1370,7 @@ proc newTblCell*(): ref TblCell =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `tbl_row`
 # Declared in tbl.h:74
 proc cnewTblRow*(): ptr TblRow {.importc: r"new tbl_row()", header: allHeaders.}
@@ -1373,7 +1378,7 @@ proc cnewTblRow*(): ptr TblRow {.importc: r"new tbl_row()", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `tbl_row`
 # Declared in tbl.h:74
 proc destroyTblRow*(obj: ptr TblRow): void {.importc: r"#.~tbl_row()",
@@ -1382,7 +1387,7 @@ proc destroyTblRow*(obj: ptr TblRow): void {.importc: r"#.~tbl_row()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `tbl_row`
 # Declared in tbl.h:74
 proc newTblRow*(): ref TblRow =
@@ -1456,7 +1461,7 @@ converter toTblDattC*(en: TblDatt): TblDattC {.inline.} =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `tbl_dat`
 # Declared in tbl.h:94
 proc cnewTblDat*(): ptr TblDat {.importc: r"new tbl_dat()", header: allHeaders.}
@@ -1464,7 +1469,7 @@ proc cnewTblDat*(): ptr TblDat {.importc: r"new tbl_dat()", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `tbl_dat`
 # Declared in tbl.h:94
 proc destroyTblDat*(obj: ptr TblDat): void {.importc: r"#.~tbl_dat()",
@@ -1473,7 +1478,7 @@ proc destroyTblDat*(obj: ptr TblDat): void {.importc: r"#.~tbl_dat()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `tbl_dat`
 # Declared in tbl.h:94
 proc newTblDat*(): ref TblDat =
@@ -1529,7 +1534,7 @@ converter toTblSpantC*(en: TblSpant): TblSpantC {.inline.} =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `tbl_span`
 # Declared in tbl.h:113
 proc cnewTblSpan*(): ptr TblSpan {.importc: r"new tbl_span()",
@@ -1538,7 +1543,7 @@ proc cnewTblSpan*(): ptr TblSpan {.importc: r"new tbl_span()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `tbl_span`
 # Declared in tbl.h:113
 proc destroyTblSpan*(obj: ptr TblSpan): void {.importc: r"#.~tbl_span()",
@@ -1547,7 +1552,7 @@ proc destroyTblSpan*(obj: ptr TblSpan): void {.importc: r"#.~tbl_span()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `tbl_span`
 # Declared in tbl.h:113
 proc newTblSpan*(): ref TblSpan =
@@ -4386,7 +4391,7 @@ converter toMandocOsC*(en: MandocOs): MandocOsC {.inline.} =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `roff_node`
 # Declared in roff.h:496
 proc cnewRoffNode*(): ptr RoffNode {.importc: r"new roff_node()",
@@ -4395,7 +4400,7 @@ proc cnewRoffNode*(): ptr RoffNode {.importc: r"new roff_node()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `roff_node`
 # Declared in roff.h:496
 proc destroyRoffNode*(obj: ptr RoffNode): void {.importc: r"#.~roff_node()",
@@ -4404,7 +4409,7 @@ proc destroyRoffNode*(obj: ptr RoffNode): void {.importc: r"#.~roff_node()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `roff_node`
 # Declared in roff.h:496
 proc newRoffNode*(): ref RoffNode =
@@ -4417,7 +4422,7 @@ proc newRoffNode*(): ref RoffNode =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `roff_meta`
 # Declared in roff.h:532
 proc cnewRoffMeta*(): ptr RoffMeta {.importc: r"new roff_meta()",
@@ -4426,7 +4431,7 @@ proc cnewRoffMeta*(): ptr RoffMeta {.importc: r"new roff_meta()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `roff_meta`
 # Declared in roff.h:532
 proc destroyRoffMeta*(obj: ptr RoffMeta): void {.importc: r"#.~roff_meta()",
@@ -4435,7 +4440,7 @@ proc destroyRoffMeta*(obj: ptr RoffMeta): void {.importc: r"#.~roff_meta()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `roff_meta`
 # Declared in roff.h:532
 proc newRoffMeta*(): ref RoffMeta =
@@ -4641,7 +4646,7 @@ converter toMdocargtC*(en: Mdocargt): MdocargtC {.inline.} =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `mdoc_argv`
 # Declared in mdoc.h:56
 proc cnewMdocArgv*(): ptr MdocArgv {.importc: r"new mdoc_argv()",
@@ -4650,7 +4655,7 @@ proc cnewMdocArgv*(): ptr MdocArgv {.importc: r"new mdoc_argv()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `mdoc_argv`
 # Declared in mdoc.h:56
 proc destroyMdocArgv*(obj: ptr MdocArgv): void {.importc: r"#.~mdoc_argv()",
@@ -4659,7 +4664,7 @@ proc destroyMdocArgv*(obj: ptr MdocArgv): void {.importc: r"#.~mdoc_argv()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `mdoc_argv`
 # Declared in mdoc.h:56
 proc newMdocArgv*(): ref MdocArgv =
@@ -4672,7 +4677,7 @@ proc newMdocArgv*(): ref MdocArgv =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `mdoc_arg`
 # Declared in mdoc.h:69
 proc cnewMdocArg*(): ptr MdocArg {.importc: r"new mdoc_arg()",
@@ -4681,7 +4686,7 @@ proc cnewMdocArg*(): ptr MdocArg {.importc: r"new mdoc_arg()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `mdoc_arg`
 # Declared in mdoc.h:69
 proc destroyMdocArg*(obj: ptr MdocArg): void {.importc: r"#.~mdoc_arg()",
@@ -4690,7 +4695,7 @@ proc destroyMdocArg*(obj: ptr MdocArg): void {.importc: r"#.~mdoc_arg()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `mdoc_arg`
 # Declared in mdoc.h:69
 proc newMdocArg*(): ref MdocArg =
@@ -4959,7 +4964,7 @@ converter toMdocFontC*(en: MdocFont): MdocFontC {.inline.} =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `mdoc_bd`
 # Declared in mdoc.h:113
 proc cnewMdocBd*(): ptr MdocBd {.importc: r"new mdoc_bd()", header: allHeaders.}
@@ -4967,7 +4972,7 @@ proc cnewMdocBd*(): ptr MdocBd {.importc: r"new mdoc_bd()", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `mdoc_bd`
 # Declared in mdoc.h:113
 proc destroyMdocBd*(obj: ptr MdocBd): void {.importc: r"#.~mdoc_bd()",
@@ -4976,7 +4981,7 @@ proc destroyMdocBd*(obj: ptr MdocBd): void {.importc: r"#.~mdoc_bd()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `mdoc_bd`
 # Declared in mdoc.h:113
 proc newMdocBd*(): ref MdocBd =
@@ -4989,7 +4994,7 @@ proc newMdocBd*(): ref MdocBd =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `mdoc_bl`
 # Declared in mdoc.h:119
 proc cnewMdocBl*(): ptr MdocBl {.importc: r"new mdoc_bl()", header: allHeaders.}
@@ -4997,7 +5002,7 @@ proc cnewMdocBl*(): ptr MdocBl {.importc: r"new mdoc_bl()", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `mdoc_bl`
 # Declared in mdoc.h:119
 proc destroyMdocBl*(obj: ptr MdocBl): void {.importc: r"#.~mdoc_bl()",
@@ -5006,7 +5011,7 @@ proc destroyMdocBl*(obj: ptr MdocBl): void {.importc: r"#.~mdoc_bl()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `mdoc_bl`
 # Declared in mdoc.h:119
 proc newMdocBl*(): ref MdocBl =
@@ -5019,7 +5024,7 @@ proc newMdocBl*(): ref MdocBl =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `mdoc_bf`
 # Declared in mdoc.h:129
 proc cnewMdocBf*(): ptr MdocBf {.importc: r"new mdoc_bf()", header: allHeaders.}
@@ -5027,7 +5032,7 @@ proc cnewMdocBf*(): ptr MdocBf {.importc: r"new mdoc_bf()", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `mdoc_bf`
 # Declared in mdoc.h:129
 proc destroyMdocBf*(obj: ptr MdocBf): void {.importc: r"#.~mdoc_bf()",
@@ -5036,7 +5041,7 @@ proc destroyMdocBf*(obj: ptr MdocBf): void {.importc: r"#.~mdoc_bf()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `mdoc_bf`
 # Declared in mdoc.h:129
 proc newMdocBf*(): ref MdocBf =
@@ -5049,7 +5054,7 @@ proc newMdocBf*(): ref MdocBf =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `mdoc_an`
 # Declared in mdoc.h:133
 proc cnewMdocAn*(): ptr MdocAn {.importc: r"new mdoc_an()", header: allHeaders.}
@@ -5057,7 +5062,7 @@ proc cnewMdocAn*(): ptr MdocAn {.importc: r"new mdoc_an()", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `mdoc_an`
 # Declared in mdoc.h:133
 proc destroyMdocAn*(obj: ptr MdocAn): void {.importc: r"#.~mdoc_an()",
@@ -5066,7 +5071,7 @@ proc destroyMdocAn*(obj: ptr MdocAn): void {.importc: r"#.~mdoc_an()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `mdoc_an`
 # Declared in mdoc.h:133
 proc newMdocAn*(): ref MdocAn =
@@ -5079,7 +5084,7 @@ proc newMdocAn*(): ref MdocAn =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `mdoc_rs`
 # Declared in mdoc.h:137
 proc cnewMdocRs*(): ptr MdocRs {.importc: r"new mdoc_rs()", header: allHeaders.}
@@ -5087,7 +5092,7 @@ proc cnewMdocRs*(): ptr MdocRs {.importc: r"new mdoc_rs()", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `mdoc_rs`
 # Declared in mdoc.h:137
 proc destroyMdocRs*(obj: ptr MdocRs): void {.importc: r"#.~mdoc_rs()",
@@ -5096,7 +5101,7 @@ proc destroyMdocRs*(obj: ptr MdocRs): void {.importc: r"#.~mdoc_rs()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `mdoc_rs`
 # Declared in mdoc.h:137
 proc newMdocRs*(): ref MdocRs =
@@ -5109,7 +5114,7 @@ proc newMdocRs*(): ref MdocRs =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `mdoc_data`
 # Declared in mdoc.h:146
 proc cnewMdocData*(): ptr MdocData {.importc: r"new mdoc_data()",
@@ -5118,7 +5123,7 @@ proc cnewMdocData*(): ptr MdocData {.importc: r"new mdoc_data()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `mdoc_data`
 # Declared in mdoc.h:146
 proc destroyMdocData*(obj: ptr MdocData): void {.importc: r"#.~mdoc_data()",
@@ -5127,7 +5132,7 @@ proc destroyMdocData*(obj: ptr MdocData): void {.importc: r"#.~mdoc_data()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `mdoc_data`
 # Declared in mdoc.h:146
 proc newMdocData*(): ref MdocData =
@@ -5341,7 +5346,7 @@ converter toEqnPostC*(en: EqnPost): EqnPostC {.inline.} =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `eqn_box`
 # Declared in eqn.h:54
 proc cnewEqnBox*(): ptr EqnBox {.importc: r"new eqn_box()", header: allHeaders.}
@@ -5349,7 +5354,7 @@ proc cnewEqnBox*(): ptr EqnBox {.importc: r"new eqn_box()", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `eqn_box`
 # Declared in eqn.h:54
 proc destroyEqnBox*(obj: ptr EqnBox): void {.importc: r"#.~eqn_box()",
@@ -5358,7 +5363,7 @@ proc destroyEqnBox*(obj: ptr EqnBox): void {.importc: r"#.~eqn_box()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `eqn_box`
 # Declared in eqn.h:54
 proc newEqnBox*(): ref EqnBox =

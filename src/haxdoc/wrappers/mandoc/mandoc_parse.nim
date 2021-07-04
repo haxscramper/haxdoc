@@ -3,12 +3,13 @@
 
 
 import
-  hcparse / wraphelp, std / bitops, ./mandoc_parse_roff_eqn_main_tbl_mdoc
+  std / bitops, ./mandoc_parse_roff_eqn_main_tbl_mdoc,
+  hmisc / wrappers / wraphelp
 
 
 
 export
-  mandoc_parse_roff_eqn_main_tbl_mdoc
+  mandoc_parse_roff_eqn_main_tbl_mdoc, wraphelp
 
 
 
@@ -21,7 +22,7 @@ import
 
 type
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `mparse`
   # Declared in mandoc_parse.h:35
   Mparse* {.bycopy, importc: "struct mparse", header: allHeaders.} = object
@@ -30,20 +31,20 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1221, 42)
+  # Declaration created in: hc_wrapgen.nim(1258, 42)
   MpMparse* = enum
-    mpMan = 2,                ## @import{[[code:cmacro!MPARSE_MAN]]}
-    mpSo = 4,                 ## @import{[[code:cmacro!MPARSE_SO]]}
-    mpQuick = 8,              ## @import{[[code:cmacro!MPARSE_QUICK]]}
-    mpUtF8 = 16,              ## @import{[[code:cmacro!MPARSE_UTF8]]}
-    mpLatiN1 = 32,            ## @import{[[code:cmacro!MPARSE_LATIN1]]}
-    mpValidate = 64            ## @import{[[code:cmacro!MPARSE_VALIDATE]]}
+    mpMan = 2,                ## @import{[[code:cmacro!tkInvalid]]}
+    mpSo = 4,                 ## @import{[[code:cmacro!tkInvalid]]}
+    mpQuick = 8,              ## @import{[[code:cmacro!tkInvalid]]}
+    mpUtF8 = 16,              ## @import{[[code:cmacro!tkInvalid]]}
+    mpLatiN1 = 32,            ## @import{[[code:cmacro!tkInvalid]]}
+    mpValidate = 64            ## @import{[[code:cmacro!tkInvalid]]}
 
 
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `mparse`
 # Declared in mandoc_parse.h:35
 proc cnewMparse*(): ptr Mparse {.importc: r"new mparse()", header: allHeaders.}
@@ -51,7 +52,7 @@ proc cnewMparse*(): ptr Mparse {.importc: r"new mparse()", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `mparse`
 # Declared in mandoc_parse.h:35
 proc destroyMparse*(obj: ptr Mparse): void {.importc: r"#.~mparse()",
@@ -60,7 +61,7 @@ proc destroyMparse*(obj: ptr Mparse): void {.importc: r"#.~mparse()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `mparse`
 # Declared in mandoc_parse.h:35
 proc newMparse*(): ref Mparse =
@@ -73,7 +74,7 @@ proc newMparse*(): ref Mparse =
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mparse_alloc`
 # Declared in mandoc_parse.h:37
 proc mparseAlloc*(a1: cint; a2: MandocOsC; a3: cstring): ptr Mparse {.
@@ -82,7 +83,7 @@ proc mparseAlloc*(a1: cint; a2: MandocOsC; a3: cstring): ptr Mparse {.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mparse_copy`
 # Declared in mandoc_parse.h:38
 proc mparseCopy*(a0: ptr Mparse): void {.importc: r"mparse_copy",
@@ -91,7 +92,7 @@ proc mparseCopy*(a0: ptr Mparse): void {.importc: r"mparse_copy",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mparse_free`
 # Declared in mandoc_parse.h:39
 proc mparseFree*(a0: ptr Mparse): void {.importc: r"mparse_free",
@@ -100,7 +101,7 @@ proc mparseFree*(a0: ptr Mparse): void {.importc: r"mparse_free",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mparse_open`
 # Declared in mandoc_parse.h:40
 proc mparseOpenRaw*(a0: ptr Mparse; a1: cstring): cint {.
@@ -126,7 +127,7 @@ proc mparseOpen*(a0: ptr Mparse; a1: cstring): cint =
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mparse_readfd`
 # Declared in mandoc_parse.h:41
 proc mparseReadfd*(a0: ptr Mparse; a1: cint; a2: cstring): void {.
@@ -135,7 +136,7 @@ proc mparseReadfd*(a0: ptr Mparse; a1: cint; a2: cstring): void {.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mparse_reset`
 # Declared in mandoc_parse.h:42
 proc mparseReset*(a0: ptr Mparse): void {.importc: r"mparse_reset",
@@ -144,7 +145,7 @@ proc mparseReset*(a0: ptr Mparse): void {.importc: r"mparse_reset",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mparse_result`
 # Declared in mandoc_parse.h:43
 proc mparseResult*(a1: ptr Mparse): ptr RoffMeta {.importc: r"mparse_result",

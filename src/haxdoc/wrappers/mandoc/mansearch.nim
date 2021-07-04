@@ -3,12 +3,12 @@
 
 
 import
-  hcparse / wraphelp, std / bitops, cstd / stddef, ./manconf_mansearch
+  std / bitops, cstd / stddef, ./manconf_mansearch, hmisc / wrappers / wraphelp
 
 
 
 export
-  manconf_mansearch
+  wraphelp, manconf_mansearch
 
 
 
@@ -21,7 +21,7 @@ import
 
 type
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   Argmode* = enum
     aFile,                    ## @import{[[code:enum!argmode.enumField!ARG_FILE]]}
     aName,                    ## @import{[[code:enum!argmode.enumField!ARG_NAME]]}
@@ -30,7 +30,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `form`
   # Declared in mansearch.h:78
   FormC* {.importc: "enum form", header: allHeaders.} = enum ## @import{[[code:enum!form]]}
@@ -38,7 +38,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1250, 44)
+  # Declaration created in: hc_wrapgen.nim(1287, 44)
   # Wrapper for `argmode`
   # Declared in mansearch.h:84
   ArgmodeC* {.importc: "enum argmode", header: allHeaders.} = enum ## @import{[[code:enum!argmode]]}
@@ -47,7 +47,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `manpage`
   # Declared in mansearch.h:91
   Manpage* {.bycopy, importc: "struct manpage", header: allHeaders.} = object
@@ -62,7 +62,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1262, 44)
+  # Declaration created in: hc_wrapgen.nim(1299, 44)
   Form* = enum
     fSrc,                     ## @import{[[code:enum!form.enumField!FORM_SRC]]}
     fCat,                     ## @import{[[code:enum!form.enumField!FORM_CAT]]}
@@ -70,7 +70,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(776, 20)
+  # Declaration created in: hc_wrapgen.nim(796, 20)
   # Wrapper for `mansearch`
   # Declared in mansearch.h:100
   Mansearch* {.bycopy, importc: "struct mansearch", header: allHeaders.} = object
@@ -178,7 +178,7 @@ converter toArgmodeC*(en: Argmode): ArgmodeC {.inline.} =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `manpage`
 # Declared in mansearch.h:91
 proc cnewManpage*(): ptr Manpage {.importc: r"new manpage()", header: allHeaders.}
@@ -186,7 +186,7 @@ proc cnewManpage*(): ptr Manpage {.importc: r"new manpage()", header: allHeaders
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `manpage`
 # Declared in mansearch.h:91
 proc destroyManpage*(obj: ptr Manpage): void {.importc: r"#.~manpage()",
@@ -195,7 +195,7 @@ proc destroyManpage*(obj: ptr Manpage): void {.importc: r"#.~manpage()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `manpage`
 # Declared in mansearch.h:91
 proc newManpage*(): ref Manpage =
@@ -208,7 +208,7 @@ proc newManpage*(): ref Manpage =
 
 
 
-# Declaration created in: hc_wrapgen.nim(423, 22)
+# Declaration created in: hc_wrapgen.nim(441, 22)
 # Wrapper for `mansearch`
 # Declared in mansearch.h:100
 proc cnewMansearch*(): ptr Mansearch {.importc: r"new mansearch()",
@@ -217,7 +217,7 @@ proc cnewMansearch*(): ptr Mansearch {.importc: r"new mansearch()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(437, 22)
+# Declaration created in: hc_wrapgen.nim(455, 22)
 # Wrapper for `mansearch`
 # Declared in mansearch.h:100
 proc destroyMansearch*(obj: ptr Mansearch): void {.importc: r"#.~mansearch()",
@@ -226,7 +226,7 @@ proc destroyMansearch*(obj: ptr Mansearch): void {.importc: r"#.~mansearch()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(447, 22)
+# Declaration created in: hc_wrapgen.nim(465, 22)
 # Wrapper for `mansearch`
 # Declared in mansearch.h:100
 proc newMansearch*(): ref Mansearch =
@@ -239,7 +239,7 @@ proc newMansearch*(): ref Mansearch =
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mansearch`
 # Declared in mansearch.h:111
 proc mansearch*(cfg: ptr Mansearch; paths: ptr Manpaths; argc: cint;
@@ -249,7 +249,7 @@ proc mansearch*(cfg: ptr Mansearch; paths: ptr Manpaths; argc: cint;
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `mansearch_free`
 # Declared in mansearch.h:117
 proc mansearchFree*(a0: ptr Manpage; a1: SizeT): void {.

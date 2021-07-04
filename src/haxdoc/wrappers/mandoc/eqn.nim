@@ -3,12 +3,13 @@
 
 
 import
-  hcparse / wraphelp, std / bitops, ./mandoc_parse_roff_eqn_main_tbl_mdoc
+  std / bitops, ./mandoc_parse_roff_eqn_main_tbl_mdoc,
+  hmisc / wrappers / wraphelp
 
 
 
 export
-  mandoc_parse_roff_eqn_main_tbl_mdoc
+  mandoc_parse_roff_eqn_main_tbl_mdoc, wraphelp
 
 
 

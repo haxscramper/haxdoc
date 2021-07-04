@@ -3,13 +3,13 @@
 
 
 import
-  hcparse / wraphelp, std / bitops, cstd / stddef,
-  ./mandoc_parse_roff_eqn_main_tbl_mdoc
+  std / bitops, cstd / stddef, ./mandoc_parse_roff_eqn_main_tbl_mdoc,
+  hmisc / wrappers / wraphelp
 
 
 
 export
-  mandoc_parse_roff_eqn_main_tbl_mdoc
+  mandoc_parse_roff_eqn_main_tbl_mdoc, wraphelp
 
 
 
@@ -22,14 +22,14 @@ import
 
 type
 
-  # Declaration created in: hc_wrapgen.nim(1221, 42)
+  # Declaration created in: hc_wrapgen.nim(1258, 42)
   TcTbl_cell* = enum
-    tcCellTalign = 4,         ## @import{[[code:cmacro!TBL_CELL_TALIGN]]}
-    tcCellUp = 8,             ## @import{[[code:cmacro!TBL_CELL_UP]]}
-    tcCellBalign = 16,        ## @import{[[code:cmacro!TBL_CELL_BALIGN]]}
-    tcCellWign = 32,          ## @import{[[code:cmacro!TBL_CELL_WIGN]]}
-    tcCellEqual = 64,         ## @import{[[code:cmacro!TBL_CELL_EQUAL]]}
-    tcCellWmax = 128           ## @import{[[code:cmacro!TBL_CELL_WMAX]]}
+    tcCellTalign = 4,         ## @import{[[code:cmacro!tkInvalid]]}
+    tcCellUp = 8,             ## @import{[[code:cmacro!tkInvalid]]}
+    tcCellBalign = 16,        ## @import{[[code:cmacro!tkInvalid]]}
+    tcCellWign = 32,          ## @import{[[code:cmacro!tkInvalid]]}
+    tcCellEqual = 64,         ## @import{[[code:cmacro!tkInvalid]]}
+    tcCellWmax = 128           ## @import{[[code:cmacro!tkInvalid]]}
 
 
 

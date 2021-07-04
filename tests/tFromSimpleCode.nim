@@ -1,5 +1,5 @@
 import
-  hmisc/other/[oswrap, colorlogger, hshell],
+  hmisc/other/[oswrap, hshell, hlogger],
   hmisc/algo/halgorithm,
   hmisc/hdebug_misc
 
@@ -131,10 +131,10 @@ echo FooBar
 """
 
 startHax()
-startColorLogger()
-
 
 let dir = getTempDir() / "tFromSimpleCode"
+
+var l = newTermLogger()
 
 suite "Generate DB":
   test "Generate DB":
@@ -144,8 +144,8 @@ suite "Generate DB":
 
     block: # Generate initial DB
       let db = generateDocDb(
-        file, fileLIb = some("main")
-      )
+        file, fileLIb = some("main"),
+        logger = l)
 
       db.writeDbXml(dir, "compile-db")
 
@@ -154,7 +154,7 @@ suite "Generate DB":
 
     block: # Load DB from xml
       for file in walkDir(dir, AbsFile, exts = @["hxde"]):
-        info "Loading DB", file
+        l.info "Loading DB", file
         block:
           var reader = newHXmlParser(file)
           reader.loadXml(inDb, "dbmain")

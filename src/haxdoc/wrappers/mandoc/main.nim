@@ -3,13 +3,13 @@
 
 
 import
-  hcparse / wraphelp, std / bitops, ./main_manconf,
-  ./mandoc_parse_roff_eqn_main_tbl_mdoc
+  std / bitops, ./main_manconf, ./mandoc_parse_roff_eqn_main_tbl_mdoc,
+  hmisc / wrappers / wraphelp
 
 
 
 export
-  mandoc_parse_roff_eqn_main_tbl_mdoc, main_manconf
+  mandoc_parse_roff_eqn_main_tbl_mdoc, wraphelp, main_manconf
 
 
 
@@ -21,7 +21,7 @@ import
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `html_alloc`
 # Declared in main.h:29
 proc htmlAlloc*(a0: ptr Manoutput): pointer {.importc: r"html_alloc",
@@ -30,7 +30,7 @@ proc htmlAlloc*(a0: ptr Manoutput): pointer {.importc: r"html_alloc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `html_mdoc`
 # Declared in main.h:30
 proc htmlMdoc*(a0: pointer; a1: ptr RoffMeta): void {.importc: r"html_mdoc",
@@ -39,7 +39,7 @@ proc htmlMdoc*(a0: pointer; a1: ptr RoffMeta): void {.importc: r"html_mdoc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `html_man`
 # Declared in main.h:31
 proc htmlMan*(a0: pointer; a1: ptr RoffMeta): void {.importc: r"html_man",
@@ -48,7 +48,7 @@ proc htmlMan*(a0: pointer; a1: ptr RoffMeta): void {.importc: r"html_man",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `html_reset`
 # Declared in main.h:32
 proc htmlReset*(a0: pointer): void {.importc: r"html_reset", header: allHeaders.}
@@ -56,7 +56,7 @@ proc htmlReset*(a0: pointer): void {.importc: r"html_reset", header: allHeaders.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `html_free`
 # Declared in main.h:33
 proc htmlFree*(a0: pointer): void {.importc: r"html_free", header: allHeaders.}
@@ -64,7 +64,7 @@ proc htmlFree*(a0: pointer): void {.importc: r"html_free", header: allHeaders.}
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `tree_mdoc`
 # Declared in main.h:35
 proc treeMdoc*(a0: pointer; a1: ptr RoffMeta): void {.importc: r"tree_mdoc",
@@ -73,7 +73,7 @@ proc treeMdoc*(a0: pointer; a1: ptr RoffMeta): void {.importc: r"tree_mdoc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `tree_man`
 # Declared in main.h:36
 proc treeMan*(a0: pointer; a1: ptr RoffMeta): void {.importc: r"tree_man",
@@ -82,7 +82,7 @@ proc treeMan*(a0: pointer; a1: ptr RoffMeta): void {.importc: r"tree_man",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `man_mdoc`
 # Declared in main.h:38
 proc manMdoc*(a0: pointer; a1: ptr RoffMeta): void {.importc: r"man_mdoc",
@@ -91,7 +91,7 @@ proc manMdoc*(a0: pointer; a1: ptr RoffMeta): void {.importc: r"man_mdoc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `locale_alloc`
 # Declared in main.h:40
 proc localeAlloc*(a0: ptr Manoutput): pointer {.importc: r"locale_alloc",
@@ -100,7 +100,7 @@ proc localeAlloc*(a0: ptr Manoutput): pointer {.importc: r"locale_alloc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `utf8_alloc`
 # Declared in main.h:41
 proc utf8Alloc*(a0: ptr Manoutput): pointer {.importc: r"utf8_alloc",
@@ -109,7 +109,7 @@ proc utf8Alloc*(a0: ptr Manoutput): pointer {.importc: r"utf8_alloc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `ascii_alloc`
 # Declared in main.h:42
 proc asciiAlloc*(a0: ptr Manoutput): pointer {.importc: r"ascii_alloc",
@@ -118,7 +118,7 @@ proc asciiAlloc*(a0: ptr Manoutput): pointer {.importc: r"ascii_alloc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `ascii_free`
 # Declared in main.h:43
 proc asciiFree*(a0: pointer): void {.importc: r"ascii_free", header: allHeaders.}
@@ -126,7 +126,7 @@ proc asciiFree*(a0: pointer): void {.importc: r"ascii_free", header: allHeaders.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `pdf_alloc`
 # Declared in main.h:45
 proc pdfAlloc*(a0: ptr Manoutput): pointer {.importc: r"pdf_alloc",
@@ -135,7 +135,7 @@ proc pdfAlloc*(a0: ptr Manoutput): pointer {.importc: r"pdf_alloc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `ps_alloc`
 # Declared in main.h:46
 proc psAlloc*(a0: ptr Manoutput): pointer {.importc: r"ps_alloc",
@@ -144,7 +144,7 @@ proc psAlloc*(a0: ptr Manoutput): pointer {.importc: r"ps_alloc",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `pspdf_free`
 # Declared in main.h:47
 proc pspdfFree*(a0: pointer): void {.importc: r"pspdf_free", header: allHeaders.}
@@ -152,7 +152,7 @@ proc pspdfFree*(a0: pointer): void {.importc: r"pspdf_free", header: allHeaders.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `terminal_mdoc`
 # Declared in main.h:49
 proc terminalMdoc*(a0: pointer; a1: ptr RoffMeta): void {.
@@ -161,7 +161,7 @@ proc terminalMdoc*(a0: pointer; a1: ptr RoffMeta): void {.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `terminal_man`
 # Declared in main.h:50
 proc terminalMan*(a0: pointer; a1: ptr RoffMeta): void {.
@@ -170,7 +170,7 @@ proc terminalMan*(a0: pointer; a1: ptr RoffMeta): void {.
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `terminal_sepline`
 # Declared in main.h:51
 proc terminalSepline*(a0: pointer): void {.importc: r"terminal_sepline",
@@ -179,7 +179,7 @@ proc terminalSepline*(a0: pointer): void {.importc: r"terminal_sepline",
 
 
 
-# Declaration created in: hc_wrapgen.nim(198, 28)
+# Declaration created in: hc_wrapgen.nim(202, 28)
 # Wrapper for `markdown_mdoc`
 # Declared in main.h:53
 proc markdownMdoc*(a0: pointer; a1: ptr RoffMeta): void {.
