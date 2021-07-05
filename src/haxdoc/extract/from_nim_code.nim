@@ -1343,14 +1343,14 @@ proc registerDocPass(
 
 proc generateDocDb*(
     file: AbsFile,
-    stdpath: AbsDir = getStdPath(),
+    stdpath: AbsDir                  = getStdPath(),
     extraLibs: seq[(AbsDir, string)] = @[],
-    fileLib: Option[string] = none(string),
-    defines: seq[string] = @["nimdoc", "haxdoc"],
-    startDb: DocDb = newDocDB(),
-    conf: NimDocgenConf = baseNimDocgenConf,
-    orgComments: seq[string] = @[],
-    logger: HLogger = newTermLogger()
+    fileLib: Option[string]          = none(string),
+    defines: seq[string]             = @["nimdoc", "haxdoc"],
+    startDb: DocDb                   = newDocDB(),
+    conf: NimDocgenConf              = baseNimDocgenConf,
+    orgComments: seq[string]         = @[],
+    logger: HLogger                  = newTermLogger()
   ): DocDb =
 
   assertExists(
