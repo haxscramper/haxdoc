@@ -13,6 +13,12 @@ proc addNimCmd(app: var CliApp) =
     var trail = cmd("trail", "Generate sourcetrail database")
     trail.add arg("file", "Main nim file", check = checkFileReadable())
 
+    trail.add opt("outfile", "", default = cliDefaultFromArg(
+      "file",
+      proc(val: CliValue): CliValue =
+        echo "outfile"
+        val.as(FsFile).withExt(sourcetrailDbExt).toCliValue()))
+
     cmd.add trail
 
   block:
@@ -51,8 +57,8 @@ proc haxdocMain*(app: var CliApp, l: HLogger) =
 
       case nimcmd.getCmdName():
         of "trail":
+          let outfile = nimcmd.getCmd().getOpt("outfile") as AbsFile
           l.wait "Writing sourcetrail db file"
-          let outfile = file.withExt(sourcetrailDbExt)
           db.writeSourcetrailDb(outfile)
           l.success "Wrote sourcetrail db to", outfile
 
