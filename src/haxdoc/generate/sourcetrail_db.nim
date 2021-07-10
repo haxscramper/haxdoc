@@ -272,11 +272,13 @@ proc registerFullDb*(writer; db: DocDb) =
 
 const
   sourcetrailDbExt* = "srctrldb"
+  sourcetrailProjectExt* = "srctrlprj"
 
 
 proc writeDbSourcetrail*(db: DocDb, outFile: AbsFile) =
   var writer: SourcetrailDbWriter
   let outFile = outFile.withExt(sourcetrailDbExt)
+  assertExists outFile.dir()
   rmFile outFile
   writer.open(outFile)
   registerFullDb(writer, db)

@@ -6,4 +6,16 @@ import
 
 let file = getAppTempFile("intrail.nim")
 file.writeFile("echo 12")
-haxdocCli(@["nim", "trail", $file])
+
+let dir = getTempDir() / "tHaxdocCliProject"
+
+mkWithDirStructure(dir):
+  file "project.nimble":
+    "srcDir = \"src\""
+
+  dir "src":
+    file "project.nim":
+      "echo 12"
+
+withDir dir:
+  haxdocCli(@["nim", "trail", "project.nimble"])

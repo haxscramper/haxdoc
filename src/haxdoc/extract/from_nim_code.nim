@@ -1237,18 +1237,22 @@ proc registerToplevel(ctx, node) =
 
 template initLoggerCb(logger: untyped): untyped =
   proc cb(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
-    if config.errorCounter >= config.errorMax:
-      if level == Severity.Error:
-        `logger`.err msg
-        `logger`.err info, config.getFilePath(info)
+    {.cast(gcsafe).}:
+      if config.errorCounter >= config.errorMax:
+        if level == Severity.Error:
+          let path = config.getFilePath(info)
 
-      elif level == Severity.Warning:
-        `logger`.warn msg
-        `logger`.warn info, config.getFilePath(info)
+          `logger`.err msg
+          `logger`.err path
+          `logger`.logLines(path, info.line.int, "nim", info.col.int)
 
-      else:
-        `logger`.notice msg
-        `logger`.notice info, config.getFilePath(info)
+        elif level == Severity.Warning:
+          `logger`.warn msg
+          `logger`.warn info, config.getFilePath(info)
+
+        else:
+          `logger`.notice msg
+          `logger`.notice info, config.getFilePath(info)
 
   cb
 
