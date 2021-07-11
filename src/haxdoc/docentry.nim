@@ -3,7 +3,7 @@
 import haxorg/[ast, semorg]
 import hmisc/other/[oswrap, hjson]
 import hmisc/types/hmap
-import hmisc/algo/[hseq_mapping, halgorithm, hlex_base]
+import hmisc/algo/[hseq_mapping, halgorithm, hlex_base, clformat]
 import hmisc/[hdebug_misc, helpers, hexceptions]
 import std/[options, tables, hashes, enumerate,
             strformat, sequtils, intsets]
@@ -128,6 +128,27 @@ func `$`*(t: DocType): string =
     else:
       raiseImplementKindError(t)
 
+func `$`*(part: DocCodePart): string =
+  if part.occur.isSome():
+    let occur = part.occur.get()
+    result.add hshow(occur.kind)
+    result.add " "
+    if occur.kind in dokLocalKinds:
+      result.add hshow(occur.localId)
+      result.add " "
+
+  result.add hshow(part.slice.line .. part.slice.column)
+
+func `[]`*(line: DocCodeLine, part: DocCodePart): string =
+  let
+    rangeMin = part.slice.column.a.clamp(0, line.text.high)
+    rangeMax = part.slice.column.b.clamp(0, line.text.high)
+
+  if line.text.len == 0:
+    result = repeat(" ", part.slice.column.b - part.slice.column.a)
+
+  else:
+    result = line.text[rangeMin .. rangeMax]
 
 func hash*(id: DocId): Hash = hash(id.id)
 func hash*[T](o: Option[T]): Hash =
@@ -277,15 +298,15 @@ func `==`*(t1, t2: DocType): bool =
 
 
 proc `$`*(ident: DocLinkPart): string =
- result = "[" & ident.name & " "
+ result = "[" & $ident.kind & " " & ident.name & " "
  if ident.kind in dekProcKinds:
    if ident.procType.isNil():
      result &= "<nil-proc-type> "
 
    else:
-     result &= $ident.procType & " "
+     result &= $ident.procType
 
- result &= $ident.kind & "]"
+ result &= "]"
 
 proc `$`*(ident: DocLink): string =
   for idx, part in ident.parts:
@@ -386,6 +407,13 @@ proc `[]`*(db: DocDb, id: DocId): DocEntry = db.entries[id]
 
 proc `[]`*(de: DocEntry, idx: int): DocEntry =
   de.db.entries[de.nested[idx]]
+
+func formatCodePart*(db: DocDb, part: DocCodePart): string =
+  result &= $part
+  if part.occur.isSome() and
+     part.occur.get().kind notin dokLocalKinds:
+    result &= " "
+    result &= $db[part.occur.get().refid]
 
 iterator allItems*(
     db: DocDb, accepted: set[DocEntryKind] = dekAllKinds): DocEntry =

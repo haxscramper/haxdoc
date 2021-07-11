@@ -1,8 +1,9 @@
 import
-  std/tables
+  std/[tables, sequtils, with]
 
 import
-  hmisc/algo/hseq_distance
+  hmisc/algo/[hseq_distance, htemplates, halgorithm],
+  hmisc/types/colorstring
 
 import
   ../docentry_types,
@@ -25,6 +26,8 @@ type
 
   DocLineDiff* = object
     kind*: DocDiffKind
+    oldLine*: DocCodeLine
+    newLine*: DocCodeLine
 
   DocFileDiff* = object
     diffLines*: seq[DocLineDiff]
@@ -151,3 +154,47 @@ proc diffFile*(db: DocDbDiff, oldFile, newFile: DocFile): DocFileDiff =
     newFile.body.codeLines,
     lineCmp
   )
+
+  let shifted = shiftDiffed(
+    oldFile.body.codeLines,
+    newFile.body.codeLines,
+    diff,
+    DocCodeLine()
+  )
+
+  for (oldLine, newLine) in zip(shifted.oldShifted, shifted.newShifted):
+    let
+      (oldKind, oldCode) = oldLine
+      (newKind, newCode) = newLine
+
+
+    var kind: DocDiffKind
+    if oldKind == dskKeep and
+       newKind == dskKeep:
+      kind = ldkNoChanges
+      echo "---"
+      for (old, new) in zip(oldCode.parts, newCode.parts):
+        echo oldCode[old] |<< 30, " ", db.oldDb.formatCodePart(old)
+        echo newCode[new] |<< 30, " ", db.newDb.formatCodePart(new)
+
+    elif newKind == dskInsert:
+      kind = ldkNewText
+
+    elif oldKind == dskDelete:
+      kind = ldkDeletedText
+
+    result.diffLines.add DocLineDiff(
+      kind: kind,
+      oldLine: oldCode,
+      newLine: newCode
+    )
+
+proc formatDiff*(db: DocDbDiff, diff: DocFileDiff): string =
+  let maxLine = maxIt(diff.diffLines, it.oldLine.lineHigh) + 1
+
+  for line in diff.diffLines:
+    with result:
+      add line.oldLine.text |<< maxLine
+      add " "
+      add line.newLine.text
+      add "\n"
