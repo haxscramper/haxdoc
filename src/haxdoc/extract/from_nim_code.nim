@@ -1349,7 +1349,7 @@ proc generateDocDb*(
     file: AbsFile,
     stdpath: AbsDir                  = getStdPath(),
     extraLibs: seq[(AbsDir, string)] = @[],
-    fileLib: Option[string]          = none(string),
+    fileLib: Option[string]          = some(file.name()),
     defines: seq[string]             = @["nimdoc", "haxdoc"],
     startDb: DocDb                   = newDocDB(),
     conf: NimDocgenConf              = baseNimDocgenConf,

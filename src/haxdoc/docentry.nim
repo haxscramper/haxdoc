@@ -626,6 +626,14 @@ func getPackage*(entry: DocEntry): DocId =
   else:
     return entry.fullIdent.parts[0].id
 
+func getFile*(db: DocDb, path: AbsFile): DocFile =
+  for file in db.files:
+    if file.path == path:
+      return file
+
+  raise newArgumentError(
+    "Cannot find file", path, "in the database")
+
 proc getPathForPackage*(db: DocDb, ident: DocLink): AbsDir =
   let package = ident.package()
   for lib in db.knownLibs:
