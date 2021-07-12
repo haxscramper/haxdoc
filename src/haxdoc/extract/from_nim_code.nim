@@ -54,6 +54,20 @@ proc headSym*(node: PNode): PSym =
       # this is a `object.field` check
       nil
 
+    of nkStmtListExpr:
+      if isNil(node.typ):
+        if node.len > 0:
+          headSym(node[1])
+
+        else:
+          nil
+
+      else:
+        node.typ.skipTypes({tyRef}).sym
+
+    of nkType, nkObjConstr:
+      node.typ.skipTypes({tyRef}).sym
+
     else:
       raiseImplementKindError(node, node.treeRepr())
 
@@ -497,28 +511,28 @@ proc getEffects(node: PNode, effectPos: int): PNode =
 proc registerProcBody(ctx; body: PNode, state: RegisterState, node) =
   let s = node[0].headSym()
   if isNil(s) or not isValid(ctx[s]): return
-  let main = ctx.db[ctx[s]]
-
   let
+    main = ctx.db[ctx[s]]
     decl = s.ast.asProcDecl()
     prag = decl.pragmas()
     mainRaise = s.typ.n.getEffects(exceptionEffects)
     mainEffect = s.typ.n.getEffects(tagEffects)
 
-  if ctx.db[main.getPackage()].name != "std":
-    echov mainEffect
-    echov mainRaise
+  # if main.name in ["main", "changeRaiseAnnotation", "changeSideEffect"]:
+  #   echov main.name
+  #   echov s.typ.n.treeRepr(positionIndexed = false)
+  #   echov s.ast.treeRepr(positionIndexed = false)
+
 
   if ?mainRaise:
     for r in mainRaise:
       main.raises.incl ctx[r]
-
+      main.raisesVia[ctx[r]] = DocIdSet()
 
   if ?mainEffect:
-    echo treeRepr(mainEffect)
     for e in mainEffect:
-      main.raises.incl ctx[e]
-      main.raisesVia[ctx[e]] = DocIdSet()
+      main.effects.incl ctx[e]
+      main.effectsVia[ctx[e]] = DocIdSet()
 
   let icpp = effectSpec(prag, {wImportc, wImportcpp, wImportJs, wImportObjC})
   if ?icpp: main.wrapOf = some icpp[0].getStrVal()

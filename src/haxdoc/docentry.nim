@@ -139,6 +139,14 @@ func `$`*(part: DocCodePart): string =
 
   result.add hshow(part.slice.line .. part.slice.column)
 
+func hasRefid*(part: DocCodePart): bool =
+  part.occur.isSome() and
+  part.occur.get().kind notin dokLocalKinds
+
+func getRefid*(part: DocCodePart): DocId =
+  part.occur.get().refid
+
+
 func `[]`*(line: DocCodeLine, part: DocCodePart): string =
   let
     rangeMin = part.slice.column.a.clamp(0, line.text.high)

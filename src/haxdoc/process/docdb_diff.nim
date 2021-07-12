@@ -1,9 +1,9 @@
 import
-  std/[tables, sequtils, with, strformat, options]
+  std/[tables, sequtils, with, strformat, options, strutils]
 
 import
   hmisc/algo/[hseq_distance, htemplates, halgorithm],
-  hmisc/types/colorstring,
+  hmisc/types/[colorstring],
   hmisc/[base_errors, hdebug_misc]
 
 import
@@ -16,19 +16,27 @@ type
     ldkNoChanges ## Line does not have syntactical or semantical changes
     ldkNewText ## Code was added
     ldkDeletedText ## Code was removed
-    ldkTextChanges ## Line had text (syntactical) changes
-    ldkSemChanges ## Line didn not change syntactically, but one of the
+    ldkTextChanged ## Line had text (syntactical) changes
+    ldkSemChanged ## Line didn not change syntactically, but one of the
                   ## used symbols changed it's meaning (can raise new
                   ## exception, changed it's implementation)
 
-    ldkDocChanges ## Used entry didn not change it's semantical meaning,
+    ldkDocChanged ## Used entry didn not change it's semantical meaning,
                   ## but documentation was modified.
 
 
+  DocLineDiffPart = object
+    oldPart*: DocCodePart
+    newPart*: DocCodePart
+    diff*: Option[DocEntryDiff]
+
   DocLineDiff* = object
     kind*: DocDiffKind
+    # REVIEW maybe storing all the lines in duplicate form does not worth
+    # it, or at least should be made via `case` variant to reduce space?
     oldLine*: DocCodeLine
     newLine*: DocCodeLine
+    diffParts*: seq[DocLineDiffPart]
 
   DocFileDiff* = object
     diffLines*: seq[DocLineDiff]
@@ -140,7 +148,7 @@ proc isDeleted*(db: DocDbDiff, id: DocId): bool =
   not db.oldNewMap[id].isValid()
 
 proc isChanged*(db: DocDbDiff, id: DocId): bool =
-  id notin db.entryChange
+  id in db.entryChange
 
 iterator items*(diff: DocEntryDiff): DocEntryDiffPart =
   for part in items(diff.diffParts):
@@ -214,16 +222,6 @@ proc diffType(db: DocDbDiff, old, new: DocType): seq[DocEntryDiffPart] =
 proc diffProc(db: DocDbDiff, old, new: DocEntry): DocEntryDiff =
   result.add db.diffType(old.procType, new.procType)
 
-  if old.name == "changeSideEffect":
-    echov old
-    echov new
-    for eff in new.effects:
-      echov db.newDb[eff]
-
-    for eff in old.effects:
-      echov db.oldDb[eff]
-
-
   for effect in new.effects - old.effects:
     result.add initDiffPart(dedSideEffectsChanged).withIt do:
       it.changeKind = dckNewAdded
@@ -269,7 +267,6 @@ proc updateDiff(db: var DocDbDiff, id: DocId) =
         of dekProcKinds:
           let diff = db.diffProc(old, new)
           if diff.len > 0:
-            echov old, "has", diff.len(), "items"
             db.entryChange[id] = diff
 
         else:
@@ -329,13 +326,17 @@ proc diffFile*(db: DocDbDiff, oldFile, newFile: DocFile): DocFileDiff =
 
 
     var kind: DocDiffKind
-    if oldKind == dskKeep and
-       newKind == dskKeep:
+    var changed: seq[DocLineDiffPart]
+    if oldKind == dskKeep and newKind == dskKeep:
       kind = ldkNoChanges
-      # echo "---"
-      # for (old, new) in zip(oldCode.parts, newCode.parts):
-      #   echo oldCode[old] |<< 30, " ", db.oldDb.formatCodePart(old)
-      #   echo newCode[new] |<< 30, " ", db.newDb.formatCodePart(new)
+      for (old, new) in zip(oldCode.parts, newCode.parts):
+        var part = DocLineDiffPart(oldPart: old, newPart: new)
+        if old.hasRefid() and
+           new.hasRefid() and
+           db.isChanged(old.getRefid()):
+          part.diff = some db.getDiff(old.getRefid())
+          kind = ldkSemChanged
+          changed.add part
 
     elif newKind == dskInsert:
       kind = ldkNewText
@@ -346,15 +347,55 @@ proc diffFile*(db: DocDbDiff, oldFile, newFile: DocFile): DocFileDiff =
     result.diffLines.add DocLineDiff(
       kind: kind,
       oldLine: oldCode,
-      newLine: newCode
+      newLine: newCode,
+      diffParts: changed
     )
 
+
+proc formatDiff*(db: DocDbDiff, diff: DocEntryDiff): string =
+  var text: seq[string]
+  for part in diff:
+    case part.kind:
+      of dedSideEffectsChanged:
+        text.add &"Changed side effect - added {db.newDb[part.entry.get()].name}"
+
+      of dedRaisesChanged:
+        text.add &"New possible exception - added {db.newDb[part.entry.get()].name}"
+
+      else:
+        raise newImplementKindError(part)
+
+  return text.join("\n")
+
+
 proc formatDiff*(db: DocDbDiff, diff: DocFileDiff): string =
-  let maxLine = maxIt(diff.diffLines, it.oldLine.lineHigh) + 1
+  let maxLine = maxIt(diff.diffLines, it.oldLine.lineHigh) + 2
 
   for line in diff.diffLines:
+    var buf: ColoredRuneGrid
+    let (oldStyle, newStyle) =
+      case line.kind:
+        of ldkSemChanged:  (bgDefault + fgDefault, bgDefault + fgCyan)
+        of ldkDeletedText: (bgDefault + fgRed,     bgDefault + fgDefault)
+        of ldkNewText:     (bgDefault + fgDefault, bgDefault + fgGreen)
+        else:              (bgDefault + fgDefault, bgDefault + fgDefault)
+
+    buf[0, 0]       = toStyled(line.oldLine.text, oldStyle)
+    buf[0, maxLine] = toStyled(line.newLine.text, newStyle)
+
+    if line.diffParts.len > 0:
+      for part in line.diffParts:
+        if part.diff.isSome():
+          let col = maxLine + part.newPart.slice.column.a
+          buf[1, col] = '^'
+          buf[2, col] = toStyled(
+            db.formatDiff(part.diff.get()), fgMagenta + bgDefault)
+
+
+
+
+
+
     with result:
-      add line.oldLine.text |<< maxLine
-      add " "
-      add line.newLine.text
+      add $buf
       add "\n"

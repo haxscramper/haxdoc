@@ -34,36 +34,41 @@ proc main() =
 """
 
   oldCode = """
-proc writeIoEffect() {.tags: [ReadIoEffect].} = discard
+proc writeIoEffect() {.tags: [ReadIoEffect].} =
+  discard
 
 proc changeSideEffect() = discard
 
 proc changeRaiseAnnotation() = discard
 
 proc changeImplementation() = discard
+"""
 
 # proc proc1() = discard
 # proc proc2() = discard
 # proc proc3() = discard
-"""
+
 
   newCode = """
-proc writeIoEffect() {.tags: [ReadIoEffect].} = discard
+proc writeIoEffect() {.tags: [ReadIoEffect].} =
+  discard
 
 proc changeSideEffect() =
   writeIoEffect()
-  echo 12 #< Does not correctly track write io effect, idk why
+  echo 12 #< Does not track write io effect???
 
-proc changeRaiseAnnotation() = raise newException(OsError, "w23423")
+proc changeRaiseAnnotation() =
+  raise newException(OsError, "w23423")
 
 proc changeImplementation() =
   for i in [0, 1, 3]:
     discard i
+"""
 
 # proc proc1() {.raises: [OsError].} = discard
 # proc proc2() {.tags: [IOEffect].} = discard
 # proc proc3() = ##[ Documentation update ]## discard
-"""
+
 
 mkDir dir
 mkDir oldDir
