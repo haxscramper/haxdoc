@@ -478,31 +478,44 @@ proc effectSpec*(sym: PSym, word: TSpecialWord): PNode =
 proc `?`(node: PNode): bool =
   not isNil(node) and (node.len > 0)
 
+proc `[]`(node: PNode, idx: int, kinds: set[TNodeKind]): PNode =
+  result = node[idx]
+  assertKind(result, kinds)
+
+proc getEffects(node: PNode, effectPos: int): PNode =
+  if node.safeLen > 0 and
+     node[0].len >= effectListLen and
+     not isNil(node[0][effectPos]):
+    result = nnkBracket.newPTree()
+    for node in node[0, {nkArgList}][effectPos]:
+      result.add node
+
+  else:
+    result = newEmptyPNode()
+
+
 proc registerProcBody(ctx; body: PNode, state: RegisterState, node) =
   let s = node[0].headSym()
   if isNil(s) or not isValid(ctx[s]): return
+  let main = ctx.db[ctx[s]]
 
   let
-    main = ctx.db[ctx[s]]
     decl = s.ast.asProcDecl()
     prag = decl.pragmas()
-    mainRaise = trees.effectSpec(prag, wRaises)
-    mainEffect = trees.effectSpec(prag, wTags)
+    mainRaise = s.typ.n.getEffects(exceptionEffects)
+    mainEffect = s.typ.n.getEffects(tagEffects)
+
+  if ctx.db[main.getPackage()].name != "std":
+    echov mainEffect
+    echov mainRaise
 
   if ?mainRaise:
     for r in mainRaise:
       main.raises.incl ctx[r]
 
-  if ctx.db[main.getPackage()].name != "std":
-    echov "---", main
-    pprint s.typ
-    echov prag.treeRepr()
-    echov s.ast
-    echov s.typ
-    echov mainEffect, from_nim_code.effectSpec(prag, {wTags})
-    echov mainRaise, from_nim_code.effectSpec(prag, {wRaises})
 
   if ?mainEffect:
+    echo treeRepr(mainEffect)
     for e in mainEffect:
       main.raises.incl ctx[e]
       main.raisesVia[ctx[e]] = DocIdSet()
@@ -865,11 +878,8 @@ proc impl(
 
 
 proc registerUses(ctx; node; state: RegisterState) =
-  try:
-    discard impl(ctx, node, state, nil)
+  discard impl(ctx, node, state, nil)
 
-  except ImplementError:
-    echo node.treeRepr1()
 
 
 proc toDocType(ctx; ntype: NType): DocType =
