@@ -8,10 +8,13 @@ import
   ]
 
 import
-  hmisc/other/[oswrap, hpprint]
+  hmisc/other/[oswrap, hpprint],
+  hmisc/hdebug_misc
 
 import
   std/unittest
+
+startHax()
 
 let
   dir = getAppTempDir()
@@ -27,29 +30,39 @@ proc main() =
   changeSideEffect()
   changeRaiseAnnotation()
   changeImplementation()
-  proc1(); proc2(); proc3()
+  # proc1(); proc2(); proc3()
 """
 
   oldCode = """
+proc writeIoEffect() {.tags: [ReadIoEffect].} = discard
+
 proc changeSideEffect() = discard
+
 proc changeRaiseAnnotation() = discard
+
 proc changeImplementation() = discard
 
-proc proc1() = discard
-proc proc2() = discard
-proc proc3() = discard
+# proc proc1() = discard
+# proc proc2() = discard
+# proc proc3() = discard
 """
 
   newCode = """
-proc changeSideEffect() = echo "werwer"
+proc writeIoEffect() {.tags: [ReadIoEffect].} = discard
+
+proc changeSideEffect() =
+  writeIoEffect()
+  echo 12 #< Does not correctly track write io effect, idk why
+
 proc changeRaiseAnnotation() = raise newException(OsError, "w23423")
+
 proc changeImplementation() =
   for i in [0, 1, 3]:
     discard i
 
-proc proc1() {.raises: [OsError].} = discard
-proc proc2() {.tags: [IOEffect].} = discard
-proc proc3() = ##[ Documentation update ]## discard
+# proc proc1() {.raises: [OsError].} = discard
+# proc proc2() {.tags: [IOEffect].} = discard
+# proc proc3() = ##[ Documentation update ]## discard
 """
 
 mkDir dir
@@ -61,15 +74,10 @@ newFile.writeFile(newCode & commonMain)
 
 suite "API usage":
   test "Simple comparison":
-    let oldDb = generateDocDb(oldFile)
-
-    oldDb.writeDbFlatty(oldDir / "flatty", "flatty-db")
-
     let
+      oldDb = generateDocDb(oldFile)
       newDb = generateDocDb(newFile)
       diffDb = diffDb(oldDb, newDb)
-
-
 
     let
       diffLines = diffDb.diffFile(

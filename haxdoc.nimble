@@ -18,6 +18,9 @@ requires "fusion"
 requires "cxxstd"
 requires "nimtraits#head"
 
+requires "flatty >= 0.2.2"
+requires "supersnappy >= 2.1.1"
+
 before install:
   # Whatever, I'm too tired of fighting nimble over my local installation
   # 'local dependencies' will be added 'stometimes later', so for now I

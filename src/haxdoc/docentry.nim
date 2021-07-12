@@ -298,10 +298,11 @@ func `==`*(t1, t2: DocType): bool =
 
 
 proc `$`*(ident: DocLinkPart): string =
- result = "[" & $ident.kind & " " & ident.name & " "
+ result = "[" & $ident.kind & " " & ident.name
  if ident.kind in dekProcKinds:
+   result &= " "
    if ident.procType.isNil():
-     result &= "<nil-proc-type> "
+     result &= "<nil-proc-type>"
 
    else:
      result &= $ident.procType

@@ -1,10 +1,10 @@
 import
-  std/[tables, sequtils, with]
+  std/[tables, sequtils, with, strformat, options]
 
 import
   hmisc/algo/[hseq_distance, htemplates, halgorithm],
   hmisc/types/colorstring,
-  hmisc/base_errors
+  hmisc/[base_errors, hdebug_misc]
 
 import
   ../docentry_types,
@@ -44,6 +44,7 @@ type
     dedNewArgument ## Different signature due to new argument
     dedRemovedArgument ## Different signature due to removed argument
     dedChangedArgument ## Different signature due to argument changed type
+    dedChangedReturnType
 
     dedImplementationChanged ## Implementation changed between versions
     # IDEA in theory I should be able to provide more granual information
@@ -88,8 +89,21 @@ type
     ## caused by isufficiently sophistiated change detection algorithm
     ## rather than actually new entry)
 
+  DedChangeKind = enum
+    dckNewAdded
+    dckOldRemoved
+    dckUsedEntryChanged
+    dckPresentViaChanged
+
   DocEntryDiffPart = object
-    kind*: DocEntryDiffKind
+    changeKind*: DedChangeKind
+    entry*: Option[DocId]
+    case kind*: DocEntryDiffKind
+      of dedSideEffectsChanged, dedRaisesChanged:
+        presentVia: Option[DocIdSet]
+
+      else:
+        discard
 
   DocEntryDiff* = object
     diffParts*: seq[DocEntryDiffPart]
@@ -138,6 +152,12 @@ iterator pairs*(diff: DocEntryDiff): (int, DocEntryDiffPart) =
 
 func len*(diff: DocEntryDiff): int = diff.diffParts.len()
 
+proc add*(
+    diff: var DocEntryDiff, part: DocEntryDiffPart | seq[DocEntryDiffPart]) =
+  diff.diffParts.add part
+
+
+
 proc getNew*(db: DocDbDiff, id: DocId): DocId =
   ## Return 'new' documentable entry version. It it is alreayd in new
   ## documentable database return it without changing.
@@ -176,8 +196,61 @@ proc getDiff*(db: DocDbDiff, id: DocId): DocEntryDiff =
     result = db.entryChange[id]
 
 
+proc initDiffPart(kind: DocEntryDiffKind): DocEntryDiffPart =
+  DocEntryDiffPart(kind: kind)
+
+proc diffType(db: DocDbDiff, old, new: DocType): seq[DocEntryDiffPart] =
+  assert old.kind == new.kind,
+     &"Cannot diff types of different kind - old is {old.kind}, new is {new.kind}"
+
+  case old.kind:
+    of dtkProc:
+      if old.returnType != new.returnType:
+        result.add initDiffPart(dedChangedReturnType)
+
+    else:
+      discard
+
 proc diffProc(db: DocDbDiff, old, new: DocEntry): DocEntryDiff =
-  discard
+  result.add db.diffType(old.procType, new.procType)
+
+  if old.name == "changeSideEffect":
+    echov old
+    echov new
+    for eff in new.effects:
+      echov db.newDb[eff]
+
+    for eff in old.effects:
+      echov db.oldDb[eff]
+
+
+  for effect in new.effects - old.effects:
+    result.add initDiffPart(dedSideEffectsChanged).withIt do:
+      it.changeKind = dckNewAdded
+      it.entry = some effect
+      if effect in new.effectsVia:
+        it.presentVia = some new.effectsVia[effect]
+
+  for effect in old.effects - new.effects:
+    result.add initDiffPart(dedSideEffectsChanged).withIt do:
+      it.changeKind = dckOldRemoved
+      it.entry = some effect
+      if effect in old.effectsVia:
+        it.presentVia = some old.effectsVia[effect]
+
+  for raised in new.raises - old.raises:
+    result.add initDiffPart(dedRaisesChanged).withIt do:
+      it.changeKind = dckNewAdded
+      it.entry = some raised
+      if raised in old.raisesVia:
+        it.presentVia = some old.raisesVia[raised]
+
+  for raised in old.raises - new.raises:
+    result.add initDiffPart(dedRaisesChanged).withIt do:
+      it.changeKind = dckOldRemoved
+      it.entry = some raised
+      if raised in old.raisesVia:
+        it.presentVia = some old.raisesVia[raised]
 
 proc updateDiff(db: var DocDbDiff, id: DocId) =
   if db.isDeleted(id):
@@ -194,7 +267,10 @@ proc updateDiff(db: var DocDbDiff, id: DocId) =
     if old.kind == new.kind:
       case old.kind:
         of dekProcKinds:
-          db.entryChange[id] = db.diffProc(old, new)
+          let diff = db.diffProc(old, new)
+          if diff.len > 0:
+            echov old, "has", diff.len(), "items"
+            db.entryChange[id] = diff
 
         else:
           discard
@@ -256,10 +332,10 @@ proc diffFile*(db: DocDbDiff, oldFile, newFile: DocFile): DocFileDiff =
     if oldKind == dskKeep and
        newKind == dskKeep:
       kind = ldkNoChanges
-      echo "---"
-      for (old, new) in zip(oldCode.parts, newCode.parts):
-        echo oldCode[old] |<< 30, " ", db.oldDb.formatCodePart(old)
-        echo newCode[new] |<< 30, " ", db.newDb.formatCodePart(new)
+      # echo "---"
+      # for (old, new) in zip(oldCode.parts, newCode.parts):
+      #   echo oldCode[old] |<< 30, " ", db.oldDb.formatCodePart(old)
+      #   echo newCode[new] |<< 30, " ", db.newDb.formatCodePart(new)
 
     elif newKind == dskInsert:
       kind = ldkNewText

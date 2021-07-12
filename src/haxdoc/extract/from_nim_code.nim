@@ -17,13 +17,11 @@ export options
 import
   hnimast,
   hmisc/[hdebug_misc, helpers],
-  hmisc/other/[oswrap, hlogger],
+  hmisc/other/[oswrap, hlogger, hpprint],
   hmisc/algo/[hstring_algo, halgorithm, hseq_distance, hlex_base]
 
 import
   haxorg/[semorg, ast, importer_nim_rst, parser]
-
-import hpprint
 
 proc headSym*(node: PNode): PSym =
   case node.kind:
@@ -450,20 +448,29 @@ proc occur(
 
     ctx.db.newOccur(node.nodeSlice(), path, occur)
 
+proc effectSpec*(n: PNode, effectType: set[TSpecialWord]): PNode =
+  assertKind(n, {nkPragma, nkEmpty})
+  for it in n:
+    case it.kind:
+      of nkExprColonExpr:
+        if whichPragma(it) in effectType:
+          result = it[1]
+          if result.kind notin {nkCurly, nkBracket}:
+            result = newNodeI(nkCurly, result.info)
+            result.add(it[1])
+          return
+
+      of nkIdent, nkSym, nkEmpty:
+        discard
+
+      else:
+        raise newUnexpectedKindError(it)
+
 proc effectSpec*(sym: PSym, word: TSpecialWord): PNode =
   if notNil(sym) and notNil(sym.ast) and sym.ast.safeLen >= pragmasPos:
-    let pragma = sym.ast[pragmasPos]
-    return effectSpec(pragma, word)
-
-proc effectSpec*(n: PNode, effectType: set[TSpecialWord]): PNode =
-  for i in 0..<n.len:
-    var it = n[i]
-    if it.kind == nkExprColonExpr and whichPragma(it) in effectType:
-      result = it[1]
-      if result.kind notin {nkCurly, nkBracket}:
-        result = newNodeI(nkCurly, result.info)
-        result.add(it[1])
-      return
+    return sym.ast.asProcDecl().pragmas().effectSpec(word)
+    # let pragma = sym.ast[pragmasPos]
+    # return effectSpec(pragma, word)
 
 
 # proc getEffects*(body:)
@@ -474,16 +481,26 @@ proc `?`(node: PNode): bool =
 proc registerProcBody(ctx; body: PNode, state: RegisterState, node) =
   let s = node[0].headSym()
   if isNil(s) or not isValid(ctx[s]): return
-  let main = ctx.db[ctx[s]]
 
-  let prag = node[pragmasPos]
-
-  let mainRaise = effectSpec(prag, wRaises)
-  let mainEffect = effectSpec(prag, wTags)
+  let
+    main = ctx.db[ctx[s]]
+    decl = s.ast.asProcDecl()
+    prag = decl.pragmas()
+    mainRaise = trees.effectSpec(prag, wRaises)
+    mainEffect = trees.effectSpec(prag, wTags)
 
   if ?mainRaise:
     for r in mainRaise:
       main.raises.incl ctx[r]
+
+  if ctx.db[main.getPackage()].name != "std":
+    echov "---", main
+    pprint s.typ
+    echov prag.treeRepr()
+    echov s.ast
+    echov s.typ
+    echov mainEffect, from_nim_code.effectSpec(prag, {wTags})
+    echov mainRaise, from_nim_code.effectSpec(prag, {wRaises})
 
   if ?mainEffect:
     for e in mainEffect:

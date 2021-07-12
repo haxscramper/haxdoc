@@ -450,9 +450,6 @@ macro genFlattyReader(obj: typedesc, target, stream, index: untyped): untyped =
   echo result.repr
 
 
-template castWrite(s: var string, obj: typed) =
-  s.setLen(s.len + sizeof(obj))
-  cast[ptr typeof(obj)](addr s[s.len - sizeof(obj)])[] = obj
 
 template castRead(s: string, i: var int, x: typed) =
   x = cast[ptr typeof(x)](unsafeAddr s[i])[]
@@ -474,6 +471,10 @@ proc fromFlatty(str: string, i: var int, id: var DocId) =
 
 proc fromFlatty(str: string, i: var int, ns: var int) =
   castRead(str, i, ns)
+
+template castWrite(s: var string, obj: typed) =
+  s.setLen(s.len + sizeof(obj))
+  cast[ptr typeof(obj)](addr s[s.len - sizeof(obj)])[] = obj
 
 proc toFlatty[E: enum](s: var string, en: set[E]) = castWrite(s, en)
 proc toFlatty(str: var string, cstr: cstring) = toFlatty(str, $cstr)
