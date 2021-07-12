@@ -3,7 +3,8 @@ import
 
 import
   hmisc/algo/[hseq_distance, htemplates, halgorithm],
-  hmisc/types/colorstring
+  hmisc/types/colorstring,
+  hmisc/base_errors
 
 import
   ../docentry_types,
@@ -100,9 +101,11 @@ type
     sameSignature: DocIdSet ## Set of documentable entries with the same
     ## signature
 
-    changedSignature: Table[DocId, DocId] ## Mapping between old and new
+    oldNewMap: Table[DocId, DocId] ## Mapping between old and new
     ## versions of documentable entries. If old documentable entry is
     ## deleted it is mapped to an invalid id.
+
+    newOldMap: Table[DocId, DocId] ## Reversed map
 
     entryChange: Table[DocId, DocEntryDiff] ## Mapping between documentable
     ## entry ID and diff associated with that entry.
@@ -113,14 +116,14 @@ type
     ## only time when ID belongs to new documentable entry is when it is
     ## completely new.
 
-proc isNew*(db: DocDbDiff, id: DocId): bool =
-  id notin db.changedSignature and
+proc isAdded*(db: DocDbDiff, id: DocId): bool =
+  id notin db.oldNewMap and
   id notin db.sameSignature and
   id in db.entryChange
 
 proc isDeleted*(db: DocDbDiff, id: DocId): bool =
-  id in db.changedSignature and
-  not db.changedSignature[id].isValid()
+  id in db.oldNewMap and
+  not db.oldNewMap[id].isValid()
 
 proc isChanged*(db: DocDbDiff, id: DocId): bool =
   id notin db.entryChange
@@ -135,12 +138,93 @@ iterator pairs*(diff: DocEntryDiff): (int, DocEntryDiffPart) =
 
 func len*(diff: DocEntryDiff): int = diff.diffParts.len()
 
+proc getNew*(db: DocDbDiff, id: DocId): DocId =
+  ## Return 'new' documentable entry version. It it is alreayd in new
+  ## documentable database return it without changing.
+  if id in db.sameSignature or db.isAdded(id):
+    assert id in db.newDb
+    return id
+
+  elif db.isDeleted(id):
+    raise newGetterError(
+      "Cannot get 'new' for documentable entry id",
+      id, db.oldDb[id], " - it has been deleted")
+
+  else:
+    raise newLogicError(
+      "Entry must be ether unchanged, new or deleted")
+
+
+proc getOld*(db: DocDbDiff, id: DocId): DocId =
+  ## Return 'old' documentable entry version. It it is already in old
+  ## documentable database return it without changing.
+  if id in db.sameSignature or db.isDeleted(id):
+    assert id in db.oldDb
+    return id
+
+  elif db.isAdded(id):
+    raise newGetterError(
+      "Cannot get 'old' for documentable entry id",
+      id, db.newDb[id], " - it is completely new")
+
+  else:
+    raise newLogicError(
+      "Entry must be ether unchanged, new or deleted")
+
 proc getDiff*(db: DocDbDiff, id: DocId): DocEntryDiff =
   if id in db.entryChange:
-    result =db.entryChange[id]
+    result = db.entryChange[id]
+
+
+proc diffProc(db: DocDbDiff, old, new: DocEntry): DocEntryDiff =
+  discard
+
+proc updateDiff(db: var DocDbDiff, id: DocId) =
+  if db.isDeleted(id):
+    raise newImplementError("Deleted entry")
+
+  elif db.isAdded(id):
+    raise newImplementError("Added entry")
+
+  else:
+    let
+      old = db.oldDb[db.getOld(id)]
+      new = db.newDb[db.getNew(id)]
+
+    if old.kind == new.kind:
+      case old.kind:
+        of dekProcKinds:
+          db.entryChange[id] = db.diffProc(old, new)
+
+        else:
+          discard
+
 
 proc diffDb*(oldDb, newDb: DocDb): DocDbDiff =
   result = DocDbDiff(oldDb: oldDb, newDb: newDb)
+  var oldIds, newIds: DocIdSet
+
+  for entry in allItems(oldDb):
+    oldIds.incl entry.id
+
+  for entry in allItems(newDb):
+    newIds.incl entry.id
+
+  result.sameSignature = oldIds * newIds
+
+  for id in result.sameSignature:
+    result.updateDiff(id)
+
+  let
+    deleted = oldIds - newIds
+    added = newIds - oldIds
+
+  for entry in deleted:
+    result.oldNewMap[entry] = DocId()
+
+
+
+
 
 proc diffEntry*(db: DocDbDiff, oldEntry, newEntry: DocEntry): DocEntryDiff =
   discard

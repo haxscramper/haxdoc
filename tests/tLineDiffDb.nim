@@ -3,7 +3,8 @@ import
   ../src/haxdoc/[
     extract/from_nim_code,
     process/docdb_diff,
-    docentry
+    docentry,
+    docentry_io
   ]
 
 import
@@ -60,10 +61,15 @@ newFile.writeFile(newCode & commonMain)
 
 suite "API usage":
   test "Simple comparison":
+    let oldDb = generateDocDb(oldFile)
+
+    oldDb.writeDbFlatty(oldDir / "flatty", "flatty-db")
+
     let
-      oldDb = generateDocDb(oldFile)
       newDb = generateDocDb(newFile)
       diffDb = diffDb(oldDb, newDb)
+
+
 
     let
       diffLines = diffDb.diffFile(

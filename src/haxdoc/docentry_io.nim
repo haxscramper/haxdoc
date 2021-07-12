@@ -399,3 +399,120 @@ when isMainModule:
 
   var w = newXmlWriter(newFileStream(stdout))
   w.writeXml(doc, "test")
+
+
+import flatty
+import hnimast
+
+macro genFlattyWriter(
+    obj: typedesc, input, stream: untyped): untyped =
+
+  let
+    input = input.copyNimNode()
+    stream = stream.copyNimNode()
+    impl = getObjectStructure(obj)
+
+  let kindWrite = impl.mapItKindFields(input.newDot(path)):
+    newCall("toFlatty", stream, input.newDot(field))
+
+  let reqInit = impl.mapItPlainFields(input.newDot(path)):
+    if field.isReqInit():
+      newCall("toFlatty", stream, input.newDot(field))
+
+    else:
+      newEmptyNode()
+
+  let fieldWrite = impl.mapItPlainFields(input.newDot(path)):
+    if field.isSkipField("IO") or field.isReqInit():
+      newEmptyNode()
+
+    else:
+      newCall("toFlatty", stream, input.newDot(field))
+
+  result = newStmtList(kindWrite, reqInit, fieldWrite)
+
+
+macro genFlattyReader(obj: typedesc, target, stream, index: untyped): untyped =
+  let
+    impl = getObjectStructure(obj)
+    target = target.copyNimNode()
+    stream = stream.copyNimNode()
+    index = index.copyNimNode()
+
+  var
+    declareKind = impl.getKindFields.mapIt(newVar(it.name, it.fldType))
+    loadKind = newCaseStmt(stream.newCall("attrKey"))
+    newObject = impl.newCall()
+
+
+  result = newStmtList(declareKind)
+
+  echo result.repr
+
+
+template castWrite(s: var string, obj: typed) =
+  s.setLen(s.len + sizeof(obj))
+  cast[ptr typeof(obj)](addr s[s.len - sizeof(obj)])[] = obj
+
+template castRead(s: string, i: var int, x: typed) =
+  x = cast[ptr typeof(x)](unsafeAddr s[i])[]
+  i += sizeof(x)
+
+import std/times
+
+
+proc fromFlatty[E: enum](s: string, i: var int, en: var set[E]) =
+  castRead(s, i, en)
+
+proc fromFlatty(str: string, i: var int, cstr: var cstring) =
+  var buf: string
+  fromFlatty(str, i, buf)
+  cstr = buf.cstring
+
+proc fromFlatty(str: string, i: var int, id: var DocId) =
+  castRead(str, i, id)
+
+proc fromFlatty(str: string, i: var int, ns: var int) =
+  castRead(str, i, ns)
+
+proc toFlatty[E: enum](s: var string, en: set[E]) = castWrite(s, en)
+proc toFlatty(str: var string, cstr: cstring) = toFlatty(str, $cstr)
+proc toFlatty(str: var string, id: DocId) = castWrite(str, id)
+proc toFlatty(str: var string, ns: int) = castWrite(str, ns)
+
+proc toFlatty(str: var string, ns: NanosecondRange) =
+  castWrite(str, ns)
+
+template flattyRefWrite(
+    s: var string, entry: typed, writer: untyped): untyped =
+  if isNil(entry):
+    s.toFlatty(true)
+
+  else:
+    s.toFlatty(false)
+    writer
+
+template flattyRefRead(s, pos, reader: untyped): untyped =
+  var isNil: bool
+  fromFlatty(s, pos, isNil)
+  if not isNil:
+    reader
+
+import haxorg/[semorg, ast]
+
+proc fromFlatty(s: string, i: var int, sem: var SemOrg) =
+  flattyRefRead(s, i, genFlattyReader(SemOrg, sem, s, i))
+
+proc toFlatty(s: var string, entry: DocEntry) =
+  flattyRefWrite(s, entry, genFlattyWriter(DocEntry, entry, s))
+
+
+import supersnappy
+
+proc writeDbFlatty*(db: DocDb, dir: AbsDir, dbName: string) =
+  mkDir dir
+  writeFile(dir /. dbName, toFlatty(db).compress())
+
+proc loadDbFlatty*(dir: AbsDir, dbName: string): DocDb =
+  when false:
+    result = fromFlatty(readFile(dir /. dbName).uncompress(), DocDb)

@@ -322,7 +322,8 @@ func incl*(s: var DocIdSet, id: DocId) =
   if id.id.int != 0:
     s.ids.incl id.id.int
 
-
+func `*`*(s1, s2: DocIdSet): DocIdSet = DocIdSet(ids: s1.ids * s2.ids)
+func `-`*(s1, s2: DocIdSet): DocIdSet = DocIdSet(ids: s1.ids - s2.ids)
 
 func excl*(s: var DocIdSet, id: DocId) = s.ids.excl id.id.int
 func contains*(s: DocIdSet, id: DocId): bool = id.id.int in s.ids
