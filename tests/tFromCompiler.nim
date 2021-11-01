@@ -1,4 +1,8 @@
-import hmisc/other/[oswrap, colorlogger, hshell]
+import
+  hmisc/other/[oswrap, hshell, hlogger],
+  hmisc/core/all
+
+
 import
   haxdoc/extract/from_nim_code,
   haxdoc/process/[docentry_group],
@@ -8,31 +12,29 @@ import
 
 import cxxstd/cxx_common
 import nimtrail/nimtrail_common
-import hnimast/compiler_aux
+import hnimast/[compiler_aux]
 
 let
   outDir = getTempDir() / "tFromCompiler"
-  compPackage = findPackage("compiler", newVRAny())
 
-
-startColorLogger()
-
-if compPackage.isNone():
-  err "Failed to find package `compiler`, skipping compiler analysis test"
+startHax()
 
 
 let
-  compDir = compPackage.get().getRealDir().AbsDir()
+  compDir = getStdPath().dir()
   compFile = compDir /. "compiler/nim.nim"
+  l = newTermLogger()
 
 mkDir outDir
 
-info "Using compiler source dir ", compDir
-info "Starting compilation from ", compFile
+l.info "Using compiler source dir ", compDir
+l.info "Starting compilation from ", compFile
 
 let db = generateDocDb(
-  compFile, fileLib = some("compiler"),
-  defines = @["nimpretty", "haxdoc", "nimdoc"]
+  compFile,
+  fileLib = some("compiler"),
+  defines = @["nimpretty", "haxdoc", "nimdoc"],
+  logger  = l
 )
 
 echo "Db compilation done"

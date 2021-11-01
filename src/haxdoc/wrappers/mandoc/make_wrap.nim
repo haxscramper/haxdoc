@@ -18,9 +18,17 @@ let parseConf = baseCppParseConf.withIt do:
   ]
 
 let wrapConf = baseCWrapConf.withDeepIt do:
-  it.baseDir = toAbsDir(inDir)
+  it.baseDir   = toAbsDir(inDir)
   it.nimOutDir = resDir
-  it.wrapName = some "mandoc"
+  it.wrapName  = "mandoc"
+  it.depsConf  = @[cstd_wrap.wrapConf, baseCWrapConf]
+
+  it.getSavePathImpl = (
+    proc(file: AbsFile, conf: WrapConf): LibImport =
+      result = baseCWrapConf.getSavePathImpl(file, conf)
+      result.addPathPrefix "tmp"
+  )
+
   it.ignoreCursor = (
     proc(cursor: CXCursor, conf: WrapConf): bool {.closure.} =
       if cursor.isFromFile(inDir /. "main.h"):
@@ -41,7 +49,6 @@ let wrapConf = baseCWrapConf.withDeepIt do:
 
   it.makeHeader = (
     proc(cursor: CXCursor, conf: WrapConf): NimHeaderSpec {.closure.} =
-      # info cursor, "is from dir", inDir, "? :", cursor.isFromDir(inDir)
       if cursor.isFromDir(inDir):
         initHeaderSpec newPIdent("allHeaders")
 
@@ -71,28 +78,19 @@ let wrapConf = baseCWrapConf.withDeepIt do:
       })
   )
 
-  it.getImport = (
-    proc(dep: AbsFile, conf: WrapConf, isExternal: bool):
-      NimImportSpec {.closure.} =
-
-      return conf.getImportUsingDependencies(
-        dep,
-        @[cstd_wrap.wrapConf, baseCWrapCOnf],
-        isExternal
-      )
-  )
-
   it.userCode = (
-    proc(file: WrappedFile): tuple[node: PNode, postTypes: bool] =
+    proc(file: WrappedFile): tuple[node: PNode, position: WrappedEntryPos] =
+      result.position = wepBeforeAll
       result.node = pquote do:
         import mandoc_common
   )
 
 
 when isMainModule:
-  startColorLogger(showFile = true)
-  startHax()
   randomize()
+
+  wrapConf.logger = newTermLogger(file = true, line = true)
+  wrapConf.logger.leftAlignFiles = 18
 
   var files: seq[AbsFile]
   for file in walkDir(inDir, AbsFile, exts = @["h"]):
@@ -101,10 +99,11 @@ when isMainModule:
       "mandoc_aux", "mandoc_parse", "main", "tbl", "eqn"
     ]:
       files.add file
-  wrapAllFiles(files, wrapConf, parseConf)
 
-  notice "Conversion done"
+  discard wrapAllFiles(files, wrapConf, parseConf)
+
+  wrapConf.notice "Conversion done"
   execShell shellCmd(
     nim, c, -r, warnings = off, "tests/tUsingNim.nim")
 
-  notice "compilation ok"
+  wrapConf.notice "compilation ok"

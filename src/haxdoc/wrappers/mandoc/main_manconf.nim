@@ -3,7 +3,7 @@
 
 
 import
-  std / bitops, cstd / stddef, file, hmisc / wrappers / wraphelp
+  std / bitops, hmisc / wrappers / wraphelp
 
 
 
@@ -21,7 +21,7 @@ import
 
 type
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
+  # Declaration created in: hc_wrapgen.nim(743, 20)
   # Wrapper for `manoutput`
   # Declared in manconf.h:28
   Manoutput* {.bycopy, importc: "struct manoutput", header: allHeaders.} = object
@@ -44,16 +44,7 @@ type
 
 
 
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `manoutput`
-# Declared in manconf.h:28
-proc cnewManoutput*(): ptr Manoutput {.importc: r"new manoutput()",
-                                       header: allHeaders.}
-  ## @import{[[code:struct!manoutput]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
+# Declaration created in: hc_wrapgen.nim(457, 24)
 # Wrapper for `manoutput`
 # Declared in manconf.h:28
 proc destroyManoutput*(obj: ptr Manoutput): void {.importc: r"#.~manoutput()",
@@ -62,14 +53,31 @@ proc destroyManoutput*(obj: ptr Manoutput): void {.importc: r"#.~manoutput()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(465, 22)
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `manoutput`
+# Declared in manconf.h:28
+proc cnewManoutput*(): ptr Manoutput {.importc: r"new manoutput()",
+                                       header: allHeaders.}
+  ## @import{[[code:struct!manoutput]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
 # Wrapper for `manoutput`
 # Declared in manconf.h:28
 proc newManoutput*(): ref Manoutput =
   ## @import{[[code:struct!manoutput]]}
   newImportAux()
-  new(result, proc (destr: ref Manoutput) =
-    destroyManoutput(addr destr[]))
+  new(result, proc (self: ref Manoutput) =
+    destroyManoutput(addr self[]))
   {.emit: "new ((void*)result) manoutput(); /* Placement new */".}
 
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `manoutput`
+# Declared in manconf.h:28
+proc initManoutput*(): Manoutput {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!manoutput]]}
 

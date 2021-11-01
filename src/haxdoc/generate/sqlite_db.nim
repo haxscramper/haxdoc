@@ -2,11 +2,14 @@ import
   ../docentry
 
 import
-  std/[strformat, with, macros, hashes, options, sequtils, intsets, sugar]
+  std/[
+    strformat, with, macros, hashes, options,
+    sequtils, intsets, sugar, strutils
+  ]
 
 import
   hmisc/other/[oswrap, sqlite_extra],
-  hmisc/[helpers, hdebug_misc, base_errors]
+  hmisc/core/all
 
 import
   hnimast, hnimast/store_decl

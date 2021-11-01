@@ -2,9 +2,9 @@ import
   ../docentry_types,
   ../docentry,
   hmisc/algo/[hparse_base, hlex_base],
-  hmisc/[hdebug_misc, base_errors, hexceptions],
+  hmisc/core/all,
   std/[options],
-  haxorg/semorg
+  haxorg/defs/defs_all
 
 type
   LinkTokens = enum
@@ -28,17 +28,17 @@ type
   LinkTok = HsTok[LinkTokens]
   LinkLex = HsLexer[LinkTok]
 
-proc lexLink(str: var PosStr): Option[LinkTok] =
+proc lexLink(str: var PosStr): seq[LinkTok] =
   if str.finished():
-    result = some str.initEof(ltEOF)
+    result.add str.initEof(ltEOF)
 
   else:
     case str[]:
       of IdentStartChars:
-        result = some initTok(str.popIdent(), ltIdent)
+        result.add initTok(str.popIdent(), ltIdent)
 
       of ',', '[', ']', '(', ')', '{', '}', '.', '!':
-        result = some initCharTok(str, {
+        result.add initCharTok(str, {
           ',': ltComma,
           '[': ltLBrace,
           ']': ltRBrace,
@@ -54,19 +54,19 @@ proc lexLink(str: var PosStr): Option[LinkTok] =
 
       of ':':
         if str[':', ':', not {':'}]:
-          result = some str.initTok(ltNamespace, false)
-          str.advance(2)
+          result.add str.initTok(ltNamespace, false)
+          str.next(2)
 
         else:
-          result = some str.initTok(ltColon, false)
-          str.advance(1)
+          result.add str.initTok(ltColon, false)
+          str.next(1)
 
       of HorizontalSpace:
-        str.skipWhile(HorizontalSpace)
+        str.space()
         result = lexLink(str)
 
       else:
-        str.raiseUnexpectedChar()
+        raise newUnexpectedCharError(str)
 
 proc initSelectorPart*(kinds: set[DocEntryKind], name: string): DocSelectorPart =
   DocSelectorPart(expected: kinds, name: name)
@@ -93,7 +93,7 @@ func selectorToKinds*(str: string): set[DocEntryKind] =
 proc parseDocType(lex: var LinkLex): DocType =
   case lex[].kind:
     of ltIdent:
-      result = newDocType(dtkIdent, lex[].strVal()); lex.advance()
+      result = newDocType(dtkIdent, lex[].strVal()); lex.next()
     else:
       raise newImplementKindError(lex[])
 
@@ -104,15 +104,15 @@ proc parseProcArglist(lex: var LinkLex): tuple[
   lex.skip(ltLPar)
   while balance > 0 and not lex[ltEof]:
     case lex[].kind:
-      of ltLPar: inc balance; lex.advance()
-      of ltRPar: dec balance; lex.advance()
+      of ltLPar: inc balance; lex.next()
+      of ltRPar: dec balance; lex.next()
       of ltIdent: result.arguments.add lex.parseDocType()
-      of ltComma: lex.advance()
+      of ltComma: lex.next()
       else:
         raise newUnexpectedKindError(lex[])
 
   if lex[ltColon]:
-    lex.advance()
+    lex.next()
     result.returnType = some lex.parseDocType()
 
 proc parseIdentPart(lex: var LinkLex): DocSelectorPart =
@@ -123,9 +123,9 @@ proc parseIdentPart(lex: var LinkLex): DocSelectorPart =
         name: string
       if lex[ltIdent, ltKindSelector]:
         kinds = lex[].strVal().selectorToKinds()
-        lex.advance(2)
+        lex.next(2)
         name = lex[].strVal()
-        lex.advance(1)
+        lex.next(1)
 
 
       if lex[ltLPar]:
@@ -144,11 +144,11 @@ import hpprint
 
 proc parseFullIdent*(pos: PosStr): DocSelector =
   var str = pos
-  var lex = initLexer(str, lexLink, true)
+  var lex = initLexer(str, lexLink, some initTok(ltEof))
   while not lex[ltEof]:
     result.parts.add parseIdentPart(lex)
     if lex[{ltDot, ltNamespace}]:
-      lex.advance()
+      lex.next()
 
 proc unif*(t1, t2: DocType): bool =
   t1 == t2

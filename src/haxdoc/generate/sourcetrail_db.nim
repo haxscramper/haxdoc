@@ -6,7 +6,7 @@ import nimtrail/nimtrail_common
 
 import
   hmisc/other/[oswrap, colorlogger],
-  hmisc/[base_errors, hdebug_misc],
+  hmisc/core/all,
   hmisc/hasts/xml_ast
 
 import std/[with, options, tables, strutils]
@@ -97,10 +97,14 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap, db: DocDb) =
         dokGlobalDeclare, dokEnumFieldDeclare,
         dokFieldDeclare
       }:
-        userId = idMap.docToTrail[occur.refid]
-        lastDeclare = occur.kind
-        discard writer.recordSymbolLocation(
-          userId, toRange(fileId, part.slice))
+        if occur.refid in idMap.docToTrail:
+          userId = idMap.docToTrail[occur.refid]
+          lastDeclare = occur.kind
+          discard writer.recordSymbolLocation(
+            userId, toRange(fileId, part.slice))
+
+        else:
+          echov occur, "id is not in the doctrail map"
 
       elif occur.kind in {dokImport}:
         if file.moduleId.isSome():
@@ -183,7 +187,7 @@ proc registerUses*(writer; file: DocFile, idMap: IdMap, db: DocDb) =
               srkMacroUsage
 
             else:
-              raiseUnexpectedKindError(occur)
+              raise newUnexpectedKindError(occur)
 
         let refSym = writer.recordReference(
           userId, targetId, useKind)
@@ -236,7 +240,7 @@ proc registerDb*(writer; db: DocDb): IdMap =
         of dekMethod:    sskMethod
 
         else:
-          raiseImplementKindError(entry)
+          raise newImplementKindError(entry)
 
     result.docToTrail[entry.id()] = writer.recordSymbol(name, defKind)
 

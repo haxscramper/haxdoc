@@ -1,6 +1,6 @@
 import ../docentry
 import std/[tables, sequtils, pegs]
-import hmisc/[base_errors, hdebug_misc]
+import hmisc/core/all
 
 type
   DocFilterKind = enum

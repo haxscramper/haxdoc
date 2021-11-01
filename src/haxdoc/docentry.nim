@@ -1,16 +1,24 @@
 ## Definition of shared documentable entry
 
-import haxorg/[ast, semorg]
-import hmisc/other/[oswrap, hjson]
-import hmisc/types/hmap
-import hmisc/algo/[hseq_mapping, halgorithm, hlex_base, clformat]
-import hmisc/[hdebug_misc, helpers, hexceptions]
-import std/[options, tables, hashes, enumerate,
-            strformat, sequtils, intsets]
-import nimtraits
+import
+  haxorg/defs/defs_all,
 
-import ./docentry_types
-export docentry_types
+
+  hmisc/other/[oswrap, hjson],
+  hmisc/types/hmap,
+  hmisc/algo/[hseq_mapping, halgorithm, hlex_base, clformat],
+  hmisc/core/all,
+
+  std/[
+    options, tables, hashes, enumerate, strformat, sequtils, intsets],
+
+  hnimast/nimtraits/nimtraits
+
+import
+  ./docentry_types
+
+export
+  docentry_types
 
 storeTraits(DocEntry, dekAliasKinds, dekProcKinds, dekStructKinds)
 
@@ -62,7 +70,7 @@ proc newDocType*(kind: DocTypeKind, name: string, id: DocId): DocType =
 proc newDocType*(kind: DocTypeKind, name: string = ""): DocType =
   result = DocType(kind: kind, name: name)
 
-proc newDocRequires*(): DocRequires = discard
+proc initDocRequires*(): DocRequires = discard
 
 proc vaType*(t: DocType): DocType =
   assertKind(t, {dtkVarargs})
@@ -126,18 +134,18 @@ func `$`*(t: DocType): string =
       result &= "]"
 
     else:
-      raiseImplementKindError(t)
+      raise newImplementKindError(t)
 
 func `$`*(part: DocCodePart): string =
   if part.occur.isSome():
     let occur = part.occur.get()
-    result.add hshow(occur.kind)
+    result.add $hshow(occur.kind)
     result.add " "
     if occur.kind in dokLocalKinds:
-      result.add hshow(occur.localId)
+      result.add $hshow(occur.localId)
       result.add " "
 
-  result.add hshow(part.slice.line .. part.slice.column)
+  result.add $hshow(part.slice.line .. part.slice.column)
 
 func hasRefid*(part: DocCodePart): bool =
   part.occur.isSome() and
@@ -512,7 +520,7 @@ func hasParent*(entry: DocEntry): bool = entry.fullIdent.parts.len > 1
 
 proc lastIdentPart*(entry: var DocEntry): var DocLinkPart =
   if entry.fullIdent.parts.len == 0:
-    raiseArgumentError("Cannot return last ident part")
+    raise newArgumentError("Cannot return last ident part")
 
   return entry.fullIdent.parts[^1]
 
@@ -625,7 +633,7 @@ proc getLibForPath*(db: DocDb, path: AbsFile): DocLib =
     if path.startsWith($lib.dir):
       return lib
 
-  raiseArgumentError(
+  raise newArgumentError(
     "No known library for path " & $path)
 
 proc getOrNewPackage*(db: var DocDb, path: AbsPath): DocEntry =
@@ -643,13 +651,13 @@ proc getLibForName*(db: DocDb, name: string): DocLib =
     if lib.name == name:
       return lib
 
-  raiseArgumentError(
+  raise newGetterError(
     "No known library for name " & $name)
 
 func package*(ident: DocLink): string =
   if ident.parts.len == 0 or
      ident.parts[0].kind != dekPackage:
-    raiseArgumentError(
+    raise newGetterError(
       "No package name in full identifier " & $ident)
 
   else:
@@ -658,7 +666,7 @@ func package*(ident: DocLink): string =
 func getPackage*(entry: DocEntry): DocId =
   if entry.fullIdent.parts.len == 0 or
      entry.fullIdent.parts[0].kind != dekPackage:
-    raiseArgumentError(
+    raise newGetterError(
       "No package name in full identifier " & $entry.fullIdent)
 
   else:
@@ -669,7 +677,7 @@ func getFile*(db: DocDb, path: AbsFile): DocFile =
     if file.path == path:
       return file
 
-  raise newArgumentError(
+  raise newGetterError(
     "Cannot find file", path, "in the database")
 
 proc getPathForPackage*(db: DocDb, ident: DocLink): AbsDir =
@@ -678,7 +686,7 @@ proc getPathForPackage*(db: DocDb, ident: DocLink): AbsDir =
     if lib.name == package:
       return lib.dir
 
-  raiseArgumentError(
+  raise newArgumentError(
     "Cannot find path for ident package " & $ident)
 
 proc getPathInPackage*(entry: DocEntry): AbsFile =
@@ -690,7 +698,7 @@ proc getPathInPackage*(entry: DocEntry): AbsFile =
       return entry.db.getPathForPackage(entry.fullIdent) /. loc.file
 
   else:
-    raiseArgumentError(
+    raise newGetterError(
       "No location for entry " & $entry.fullIdent)
 
 

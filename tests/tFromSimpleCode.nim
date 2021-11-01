@@ -1,7 +1,7 @@
 import
   hmisc/other/[oswrap, hshell, hlogger],
   hmisc/algo/halgorithm,
-  hmisc/hdebug_misc
+  hmisc/preludes/unittest
 
 import
   haxdoc/extract/from_nim_code,
@@ -11,11 +11,10 @@ import
   nimtrail/nimtrail_common
 
 import std/[
-  unittest, options, streams,
-  strformat, strutils, sequtils
+  options, streams, strformat, strutils, sequtils
 ]
 
-import hnimast/compiler_aux
+import hnimast/[compiler_aux, nimble_aux]
 
 const code = """
 type

@@ -1,5 +1,6 @@
-- [ ] Callgraph
-- [ ] List of all assignments to field
-- [ ] List of symbols
-- [ ] ~@see{}~ link format should also include support for command-line
-  options/flags
+* TODO CLI interface
+
+- [ ] Allow to ignore files via glob
+- [ ] Specify main file for project
+
+https://github.com/nim-lang/Nim/issues/8477

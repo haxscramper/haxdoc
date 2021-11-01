@@ -1,9 +1,12 @@
 import
-  haxorg/[semorg, ast],
+  haxorg/defs/defs_all,
+
   std/[tables, options, intsets, hashes],
+
   hmisc/other/oswrap,
   hmisc/types/hmap,
-  nimtraits
+
+  hnimast/nimtraits/nimtraits
 
 type
   DocNode* = ref object of OrgUserNode
@@ -251,6 +254,8 @@ type
     ##   of the identifier, which leads to potentially overlapping code
     ##   segments. Determining 'the correct' one is hardly possible, so
     ##   they are just dumped in the overlapping section.
+    covPasses*: Option[int] ## Merge code coverage reports with
+    ## documentable database.
 
   DocCode* = object
     ## Block of source code with embedded occurence links.
@@ -386,7 +391,7 @@ type
     body*: SemOrg
 
   DocMetatag* = ref object
-    kind*: SemMetaTag
+    kind*: OrgMetaTag
     body*: SemOrg
 
   DocPos* = object

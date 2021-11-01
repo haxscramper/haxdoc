@@ -5,8 +5,7 @@ import
 
 import
   hnimast/[compiler_aux],
-  compiler/[trees, wordrecg, types, sighashes, scriptconfig],
-  nimblepkg/[packageinfo, common, version],
+  compiler/[trees, types, sighashes, scriptconfig, wordrecg],
   packages/docutils/[rst]
 
 import std/[
@@ -16,154 +15,15 @@ export options
 
 import
   hnimast,
-  hmisc/[hdebug_misc, helpers],
+  hmisc/core/[all, code_errors],
   hmisc/other/[oswrap, hlogger, hpprint],
   hmisc/algo/[hstring_algo, halgorithm, hseq_distance, hlex_base]
 
 import
-  haxorg/[semorg, ast, importer_nim_rst, parser]
+  haxorg/importer_nim_rst,
+  haxorg/defs/defs_all
 
-proc headSym*(node: PNode): PSym =
-  case node.kind:
-    of nkProcDeclKinds, nkDistinctTy, nkVarTy, nkAccQuoted,
-       nkBracketExpr, nkTypeDef, nkPragmaExpr, nkPar, nkEnumFieldDef,
-       nkIdentDefs, nkRecCase:
-      headSym(node[0])
-
-    of nkCommand, nkCall, nkDotExpr, nkPrefix, nkPostfix,
-       nkHiddenStdConv:
-      headSym(node[1])
-
-    of nkSym:
-      node.sym
-
-    of nkRefTy, nkPtrTy:
-      if node.len == 0:
-        nil
-
-      else:
-        headSym(node[0])
-
-    of nkIdent, nkEnumTy, nkProcTy, nkObjectTy, nkTupleTy,
-       nkTupleClassTy, nkIteratorTy, nkOpenSymChoice,
-       nkClosedSymChoice, nkCast, nkLambda, nkCurly:
-      nil
-
-    of nkCheckedFieldExpr:
-      # First encountered during processing of `locks` file. Most likely
-      # this is a `object.field` check
-      nil
-
-    of nkStmtListExpr:
-      if isNil(node.typ):
-        if node.len > 0:
-          headSym(node[1])
-
-        else:
-          nil
-
-      else:
-        node.typ.skipTypes({tyRef}).sym
-
-    of nkType, nkObjConstr:
-      node.typ.skipTypes({tyRef}).sym
-
-    else:
-      raiseImplementKindError(node, node.treeRepr())
-
-
-proc isExported*(n: PNode): bool =
-  case n.kind:
-    of nkPostfix: true
-    of nkSym: sfExported in n.sym.flags
-    of nkPragmaExpr, nkTypeDef, nkIdentDefs, nkRecCase,
-       nkProcDeclKinds:
-      isExported(n[0])
-
-    else:
-      false
-
-proc getPragma*(n: PNode, name: string): Option[PNode] =
-  case n.kind:
-    of nkPragmaExpr:
-      for pr in n:
-        result = getPragma(pr, name)
-        if result.isSome():
-          return
-
-    of nkPragma:
-      if n.safeLen > 0:
-        case n[0].kind:
-          of nkSym, nkIdent:
-            if n[0].getStrVal() == name:
-              return some n[0]
-
-          of nkCall, nkCommand, nkExprColonExpr:
-            if n[0][0].getStrVal() == name:
-              return some n[0]
-
-          else:
-            raiseImplementKindError(n[0], n.treeRepr())
-
-    of nkTypeDef, nkIdentDefs, nkRecCase:
-      return getPragma(n[0], name)
-
-    of nkProcDeclKinds:
-      return getPragma(n[4], name)
-
-    else:
-      discard
-
-proc typeHead(node: PNode): PNode =
-  case node.kind:
-    of nkSym: node
-    of nkTypeDef: typeHead(node[0])
-    of nkPragmaExpr: typeHead(node[0])
-    else:
-      raiseImplementKindError(node)
-
-proc declHead(node: PNode): PNode =
-  case node.kind:
-    of nkRecCase, nkIdentDefs, nkProcDeclKinds, nkPragmaExpr,
-       nkVarTy, nkBracketExpr, nkPrefix,
-       nkDistinctTy, nkBracket:
-      result = declHead(node[0])
-
-    of nkRefTy, nkPtrTy:
-      if node.len > 0:
-        result = declHead(node[0])
-
-      else:
-        result = node
-
-    of nkSym, nkIdent, nkEnumFieldDef, nkDotExpr,
-       nkExprColonExpr, nkCall,
-       nkRange, # WARNING
-       nkEnumTy,
-       nkProcTy,
-       nkIteratorTy,
-       nkTupleClassTy,
-       nkLiteralKinds:
-      result = node
-
-    of nkPostfix, nkCommand:
-      result = node[1]
-
-    of nkInfix, nkPar:
-      result = node[0]
-
-    of nkTypeDef:
-      let head = typeHead(node)
-      doAssert head.kind == nkSym, head.treeRepr()
-      result = head
-
-    of nkObjectTy:
-      result = node
-
-    else:
-      raiseImplementKindError(node, node.treeRepr())
-
-
+import haxorg
 
 type
   DocContext = ref object of PPassContext
@@ -177,8 +37,8 @@ type
 
   NimDocgenConf* = object
     isOrgCommentSyntax*: proc(lib: DocLib): bool
-    orgRunConf*: RunConf
-    rstConvertConf*: RunConf
+    orgConf*: OrgConf
+    rstConvertConf*: OrgConf
 
   RegisterStateKind = enum
     rskTopLevel
@@ -260,6 +120,10 @@ proc startPos(node): DocPos =
     of nkTokenKinds:
       result = toDocPos(node.getInfo())
 
+    of nkAccQuoted:
+      result = node[0].startPos()
+      inc result.column
+
     else:
       result = node[0].startPos()
 
@@ -268,6 +132,10 @@ proc finishPos(node): DocPos =
     of nkTokenKinds:
       result = toDocPos(node.getInfo())
       result.column += len($node) - 1
+
+    of nkAccQuoted:
+      result = toDocPos(node.getInfo())
+      result.column += len($node)
 
     else:
       if len(node) > 0:
@@ -360,7 +228,6 @@ proc trySigHash*(sym: PSym): SigHash =
     except IndexDefect as e:
       discard
 
-proc hash(s: PSym): Hash = hash($s)
 
 
 proc addSigmap(ctx; node; entry: DocEntry) =
@@ -462,51 +329,12 @@ proc occur(
 
     ctx.db.newOccur(node.nodeSlice(), path, occur)
 
-proc effectSpec*(n: PNode, effectType: set[TSpecialWord]): PNode =
-  assertKind(n, {nkPragma, nkEmpty})
-  for it in n:
-    case it.kind:
-      of nkExprColonExpr:
-        if whichPragma(it) in effectType:
-          result = it[1]
-          if result.kind notin {nkCurly, nkBracket}:
-            result = newNodeI(nkCurly, result.info)
-            result.add(it[1])
-          return
 
-      of nkIdent, nkSym, nkEmpty:
-        discard
-
-      else:
-        raise newUnexpectedKindError(it)
-
-proc effectSpec*(sym: PSym, word: TSpecialWord): PNode =
-  if notNil(sym) and notNil(sym.ast) and sym.ast.safeLen >= pragmasPos:
-    return sym.ast.asProcDecl().pragmas().effectSpec(word)
     # let pragma = sym.ast[pragmasPos]
     # return effectSpec(pragma, word)
 
 
 # proc getEffects*(body:)
-
-proc `?`(node: PNode): bool =
-  not isNil(node) and (node.len > 0)
-
-proc `[]`(node: PNode, idx: int, kinds: set[TNodeKind]): PNode =
-  result = node[idx]
-  assertKind(result, kinds)
-
-proc getEffects(node: PNode, effectPos: int): PNode =
-  if node.safeLen > 0 and
-     node[0].len >= effectListLen and
-     not isNil(node[0][effectPos]):
-    result = nnkBracket.newPTree()
-    for node in node[0, {nkArgList}][effectPos]:
-      result.add node
-
-  else:
-    result = newEmptyPNode()
-
 
 proc registerProcBody(ctx; body: PNode, state: RegisterState, node) =
   let s = node[0].headSym()
@@ -518,21 +346,22 @@ proc registerProcBody(ctx; body: PNode, state: RegisterState, node) =
     mainRaise = s.typ.n.getEffects(exceptionEffects)
     mainEffect = s.typ.n.getEffects(tagEffects)
 
-  # if main.name in ["main", "changeRaiseAnnotation", "changeSideEffect"]:
-  #   echov main.name
-  #   echov s.typ.n.treeRepr(positionIndexed = false)
-  #   echov s.ast.treeRepr(positionIndexed = false)
-
-
   if ?mainRaise:
     for r in mainRaise:
-      main.raises.incl ctx[r]
-      main.raisesVia[ctx[r]] = DocIdSet()
+      main.raises.incl ctx[exprTypeSym(r)]
+      let callSym = headSym(r)
+      if notNil(callSym) and callSym.kind in skProcDeclKinds:
+        # For `openarray[T]` `headSym` returns type symbol, but we are only
+        # concerned with calls to other procedures here.
+        main.raisesVia[ctx[callSym]] = DocIdSet()
 
   if ?mainEffect:
     for e in mainEffect:
-      main.effects.incl ctx[e]
-      main.effectsVia[ctx[e]] = DocIdSet()
+      main.effects.incl ctx[exprTypeSym(e)]
+
+      let callSym = headSym(e)
+      if notNil(callSym) and callSym.kind in skProcDeclKinds:
+        main.effectsVia[ctx[callSym]] = DocIdSet()
 
   let icpp = effectSpec(prag, {wImportc, wImportcpp, wImportJs, wImportObjC})
   if ?icpp: main.wrapOf = some icpp[0].getStrVal()
@@ -618,7 +447,7 @@ proc impl(
                 else:
                   echo node.treeRepr1()
                   echo ctx.graph.getFilePath(node), node.getInfo()
-                  raiseImplementKindError(state.top())
+                  raise newImplementKindError(state.top())
 
             ctx.occur(node, useKind, state.user)
 
@@ -976,7 +805,7 @@ proc classifiyKind(decl: PProcDecl): DocEntryKind =
     of nkFuncDef: dekFunc
     of nkConverterDef: dekConverter
     else:
-      raiseImplementKindError(decl.declNode.get())
+      raise newImplementKindError(decl.declNode.get())
 
 proc classifyKind(ctx; decl: PObjectDecl): DocEntryKind =
   result = dekObject
@@ -1010,23 +839,36 @@ proc classifyKind(nt: NType, asAlias: bool): DocEntryKind =
 
   case nt.kind:
     else:
-      raiseImplementKindError(nt)
+      raise newImplementKindError(nt)
 
 proc convertComment(ctx: DocContext, text: string; node: PNode): SemOrg =
+  return newSem(orgEmpty)
+
   let package = ctx.db.getLibForPath(ctx.graph.getFilePath(node))
   if ctx.conf.isOrgCommentSyntax(package):
-    echov package
-    result = parseOrg(text).toSemOrg(ctx.conf.orgRunConf)
+    let (sem, ctx) = orgSem(
+      text,
+      AbsFile($ctx.graph.getFilePath(node)),
+      ctx.conf.orgConf)
+
+    result = sem
+    # parseOrg(text).toSemOrg(ctx.conf.orgOrgConf)
 
   else:
     let file = AbsFile($ctx.graph.getFilePath(node))
     try:
-      let org = text.strip().parseRstString(file).toOrgNode()
-      return toSemOrg(org, ctx.conf.rstConvertConf)
+      return text.
+        strip().
+        parseRstString(file).
+        toOrgNode().
+        orgSem(file, ctx.conf.rstConvertConf).
+        sem
 
     except EParseError as e:
       ctx.err e.msg
-      return onkRawText.newTree(e.msg).toSemOrg()
+      return newTree(orgRawText, e.msg).
+        orgSem(file, ctx.conf.rstConvertConf).
+        sem
 
     except ImplementKindError as e:
       ctx.err ctx.graph.getFilePath(node), node.getInfo()
@@ -1107,6 +949,12 @@ proc registerTypeDef(ctx; node) =
 
     let kind = ctx.classifyKind(objectDecl)
     var entry = ctx.module.newDocEntry(kind, objectDecl.name.head)
+
+    # raise newImplementError("# TODO register type parameters for node")
+    # raise newImplementError(
+    #   "# TODO Separate fields into private and public. Do the same " &
+    #     "for procedures and other entries in modules")
+    # TODO Check for method overrides
 
     if node.isExported(): entry.visibility = dvkPublic
     if objectDecl.base.isSome():
@@ -1238,7 +1086,7 @@ proc registerDeclSection(ctx; node; nodeKind: DocEntryKind = dekGlobalVar) =
       discard
 
     else:
-      raiseImplementKindError(node, node.treeRepr1())
+      raise newImplementKindError(node, node.treeRepr1())
 
 
 proc registerToplevel(ctx, node) =
@@ -1280,32 +1128,35 @@ template initLoggerCb(logger: untyped): untyped =
   proc cb(config: ConfigRef; info: TLineInfo; msg: string; level: Severity) =
     {.cast(gcsafe).}:
       if config.errorCounter >= config.errorMax:
+        let path = config.getFilePath(info)
         if level == Severity.Error:
-          let path = config.getFilePath(info)
 
           `logger`.err msg
           `logger`.err path
-          `logger`.logLines(path, info.line.int, "nim", info.col.int)
 
         elif level == Severity.Warning:
           `logger`.warn msg
-          `logger`.warn info, config.getFilePath(info)
+          `logger`.warn path
 
         else:
           `logger`.notice msg
-          `logger`.notice info, config.getFilePath(info)
+          `logger`.notice path
+
+        `logger`.logLines(path, info.line.int, "nim", info.col.int)
 
   cb
 
 let
   baseNimDocgenConf* = NimDocgenConf(
-    orgRunConf: defaultRunConf,
-    rstConvertConf: defaultRunConf
+    orgConf: haxrunConf(),
+    rstConvertConf: haxrunConf()
   )
 
 
 proc registerDocPass(
-    graph: ModuleGraph, file: AbsFile, stdpath: AbsDir,
+    graph: ModuleGraph,
+    file: AbsFile,
+    stdpath: AbsDir,
     extraLibs: seq[(AbsDir, string)] = @[],
     startDb: DocDb                   = newDocDb(),
     conf: NimDocgenConf              = baseNimDocgenConf,
@@ -1326,16 +1177,16 @@ proc registerDocPass(
   tmpConf.isOrgCommentSyntax = proc(lib: DocLib): bool =
     lib.name in orgComments
 
-  tmpConf.orgRunConf.linkResolver = proc(
-    linkName: string, linkText: PosStr): OrgLink =
-      if linkName == "":
-        raise newArgumentError(
-          "Link name cannot be empty")
-      db.resolveFullIdent(parseFullIdent(linkText)).newOrgLink()
+  # tmpConf.orgConf.linkResolver = proc(
+  #   linkName: string, linkText: PosStr): OrgLink =
+  #     if linkName == "":
+  #       raise newArgumentError(
+  #         "Link name cannot be empty")
+  #     db.resolveFullIdent(parseFullIdent(linkText)).newOrgLink()
 
-  tmpConf.rstConvertConf.linkResolver = proc(
-    linkName: string, linkText: PosStr): OrgLink =
-      discard
+  # tmpConf.rstConvertConf.linkResolver = proc(
+  #   linkName: string, linkText: PosStr): OrgLink =
+  #     discard
 
   db.addKnownLib(AbsDir(($stdPath).dropSuffix("lib")), "std")
   for (path, lib) in extraLibs:
@@ -1348,8 +1199,8 @@ proc registerDocPass(
   registerPass(graph, semPass)
   registerPass(
     graph, makePass(
-      (
-        proc(graph: ModuleGraph, module: PSym): PPassContext {.nimcall.} =
+      TPassOpen(
+        proc(graph: ModuleGraph, module: PSym, idgen: IdGenerator): PPassContext {.nimcall.} =
           var
             context = DocContext(
               db: db, graph: graph, sigmap: sigmap,
@@ -1370,13 +1221,13 @@ proc registerDocPass(
           context.allModules.add context.module
           return context
       ),
-      (
+      TPassProcess(
         proc(c: PPassContext, n: PNode): PNode {.nimcall.} =
           result = n
           var ctx = DocContext(c)
           registerToplevel(ctx, n)
       ),
-      (
+      TPassClose(
         proc(graph: ModuleGraph; p: PPassContext, n: PNode): PNode {.nimcall.} =
           discard
       )
@@ -1438,86 +1289,8 @@ proc projectFiles*(
 
   for file in walkDir(
     sourceDir, AbsFile, exts = @["nim"], recurse = true):
-    if accept(file.string, ignored):
+    if ignored.accept(file.string):
       result.add file
 
     else:
       logger.notice "Ignored", file
-
-
-
-proc docDbFromPackage*(
-    package: PackageInfo,
-    stdpath: AbsDir = getStdPath(),
-    ignored: seq[GitGlob] = @[],
-    searchDir: AbsDir = nimbleSearchDir(),
-    defines: seq[string] = @["nimdoc", "haxdoc"],
-    conf: NimDocgenConf = baseNimDocgenConf,
-    orgComments: seq[string] = @[],
-    logger: HLogger = newTermLogger()
-  ): DocDb =
-
-  let
-    projectFile = package.projectFile()
-    files = package.projectImportPath().projectFiles(logger, ignored)
-    deps = projectFile.resolveNimbleDeps(searchDir).fromMinimal()
-
-  var depPaths = deps.mapIt(it.projectImportPath())
-
-  depPaths.add package.projectImportPath()
-
-  var extraLibs = @[(package.projectPath(), package.name)]
-  for dep in deps:
-    extraLibs.add((dep.projectPath(), dep.name))
-    logger.info dep.projectPath(), dep.name
-
-  if files.len == 1:
-    result = generateDocDb(
-      files[0], stdpath, extraLibs, orgComments = orgComments)
-
-  else:
-    var graph {.global.}: ModuleGraph
-    let moduleName = ignoredAbsFile
-    graph = newModuleGraph(
-      moduleName, stdpath, initLoggerCb(logger),
-      symDefines = defines)
-
-    var fakeFile: string
-    for dep in depPaths:
-      assertExists(dep)
-      graph.config.searchPaths.add dep
-
-    for file in files:
-      fakeFile &= &"import \"{file}\"\n"
-
-
-    for (dir, name) in extraLibs:
-      logger.debug dir, name
-
-    result = graph.registerDocPass(
-      moduleName, stdpath, extraLibs, conf = conf,
-      orgComments = orgComments,
-      logger = logger
-    )
-
-    var m = graph.makeModule(moduleName.string)
-    graph.vm = setupVM(m, graph.cache, moduleName.string, graph)
-    graph.compileSystemModule()
-    logger.indented:
-      discard graph.processModule(m, llStreamOpen(fakeFile))
-
-  for info in @[package] & deps:
-    let file = info.projectFile()
-    var package: DocEntry = result.getOrNewPackage(file)
-    with package:
-      version = info.version
-      author = info.author
-      license = info.license
-
-    for req in info.requires:
-      let res = DocRequires(
-        resolved: result.getOptTop(dekPackage, req.name),
-        name: req.name,
-        version: $req.ver)
-
-      package.requires.add res

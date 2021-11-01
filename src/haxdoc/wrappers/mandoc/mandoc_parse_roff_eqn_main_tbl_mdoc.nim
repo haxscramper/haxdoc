@@ -3,7 +3,7 @@
 
 
 import
-  std / bitops, cstd / stddef, file, hmisc / wrappers / wraphelp
+  std / bitops, hmisc / wrappers / wraphelp
 
 
 
@@ -21,436 +21,156 @@ import
 
 type
 
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `roff_tok`
-  # Declared in roff.h:73
-  RoffTokC* {.importc: "enum roff_tok", header: allHeaders.} = enum ## @import{[[code:enum!roff_tok]]}
-    roffTok_ROFF_br = 0, roffTok_ROFF_ce = 1, roffTok_ROFF_fi = 2,
-    roffTok_ROFF_ft = 3, roffTok_ROFF_ll = 4, roffTok_ROFF_mc = 5,
-    roffTok_ROFF_nf = 6, roffTok_ROFF_po = 7, roffTok_ROFF_rj = 8,
-    roffTok_ROFF_sp = 9, roffTok_ROFF_ta = 10, roffTok_ROFF_ti = 11,
-    roffTok_ROFF_MAX = 12, roffTok_ROFF_ab = 13, roffTok_ROFF_ad = 14,
-    roffTok_ROFF_af = 15, roffTok_ROFF_aln = 16, roffTok_ROFF_als = 17,
-    roffTok_ROFF_am = 18, roffTok_ROFF_am1 = 19, roffTok_ROFF_ami = 20,
-    roffTok_ROFF_ami1 = 21, roffTok_ROFF_as = 22, roffTok_ROFF_as1 = 23,
-    roffTok_ROFF_asciify = 24, roffTok_ROFF_backtrace = 25, roffTok_ROFF_bd = 26,
-    roffTok_ROFF_bleedat = 27, roffTok_ROFF_blm = 28, roffTok_ROFF_box = 29,
-    roffTok_ROFF_boxa = 30, roffTok_ROFF_bp = 31, roffTok_ROFF_BP1 = 32,
-    roffTok_ROFF_break = 33, roffTok_ROFF_breakchar = 34, roffTok_ROFF_brnl = 35,
-    roffTok_ROFF_brp = 36, roffTok_ROFF_brpnl = 37, roffTok_ROFF_c2 = 38,
-    roffTok_ROFF_cc = 39, roffTok_ROFF_cf = 40, roffTok_ROFF_cflags = 41,
-    roffTok_ROFF_ch = 42, roffTok_ROFF_char = 43, roffTok_ROFF_chop = 44,
-    roffTok_ROFF_class = 45, roffTok_ROFF_close = 46, roffTok_ROFF_CL = 47,
-    roffTok_ROFF_color = 48, roffTok_ROFF_composite = 49,
-    roffTok_ROFF_continue = 50, roffTok_ROFF_cp = 51, roffTok_ROFF_cropat = 52,
-    roffTok_ROFF_cs = 53, roffTok_ROFF_cu = 54, roffTok_ROFF_da = 55,
-    roffTok_ROFF_dch = 56, roffTok_ROFF_Dd = 57, roffTok_ROFF_de = 58,
-    roffTok_ROFF_de1 = 59, roffTok_ROFF_defcolor = 60, roffTok_ROFF_dei = 61,
-    roffTok_ROFF_dei1 = 62, roffTok_ROFF_device = 63, roffTok_ROFF_devicem = 64,
-    roffTok_ROFF_di = 65, roffTok_ROFF_do = 66, roffTok_ROFF_ds = 67,
-    roffTok_ROFF_ds1 = 68, roffTok_ROFF_dwh = 69, roffTok_ROFF_dt = 70,
-    roffTok_ROFF_ec = 71, roffTok_ROFF_ecr = 72, roffTok_ROFF_ecs = 73,
-    roffTok_ROFF_el = 74, roffTok_ROFF_em = 75, roffTok_ROFF_EN = 76,
-    roffTok_ROFF_eo = 77, roffTok_ROFF_EP = 78, roffTok_ROFF_EQ = 79,
-    roffTok_ROFF_errprint = 80, roffTok_ROFF_ev = 81, roffTok_ROFF_evc = 82,
-    roffTok_ROFF_ex = 83, roffTok_ROFF_fallback = 84, roffTok_ROFF_fam = 85,
-    roffTok_ROFF_fc = 86, roffTok_ROFF_fchar = 87, roffTok_ROFF_fcolor = 88,
-    roffTok_ROFF_fdeferlig = 89, roffTok_ROFF_feature = 90,
-    roffTok_ROFF_fkern = 91, roffTok_ROFF_fl = 92, roffTok_ROFF_flig = 93,
-    roffTok_ROFF_fp = 94, roffTok_ROFF_fps = 95, roffTok_ROFF_fschar = 96,
-    roffTok_ROFF_fspacewidth = 97, roffTok_ROFF_fspecial = 98,
-    roffTok_ROFF_ftr = 99, roffTok_ROFF_fzoom = 100, roffTok_ROFF_gcolor = 101,
-    roffTok_ROFF_hc = 102, roffTok_ROFF_hcode = 103, roffTok_ROFF_hidechar = 104,
-    roffTok_ROFF_hla = 105, roffTok_ROFF_hlm = 106, roffTok_ROFF_hpf = 107,
-    roffTok_ROFF_hpfa = 108, roffTok_ROFF_hpfcode = 109, roffTok_ROFF_hw = 110,
-    roffTok_ROFF_hy = 111, roffTok_ROFF_hylang = 112, roffTok_ROFF_hylen = 113,
-    roffTok_ROFF_hym = 114, roffTok_ROFF_hypp = 115, roffTok_ROFF_hys = 116,
-    roffTok_ROFF_ie = 117, roffTok_ROFF_if = 118, roffTok_ROFF_ig = 119,
-    roffTok_ROFF_index = 120, roffTok_ROFF_it = 121, roffTok_ROFF_itc = 122,
-    roffTok_ROFF_IX = 123, roffTok_ROFF_kern = 124, roffTok_ROFF_kernafter = 125,
-    roffTok_ROFF_kernbefore = 126, roffTok_ROFF_kernpair = 127,
-    roffTok_ROFF_lc = 128, roffTok_ROFF_lc_ctype = 129, roffTok_ROFF_lds = 130,
-    roffTok_ROFF_length = 131, roffTok_ROFF_letadj = 132, roffTok_ROFF_lf = 133,
-    roffTok_ROFF_lg = 134, roffTok_ROFF_lhang = 135, roffTok_ROFF_linetabs = 136,
-    roffTok_ROFF_lnr = 137, roffTok_ROFF_lnrf = 138, roffTok_ROFF_lpfx = 139,
-    roffTok_ROFF_ls = 140, roffTok_ROFF_lsm = 141, roffTok_ROFF_lt = 142,
-    roffTok_ROFF_mediasize = 143, roffTok_ROFF_minss = 144, roffTok_ROFF_mk = 145,
-    roffTok_ROFF_mso = 146, roffTok_ROFF_na = 147, roffTok_ROFF_ne = 148,
-    roffTok_ROFF_nh = 149, roffTok_ROFF_nhychar = 150, roffTok_ROFF_nm = 151,
-    roffTok_ROFF_nn = 152, roffTok_ROFF_nop = 153, roffTok_ROFF_nr = 154,
-    roffTok_ROFF_nrf = 155, roffTok_ROFF_nroff = 156, roffTok_ROFF_ns = 157,
-    roffTok_ROFF_nx = 158, roffTok_ROFF_open = 159, roffTok_ROFF_opena = 160,
-    roffTok_ROFF_os = 161, roffTok_ROFF_output = 162, roffTok_ROFF_padj = 163,
-    roffTok_ROFF_papersize = 164, roffTok_ROFF_pc = 165, roffTok_ROFF_pev = 166,
-    roffTok_ROFF_pi = 167, roffTok_ROFF_PI1 = 168, roffTok_ROFF_pl = 169,
-    roffTok_ROFF_pm = 170, roffTok_ROFF_pn = 171, roffTok_ROFF_pnr = 172,
-    roffTok_ROFF_ps = 173, roffTok_ROFF_psbb = 174, roffTok_ROFF_pshape = 175,
-    roffTok_ROFF_pso = 176, roffTok_ROFF_ptr = 177, roffTok_ROFF_pvs = 178,
-    roffTok_ROFF_rchar = 179, roffTok_ROFF_rd = 180,
-    roffTok_ROFF_recursionlimit = 181, roffTok_ROFF_return = 182,
-    roffTok_ROFF_rfschar = 183, roffTok_ROFF_rhang = 184, roffTok_ROFF_rm = 185,
-    roffTok_ROFF_rn = 186, roffTok_ROFF_rnn = 187, roffTok_ROFF_rr = 188,
-    roffTok_ROFF_rs = 189, roffTok_ROFF_rt = 190, roffTok_ROFF_schar = 191,
-    roffTok_ROFF_sentchar = 192, roffTok_ROFF_shc = 193, roffTok_ROFF_shift = 194,
-    roffTok_ROFF_sizes = 195, roffTok_ROFF_so = 196,
-    roffTok_ROFF_spacewidth = 197, roffTok_ROFF_special = 198,
-    roffTok_ROFF_spreadwarn = 199, roffTok_ROFF_ss = 200, roffTok_ROFF_sty = 201,
-    roffTok_ROFF_substring = 202, roffTok_ROFF_sv = 203, roffTok_ROFF_sy = 204,
-    roffTok_ROFF_T = 205, roffTok_ROFF_tc = 206, roffTok_ROFF_TE = 207,
-    roffTok_ROFF_TH = 208, roffTok_ROFF_tkf = 209, roffTok_ROFF_tl = 210,
-    roffTok_ROFF_tm = 211, roffTok_ROFF_tm1 = 212, roffTok_ROFF_tmc = 213,
-    roffTok_ROFF_tr = 214, roffTok_ROFF_track = 215, roffTok_ROFF_transchar = 216,
-    roffTok_ROFF_trf = 217, roffTok_ROFF_trimat = 218, roffTok_ROFF_trin = 219,
-    roffTok_ROFF_trnt = 220, roffTok_ROFF_troff = 221, roffTok_ROFF_TS = 222,
-    roffTok_ROFF_uf = 223, roffTok_ROFF_ul = 224, roffTok_ROFF_unformat = 225,
-    roffTok_ROFF_unwatch = 226, roffTok_ROFF_unwatchn = 227,
-    roffTok_ROFF_vpt = 228, roffTok_ROFF_vs = 229, roffTok_ROFF_warn = 230,
-    roffTok_ROFF_warnscale = 231, roffTok_ROFF_watch = 232,
-    roffTok_ROFF_watchlength = 233, roffTok_ROFF_watchn = 234,
-    roffTok_ROFF_wh = 235, roffTok_ROFF_while = 236, roffTok_ROFF_write = 237,
-    roffTok_ROFF_writec = 238, roffTok_ROFF_writem = 239,
-    roffTok_ROFF_xflag = 240, roffTok_ROFF_cblock = 241,
-    roffTok_ROFF_RENAMED = 242, roffTok_ROFF_USERDEF = 243,
-    roffTok_TOKEN_NONE = 244, roffTok_MDOC_Dd = 245, roffTok_MDOC_Dt = 246,
-    roffTok_MDOC_Os = 247, roffTok_MDOC_Sh = 248, roffTok_MDOC_Ss = 249,
-    roffTok_MDOC_Pp = 250, roffTok_MDOC_D1 = 251, roffTok_MDOC_Dl = 252,
-    roffTok_MDOC_Bd = 253, roffTok_MDOC_Ed = 254, roffTok_MDOC_Bl = 255,
-    roffTok_MDOC_El = 256, roffTok_MDOC_It = 257, roffTok_MDOC_Ad = 258,
-    roffTok_MDOC_An = 259, roffTok_MDOC_Ap = 260, roffTok_MDOC_Ar = 261,
-    roffTok_MDOC_Cd = 262, roffTok_MDOC_Cm = 263, roffTok_MDOC_Dv = 264,
-    roffTok_MDOC_Er = 265, roffTok_MDOC_Ev = 266, roffTok_MDOC_Ex = 267,
-    roffTok_MDOC_Fa = 268, roffTok_MDOC_Fd = 269, roffTok_MDOC_Fl = 270,
-    roffTok_MDOC_Fn = 271, roffTok_MDOC_Ft = 272, roffTok_MDOC_Ic = 273,
-    roffTok_MDOC_In = 274, roffTok_MDOC_Li = 275, roffTok_MDOC_Nd = 276,
-    roffTok_MDOC_Nm = 277, roffTok_MDOC_Op = 278, roffTok_MDOC_Ot = 279,
-    roffTok_MDOC_Pa = 280, roffTok_MDOC_Rv = 281, roffTok_MDOC_St = 282,
-    roffTok_MDOC_Va = 283, roffTok_MDOC_Vt = 284, roffTok_MDOC_Xr = 285,
-    roffTok_MDOC_A = 286, roffTok_MDOC_B = 287, roffTok_MDOC_D = 288,
-    roffTok_MDOC_I = 289, roffTok_MDOC_J = 290, roffTok_MDOC_N = 291,
-    roffTok_MDOC_O = 292, roffTok_MDOC_P = 293, roffTok_MDOC_R = 294,
-    roffTok_MDOC_T = 295, roffTok_MDOC_V = 296, roffTok_MDOC_Ac = 297,
-    roffTok_MDOC_Ao = 298, roffTok_MDOC_Aq = 299, roffTok_MDOC_At = 300,
-    roffTok_MDOC_Bc = 301, roffTok_MDOC_Bf = 302, roffTok_MDOC_Bo = 303,
-    roffTok_MDOC_Bq = 304, roffTok_MDOC_Bsx = 305, roffTok_MDOC_Bx = 306,
-    roffTok_MDOC_Db = 307, roffTok_MDOC_Dc = 308, roffTok_MDOC_Do = 309,
-    roffTok_MDOC_Dq = 310, roffTok_MDOC_Ec = 311, roffTok_MDOC_Ef = 312,
-    roffTok_MDOC_Em = 313, roffTok_MDOC_Eo = 314, roffTok_MDOC_Fx = 315,
-    roffTok_MDOC_Ms = 316, roffTok_MDOC_No = 317, roffTok_MDOC_Ns = 318,
-    roffTok_MDOC_Nx = 319, roffTok_MDOC_Ox = 320, roffTok_MDOC_Pc = 321,
-    roffTok_MDOC_Pf = 322, roffTok_MDOC_Po = 323, roffTok_MDOC_Pq = 324,
-    roffTok_MDOC_Qc = 325, roffTok_MDOC_Ql = 326, roffTok_MDOC_Qo = 327,
-    roffTok_MDOC_Qq = 328, roffTok_MDOC_Re = 329, roffTok_MDOC_Rs = 330,
-    roffTok_MDOC_Sc = 331, roffTok_MDOC_So = 332, roffTok_MDOC_Sq = 333,
-    roffTok_MDOC_Sm = 334, roffTok_MDOC_Sx = 335, roffTok_MDOC_Sy = 336,
-    roffTok_MDOC_Tn = 337, roffTok_MDOC_Ux = 338, roffTok_MDOC_Xc = 339,
-    roffTok_MDOC_Xo = 340, roffTok_MDOC_Fo = 341, roffTok_MDOC_Fc = 342,
-    roffTok_MDOC_Oo = 343, roffTok_MDOC_Oc = 344, roffTok_MDOC_Bk = 345,
-    roffTok_MDOC_Ek = 346, roffTok_MDOC_Bt = 347, roffTok_MDOC_Hf = 348,
-    roffTok_MDOC_Fr = 349, roffTok_MDOC_Ud = 350, roffTok_MDOC_Lb = 351,
-    roffTok_MDOC_Lp = 352, roffTok_MDOC_Lk = 353, roffTok_MDOC_Mt = 354,
-    roffTok_MDOC_Brq = 355, roffTok_MDOC_Bro = 356, roffTok_MDOC_Brc = 357,
-    roffTok_MDOC_C = 358, roffTok_MDOC_Es = 359, roffTok_MDOC_En = 360,
-    roffTok_MDOC_Dx = 361, roffTok_MDOC_Q = 362, roffTok_MDOC_U = 363,
-    roffTok_MDOC_Ta = 364, roffTok_MDOC_MAX = 365, roffTok_MAN_TH = 366,
-    roffTok_MAN_SH = 367, roffTok_MAN_SS = 368, roffTok_MAN_TP = 369,
-    roffTok_MAN_TQ = 370, roffTok_MAN_LP = 371, roffTok_MAN_PP = 372,
-    roffTok_MAN_P = 373, roffTok_MAN_IP = 374, roffTok_MAN_HP = 375,
-    roffTok_MAN_SM = 376, roffTok_MAN_SB = 377, roffTok_MAN_BI = 378,
-    roffTok_MAN_IB = 379, roffTok_MAN_BR = 380, roffTok_MAN_RB = 381,
-    roffTok_MAN_R = 382, roffTok_MAN_B = 383, roffTok_MAN_I = 384,
-    roffTok_MAN_IR = 385, roffTok_MAN_RI = 386, roffTok_MAN_RE = 387,
-    roffTok_MAN_RS = 388, roffTok_MAN_DT = 389, roffTok_MAN_UC = 390,
-    roffTok_MAN_PD = 391, roffTok_MAN_AT = 392, roffTok_MAN_in = 393,
-    roffTok_MAN_SY = 394, roffTok_MAN_YS = 395, roffTok_MAN_OP = 396,
-    roffTok_MAN_EX = 397, roffTok_MAN_EE = 398, roffTok_MAN_UR = 399,
-    roffTok_MAN_UE = 400, roffTok_MAN_MT = 401, roffTok_MAN_ME = 402,
-    roffTok_MAN_MAX = 403
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  Mdocargt* = enum
-    mSplit,                   ## @import{[[code:enum!mdocargt.enumField!MDOC_Split]]}
-    mNosplit,                 ## @import{[[code:enum!mdocargt.enumField!MDOC_Nosplit]]}
-    mRagged,                  ## @import{[[code:enum!mdocargt.enumField!MDOC_Ragged]]}
-    mUnfilled,                ## @import{[[code:enum!mdocargt.enumField!MDOC_Unfilled]]}
-    mLiteral,                 ## @import{[[code:enum!mdocargt.enumField!MDOC_Literal]]}
-    mFile,                    ## @import{[[code:enum!mdocargt.enumField!MDOC_File]]}
-    mOffset,                  ## @import{[[code:enum!mdocargt.enumField!MDOC_Offset]]}
-    mBullet,                  ## @import{[[code:enum!mdocargt.enumField!MDOC_Bullet]]}
-    mDash,                    ## @import{[[code:enum!mdocargt.enumField!MDOC_Dash]]}
-    mHyphen,                  ## @import{[[code:enum!mdocargt.enumField!MDOC_Hyphen]]}
-    mItem,                    ## @import{[[code:enum!mdocargt.enumField!MDOC_Item]]}
-    mEnum,                    ## @import{[[code:enum!mdocargt.enumField!MDOC_Enum]]}
-    mTag,                     ## @import{[[code:enum!mdocargt.enumField!MDOC_Tag]]}
-    mDiag,                    ## @import{[[code:enum!mdocargt.enumField!MDOC_Diag]]}
-    mHang,                    ## @import{[[code:enum!mdocargt.enumField!MDOC_Hang]]}
-    mOhang,                   ## @import{[[code:enum!mdocargt.enumField!MDOC_Ohang]]}
-    mInset,                   ## @import{[[code:enum!mdocargt.enumField!MDOC_Inset]]}
-    mColumn,                  ## @import{[[code:enum!mdocargt.enumField!MDOC_Column]]}
-    mWidth,                   ## @import{[[code:enum!mdocargt.enumField!MDOC_Width]]}
-    mCompact,                 ## @import{[[code:enum!mdocargt.enumField!MDOC_Compact]]}
-    mStd,                     ## @import{[[code:enum!mdocargt.enumField!MDOC_Std]]}
-    mFilled,                  ## @import{[[code:enum!mdocargt.enumField!MDOC_Filled]]}
-    mWords,                   ## @import{[[code:enum!mdocargt.enumField!MDOC_Words]]}
-    mEmphasis,                ## @import{[[code:enum!mdocargt.enumField!MDOC_Emphasis]]}
-    mSymbolic,                ## @import{[[code:enum!mdocargt.enumField!MDOC_Symbolic]]}
-    mNested,                  ## @import{[[code:enum!mdocargt.enumField!MDOC_Nested]]}
-    mCentred,                 ## @import{[[code:enum!mdocargt.enumField!MDOC_Centred]]}
-    mArgMax                    ## @import{[[code:enum!mdocargt.enumField!MDOC_ARG_MAX]]}
-
-
-
-  # Declaration created in: hc_wrapgen.nim(796, 20)
-  # Wrapper for `mdoc_bd`
-  # Declared in mdoc.h:113
-  MdocBd* {.bycopy, importc: "struct mdoc_bd", header: allHeaders.} = object
-    ## @import{[[code:struct!mdoc_bd]]}
-    offs* {.importc: "offs".}: cstring ## @import{[[code:struct!mdoc_bd.field!offs]]}
-    cxType* {.importc: "type".}: MdocDispC ## @import{[[code:struct!mdoc_bd.field!type]]}
-    comp* {.importc: "comp".}: cint ## @import{[[code:struct!mdoc_bd.field!comp]]}
-    
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `eqn_post`
-  # Declared in eqn.h:37
-  EqnPostC* {.importc: "enum eqn_post", header: allHeaders.} = enum ## @import{[[code:enum!eqn_post]]}
-    eqnPost_EQNPOS_NONE = 0, eqnPost_EQNPOS_SUP = 1, eqnPost_EQNPOS_SUBSUP = 2,
-    eqnPost_EQNPOS_SUB = 3, eqnPost_EQNPOS_TO = 4, eqnPost_EQNPOS_FROM = 5,
-    eqnPost_EQNPOS_FROMTO = 6, eqnPost_EQNPOS_OVER = 7, eqnPost_EQNPOS_SQRT = 8,
-    eqnPost_EQNPOS_MAX = 9
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `tbl_cellt`
-  # Declared in tbl.h:36
-  TblCelltC* {.importc: "enum tbl_cellt", header: allHeaders.} = enum ## @import{[[code:enum!tbl_cellt]]}
-    tblCellt_TBL_CELL_CENTRE = 0, tblCellt_TBL_CELL_RIGHT = 1,
-    tblCellt_TBL_CELL_LEFT = 2, tblCellt_TBL_CELL_NUMBER = 3,
-    tblCellt_TBL_CELL_SPAN = 4, tblCellt_TBL_CELL_LONG = 5,
-    tblCellt_TBL_CELL_DOWN = 6, tblCellt_TBL_CELL_HORIZ = 7,
-    tblCellt_TBL_CELL_DHORIZ = 8, tblCellt_TBL_CELL_MAX = 9
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `eqn_boxt`
-  # Declared in eqn.h:20
-  EqnBoxtC* {.importc: "enum eqn_boxt", header: allHeaders.} = enum ## @import{[[code:enum!eqn_boxt]]}
-    eqnBoxt_EQN_TEXT = 0, eqnBoxt_EQN_SUBEXPR = 1, eqnBoxt_EQN_LIST = 2,
-    eqnBoxt_EQN_PILE = 3, eqnBoxt_EQN_MATRIX = 4
-
-
-
-  # Declaration created in: hc_wrapgen.nim(796, 20)
-  # Wrapper for `mdoc_data`
-  # Declared in mdoc.h:146
-  MdocData* {.bycopy, importc: "struct mdoc_data", header: allHeaders, union.} = object
-    ## @import{[[code:union!mdoc_data]]}
-    an* {.importc: "An".}: MdocAn ## @import{[[code:union!mdoc_data.field!An]]}
-    bd* {.importc: "Bd".}: MdocBd ## @import{[[code:union!mdoc_data.field!Bd]]}
-    bf* {.importc: "Bf".}: MdocBf ## @import{[[code:union!mdoc_data.field!Bf]]}
-    bl* {.importc: "Bl".}: MdocBl ## @import{[[code:union!mdoc_data.field!Bl]]}
-    es* {.importc: "Es".}: ptr RoffNode ## @import{[[code:union!mdoc_data.field!Es]]}
-    rs* {.importc: "Rs".}: MdocRs ## @import{[[code:union!mdoc_data.field!Rs]]}
-    
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  MdocList* = enum
-    mlNone,                   ## @import{[[code:enum!mdoc_list.enumField!LIST__NONE]]}
-    mlBullet,                 ## @import{[[code:enum!mdoc_list.enumField!LIST_bullet]]}
-    mlColumn,                 ## @import{[[code:enum!mdoc_list.enumField!LIST_column]]}
-    mlDash,                   ## @import{[[code:enum!mdoc_list.enumField!LIST_dash]]}
-    mlDiag,                   ## @import{[[code:enum!mdoc_list.enumField!LIST_diag]]}
-    mlEnum,                   ## @import{[[code:enum!mdoc_list.enumField!LIST_enum]]}
-    mlHang,                   ## @import{[[code:enum!mdoc_list.enumField!LIST_hang]]}
-    mlHyphen,                 ## @import{[[code:enum!mdoc_list.enumField!LIST_hyphen]]}
-    mlInset,                  ## @import{[[code:enum!mdoc_list.enumField!LIST_inset]]}
-    mlItem,                   ## @import{[[code:enum!mdoc_list.enumField!LIST_item]]}
-    mlOhang,                  ## @import{[[code:enum!mdoc_list.enumField!LIST_ohang]]}
-    mlTag,                    ## @import{[[code:enum!mdoc_list.enumField!LIST_tag]]}
-    mlMax1                     ## @import{[[code:enum!mdoc_list.enumField!LIST_MAX]]}
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `mdoc_list`
-  # Declared in mdoc.h:75
-  MdocListC* {.importc: "enum mdoc_list", header: allHeaders.} = enum ## @import{[[code:enum!mdoc_list]]}
-    mdocList_LIST_NONE = 0, mdocList_LIST_bullet = 1, mdocList_LIST_column = 2,
-    mdocList_LIST_dash = 3, mdocList_LIST_diag = 4, mdocList_LIST_enum = 5,
-    mdocList_LIST_hang = 6, mdocList_LIST_hyphen = 7, mdocList_LIST_inset = 8,
-    mdocList_LIST_item = 9, mdocList_LIST_ohang = 10, mdocList_LIST_tag = 11,
-    mdocList_LIST_MAX = 12
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  MandocOs* = enum
-    mdosOther,                ## @import{[[code:enum!mandoc_os.enumField!MANDOC_OS_OTHER]]}
-    mdosNetbsd,               ## @import{[[code:enum!mandoc_os.enumField!MANDOC_OS_NETBSD]]}
-    mdosOpenbsd                ## @import{[[code:enum!mandoc_os.enumField!MANDOC_OS_OPENBSD]]}
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  RoffSec* = enum
-    rsNone,                   ## @import{[[code:enum!roff_sec.enumField!SEC_NONE]]}
-    rsName,                   ## @import{[[code:enum!roff_sec.enumField!SEC_NAME]]}
-    rsLibrary,                ## @import{[[code:enum!roff_sec.enumField!SEC_LIBRARY]]}
-    rsSynopsis,               ## @import{[[code:enum!roff_sec.enumField!SEC_SYNOPSIS]]}
-    rsDescription,            ## @import{[[code:enum!roff_sec.enumField!SEC_DESCRIPTION]]}
-    rsContext,                ## @import{[[code:enum!roff_sec.enumField!SEC_CONTEXT]]}
-    rsImplementation,         ## @import{[[code:enum!roff_sec.enumField!SEC_IMPLEMENTATION]]}
-    rsReturnValues,           ## @import{[[code:enum!roff_sec.enumField!SEC_RETURN_VALUES]]}
-    rsEnvironment,            ## @import{[[code:enum!roff_sec.enumField!SEC_ENVIRONMENT]]}
-    rsFiles,                  ## @import{[[code:enum!roff_sec.enumField!SEC_FILES]]}
-    rsExitStatus,             ## @import{[[code:enum!roff_sec.enumField!SEC_EXIT_STATUS]]}
-    rsExamples,               ## @import{[[code:enum!roff_sec.enumField!SEC_EXAMPLES]]}
-    rsDiagnostics,            ## @import{[[code:enum!roff_sec.enumField!SEC_DIAGNOSTICS]]}
-    rsCompatibility,          ## @import{[[code:enum!roff_sec.enumField!SEC_COMPATIBILITY]]}
-    rsErrors,                 ## @import{[[code:enum!roff_sec.enumField!SEC_ERRORS]]}
-    rsSeeAlso,                ## @import{[[code:enum!roff_sec.enumField!SEC_SEE_ALSO]]}
-    rsStandards,              ## @import{[[code:enum!roff_sec.enumField!SEC_STANDARDS]]}
-    rsHistory,                ## @import{[[code:enum!roff_sec.enumField!SEC_HISTORY]]}
-    rsAuthors,                ## @import{[[code:enum!roff_sec.enumField!SEC_AUTHORS]]}
-    rsCaveats,                ## @import{[[code:enum!roff_sec.enumField!SEC_CAVEATS]]}
-    rsBugs,                   ## @import{[[code:enum!roff_sec.enumField!SEC_BUGS]]}
-    rsSecurity,               ## @import{[[code:enum!roff_sec.enumField!SEC_SECURITY]]}
-    rsCustom,                 ## @import{[[code:enum!roff_sec.enumField!SEC_CUSTOM]]}
-    rsMax                      ## @import{[[code:enum!roff_sec.enumField!SEC__MAX]]}
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  EqnBoxt* = enum
-    ebText,                   ## @import{[[code:enum!eqn_boxt.enumField!EQN_TEXT]]}
-    ebSubexpr,                ## @import{[[code:enum!eqn_boxt.enumField!EQN_SUBEXPR]]}
-    ebList,                   ## @import{[[code:enum!eqn_boxt.enumField!EQN_LIST]]}
-    ebPile,                   ## @import{[[code:enum!eqn_boxt.enumField!EQN_PILE]]}
-    ebMatrix                   ## @import{[[code:enum!eqn_boxt.enumField!EQN_MATRIX]]}
-
-
-
-  # Declaration created in: hc_wrapgen.nim(796, 20)
-  # Wrapper for `mdoc_bl`
-  # Declared in mdoc.h:119
-  MdocBl* {.bycopy, importc: "struct mdoc_bl", header: allHeaders.} = object
-    ## @import{[[code:struct!mdoc_bl]]}
-    width* {.importc: "width".}: cstring ## @import{[[code:struct!mdoc_bl.field!width]]}
-    offs* {.importc: "offs".}: cstring ## @import{[[code:struct!mdoc_bl.field!offs]]}
-    cxType* {.importc: "type".}: MdocListC ## @import{[[code:struct!mdoc_bl.field!type]]}
-    comp* {.importc: "comp".}: cint ## @import{[[code:struct!mdoc_bl.field!comp]]}
-    ncols* {.importc: "ncols".}: SizeT ## @import{[[code:struct!mdoc_bl.field!ncols]]}
-    cols* {.importc: "cols".}: cstringArray ## @import{[[code:struct!mdoc_bl.field!cols]]}
-    count* {.importc: "count".}: cint ## @import{[[code:struct!mdoc_bl.field!count]]}
-    
-
-
-
-  # Declaration created in: hc_wrapgen.nim(796, 20)
-  # Wrapper for `mdoc_an`
-  # Declared in mdoc.h:133
-  MdocAn* {.bycopy, importc: "struct mdoc_an", header: allHeaders.} = object
-    ## @import{[[code:struct!mdoc_an]]}
-    auth* {.importc: "auth".}: MdocAuthC ## @import{[[code:struct!mdoc_an.field!auth]]}
-    
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `roff_type`
-  # Declared in roff.h:60
-  RoffTypeC* {.importc: "enum roff_type", header: allHeaders.} = enum ## @import{[[code:enum!roff_type]]}
-    roffType_ROFFT_ROOT = 0, roffType_ROFFT_BLOCK = 1, roffType_ROFFT_HEAD = 2,
-    roffType_ROFFT_BODY = 3, roffType_ROFFT_TAIL = 4, roffType_ROFFT_ELEM = 5,
-    roffType_ROFFT_TEXT = 6, roffType_ROFFT_COMMENT = 7, roffType_ROFFT_TBL = 8,
-    roffType_ROFFT_EQN = 9
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  MdocEndbody* = enum
-    meNot,                    ## @import{[[code:enum!mdoc_endbody.enumField!ENDBODY_NOT]]}
-    meSpace                    ## @import{[[code:enum!mdoc_endbody.enumField!ENDBODY_SPACE]]}
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `eqn_fontt`
-  # Declared in eqn.h:28
-  EqnFonttC* {.importc: "enum eqn_fontt", header: allHeaders.} = enum ## @import{[[code:enum!eqn_fontt]]}
-    eqnFontt_EQNFONT_NONE = 0, eqnFontt_EQNFONT_ROMAN = 1,
-    eqnFontt_EQNFONT_BOLD = 2, eqnFontt_EQNFONT_FAT = 3,
-    eqnFontt_EQNFONT_ITALIC = 4, eqnFontt_EQNFONT_MAX = 5
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `tbl_datt`
-  # Declared in tbl.h:81
-  TblDattC* {.importc: "enum tbl_datt", header: allHeaders.} = enum ## @import{[[code:enum!tbl_datt]]}
-    tblDatt_TBL_DATA_NONE = 0, tblDatt_TBL_DATA_DATA = 1,
-    tblDatt_TBL_DATA_HORIZ = 2, tblDatt_TBL_DATA_DHORIZ = 3,
-    tblDatt_TBL_DATA_NHORIZ = 4, tblDatt_TBL_DATA_NDHORIZ = 5
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  MdocDisp* = enum
-    mdNone,                   ## @import{[[code:enum!mdoc_disp.enumField!DISP__NONE]]}
-    mdCentered,               ## @import{[[code:enum!mdoc_disp.enumField!DISP_centered]]}
-    mdRagged,                 ## @import{[[code:enum!mdoc_disp.enumField!DISP_ragged]]}
-    mdUnfilled,               ## @import{[[code:enum!mdoc_disp.enumField!DISP_unfilled]]}
-    mdFilled,                 ## @import{[[code:enum!mdoc_disp.enumField!DISP_filled]]}
-    mdLiteral                  ## @import{[[code:enum!mdoc_disp.enumField!DISP_literal]]}
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `mdoc_font`
-  # Declared in mdoc.h:106
-  MdocFontC* {.importc: "enum mdoc_font", header: allHeaders.} = enum ## @import{[[code:enum!mdoc_font]]}
-    mdocFont_FONT_NONE = 0, mdocFont_FONT_Em = 1, mdocFont_FONT_Li = 2,
-    mdocFont_FONT_Sy = 3
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  EqnFontt* = enum
-    efNone,                   ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_NONE]]}
-    efRoman,                  ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_ROMAN]]}
-    efBold,                   ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_BOLD]]}
-    efFat,                    ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_FAT]]}
-    efItalic,                 ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_ITALIC]]}
-    efMax                      ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT__MAX]]}
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
+  # Declaration created in: hc_wrapgen.nim(1250, 50)
   # Wrapper for `tbl_spant`
   # Declared in tbl.h:104
   TblSpantC* {.importc: "enum tbl_spant", header: allHeaders.} = enum ## @import{[[code:enum!tbl_spant]]}
-    tblSpant_TBL_SPAN_DATA = 0, tblSpant_TBL_SPAN_HORIZ = 1,
-    tblSpant_TBL_SPAN_DHORIZ = 2
+    tblSpantTBLSPANDATA = 0, tblSpantTBLSPANHORIZ = 1, tblSpantTBLSPANDHORIZ = 2
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  MdocFont* = enum
-    mfNone,                   ## @import{[[code:enum!mdoc_font.enumField!FONT__NONE]]}
-    mfEm,                     ## @import{[[code:enum!mdoc_font.enumField!FONT_Em]]}
-    mfLi,                     ## @import{[[code:enum!mdoc_font.enumField!FONT_Li]]}
-    mfSy                       ## @import{[[code:enum!mdoc_font.enumField!FONT_Sy]]}
+  # Declaration created in: hc_wrapgen.nim(1250, 50)
+  # Wrapper for `roff_tok`
+  # Declared in roff.h:73
+  RoffTokC* {.importc: "enum roff_tok", header: allHeaders.} = enum ## @import{[[code:enum!roff_tok]]}
+    roffTokROFFBr = 0, roffTokROFFCe = 1, roffTokROFFFi = 2, roffTokROFFFt = 3,
+    roffTokROFFLl = 4, roffTokROFFMc = 5, roffTokROFFNf = 6, roffTokROFFPo = 7,
+    roffTokROFFRj = 8, roffTokROFFSp = 9, roffTokROFFTa = 10, roffTokROFFTi = 11,
+    roffTokROFFMAX = 12, roffTokROFFAb = 13, roffTokROFFAd = 14,
+    roffTokROFFAf = 15, roffTokROFFAln = 16, roffTokROFFAls = 17,
+    roffTokROFFAm = 18, roffTokROFFAm1 = 19, roffTokROFFAmi = 20,
+    roffTokROFFAmi1 = 21, roffTokROFFAs = 22, roffTokROFFAs1 = 23,
+    roffTokROFFAsciify = 24, roffTokROFFBacktrace = 25, roffTokROFFBd = 26,
+    roffTokROFFBleedat = 27, roffTokROFFBlm = 28, roffTokROFFBox = 29,
+    roffTokROFFBoxa = 30, roffTokROFFBp = 31, roffTokROFFBP1 = 32,
+    roffTokROFFBreak = 33, roffTokROFFBreakchar = 34, roffTokROFFBrnl = 35,
+    roffTokROFFBrp = 36, roffTokROFFBrpnl = 37, roffTokROFFC2 = 38,
+    roffTokROFFCc = 39, roffTokROFFCf = 40, roffTokROFFCflags = 41,
+    roffTokROFFCh = 42, roffTokROFFChar = 43, roffTokROFFChop = 44,
+    roffTokROFFClass = 45, roffTokROFFClose = 46, roffTokROFFCL = 47,
+    roffTokROFFColor = 48, roffTokROFFComposite = 49, roffTokROFFContinue = 50,
+    roffTokROFFCp = 51, roffTokROFFCropat = 52, roffTokROFFCs = 53,
+    roffTokROFFCu = 54, roffTokROFFDa = 55, roffTokROFFDch = 56,
+    roffTokROFFDd = 57, roffTokROFFDe = 58, roffTokROFFDe1 = 59,
+    roffTokROFFDefcolor = 60, roffTokROFFDei = 61, roffTokROFFDei1 = 62,
+    roffTokROFFDevice = 63, roffTokROFFDevicem = 64, roffTokROFFDi = 65,
+    roffTokROFFDo = 66, roffTokROFFDs = 67, roffTokROFFDs1 = 68,
+    roffTokROFFDwh = 69, roffTokROFFDt = 70, roffTokROFFEc = 71,
+    roffTokROFFEcr = 72, roffTokROFFEcs = 73, roffTokROFFEl = 74,
+    roffTokROFFEm = 75, roffTokROFFEN = 76, roffTokROFFEo = 77,
+    roffTokROFFEP = 78, roffTokROFFEQ = 79, roffTokROFFErrprint = 80,
+    roffTokROFFEv = 81, roffTokROFFEvc = 82, roffTokROFFEx = 83,
+    roffTokROFFFallback = 84, roffTokROFFFam = 85, roffTokROFFFc = 86,
+    roffTokROFFFchar = 87, roffTokROFFFcolor = 88, roffTokROFFFdeferlig = 89,
+    roffTokROFFFeature = 90, roffTokROFFFkern = 91, roffTokROFFFl = 92,
+    roffTokROFFFlig = 93, roffTokROFFFp = 94, roffTokROFFFps = 95,
+    roffTokROFFFschar = 96, roffTokROFFFspacewidth = 97, roffTokROFFFspecial = 98,
+    roffTokROFFFtr = 99, roffTokROFFFzoom = 100, roffTokROFFGcolor = 101,
+    roffTokROFFHc = 102, roffTokROFFHcode = 103, roffTokROFFHidechar = 104,
+    roffTokROFFHla = 105, roffTokROFFHlm = 106, roffTokROFFHpf = 107,
+    roffTokROFFHpfa = 108, roffTokROFFHpfcode = 109, roffTokROFFHw = 110,
+    roffTokROFFHy = 111, roffTokROFFHylang = 112, roffTokROFFHylen = 113,
+    roffTokROFFHym = 114, roffTokROFFHypp = 115, roffTokROFFHys = 116,
+    roffTokROFFIe = 117, roffTokROFFIf = 118, roffTokROFFIg = 119,
+    roffTokROFFIndex = 120, roffTokROFFIt = 121, roffTokROFFItc = 122,
+    roffTokROFFIX = 123, roffTokROFFKern = 124, roffTokROFFKernafter = 125,
+    roffTokROFFKernbefore = 126, roffTokROFFKernpair = 127, roffTokROFFLc = 128,
+    roffTokROFFLcCtype = 129, roffTokROFFLds = 130, roffTokROFFLength = 131,
+    roffTokROFFLetadj = 132, roffTokROFFLf = 133, roffTokROFFLg = 134,
+    roffTokROFFLhang = 135, roffTokROFFLinetabs = 136, roffTokROFFLnr = 137,
+    roffTokROFFLnrf = 138, roffTokROFFLpfx = 139, roffTokROFFLs = 140,
+    roffTokROFFLsm = 141, roffTokROFFLt = 142, roffTokROFFMediasize = 143,
+    roffTokROFFMinss = 144, roffTokROFFMk = 145, roffTokROFFMso = 146,
+    roffTokROFFNa = 147, roffTokROFFNe = 148, roffTokROFFNh = 149,
+    roffTokROFFNhychar = 150, roffTokROFFNm = 151, roffTokROFFNn = 152,
+    roffTokROFFNop = 153, roffTokROFFNr = 154, roffTokROFFNrf = 155,
+    roffTokROFFNroff = 156, roffTokROFFNs = 157, roffTokROFFNx = 158,
+    roffTokROFFOpen = 159, roffTokROFFOpena = 160, roffTokROFFOs = 161,
+    roffTokROFFOutput = 162, roffTokROFFPadj = 163, roffTokROFFPapersize = 164,
+    roffTokROFFPc = 165, roffTokROFFPev = 166, roffTokROFFPi = 167,
+    roffTokROFFPI1 = 168, roffTokROFFPl = 169, roffTokROFFPm = 170,
+    roffTokROFFPn = 171, roffTokROFFPnr = 172, roffTokROFFPs = 173,
+    roffTokROFFPsbb = 174, roffTokROFFPshape = 175, roffTokROFFPso = 176,
+    roffTokROFFPtr = 177, roffTokROFFPvs = 178, roffTokROFFRchar = 179,
+    roffTokROFFRd = 180, roffTokROFFRecursionlimit = 181, roffTokROFFReturn = 182,
+    roffTokROFFRfschar = 183, roffTokROFFRhang = 184, roffTokROFFRm = 185,
+    roffTokROFFRn = 186, roffTokROFFRnn = 187, roffTokROFFRr = 188,
+    roffTokROFFRs = 189, roffTokROFFRt = 190, roffTokROFFSchar = 191,
+    roffTokROFFSentchar = 192, roffTokROFFShc = 193, roffTokROFFShift = 194,
+    roffTokROFFSizes = 195, roffTokROFFSo = 196, roffTokROFFSpacewidth = 197,
+    roffTokROFFSpecial = 198, roffTokROFFSpreadwarn = 199, roffTokROFFSs = 200,
+    roffTokROFFSty = 201, roffTokROFFSubstring = 202, roffTokROFFSv = 203,
+    roffTokROFFSy = 204, roffTokROFFT = 205, roffTokROFFTc = 206,
+    roffTokROFFTE = 207, roffTokROFFTH = 208, roffTokROFFTkf = 209,
+    roffTokROFFTl = 210, roffTokROFFTm = 211, roffTokROFFTm1 = 212,
+    roffTokROFFTmc = 213, roffTokROFFTr = 214, roffTokROFFTrack = 215,
+    roffTokROFFTranschar = 216, roffTokROFFTrf = 217, roffTokROFFTrimat = 218,
+    roffTokROFFTrin = 219, roffTokROFFTrnt = 220, roffTokROFFTroff = 221,
+    roffTokROFFTS = 222, roffTokROFFUf = 223, roffTokROFFUl = 224,
+    roffTokROFFUnformat = 225, roffTokROFFUnwatch = 226,
+    roffTokROFFUnwatchn = 227, roffTokROFFVpt = 228, roffTokROFFVs = 229,
+    roffTokROFFWarn = 230, roffTokROFFWarnscale = 231, roffTokROFFWatch = 232,
+    roffTokROFFWatchlength = 233, roffTokROFFWatchn = 234, roffTokROFFWh = 235,
+    roffTokROFFWhile = 236, roffTokROFFWrite = 237, roffTokROFFWritec = 238,
+    roffTokROFFWritem = 239, roffTokROFFXflag = 240, roffTokROFFCblock = 241,
+    roffTokROFFRENAMED = 242, roffTokROFFUSERDEF = 243, roffTokTOKENNONE = 244,
+    roffTokMDOCDd = 245, roffTokMDOCDt = 246, roffTokMDOCOs = 247,
+    roffTokMDOCSh = 248, roffTokMDOCSs = 249, roffTokMDOCPp = 250,
+    roffTokMDOCD1 = 251, roffTokMDOCDl = 252, roffTokMDOCBd = 253,
+    roffTokMDOCEd = 254, roffTokMDOCBl = 255, roffTokMDOCEl = 256,
+    roffTokMDOCIt = 257, roffTokMDOCAd = 258, roffTokMDOCAn = 259,
+    roffTokMDOCAp = 260, roffTokMDOCAr = 261, roffTokMDOCCd = 262,
+    roffTokMDOCCm = 263, roffTokMDOCDv = 264, roffTokMDOCEr = 265,
+    roffTokMDOCEv = 266, roffTokMDOCEx = 267, roffTokMDOCFa = 268,
+    roffTokMDOCFd = 269, roffTokMDOCFl = 270, roffTokMDOCFn = 271,
+    roffTokMDOCFt = 272, roffTokMDOCIc = 273, roffTokMDOCIn = 274,
+    roffTokMDOCLi = 275, roffTokMDOCNd = 276, roffTokMDOCNm = 277,
+    roffTokMDOCOp = 278, roffTokMDOCOt = 279, roffTokMDOCPa = 280,
+    roffTokMDOCRv = 281, roffTokMDOCSt = 282, roffTokMDOCVa = 283,
+    roffTokMDOCVt = 284, roffTokMDOCXr = 285, roffTokMDOCA = 286,
+    roffTokMDOCB = 287, roffTokMDOCD = 288, roffTokMDOCI = 289,
+    roffTokMDOCJ = 290, roffTokMDOCN = 291, roffTokMDOCO = 292,
+    roffTokMDOCP = 293, roffTokMDOCR = 294, roffTokMDOCT = 295,
+    roffTokMDOCV = 296, roffTokMDOCAc = 297, roffTokMDOCAo = 298,
+    roffTokMDOCAq = 299, roffTokMDOCAt = 300, roffTokMDOCBc = 301,
+    roffTokMDOCBf = 302, roffTokMDOCBo = 303, roffTokMDOCBq = 304,
+    roffTokMDOCBsx = 305, roffTokMDOCBx = 306, roffTokMDOCDb = 307,
+    roffTokMDOCDc = 308, roffTokMDOCDo = 309, roffTokMDOCDq = 310,
+    roffTokMDOCEc = 311, roffTokMDOCEf = 312, roffTokMDOCEm = 313,
+    roffTokMDOCEo = 314, roffTokMDOCFx = 315, roffTokMDOCMs = 316,
+    roffTokMDOCNo = 317, roffTokMDOCNs = 318, roffTokMDOCNx = 319,
+    roffTokMDOCOx = 320, roffTokMDOCPc = 321, roffTokMDOCPf = 322,
+    roffTokMDOCPo = 323, roffTokMDOCPq = 324, roffTokMDOCQc = 325,
+    roffTokMDOCQl = 326, roffTokMDOCQo = 327, roffTokMDOCQq = 328,
+    roffTokMDOCRe = 329, roffTokMDOCRs = 330, roffTokMDOCSc = 331,
+    roffTokMDOCSo = 332, roffTokMDOCSq = 333, roffTokMDOCSm = 334,
+    roffTokMDOCSx = 335, roffTokMDOCSy = 336, roffTokMDOCTn = 337,
+    roffTokMDOCUx = 338, roffTokMDOCXc = 339, roffTokMDOCXo = 340,
+    roffTokMDOCFo = 341, roffTokMDOCFc = 342, roffTokMDOCOo = 343,
+    roffTokMDOCOc = 344, roffTokMDOCBk = 345, roffTokMDOCEk = 346,
+    roffTokMDOCBt = 347, roffTokMDOCHf = 348, roffTokMDOCFr = 349,
+    roffTokMDOCUd = 350, roffTokMDOCLb = 351, roffTokMDOCLp = 352,
+    roffTokMDOCLk = 353, roffTokMDOCMt = 354, roffTokMDOCBrq = 355,
+    roffTokMDOCBro = 356, roffTokMDOCBrc = 357, roffTokMDOCC = 358,
+    roffTokMDOCEs = 359, roffTokMDOCEn = 360, roffTokMDOCDx = 361,
+    roffTokMDOCQ = 362, roffTokMDOCU = 363, roffTokMDOCTa = 364,
+    roffTokMDOCMAX = 365, roffTokMANTH = 366, roffTokMANSH = 367,
+    roffTokMANSS = 368, roffTokMANTP = 369, roffTokMANTQ = 370,
+    roffTokMANLP = 371, roffTokMANPP = 372, roffTokMANP = 373, roffTokMANIP = 374,
+    roffTokMANHP = 375, roffTokMANSM = 376, roffTokMANSB = 377,
+    roffTokMANBI = 378, roffTokMANIB = 379, roffTokMANBR = 380,
+    roffTokMANRB = 381, roffTokMANR = 382, roffTokMANB = 383, roffTokMANI = 384,
+    roffTokMANIR = 385, roffTokMANRI = 386, roffTokMANRE = 387,
+    roffTokMANRS = 388, roffTokMANDT = 389, roffTokMANUC = 390,
+    roffTokMANPD = 391, roffTokMANAT = 392, roffTokMANIn = 393,
+    roffTokMANSY = 394, roffTokMANYS = 395, roffTokMANOP = 396,
+    roffTokMANEX = 397, roffTokMANEE = 398, roffTokMANUR = 399,
+    roffTokMANUE = 400, roffTokMANMT = 401, roffTokMANME = 402,
+    roffTokMANMAX = 403
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
+  # Declaration created in: hc_wrapgen.nim(743, 20)
   # Wrapper for `tbl_span`
   # Declared in tbl.h:113
   TblSpan* {.bycopy, importc: "struct tbl_span", header: allHeaders.} = object
@@ -467,7 +187,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
+  # Declaration created in: hc_wrapgen.nim(743, 20)
   # Wrapper for `roff_meta`
   # Declared in roff.h:532
   RoffMeta* {.bycopy, importc: "struct roff_meta", header: allHeaders.} = object
@@ -483,21 +203,36 @@ type
     sodest* {.importc: "sodest".}: cstring ## @import{[[code:struct!roff_meta.field!sodest]]}
     hasbody* {.importc: "hasbody".}: cint ## @import{[[code:struct!roff_meta.field!hasbody]]}
     rcsids* {.importc: "rcsids".}: cint ## @import{[[code:struct!roff_meta.field!rcsids]]}
-    osE* {.importc: "os_e".}: MandocOsC ## @import{[[code:struct!roff_meta.field!os_e]]}
+    os_e* {.importc: "os_e".}: MandocOsC ## @import{[[code:struct!roff_meta.field!os_e]]}
     macroset* {.importc: "macroset".}: RoffMacrosetC ## @import{[[code:struct!roff_meta.field!macroset]]}
     
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `mdoc_auth`
-  # Declared in mdoc.h:100
-  MdocAuthC* {.importc: "enum mdoc_auth", header: allHeaders.} = enum ## @import{[[code:enum!mdoc_auth]]}
-    mdocAuth_AUTH_NONE = 0, mdocAuth_AUTH_split = 1, mdocAuth_AUTH_nosplit = 2
+  # Declaration created in: hc_wrapgen.nim(743, 20)
+  # Wrapper for `mdoc_bd`
+  # Declared in mdoc.h:113
+  MdocBd* {.bycopy, importc: "struct mdoc_bd", header: allHeaders.} = object
+    ## @import{[[code:struct!mdoc_bd]]}
+    offs* {.importc: "offs".}: cstring ## @import{[[code:struct!mdoc_bd.field!offs]]}
+    type* {.importc: "type".}: MdocDispC ## @import{[[code:struct!mdoc_bd.field!type]]}
+    comp* {.importc: "comp".}: cint ## @import{[[code:struct!mdoc_bd.field!comp]]}
+    
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
+  # Declaration created in: hc_wrapgen.nim(1250, 50)
+  # Wrapper for `eqn_post`
+  # Declared in eqn.h:37
+  EqnPostC* {.importc: "enum eqn_post", header: allHeaders.} = enum ## @import{[[code:enum!eqn_post]]}
+    eqnPostEQNPOSNONE = 0, eqnPostEQNPOSSUP = 1, eqnPostEQNPOSSUBSUP = 2,
+    eqnPostEQNPOSSUB = 3, eqnPostEQNPOSTO = 4, eqnPostEQNPOSFROM = 5,
+    eqnPostEQNPOSFROMTO = 6, eqnPostEQNPOSOVER = 7, eqnPostEQNPOSSQRT = 8,
+    eqnPostEQNPOSMAX = 9
+
+
+
+  # Declaration created in: hc_wrapgen.nim(743, 20)
   # Wrapper for `tbl_row`
   # Declared in tbl.h:74
   TblRow* {.bycopy, importc: "struct tbl_row", header: allHeaders.} = object
@@ -510,7 +245,7 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
+  # Declaration created in: hc_wrapgen.nim(743, 20)
   # Wrapper for `tbl_opts`
   # Declared in tbl.h:19
   TblOpts* {.bycopy, importc: "struct tbl_opts", header: allHeaders.} = object
@@ -525,17 +260,26 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `mdoc_disp`
-  # Declared in mdoc.h:91
-  MdocDispC* {.importc: "enum mdoc_disp", header: allHeaders.} = enum ## @import{[[code:enum!mdoc_disp]]}
-    mdocDisp_DISP_NONE = 0, mdocDisp_DISP_centered = 1, mdocDisp_DISP_ragged = 2,
-    mdocDisp_DISP_unfilled = 3, mdocDisp_DISP_filled = 4,
-    mdocDisp_DISP_literal = 5
+  # Declaration created in: hc_wrapgen.nim(1250, 50)
+  # Wrapper for `eqn_boxt`
+  # Declared in eqn.h:20
+  EqnBoxtC* {.importc: "enum eqn_boxt", header: allHeaders.} = enum ## @import{[[code:enum!eqn_boxt]]}
+    eqnBoxtEQNTEXT = 0, eqnBoxtEQNSUBEXPR = 1, eqnBoxtEQNLIST = 2,
+    eqnBoxtEQNPILE = 3, eqnBoxtEQNMATRIX = 4
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
+  # Declaration created in: hc_wrapgen.nim(743, 20)
+  # Wrapper for `mdoc_rs`
+  # Declared in mdoc.h:137
+  MdocRs* {.bycopy, importc: "struct mdoc_rs", header: allHeaders.} = object
+    ## @import{[[code:struct!mdoc_rs]]}
+    quote_T* {.importc: "quote_T".}: cint ## @import{[[code:struct!mdoc_rs.field!quote_T]]}
+    
+
+
+
+  # Declaration created in: hc_wrapgen.nim(1261, 50)
   RoffTok* = enum
     rtRoffBr,                 ## @import{[[code:enum!roff_tok.enumField!ROFF_br]]}
     rtRoffCe,                 ## @import{[[code:enum!roff_tok.enumField!ROFF_ce]]}
@@ -944,68 +688,47 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
-  # Wrapper for `mdoc_rs`
-  # Declared in mdoc.h:137
-  MdocRs* {.bycopy, importc: "struct mdoc_rs", header: allHeaders.} = object
-    ## @import{[[code:struct!mdoc_rs]]}
-    quoteT* {.importc: "quote_T".}: cint ## @import{[[code:struct!mdoc_rs.field!quote_T]]}
+  # Declaration created in: hc_wrapgen.nim(743, 20)
+  # Wrapper for `mdoc_data`
+  # Declared in mdoc.h:146
+  MdocData* {.bycopy, importc: "struct mdoc_data", header: allHeaders, union.} = object
+    ## @import{[[code:union!mdoc_data]]}
+    An* {.importc: "An".}: MdocAn ## @import{[[code:union!mdoc_data.field!An]]}
+    Bd* {.importc: "Bd".}: MdocBd ## @import{[[code:union!mdoc_data.field!Bd]]}
+    Bf* {.importc: "Bf".}: MdocBf ## @import{[[code:union!mdoc_data.field!Bf]]}
+    Bl* {.importc: "Bl".}: MdocBl ## @import{[[code:union!mdoc_data.field!Bl]]}
+    Es* {.importc: "Es".}: ptr RoffNode ## @import{[[code:union!mdoc_data.field!Es]]}
+    Rs* {.importc: "Rs".}: MdocRs ## @import{[[code:union!mdoc_data.field!Rs]]}
     
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
+  # Declaration created in: hc_wrapgen.nim(743, 20)
   # Wrapper for `tbl_dat`
   # Declared in tbl.h:94
   TblDat* {.bycopy, importc: "struct tbl_dat", header: allHeaders.} = object
     ## @import{[[code:struct!tbl_dat]]}
     next* {.importc: "next".}: ptr TblDat ## @import{[[code:struct!tbl_dat.field!next]]}
     layout* {.importc: "layout".}: ptr TblCell ## @import{[[code:struct!tbl_dat.field!layout]]}
-    cxString* {.importc: "string".}: cstring ## @import{[[code:struct!tbl_dat.field!string]]}
+    string* {.importc: "string".}: cstring ## @import{[[code:struct!tbl_dat.field!string]]}
     hspans* {.importc: "hspans".}: cint ## @import{[[code:struct!tbl_dat.field!hspans]]}
     vspans* {.importc: "vspans".}: cint ## @import{[[code:struct!tbl_dat.field!vspans]]}
-    cxBlock* {.importc: "block".}: cint ## @import{[[code:struct!tbl_dat.field!block]]}
+    block* {.importc: "block".}: cint ## @import{[[code:struct!tbl_dat.field!block]]}
     pos* {.importc: "pos".}: TblDattC ## @import{[[code:struct!tbl_dat.field!pos]]}
     
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  MdocAuth* = enum
-    maNone,                   ## @import{[[code:enum!mdoc_auth.enumField!AUTH__NONE]]}
-    maSplit,                  ## @import{[[code:enum!mdoc_auth.enumField!AUTH_split]]}
-    maNosplit                  ## @import{[[code:enum!mdoc_auth.enumField!AUTH_nosplit]]}
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
+  # Declaration created in: hc_wrapgen.nim(1250, 50)
   # Wrapper for `roff_macroset`
   # Declared in roff.h:27
   RoffMacrosetC* {.importc: "enum roff_macroset", header: allHeaders.} = enum ## @import{[[code:enum!roff_macroset]]}
-    roffMacroset_MACROSET_NONE = 0, roffMacroset_MACROSET_MDOC = 1,
-    roffMacroset_MACROSET_MAN = 2
+    roffMacrosetMACROSETNONE = 0, roffMacrosetMACROSETMDOC = 1,
+    roffMacrosetMACROSETMAN = 2
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
-  # Wrapper for `mdocargt`
-  # Declared in mdoc.h:22
-  MdocargtC* {.importc: "enum mdocargt", header: allHeaders.} = enum ## @import{[[code:enum!mdocargt]]}
-    mdocargt_MDOC_Split = 0, mdocargt_MDOC_Nosplit = 1, mdocargt_MDOC_Ragged = 2,
-    mdocargt_MDOC_Unfilled = 3, mdocargt_MDOC_Literal = 4, mdocargt_MDOC_File = 5,
-    mdocargt_MDOC_Offset = 6, mdocargt_MDOC_Bullet = 7, mdocargt_MDOC_Dash = 8,
-    mdocargt_MDOC_Hyphen = 9, mdocargt_MDOC_Item = 10, mdocargt_MDOC_Enum = 11,
-    mdocargt_MDOC_Tag = 12, mdocargt_MDOC_Diag = 13, mdocargt_MDOC_Hang = 14,
-    mdocargt_MDOC_Ohang = 15, mdocargt_MDOC_Inset = 16, mdocargt_MDOC_Column = 17,
-    mdocargt_MDOC_Width = 18, mdocargt_MDOC_Compact = 19, mdocargt_MDOC_Std = 20,
-    mdocargt_MDOC_Filled = 21, mdocargt_MDOC_Words = 22,
-    mdocargt_MDOC_Emphasis = 23, mdocargt_MDOC_Symbolic = 24,
-    mdocargt_MDOC_Nested = 25, mdocargt_MDOC_Centred = 26,
-    mdocargt_MDOC_ARG_MAX = 27
-
-
-
-  # Declaration created in: hc_wrapgen.nim(796, 20)
+  # Declaration created in: hc_wrapgen.nim(743, 20)
   # Wrapper for `eqn_box`
   # Declared in eqn.h:54
   EqnBox* {.bycopy, importc: "struct eqn_box", header: allHeaders.} = object
@@ -1023,42 +746,22 @@ type
     expectargs* {.importc: "expectargs".}: SizeT ## @import{[[code:struct!eqn_box.field!expectargs]]}
     args* {.importc: "args".}: SizeT ## @import{[[code:struct!eqn_box.field!args]]}
     size* {.importc: "size".}: cint ## @import{[[code:struct!eqn_box.field!size]]}
-    cxType* {.importc: "type".}: EqnBoxtC ## @import{[[code:struct!eqn_box.field!type]]}
+    type* {.importc: "type".}: EqnBoxtC ## @import{[[code:struct!eqn_box.field!type]]}
     font* {.importc: "font".}: EqnFonttC ## @import{[[code:struct!eqn_box.field!font]]}
     pos* {.importc: "pos".}: EqnPostC ## @import{[[code:struct!eqn_box.field!pos]]}
     
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
-  # Wrapper for `tbl_cell`
-  # Declared in tbl.h:52
-  TblCell* {.bycopy, importc: "struct tbl_cell", header: allHeaders.} = object
-    ## @import{[[code:struct!tbl_cell]]}
-    next* {.importc: "next".}: ptr TblCell ## @import{[[code:struct!tbl_cell.field!next]]}
-    wstr* {.importc: "wstr".}: cstring ## @import{[[code:struct!tbl_cell.field!wstr]]}
-    width* {.importc: "width".}: SizeT ## @import{[[code:struct!tbl_cell.field!width]]}
-    spacing* {.importc: "spacing".}: SizeT ## @import{[[code:struct!tbl_cell.field!spacing]]}
-    vert* {.importc: "vert".}: cint ## @import{[[code:struct!tbl_cell.field!vert]]}
-    col* {.importc: "col".}: cint ## @import{[[code:struct!tbl_cell.field!col]]}
-    flags* {.importc: "flags".}: cint ## @import{[[code:struct!tbl_cell.field!flags]]}
-    pos* {.importc: "pos".}: TblCelltC ## @import{[[code:struct!tbl_cell.field!pos]]}
-    
+  # Declaration created in: hc_wrapgen.nim(1261, 50)
+  MandocOs* = enum
+    mdosOther,                ## @import{[[code:enum!mandoc_os.enumField!MANDOC_OS_OTHER]]}
+    mdosNetbsd,               ## @import{[[code:enum!mandoc_os.enumField!MANDOC_OS_NETBSD]]}
+    mdosOpenbsd                ## @import{[[code:enum!mandoc_os.enumField!MANDOC_OS_OPENBSD]]}
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  TblDatt* = enum
-    tdNone,                   ## @import{[[code:enum!tbl_datt.enumField!TBL_DATA_NONE]]}
-    tdData,                   ## @import{[[code:enum!tbl_datt.enumField!TBL_DATA_DATA]]}
-    tdHoriz,                  ## @import{[[code:enum!tbl_datt.enumField!TBL_DATA_HORIZ]]}
-    tdDhoriz,                 ## @import{[[code:enum!tbl_datt.enumField!TBL_DATA_DHORIZ]]}
-    tdNhoriz,                 ## @import{[[code:enum!tbl_datt.enumField!TBL_DATA_NHORIZ]]}
-    tdNdhoriz                  ## @import{[[code:enum!tbl_datt.enumField!TBL_DATA_NDHORIZ]]}
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
+  # Declaration created in: hc_wrapgen.nim(1261, 50)
   TblSpant* = enum
     tsData,                   ## @import{[[code:enum!tbl_spant.enumField!TBL_SPAN_DATA]]}
     tsHoriz,                  ## @import{[[code:enum!tbl_spant.enumField!TBL_SPAN_HORIZ]]}
@@ -1066,54 +769,62 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
-  TblCellt* = enum
-    tcCentre,                 ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_CENTRE]]}
-    tcRight,                  ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_RIGHT]]}
-    tcLeft,                   ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_LEFT]]}
-    tcNumber,                 ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_NUMBER]]}
-    tcSpan,                   ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_SPAN]]}
-    tcLong,                   ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_LONG]]}
-    tcDown,                   ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_DOWN]]}
-    tcHoriz,                  ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_HORIZ]]}
-    tcDhoriz,                 ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_DHORIZ]]}
-    tcMax                      ## @import{[[code:enum!tbl_cellt.enumField!TBL_CELL_MAX]]}
+  # Declaration created in: hc_wrapgen.nim(1261, 50)
+  RoffSec* = enum
+    rsNone,                   ## @import{[[code:enum!roff_sec.enumField!SEC_NONE]]}
+    rsName,                   ## @import{[[code:enum!roff_sec.enumField!SEC_NAME]]}
+    rsLibrary,                ## @import{[[code:enum!roff_sec.enumField!SEC_LIBRARY]]}
+    rsSynopsis,               ## @import{[[code:enum!roff_sec.enumField!SEC_SYNOPSIS]]}
+    rsDescription,            ## @import{[[code:enum!roff_sec.enumField!SEC_DESCRIPTION]]}
+    rsContext,                ## @import{[[code:enum!roff_sec.enumField!SEC_CONTEXT]]}
+    rsImplementation,         ## @import{[[code:enum!roff_sec.enumField!SEC_IMPLEMENTATION]]}
+    rsReturnValues,           ## @import{[[code:enum!roff_sec.enumField!SEC_RETURN_VALUES]]}
+    rsEnvironment,            ## @import{[[code:enum!roff_sec.enumField!SEC_ENVIRONMENT]]}
+    rsFiles,                  ## @import{[[code:enum!roff_sec.enumField!SEC_FILES]]}
+    rsExitStatus,             ## @import{[[code:enum!roff_sec.enumField!SEC_EXIT_STATUS]]}
+    rsExamples,               ## @import{[[code:enum!roff_sec.enumField!SEC_EXAMPLES]]}
+    rsDiagnostics,            ## @import{[[code:enum!roff_sec.enumField!SEC_DIAGNOSTICS]]}
+    rsCompatibility,          ## @import{[[code:enum!roff_sec.enumField!SEC_COMPATIBILITY]]}
+    rsErrors,                 ## @import{[[code:enum!roff_sec.enumField!SEC_ERRORS]]}
+    rsSeeAlso,                ## @import{[[code:enum!roff_sec.enumField!SEC_SEE_ALSO]]}
+    rsStandards,              ## @import{[[code:enum!roff_sec.enumField!SEC_STANDARDS]]}
+    rsHistory,                ## @import{[[code:enum!roff_sec.enumField!SEC_HISTORY]]}
+    rsAuthors,                ## @import{[[code:enum!roff_sec.enumField!SEC_AUTHORS]]}
+    rsCaveats,                ## @import{[[code:enum!roff_sec.enumField!SEC_CAVEATS]]}
+    rsBugs,                   ## @import{[[code:enum!roff_sec.enumField!SEC_BUGS]]}
+    rsSecurity,               ## @import{[[code:enum!roff_sec.enumField!SEC_SECURITY]]}
+    rsCustom,                 ## @import{[[code:enum!roff_sec.enumField!SEC_CUSTOM]]}
+    rsMax                      ## @import{[[code:enum!roff_sec.enumField!SEC__MAX]]}
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
-  # Wrapper for `mdoc_argv`
-  # Declared in mdoc.h:56
-  MdocArgv* {.bycopy, importc: "struct mdoc_argv", header: allHeaders.} = object
-    ## @import{[[code:struct!mdoc_argv]]}
-    arg* {.importc: "arg".}: MdocargtC ## @import{[[code:struct!mdoc_argv.field!arg]]}
-    line* {.importc: "line".}: cint ## @import{[[code:struct!mdoc_argv.field!line]]}
-    pos* {.importc: "pos".}: cint ## @import{[[code:struct!mdoc_argv.field!pos]]}
-    sz* {.importc: "sz".}: SizeT ## @import{[[code:struct!mdoc_argv.field!sz]]}
-    value* {.importc: "value".}: cstringArray ## @import{[[code:struct!mdoc_argv.field!value]]}
-    
-
-
-
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
+  # Declaration created in: hc_wrapgen.nim(1250, 50)
   # Wrapper for `roff_sec`
   # Declared in roff.h:33
   RoffSecC* {.importc: "enum roff_sec", header: allHeaders.} = enum ## @import{[[code:enum!roff_sec]]}
-    roffSec_SEC_NONE = 0, roffSec_SEC_NAME = 1, roffSec_SEC_LIBRARY = 2,
-    roffSec_SEC_SYNOPSIS = 3, roffSec_SEC_DESCRIPTION = 4,
-    roffSec_SEC_CONTEXT = 5, roffSec_SEC_IMPLEMENTATION = 6,
-    roffSec_SEC_RETURN_VALUES = 7, roffSec_SEC_ENVIRONMENT = 8,
-    roffSec_SEC_FILES = 9, roffSec_SEC_EXIT_STATUS = 10,
-    roffSec_SEC_EXAMPLES = 11, roffSec_SEC_DIAGNOSTICS = 12,
-    roffSec_SEC_COMPATIBILITY = 13, roffSec_SEC_ERRORS = 14,
-    roffSec_SEC_SEE_ALSO = 15, roffSec_SEC_STANDARDS = 16,
-    roffSec_SEC_HISTORY = 17, roffSec_SEC_AUTHORS = 18, roffSec_SEC_CAVEATS = 19,
-    roffSec_SEC_BUGS = 20, roffSec_SEC_SECURITY = 21, roffSec_SEC_CUSTOM = 22,
-    roffSec_SEC_MAX = 23
+    roffSecSECNONE = 0, roffSecSECNAME = 1, roffSecSECLIBRARY = 2,
+    roffSecSECSYNOPSIS = 3, roffSecSECDESCRIPTION = 4, roffSecSECCONTEXT = 5,
+    roffSecSECIMPLEMENTATION = 6, roffSecSECRETURNVALUES = 7,
+    roffSecSECENVIRONMENT = 8, roffSecSECFILES = 9, roffSecSECEXITSTATUS = 10,
+    roffSecSECEXAMPLES = 11, roffSecSECDIAGNOSTICS = 12,
+    roffSecSECCOMPATIBILITY = 13, roffSecSECERRORS = 14, roffSecSECSEEALSO = 15,
+    roffSecSECSTANDARDS = 16, roffSecSECHISTORY = 17, roffSecSECAUTHORS = 18,
+    roffSecSECCAVEATS = 19, roffSecSECBUGS = 20, roffSecSECSECURITY = 21,
+    roffSecSECCUSTOM = 22, roffSecSECMAX = 23
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
+  # Declaration created in: hc_wrapgen.nim(1261, 50)
+  EqnBoxt* = enum
+    ebText,                   ## @import{[[code:enum!eqn_boxt.enumField!EQN_TEXT]]}
+    ebSubexpr,                ## @import{[[code:enum!eqn_boxt.enumField!EQN_SUBEXPR]]}
+    ebList,                   ## @import{[[code:enum!eqn_boxt.enumField!EQN_LIST]]}
+    ebPile,                   ## @import{[[code:enum!eqn_boxt.enumField!EQN_PILE]]}
+    ebMatrix                   ## @import{[[code:enum!eqn_boxt.enumField!EQN_MATRIX]]}
+
+
+
+  # Declaration created in: hc_wrapgen.nim(1261, 50)
   EqnPost* = enum
     epNone,                   ## @import{[[code:enum!eqn_post.enumField!EQNPOS_NONE]]}
     epSup,                    ## @import{[[code:enum!eqn_post.enumField!EQNPOS_SUP]]}
@@ -1128,15 +839,41 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
+  # Declaration created in: hc_wrapgen.nim(743, 20)
+  # Wrapper for `mdoc_bl`
+  # Declared in mdoc.h:119
+  MdocBl* {.bycopy, importc: "struct mdoc_bl", header: allHeaders.} = object
+    ## @import{[[code:struct!mdoc_bl]]}
+    width* {.importc: "width".}: cstring ## @import{[[code:struct!mdoc_bl.field!width]]}
+    offs* {.importc: "offs".}: cstring ## @import{[[code:struct!mdoc_bl.field!offs]]}
+    type* {.importc: "type".}: MdocListC ## @import{[[code:struct!mdoc_bl.field!type]]}
+    comp* {.importc: "comp".}: cint ## @import{[[code:struct!mdoc_bl.field!comp]]}
+    ncols* {.importc: "ncols".}: SizeT ## @import{[[code:struct!mdoc_bl.field!ncols]]}
+    cols* {.importc: "cols".}: cstringArray ## @import{[[code:struct!mdoc_bl.field!cols]]}
+    count* {.importc: "count".}: cint ## @import{[[code:struct!mdoc_bl.field!count]]}
+    
+
+
+
+  # Declaration created in: hc_wrapgen.nim(1250, 50)
   # Wrapper for `mdoc_endbody`
   # Declared in roff.h:485
   MdocEndbodyC* {.importc: "enum mdoc_endbody", header: allHeaders.} = enum ## @import{[[code:enum!mdoc_endbody]]}
-    mdocEndbody_ENDBODY_NOT = 0, mdocEndbody_ENDBODY_SPACE = 1
+    mdocEndbodyENDBODYNOT = 0, mdocEndbodyENDBODYSPACE = 1
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
+  # Declaration created in: hc_wrapgen.nim(743, 20)
+  # Wrapper for `mdoc_an`
+  # Declared in mdoc.h:133
+  MdocAn* {.bycopy, importc: "struct mdoc_an", header: allHeaders.} = object
+    ## @import{[[code:struct!mdoc_an]]}
+    auth* {.importc: "auth".}: MdocAuthC ## @import{[[code:struct!mdoc_an.field!auth]]}
+    
+
+
+
+  # Declaration created in: hc_wrapgen.nim(1261, 50)
   RoffMacroset* = enum
     rmNone,                   ## @import{[[code:enum!roff_macroset.enumField!MACROSET_NONE]]}
     rmMdoc,                   ## @import{[[code:enum!roff_macroset.enumField!MACROSET_MDOC]]}
@@ -1144,17 +881,34 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
-  # Wrapper for `mdoc_bf`
-  # Declared in mdoc.h:129
-  MdocBf* {.bycopy, importc: "struct mdoc_bf", header: allHeaders.} = object
-    ## @import{[[code:struct!mdoc_bf]]}
-    font* {.importc: "font".}: MdocFontC ## @import{[[code:struct!mdoc_bf.field!font]]}
-    
+  # Declaration created in: hc_wrapgen.nim(1250, 50)
+  # Wrapper for `roff_type`
+  # Declared in roff.h:60
+  RoffTypeC* {.importc: "enum roff_type", header: allHeaders.} = enum ## @import{[[code:enum!roff_type]]}
+    roffTypeROFFTROOT = 0, roffTypeROFFTBLOCK = 1, roffTypeROFFTHEAD = 2,
+    roffTypeROFFTBODY = 3, roffTypeROFFTTAIL = 4, roffTypeROFFTELEM = 5,
+    roffTypeROFFTTEXT = 6, roffTypeROFFTCOMMENT = 7, roffTypeROFFTTBL = 8,
+    roffTypeROFFTEQN = 9
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1299, 44)
+  # Declaration created in: hc_wrapgen.nim(1261, 50)
+  MdocEndbody* = enum
+    meNot,                    ## @import{[[code:enum!mdoc_endbody.enumField!ENDBODY_NOT]]}
+    meSpace                    ## @import{[[code:enum!mdoc_endbody.enumField!ENDBODY_SPACE]]}
+
+
+
+  # Declaration created in: hc_wrapgen.nim(1250, 50)
+  # Wrapper for `eqn_fontt`
+  # Declared in eqn.h:28
+  EqnFonttC* {.importc: "enum eqn_fontt", header: allHeaders.} = enum ## @import{[[code:enum!eqn_fontt]]}
+    eqnFonttEQNFONTNONE = 0, eqnFonttEQNFONTROMAN = 1, eqnFonttEQNFONTBOLD = 2,
+    eqnFonttEQNFONTFAT = 3, eqnFonttEQNFONTITALIC = 4, eqnFonttEQNFONTMAX = 5
+
+
+
+  # Declaration created in: hc_wrapgen.nim(1261, 50)
   RoffType* = enum
     rtRoot,                   ## @import{[[code:enum!roff_type.enumField!ROFFT_ROOT]]}
     rtBlock,                  ## @import{[[code:enum!roff_type.enumField!ROFFT_BLOCK]]}
@@ -1169,28 +923,37 @@ type
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
-  # Wrapper for `mdoc_arg`
-  # Declared in mdoc.h:69
-  MdocArg* {.bycopy, importc: "struct mdoc_arg", header: allHeaders.} = object
-    ## @import{[[code:struct!mdoc_arg]]}
-    argc* {.importc: "argc".}: SizeT ## @import{[[code:struct!mdoc_arg.field!argc]]}
-    argv* {.importc: "argv".}: ptr MdocArgv ## @import{[[code:struct!mdoc_arg.field!argv]]}
-    refcnt* {.importc: "refcnt".}: cuint ## @import{[[code:struct!mdoc_arg.field!refcnt]]}
+  # Declaration created in: hc_wrapgen.nim(743, 20)
+  # Wrapper for `mdoc_bf`
+  # Declared in mdoc.h:129
+  MdocBf* {.bycopy, importc: "struct mdoc_bf", header: allHeaders.} = object
+    ## @import{[[code:struct!mdoc_bf]]}
+    font* {.importc: "font".}: MdocFontC ## @import{[[code:struct!mdoc_bf.field!font]]}
     
 
 
 
-  # Declaration created in: hc_wrapgen.nim(1287, 44)
+  # Declaration created in: hc_wrapgen.nim(1250, 50)
   # Wrapper for `mandoc_os`
   # Declared in roff.h:490
   MandocOsC* {.importc: "enum mandoc_os", header: allHeaders.} = enum ## @import{[[code:enum!mandoc_os]]}
-    mandocOs_MANDOC_OS_OTHER = 0, mandocOs_MANDOC_OS_NETBSD = 1,
-    mandocOs_MANDOC_OS_OPENBSD = 2
+    mandocOsMANDOCOSOTHER = 0, mandocOsMANDOCOSNETBSD = 1,
+    mandocOsMANDOCOSOPENBSD = 2
 
 
 
-  # Declaration created in: hc_wrapgen.nim(796, 20)
+  # Declaration created in: hc_wrapgen.nim(1261, 50)
+  EqnFontt* = enum
+    efNone,                   ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_NONE]]}
+    efRoman,                  ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_ROMAN]]}
+    efBold,                   ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_BOLD]]}
+    efFat,                    ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_FAT]]}
+    efItalic,                 ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT_ITALIC]]}
+    efMax                      ## @import{[[code:enum!eqn_fontt.enumField!EQNFONT__MAX]]}
+
+
+
+  # Declaration created in: hc_wrapgen.nim(743, 20)
   # Wrapper for `roff_node`
   # Declared in roff.h:496
   RoffNode* {.bycopy, importc: "struct roff_node", header: allHeaders.} = object
@@ -1205,288 +968,20 @@ type
     tail* {.importc: "tail".}: ptr RoffNode ## @import{[[code:struct!roff_node.field!tail]]}
     args* {.importc: "args".}: ptr MdocArg ## @import{[[code:struct!roff_node.field!args]]}
     norm* {.importc: "norm".}: ptr MdocData ## @import{[[code:struct!roff_node.field!norm]]}
-    cxString* {.importc: "string".}: cstring ## @import{[[code:struct!roff_node.field!string]]}
+    string* {.importc: "string".}: cstring ## @import{[[code:struct!roff_node.field!string]]}
     span* {.importc: "span".}: ptr TblSpan ## @import{[[code:struct!roff_node.field!span]]}
     eqn* {.importc: "eqn".}: ptr EqnBox ## @import{[[code:struct!roff_node.field!eqn]]}
     line* {.importc: "line".}: cint ## @import{[[code:struct!roff_node.field!line]]}
     pos* {.importc: "pos".}: cint ## @import{[[code:struct!roff_node.field!pos]]}
     flags* {.importc: "flags".}: cint ## @import{[[code:struct!roff_node.field!flags]]}
-    prevFont* {.importc: "prev_font".}: cint ## @import{[[code:struct!roff_node.field!prev_font]]}
+    prev_font* {.importc: "prev_font".}: cint ## @import{[[code:struct!roff_node.field!prev_font]]}
     aux* {.importc: "aux".}: cint ## @import{[[code:struct!roff_node.field!aux]]}
     tok* {.importc: "tok".}: RoffTokC ## @import{[[code:struct!roff_node.field!tok]]}
-    cxType* {.importc: "type".}: RoffTypeC ## @import{[[code:struct!roff_node.field!type]]}
+    type* {.importc: "type".}: RoffTypeC ## @import{[[code:struct!roff_node.field!type]]}
     sec* {.importc: "sec".}: RoffSecC ## @import{[[code:struct!roff_node.field!sec]]}
-    cxEnd* {.importc: "end".}: MdocEndbodyC ## @import{[[code:struct!roff_node.field!end]]}
+    end* {.importc: "end".}: MdocEndbodyC ## @import{[[code:struct!roff_node.field!end]]}
     
 
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `tbl_opts`
-# Declared in tbl.h:19
-proc cnewTblOpts*(): ptr TblOpts {.importc: r"new tbl_opts()",
-                                   header: allHeaders.}
-  ## @import{[[code:struct!tbl_opts]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `tbl_opts`
-# Declared in tbl.h:19
-proc destroyTblOpts*(obj: ptr TblOpts): void {.importc: r"#.~tbl_opts()",
-    header: allHeaders.}
-  ## @import{[[code:struct!tbl_opts]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `tbl_opts`
-# Declared in tbl.h:19
-proc newTblOpts*(): ref TblOpts =
-  ## @import{[[code:struct!tbl_opts]]}
-  newImportAux()
-  new(result, proc (destr: ref TblOpts) =
-    destroyTblOpts(addr destr[]))
-  {.emit: "new ((void*)result) tbl_opts(); /* Placement new */".}
-
-
-
-const
-  arrTblCelltmapping: array[TblCellt, tuple[name: string, cEnum: TblCelltC,
-      cName: string, value: cint]] = [
-    (name: "TBL_CELL_CENTRE", cEnum: tblCellt_TBL_CELL_CENTRE,
-     cName: "tbl_cellt::TBL_CELL_CENTRE", value: cint(0)),
-    (name: "TBL_CELL_RIGHT", cEnum: tblCellt_TBL_CELL_RIGHT,
-     cName: "tbl_cellt::TBL_CELL_RIGHT", value: cint(1)),
-    (name: "TBL_CELL_LEFT", cEnum: tblCellt_TBL_CELL_LEFT,
-     cName: "tbl_cellt::TBL_CELL_LEFT", value: cint(2)),
-    (name: "TBL_CELL_NUMBER", cEnum: tblCellt_TBL_CELL_NUMBER,
-     cName: "tbl_cellt::TBL_CELL_NUMBER", value: cint(3)),
-    (name: "TBL_CELL_SPAN", cEnum: tblCellt_TBL_CELL_SPAN,
-     cName: "tbl_cellt::TBL_CELL_SPAN", value: cint(4)),
-    (name: "TBL_CELL_LONG", cEnum: tblCellt_TBL_CELL_LONG,
-     cName: "tbl_cellt::TBL_CELL_LONG", value: cint(5)),
-    (name: "TBL_CELL_DOWN", cEnum: tblCellt_TBL_CELL_DOWN,
-     cName: "tbl_cellt::TBL_CELL_DOWN", value: cint(6)),
-    (name: "TBL_CELL_HORIZ", cEnum: tblCellt_TBL_CELL_HORIZ,
-     cName: "tbl_cellt::TBL_CELL_HORIZ", value: cint(7)),
-    (name: "TBL_CELL_DHORIZ", cEnum: tblCellt_TBL_CELL_DHORIZ,
-     cName: "tbl_cellt::TBL_CELL_DHORIZ", value: cint(8)),
-    (name: "TBL_CELL_MAX", cEnum: tblCellt_TBL_CELL_MAX,
-     cName: "tbl_cellt::TBL_CELL_MAX", value: cint(9))]
-proc toCInt*(en: TblCellt): cint {.inline.} =
-  ## Convert proxy enum to integer value
-  arrTblCelltmapping[en].value
-
-proc toCInt*(en: set[TblCellt]): cint {.inline.} =
-  ## Convert set of enums to bitmasked integer
-  for val in en:
-    result = bitor(result, arrTblCelltmapping[val].value)
-
-proc `$`*(en: TblCelltC): string {.inline.} =
-  ## Return namespaced name of the original enum
-  case en
-  of tblCellt_TBL_CELL_CENTRE:
-    result = "tbl_cellt::TBL_CELL_CENTRE"
-  of tblCellt_TBL_CELL_RIGHT:
-    result = "tbl_cellt::TBL_CELL_RIGHT"
-  of tblCellt_TBL_CELL_LEFT:
-    result = "tbl_cellt::TBL_CELL_LEFT"
-  of tblCellt_TBL_CELL_NUMBER:
-    result = "tbl_cellt::TBL_CELL_NUMBER"
-  of tblCellt_TBL_CELL_SPAN:
-    result = "tbl_cellt::TBL_CELL_SPAN"
-  of tblCellt_TBL_CELL_LONG:
-    result = "tbl_cellt::TBL_CELL_LONG"
-  of tblCellt_TBL_CELL_DOWN:
-    result = "tbl_cellt::TBL_CELL_DOWN"
-  of tblCellt_TBL_CELL_HORIZ:
-    result = "tbl_cellt::TBL_CELL_HORIZ"
-  of tblCellt_TBL_CELL_DHORIZ:
-    result = "tbl_cellt::TBL_CELL_DHORIZ"
-  of tblCellt_TBL_CELL_MAX:
-    result = "tbl_cellt::TBL_CELL_MAX"
-  
-func toTblCellt*(en: TblCelltC): TblCellt {.inline.} =
-  case en
-  of tblCellt_TBL_CELL_CENTRE:
-    tcCentre
-  of tblCellt_TBL_CELL_RIGHT:
-    tcRight
-  of tblCellt_TBL_CELL_LEFT:
-    tcLeft
-  of tblCellt_TBL_CELL_NUMBER:
-    tcNumber
-  of tblCellt_TBL_CELL_SPAN:
-    tcSpan
-  of tblCellt_TBL_CELL_LONG:
-    tcLong
-  of tblCellt_TBL_CELL_DOWN:
-    tcDown
-  of tblCellt_TBL_CELL_HORIZ:
-    tcHoriz
-  of tblCellt_TBL_CELL_DHORIZ:
-    tcDhoriz
-  of tblCellt_TBL_CELL_MAX:
-    tcMax
-  
-converter toTblCelltC*(en: TblCellt): TblCelltC {.inline.} =
-  arrTblCelltmapping[en].cEnum
-
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `tbl_cell`
-# Declared in tbl.h:52
-proc cnewTblCell*(): ptr TblCell {.importc: r"new tbl_cell()",
-                                   header: allHeaders.}
-  ## @import{[[code:struct!tbl_cell]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `tbl_cell`
-# Declared in tbl.h:52
-proc destroyTblCell*(obj: ptr TblCell): void {.importc: r"#.~tbl_cell()",
-    header: allHeaders.}
-  ## @import{[[code:struct!tbl_cell]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `tbl_cell`
-# Declared in tbl.h:52
-proc newTblCell*(): ref TblCell =
-  ## @import{[[code:struct!tbl_cell]]}
-  newImportAux()
-  new(result, proc (destr: ref TblCell) =
-    destroyTblCell(addr destr[]))
-  {.emit: "new ((void*)result) tbl_cell(); /* Placement new */".}
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `tbl_row`
-# Declared in tbl.h:74
-proc cnewTblRow*(): ptr TblRow {.importc: r"new tbl_row()", header: allHeaders.}
-  ## @import{[[code:struct!tbl_row]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `tbl_row`
-# Declared in tbl.h:74
-proc destroyTblRow*(obj: ptr TblRow): void {.importc: r"#.~tbl_row()",
-    header: allHeaders.}
-  ## @import{[[code:struct!tbl_row]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `tbl_row`
-# Declared in tbl.h:74
-proc newTblRow*(): ref TblRow =
-  ## @import{[[code:struct!tbl_row]]}
-  newImportAux()
-  new(result, proc (destr: ref TblRow) =
-    destroyTblRow(addr destr[]))
-  {.emit: "new ((void*)result) tbl_row(); /* Placement new */".}
-
-
-
-const
-  arrTblDattmapping: array[TblDatt, tuple[name: string, cEnum: TblDattC,
-      cName: string, value: cint]] = [
-    (name: "TBL_DATA_NONE", cEnum: tblDatt_TBL_DATA_NONE,
-     cName: "tbl_datt::TBL_DATA_NONE", value: cint(0)),
-    (name: "TBL_DATA_DATA", cEnum: tblDatt_TBL_DATA_DATA,
-     cName: "tbl_datt::TBL_DATA_DATA", value: cint(1)),
-    (name: "TBL_DATA_HORIZ", cEnum: tblDatt_TBL_DATA_HORIZ,
-     cName: "tbl_datt::TBL_DATA_HORIZ", value: cint(2)),
-    (name: "TBL_DATA_DHORIZ", cEnum: tblDatt_TBL_DATA_DHORIZ,
-     cName: "tbl_datt::TBL_DATA_DHORIZ", value: cint(3)),
-    (name: "TBL_DATA_NHORIZ", cEnum: tblDatt_TBL_DATA_NHORIZ,
-     cName: "tbl_datt::TBL_DATA_NHORIZ", value: cint(4)),
-    (name: "TBL_DATA_NDHORIZ", cEnum: tblDatt_TBL_DATA_NDHORIZ,
-     cName: "tbl_datt::TBL_DATA_NDHORIZ", value: cint(5))]
-proc toCInt*(en: TblDatt): cint {.inline.} =
-  ## Convert proxy enum to integer value
-  arrTblDattmapping[en].value
-
-proc toCInt*(en: set[TblDatt]): cint {.inline.} =
-  ## Convert set of enums to bitmasked integer
-  for val in en:
-    result = bitor(result, arrTblDattmapping[val].value)
-
-proc `$`*(en: TblDattC): string {.inline.} =
-  ## Return namespaced name of the original enum
-  case en
-  of tblDatt_TBL_DATA_NONE:
-    result = "tbl_datt::TBL_DATA_NONE"
-  of tblDatt_TBL_DATA_DATA:
-    result = "tbl_datt::TBL_DATA_DATA"
-  of tblDatt_TBL_DATA_HORIZ:
-    result = "tbl_datt::TBL_DATA_HORIZ"
-  of tblDatt_TBL_DATA_DHORIZ:
-    result = "tbl_datt::TBL_DATA_DHORIZ"
-  of tblDatt_TBL_DATA_NHORIZ:
-    result = "tbl_datt::TBL_DATA_NHORIZ"
-  of tblDatt_TBL_DATA_NDHORIZ:
-    result = "tbl_datt::TBL_DATA_NDHORIZ"
-  
-func toTblDatt*(en: TblDattC): TblDatt {.inline.} =
-  case en
-  of tblDatt_TBL_DATA_NONE:
-    tdNone
-  of tblDatt_TBL_DATA_DATA:
-    tdData
-  of tblDatt_TBL_DATA_HORIZ:
-    tdHoriz
-  of tblDatt_TBL_DATA_DHORIZ:
-    tdDhoriz
-  of tblDatt_TBL_DATA_NHORIZ:
-    tdNhoriz
-  of tblDatt_TBL_DATA_NDHORIZ:
-    tdNdhoriz
-  
-converter toTblDattC*(en: TblDatt): TblDattC {.inline.} =
-  arrTblDattmapping[en].cEnum
-
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `tbl_dat`
-# Declared in tbl.h:94
-proc cnewTblDat*(): ptr TblDat {.importc: r"new tbl_dat()", header: allHeaders.}
-  ## @import{[[code:struct!tbl_dat]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `tbl_dat`
-# Declared in tbl.h:94
-proc destroyTblDat*(obj: ptr TblDat): void {.importc: r"#.~tbl_dat()",
-    header: allHeaders.}
-  ## @import{[[code:struct!tbl_dat]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `tbl_dat`
-# Declared in tbl.h:94
-proc newTblDat*(): ref TblDat =
-  ## @import{[[code:struct!tbl_dat]]}
-  newImportAux()
-  new(result, proc (destr: ref TblDat) =
-    destroyTblDat(addr destr[]))
-  {.emit: "new ((void*)result) tbl_dat(); /* Placement new */".}
 
 
 
@@ -1530,37 +1025,6 @@ func toTblSpant*(en: TblSpantC): TblSpant {.inline.} =
 converter toTblSpantC*(en: TblSpant): TblSpantC {.inline.} =
   arrTblSpantmapping[en].cEnum
 
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `tbl_span`
-# Declared in tbl.h:113
-proc cnewTblSpan*(): ptr TblSpan {.importc: r"new tbl_span()",
-                                   header: allHeaders.}
-  ## @import{[[code:struct!tbl_span]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `tbl_span`
-# Declared in tbl.h:113
-proc destroyTblSpan*(obj: ptr TblSpan): void {.importc: r"#.~tbl_span()",
-    header: allHeaders.}
-  ## @import{[[code:struct!tbl_span]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `tbl_span`
-# Declared in tbl.h:113
-proc newTblSpan*(): ref TblSpan =
-  ## @import{[[code:struct!tbl_span]]}
-  newImportAux()
-  new(result, proc (destr: ref TblSpan) =
-    destroyTblSpan(addr destr[]))
-  {.emit: "new ((void*)result) tbl_span(); /* Placement new */".}
 
 
 
@@ -4390,760 +3854,6 @@ converter toMandocOsC*(en: MandocOs): MandocOsC {.inline.} =
 
 
 
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `roff_node`
-# Declared in roff.h:496
-proc cnewRoffNode*(): ptr RoffNode {.importc: r"new roff_node()",
-                                     header: allHeaders.}
-  ## @import{[[code:struct!roff_node]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `roff_node`
-# Declared in roff.h:496
-proc destroyRoffNode*(obj: ptr RoffNode): void {.importc: r"#.~roff_node()",
-    header: allHeaders.}
-  ## @import{[[code:struct!roff_node]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `roff_node`
-# Declared in roff.h:496
-proc newRoffNode*(): ref RoffNode =
-  ## @import{[[code:struct!roff_node]]}
-  newImportAux()
-  new(result, proc (destr: ref RoffNode) =
-    destroyRoffNode(addr destr[]))
-  {.emit: "new ((void*)result) roff_node(); /* Placement new */".}
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `roff_meta`
-# Declared in roff.h:532
-proc cnewRoffMeta*(): ptr RoffMeta {.importc: r"new roff_meta()",
-                                     header: allHeaders.}
-  ## @import{[[code:struct!roff_meta]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `roff_meta`
-# Declared in roff.h:532
-proc destroyRoffMeta*(obj: ptr RoffMeta): void {.importc: r"#.~roff_meta()",
-    header: allHeaders.}
-  ## @import{[[code:struct!roff_meta]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `roff_meta`
-# Declared in roff.h:532
-proc newRoffMeta*(): ref RoffMeta =
-  ## @import{[[code:struct!roff_meta]]}
-  newImportAux()
-  new(result, proc (destr: ref RoffMeta) =
-    destroyRoffMeta(addr destr[]))
-  {.emit: "new ((void*)result) roff_meta(); /* Placement new */".}
-
-
-
-const
-  arrMdocargtmapping: array[Mdocargt, tuple[name: string, cEnum: MdocargtC,
-      cName: string, value: cint]] = [
-    (name: "MDOC_Split", cEnum: mdocargt_MDOC_Split,
-     cName: "mdocargt::MDOC_Split", value: cint(0)),
-    (name: "MDOC_Nosplit", cEnum: mdocargt_MDOC_Nosplit,
-     cName: "mdocargt::MDOC_Nosplit", value: cint(1)),
-    (name: "MDOC_Ragged", cEnum: mdocargt_MDOC_Ragged,
-     cName: "mdocargt::MDOC_Ragged", value: cint(2)),
-    (name: "MDOC_Unfilled", cEnum: mdocargt_MDOC_Unfilled,
-     cName: "mdocargt::MDOC_Unfilled", value: cint(3)),
-    (name: "MDOC_Literal", cEnum: mdocargt_MDOC_Literal,
-     cName: "mdocargt::MDOC_Literal", value: cint(4)),
-    (name: "MDOC_File", cEnum: mdocargt_MDOC_File, cName: "mdocargt::MDOC_File",
-     value: cint(5)),
-    (name: "MDOC_Offset", cEnum: mdocargt_MDOC_Offset,
-     cName: "mdocargt::MDOC_Offset", value: cint(6)),
-    (name: "MDOC_Bullet", cEnum: mdocargt_MDOC_Bullet,
-     cName: "mdocargt::MDOC_Bullet", value: cint(7)),
-    (name: "MDOC_Dash", cEnum: mdocargt_MDOC_Dash, cName: "mdocargt::MDOC_Dash",
-     value: cint(8)),
-    (name: "MDOC_Hyphen", cEnum: mdocargt_MDOC_Hyphen,
-     cName: "mdocargt::MDOC_Hyphen", value: cint(9)),
-    (name: "MDOC_Item", cEnum: mdocargt_MDOC_Item, cName: "mdocargt::MDOC_Item",
-     value: cint(10)),
-    (name: "MDOC_Enum", cEnum: mdocargt_MDOC_Enum, cName: "mdocargt::MDOC_Enum",
-     value: cint(11)),
-    (name: "MDOC_Tag", cEnum: mdocargt_MDOC_Tag, cName: "mdocargt::MDOC_Tag",
-     value: cint(12)),
-    (name: "MDOC_Diag", cEnum: mdocargt_MDOC_Diag, cName: "mdocargt::MDOC_Diag",
-     value: cint(13)),
-    (name: "MDOC_Hang", cEnum: mdocargt_MDOC_Hang, cName: "mdocargt::MDOC_Hang",
-     value: cint(14)),
-    (name: "MDOC_Ohang", cEnum: mdocargt_MDOC_Ohang,
-     cName: "mdocargt::MDOC_Ohang", value: cint(15)),
-    (name: "MDOC_Inset", cEnum: mdocargt_MDOC_Inset,
-     cName: "mdocargt::MDOC_Inset", value: cint(16)),
-    (name: "MDOC_Column", cEnum: mdocargt_MDOC_Column,
-     cName: "mdocargt::MDOC_Column", value: cint(17)),
-    (name: "MDOC_Width", cEnum: mdocargt_MDOC_Width,
-     cName: "mdocargt::MDOC_Width", value: cint(18)),
-    (name: "MDOC_Compact", cEnum: mdocargt_MDOC_Compact,
-     cName: "mdocargt::MDOC_Compact", value: cint(19)),
-    (name: "MDOC_Std", cEnum: mdocargt_MDOC_Std, cName: "mdocargt::MDOC_Std",
-     value: cint(20)),
-    (name: "MDOC_Filled", cEnum: mdocargt_MDOC_Filled,
-     cName: "mdocargt::MDOC_Filled", value: cint(21)),
-    (name: "MDOC_Words", cEnum: mdocargt_MDOC_Words,
-     cName: "mdocargt::MDOC_Words", value: cint(22)),
-    (name: "MDOC_Emphasis", cEnum: mdocargt_MDOC_Emphasis,
-     cName: "mdocargt::MDOC_Emphasis", value: cint(23)),
-    (name: "MDOC_Symbolic", cEnum: mdocargt_MDOC_Symbolic,
-     cName: "mdocargt::MDOC_Symbolic", value: cint(24)),
-    (name: "MDOC_Nested", cEnum: mdocargt_MDOC_Nested,
-     cName: "mdocargt::MDOC_Nested", value: cint(25)),
-    (name: "MDOC_Centred", cEnum: mdocargt_MDOC_Centred,
-     cName: "mdocargt::MDOC_Centred", value: cint(26)),
-    (name: "MDOC_ARG_MAX", cEnum: mdocargt_MDOC_ARG_MAX,
-     cName: "mdocargt::MDOC_ARG_MAX", value: cint(27))]
-proc toCInt*(en: Mdocargt): cint {.inline.} =
-  ## Convert proxy enum to integer value
-  arrMdocargtmapping[en].value
-
-proc toCInt*(en: set[Mdocargt]): cint {.inline.} =
-  ## Convert set of enums to bitmasked integer
-  for val in en:
-    result = bitor(result, arrMdocargtmapping[val].value)
-
-proc `$`*(en: MdocargtC): string {.inline.} =
-  ## Return namespaced name of the original enum
-  case en
-  of mdocargt_MDOC_Split:
-    result = "mdocargt::MDOC_Split"
-  of mdocargt_MDOC_Nosplit:
-    result = "mdocargt::MDOC_Nosplit"
-  of mdocargt_MDOC_Ragged:
-    result = "mdocargt::MDOC_Ragged"
-  of mdocargt_MDOC_Unfilled:
-    result = "mdocargt::MDOC_Unfilled"
-  of mdocargt_MDOC_Literal:
-    result = "mdocargt::MDOC_Literal"
-  of mdocargt_MDOC_File:
-    result = "mdocargt::MDOC_File"
-  of mdocargt_MDOC_Offset:
-    result = "mdocargt::MDOC_Offset"
-  of mdocargt_MDOC_Bullet:
-    result = "mdocargt::MDOC_Bullet"
-  of mdocargt_MDOC_Dash:
-    result = "mdocargt::MDOC_Dash"
-  of mdocargt_MDOC_Hyphen:
-    result = "mdocargt::MDOC_Hyphen"
-  of mdocargt_MDOC_Item:
-    result = "mdocargt::MDOC_Item"
-  of mdocargt_MDOC_Enum:
-    result = "mdocargt::MDOC_Enum"
-  of mdocargt_MDOC_Tag:
-    result = "mdocargt::MDOC_Tag"
-  of mdocargt_MDOC_Diag:
-    result = "mdocargt::MDOC_Diag"
-  of mdocargt_MDOC_Hang:
-    result = "mdocargt::MDOC_Hang"
-  of mdocargt_MDOC_Ohang:
-    result = "mdocargt::MDOC_Ohang"
-  of mdocargt_MDOC_Inset:
-    result = "mdocargt::MDOC_Inset"
-  of mdocargt_MDOC_Column:
-    result = "mdocargt::MDOC_Column"
-  of mdocargt_MDOC_Width:
-    result = "mdocargt::MDOC_Width"
-  of mdocargt_MDOC_Compact:
-    result = "mdocargt::MDOC_Compact"
-  of mdocargt_MDOC_Std:
-    result = "mdocargt::MDOC_Std"
-  of mdocargt_MDOC_Filled:
-    result = "mdocargt::MDOC_Filled"
-  of mdocargt_MDOC_Words:
-    result = "mdocargt::MDOC_Words"
-  of mdocargt_MDOC_Emphasis:
-    result = "mdocargt::MDOC_Emphasis"
-  of mdocargt_MDOC_Symbolic:
-    result = "mdocargt::MDOC_Symbolic"
-  of mdocargt_MDOC_Nested:
-    result = "mdocargt::MDOC_Nested"
-  of mdocargt_MDOC_Centred:
-    result = "mdocargt::MDOC_Centred"
-  of mdocargt_MDOC_ARG_MAX:
-    result = "mdocargt::MDOC_ARG_MAX"
-  
-func toMdocargt*(en: MdocargtC): Mdocargt {.inline.} =
-  case en
-  of mdocargt_MDOC_Split:
-    mSplit
-  of mdocargt_MDOC_Nosplit:
-    mNosplit
-  of mdocargt_MDOC_Ragged:
-    mRagged
-  of mdocargt_MDOC_Unfilled:
-    mUnfilled
-  of mdocargt_MDOC_Literal:
-    mLiteral
-  of mdocargt_MDOC_File:
-    mFile
-  of mdocargt_MDOC_Offset:
-    mOffset
-  of mdocargt_MDOC_Bullet:
-    mBullet
-  of mdocargt_MDOC_Dash:
-    mDash
-  of mdocargt_MDOC_Hyphen:
-    mHyphen
-  of mdocargt_MDOC_Item:
-    mItem
-  of mdocargt_MDOC_Enum:
-    mEnum
-  of mdocargt_MDOC_Tag:
-    mTag
-  of mdocargt_MDOC_Diag:
-    mDiag
-  of mdocargt_MDOC_Hang:
-    mHang
-  of mdocargt_MDOC_Ohang:
-    mOhang
-  of mdocargt_MDOC_Inset:
-    mInset
-  of mdocargt_MDOC_Column:
-    mColumn
-  of mdocargt_MDOC_Width:
-    mWidth
-  of mdocargt_MDOC_Compact:
-    mCompact
-  of mdocargt_MDOC_Std:
-    mStd
-  of mdocargt_MDOC_Filled:
-    mFilled
-  of mdocargt_MDOC_Words:
-    mWords
-  of mdocargt_MDOC_Emphasis:
-    mEmphasis
-  of mdocargt_MDOC_Symbolic:
-    mSymbolic
-  of mdocargt_MDOC_Nested:
-    mNested
-  of mdocargt_MDOC_Centred:
-    mCentred
-  of mdocargt_MDOC_ARG_MAX:
-    mArgMax
-  
-converter toMdocargtC*(en: Mdocargt): MdocargtC {.inline.} =
-  arrMdocargtmapping[en].cEnum
-
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `mdoc_argv`
-# Declared in mdoc.h:56
-proc cnewMdocArgv*(): ptr MdocArgv {.importc: r"new mdoc_argv()",
-                                     header: allHeaders.}
-  ## @import{[[code:struct!mdoc_argv]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `mdoc_argv`
-# Declared in mdoc.h:56
-proc destroyMdocArgv*(obj: ptr MdocArgv): void {.importc: r"#.~mdoc_argv()",
-    header: allHeaders.}
-  ## @import{[[code:struct!mdoc_argv]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `mdoc_argv`
-# Declared in mdoc.h:56
-proc newMdocArgv*(): ref MdocArgv =
-  ## @import{[[code:struct!mdoc_argv]]}
-  newImportAux()
-  new(result, proc (destr: ref MdocArgv) =
-    destroyMdocArgv(addr destr[]))
-  {.emit: "new ((void*)result) mdoc_argv(); /* Placement new */".}
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `mdoc_arg`
-# Declared in mdoc.h:69
-proc cnewMdocArg*(): ptr MdocArg {.importc: r"new mdoc_arg()",
-                                   header: allHeaders.}
-  ## @import{[[code:struct!mdoc_arg]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `mdoc_arg`
-# Declared in mdoc.h:69
-proc destroyMdocArg*(obj: ptr MdocArg): void {.importc: r"#.~mdoc_arg()",
-    header: allHeaders.}
-  ## @import{[[code:struct!mdoc_arg]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `mdoc_arg`
-# Declared in mdoc.h:69
-proc newMdocArg*(): ref MdocArg =
-  ## @import{[[code:struct!mdoc_arg]]}
-  newImportAux()
-  new(result, proc (destr: ref MdocArg) =
-    destroyMdocArg(addr destr[]))
-  {.emit: "new ((void*)result) mdoc_arg(); /* Placement new */".}
-
-
-
-const
-  arrMdocListmapping: array[MdocList, tuple[name: string, cEnum: MdocListC,
-      cName: string, value: cint]] = [
-    (name: "LIST__NONE", cEnum: mdocList_LIST_NONE,
-     cName: "mdoc_list::LIST__NONE", value: cint(0)),
-    (name: "LIST_bullet", cEnum: mdocList_LIST_bullet,
-     cName: "mdoc_list::LIST_bullet", value: cint(1)),
-    (name: "LIST_column", cEnum: mdocList_LIST_column,
-     cName: "mdoc_list::LIST_column", value: cint(2)),
-    (name: "LIST_dash", cEnum: mdocList_LIST_dash,
-     cName: "mdoc_list::LIST_dash", value: cint(3)),
-    (name: "LIST_diag", cEnum: mdocList_LIST_diag,
-     cName: "mdoc_list::LIST_diag", value: cint(4)),
-    (name: "LIST_enum", cEnum: mdocList_LIST_enum,
-     cName: "mdoc_list::LIST_enum", value: cint(5)),
-    (name: "LIST_hang", cEnum: mdocList_LIST_hang,
-     cName: "mdoc_list::LIST_hang", value: cint(6)),
-    (name: "LIST_hyphen", cEnum: mdocList_LIST_hyphen,
-     cName: "mdoc_list::LIST_hyphen", value: cint(7)),
-    (name: "LIST_inset", cEnum: mdocList_LIST_inset,
-     cName: "mdoc_list::LIST_inset", value: cint(8)),
-    (name: "LIST_item", cEnum: mdocList_LIST_item,
-     cName: "mdoc_list::LIST_item", value: cint(9)),
-    (name: "LIST_ohang", cEnum: mdocList_LIST_ohang,
-     cName: "mdoc_list::LIST_ohang", value: cint(10)),
-    (name: "LIST_tag", cEnum: mdocList_LIST_tag, cName: "mdoc_list::LIST_tag",
-     value: cint(11)),
-    (name: "LIST_MAX", cEnum: mdocList_LIST_MAX, cName: "mdoc_list::LIST_MAX",
-     value: cint(12))]
-proc toCInt*(en: MdocList): cint {.inline.} =
-  ## Convert proxy enum to integer value
-  arrMdocListmapping[en].value
-
-proc toCInt*(en: set[MdocList]): cint {.inline.} =
-  ## Convert set of enums to bitmasked integer
-  for val in en:
-    result = bitor(result, arrMdocListmapping[val].value)
-
-proc `$`*(en: MdocListC): string {.inline.} =
-  ## Return namespaced name of the original enum
-  case en
-  of mdocList_LIST_NONE:
-    result = "mdoc_list::LIST__NONE"
-  of mdocList_LIST_bullet:
-    result = "mdoc_list::LIST_bullet"
-  of mdocList_LIST_column:
-    result = "mdoc_list::LIST_column"
-  of mdocList_LIST_dash:
-    result = "mdoc_list::LIST_dash"
-  of mdocList_LIST_diag:
-    result = "mdoc_list::LIST_diag"
-  of mdocList_LIST_enum:
-    result = "mdoc_list::LIST_enum"
-  of mdocList_LIST_hang:
-    result = "mdoc_list::LIST_hang"
-  of mdocList_LIST_hyphen:
-    result = "mdoc_list::LIST_hyphen"
-  of mdocList_LIST_inset:
-    result = "mdoc_list::LIST_inset"
-  of mdocList_LIST_item:
-    result = "mdoc_list::LIST_item"
-  of mdocList_LIST_ohang:
-    result = "mdoc_list::LIST_ohang"
-  of mdocList_LIST_tag:
-    result = "mdoc_list::LIST_tag"
-  of mdocList_LIST_MAX:
-    result = "mdoc_list::LIST_MAX"
-  
-func toMdocList*(en: MdocListC): MdocList {.inline.} =
-  case en
-  of mdocList_LIST_NONE:
-    mlNone
-  of mdocList_LIST_bullet:
-    mlBullet
-  of mdocList_LIST_column:
-    mlColumn
-  of mdocList_LIST_dash:
-    mlDash
-  of mdocList_LIST_diag:
-    mlDiag
-  of mdocList_LIST_enum:
-    mlEnum
-  of mdocList_LIST_hang:
-    mlHang
-  of mdocList_LIST_hyphen:
-    mlHyphen
-  of mdocList_LIST_inset:
-    mlInset
-  of mdocList_LIST_item:
-    mlItem
-  of mdocList_LIST_ohang:
-    mlOhang
-  of mdocList_LIST_tag:
-    mlTag
-  of mdocList_LIST_MAX:
-    mlMax1
-  
-converter toMdocListC*(en: MdocList): MdocListC {.inline.} =
-  arrMdocListmapping[en].cEnum
-
-
-
-
-const
-  arrMdocDispmapping: array[MdocDisp, tuple[name: string, cEnum: MdocDispC,
-      cName: string, value: cint]] = [
-    (name: "DISP__NONE", cEnum: mdocDisp_DISP_NONE,
-     cName: "mdoc_disp::DISP__NONE", value: cint(0)),
-    (name: "DISP_centered", cEnum: mdocDisp_DISP_centered,
-     cName: "mdoc_disp::DISP_centered", value: cint(1)),
-    (name: "DISP_ragged", cEnum: mdocDisp_DISP_ragged,
-     cName: "mdoc_disp::DISP_ragged", value: cint(2)),
-    (name: "DISP_unfilled", cEnum: mdocDisp_DISP_unfilled,
-     cName: "mdoc_disp::DISP_unfilled", value: cint(3)),
-    (name: "DISP_filled", cEnum: mdocDisp_DISP_filled,
-     cName: "mdoc_disp::DISP_filled", value: cint(4)),
-    (name: "DISP_literal", cEnum: mdocDisp_DISP_literal,
-     cName: "mdoc_disp::DISP_literal", value: cint(5))]
-proc toCInt*(en: MdocDisp): cint {.inline.} =
-  ## Convert proxy enum to integer value
-  arrMdocDispmapping[en].value
-
-proc toCInt*(en: set[MdocDisp]): cint {.inline.} =
-  ## Convert set of enums to bitmasked integer
-  for val in en:
-    result = bitor(result, arrMdocDispmapping[val].value)
-
-proc `$`*(en: MdocDispC): string {.inline.} =
-  ## Return namespaced name of the original enum
-  case en
-  of mdocDisp_DISP_NONE:
-    result = "mdoc_disp::DISP__NONE"
-  of mdocDisp_DISP_centered:
-    result = "mdoc_disp::DISP_centered"
-  of mdocDisp_DISP_ragged:
-    result = "mdoc_disp::DISP_ragged"
-  of mdocDisp_DISP_unfilled:
-    result = "mdoc_disp::DISP_unfilled"
-  of mdocDisp_DISP_filled:
-    result = "mdoc_disp::DISP_filled"
-  of mdocDisp_DISP_literal:
-    result = "mdoc_disp::DISP_literal"
-  
-func toMdocDisp*(en: MdocDispC): MdocDisp {.inline.} =
-  case en
-  of mdocDisp_DISP_NONE:
-    mdNone
-  of mdocDisp_DISP_centered:
-    mdCentered
-  of mdocDisp_DISP_ragged:
-    mdRagged
-  of mdocDisp_DISP_unfilled:
-    mdUnfilled
-  of mdocDisp_DISP_filled:
-    mdFilled
-  of mdocDisp_DISP_literal:
-    mdLiteral
-  
-converter toMdocDispC*(en: MdocDisp): MdocDispC {.inline.} =
-  arrMdocDispmapping[en].cEnum
-
-
-
-
-const
-  arrMdocAuthmapping: array[MdocAuth, tuple[name: string, cEnum: MdocAuthC,
-      cName: string, value: cint]] = [
-    (name: "AUTH__NONE", cEnum: mdocAuth_AUTH_NONE,
-     cName: "mdoc_auth::AUTH__NONE", value: cint(0)),
-    (name: "AUTH_split", cEnum: mdocAuth_AUTH_split,
-     cName: "mdoc_auth::AUTH_split", value: cint(1)),
-    (name: "AUTH_nosplit", cEnum: mdocAuth_AUTH_nosplit,
-     cName: "mdoc_auth::AUTH_nosplit", value: cint(2))]
-proc toCInt*(en: MdocAuth): cint {.inline.} =
-  ## Convert proxy enum to integer value
-  arrMdocAuthmapping[en].value
-
-proc toCInt*(en: set[MdocAuth]): cint {.inline.} =
-  ## Convert set of enums to bitmasked integer
-  for val in en:
-    result = bitor(result, arrMdocAuthmapping[val].value)
-
-proc `$`*(en: MdocAuthC): string {.inline.} =
-  ## Return namespaced name of the original enum
-  case en
-  of mdocAuth_AUTH_NONE:
-    result = "mdoc_auth::AUTH__NONE"
-  of mdocAuth_AUTH_split:
-    result = "mdoc_auth::AUTH_split"
-  of mdocAuth_AUTH_nosplit:
-    result = "mdoc_auth::AUTH_nosplit"
-  
-func toMdocAuth*(en: MdocAuthC): MdocAuth {.inline.} =
-  case en
-  of mdocAuth_AUTH_NONE:
-    maNone
-  of mdocAuth_AUTH_split:
-    maSplit
-  of mdocAuth_AUTH_nosplit:
-    maNosplit
-  
-converter toMdocAuthC*(en: MdocAuth): MdocAuthC {.inline.} =
-  arrMdocAuthmapping[en].cEnum
-
-
-
-
-const
-  arrMdocFontmapping: array[MdocFont, tuple[name: string, cEnum: MdocFontC,
-      cName: string, value: cint]] = [
-    (name: "FONT__NONE", cEnum: mdocFont_FONT_NONE,
-     cName: "mdoc_font::FONT__NONE", value: cint(0)),
-    (name: "FONT_Em", cEnum: mdocFont_FONT_Em, cName: "mdoc_font::FONT_Em",
-     value: cint(1)),
-    (name: "FONT_Li", cEnum: mdocFont_FONT_Li, cName: "mdoc_font::FONT_Li",
-     value: cint(2)),
-    (name: "FONT_Sy", cEnum: mdocFont_FONT_Sy, cName: "mdoc_font::FONT_Sy",
-     value: cint(3))]
-proc toCInt*(en: MdocFont): cint {.inline.} =
-  ## Convert proxy enum to integer value
-  arrMdocFontmapping[en].value
-
-proc toCInt*(en: set[MdocFont]): cint {.inline.} =
-  ## Convert set of enums to bitmasked integer
-  for val in en:
-    result = bitor(result, arrMdocFontmapping[val].value)
-
-proc `$`*(en: MdocFontC): string {.inline.} =
-  ## Return namespaced name of the original enum
-  case en
-  of mdocFont_FONT_NONE:
-    result = "mdoc_font::FONT__NONE"
-  of mdocFont_FONT_Em:
-    result = "mdoc_font::FONT_Em"
-  of mdocFont_FONT_Li:
-    result = "mdoc_font::FONT_Li"
-  of mdocFont_FONT_Sy:
-    result = "mdoc_font::FONT_Sy"
-  
-func toMdocFont*(en: MdocFontC): MdocFont {.inline.} =
-  case en
-  of mdocFont_FONT_NONE:
-    mfNone
-  of mdocFont_FONT_Em:
-    mfEm
-  of mdocFont_FONT_Li:
-    mfLi
-  of mdocFont_FONT_Sy:
-    mfSy
-  
-converter toMdocFontC*(en: MdocFont): MdocFontC {.inline.} =
-  arrMdocFontmapping[en].cEnum
-
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `mdoc_bd`
-# Declared in mdoc.h:113
-proc cnewMdocBd*(): ptr MdocBd {.importc: r"new mdoc_bd()", header: allHeaders.}
-  ## @import{[[code:struct!mdoc_bd]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `mdoc_bd`
-# Declared in mdoc.h:113
-proc destroyMdocBd*(obj: ptr MdocBd): void {.importc: r"#.~mdoc_bd()",
-    header: allHeaders.}
-  ## @import{[[code:struct!mdoc_bd]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `mdoc_bd`
-# Declared in mdoc.h:113
-proc newMdocBd*(): ref MdocBd =
-  ## @import{[[code:struct!mdoc_bd]]}
-  newImportAux()
-  new(result, proc (destr: ref MdocBd) =
-    destroyMdocBd(addr destr[]))
-  {.emit: "new ((void*)result) mdoc_bd(); /* Placement new */".}
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `mdoc_bl`
-# Declared in mdoc.h:119
-proc cnewMdocBl*(): ptr MdocBl {.importc: r"new mdoc_bl()", header: allHeaders.}
-  ## @import{[[code:struct!mdoc_bl]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `mdoc_bl`
-# Declared in mdoc.h:119
-proc destroyMdocBl*(obj: ptr MdocBl): void {.importc: r"#.~mdoc_bl()",
-    header: allHeaders.}
-  ## @import{[[code:struct!mdoc_bl]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `mdoc_bl`
-# Declared in mdoc.h:119
-proc newMdocBl*(): ref MdocBl =
-  ## @import{[[code:struct!mdoc_bl]]}
-  newImportAux()
-  new(result, proc (destr: ref MdocBl) =
-    destroyMdocBl(addr destr[]))
-  {.emit: "new ((void*)result) mdoc_bl(); /* Placement new */".}
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `mdoc_bf`
-# Declared in mdoc.h:129
-proc cnewMdocBf*(): ptr MdocBf {.importc: r"new mdoc_bf()", header: allHeaders.}
-  ## @import{[[code:struct!mdoc_bf]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `mdoc_bf`
-# Declared in mdoc.h:129
-proc destroyMdocBf*(obj: ptr MdocBf): void {.importc: r"#.~mdoc_bf()",
-    header: allHeaders.}
-  ## @import{[[code:struct!mdoc_bf]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `mdoc_bf`
-# Declared in mdoc.h:129
-proc newMdocBf*(): ref MdocBf =
-  ## @import{[[code:struct!mdoc_bf]]}
-  newImportAux()
-  new(result, proc (destr: ref MdocBf) =
-    destroyMdocBf(addr destr[]))
-  {.emit: "new ((void*)result) mdoc_bf(); /* Placement new */".}
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `mdoc_an`
-# Declared in mdoc.h:133
-proc cnewMdocAn*(): ptr MdocAn {.importc: r"new mdoc_an()", header: allHeaders.}
-  ## @import{[[code:struct!mdoc_an]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `mdoc_an`
-# Declared in mdoc.h:133
-proc destroyMdocAn*(obj: ptr MdocAn): void {.importc: r"#.~mdoc_an()",
-    header: allHeaders.}
-  ## @import{[[code:struct!mdoc_an]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `mdoc_an`
-# Declared in mdoc.h:133
-proc newMdocAn*(): ref MdocAn =
-  ## @import{[[code:struct!mdoc_an]]}
-  newImportAux()
-  new(result, proc (destr: ref MdocAn) =
-    destroyMdocAn(addr destr[]))
-  {.emit: "new ((void*)result) mdoc_an(); /* Placement new */".}
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `mdoc_rs`
-# Declared in mdoc.h:137
-proc cnewMdocRs*(): ptr MdocRs {.importc: r"new mdoc_rs()", header: allHeaders.}
-  ## @import{[[code:struct!mdoc_rs]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `mdoc_rs`
-# Declared in mdoc.h:137
-proc destroyMdocRs*(obj: ptr MdocRs): void {.importc: r"#.~mdoc_rs()",
-    header: allHeaders.}
-  ## @import{[[code:struct!mdoc_rs]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `mdoc_rs`
-# Declared in mdoc.h:137
-proc newMdocRs*(): ref MdocRs =
-  ## @import{[[code:struct!mdoc_rs]]}
-  newImportAux()
-  new(result, proc (destr: ref MdocRs) =
-    destroyMdocRs(addr destr[]))
-  {.emit: "new ((void*)result) mdoc_rs(); /* Placement new */".}
-
-
-
-
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `mdoc_data`
-# Declared in mdoc.h:146
-proc cnewMdocData*(): ptr MdocData {.importc: r"new mdoc_data()",
-                                     header: allHeaders.}
-  ## @import{[[code:union!mdoc_data]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(455, 22)
-# Wrapper for `mdoc_data`
-# Declared in mdoc.h:146
-proc destroyMdocData*(obj: ptr MdocData): void {.importc: r"#.~mdoc_data()",
-    header: allHeaders.}
-  ## @import{[[code:union!mdoc_data]]}
-
-
-
-# Declaration created in: hc_wrapgen.nim(465, 22)
-# Wrapper for `mdoc_data`
-# Declared in mdoc.h:146
-proc newMdocData*(): ref MdocData =
-  ## @import{[[code:union!mdoc_data]]}
-  newImportAux()
-  new(result, proc (destr: ref MdocData) =
-    destroyMdocData(addr destr[]))
-  {.emit: "new ((void*)result) mdoc_data(); /* Placement new */".}
-
-
-
 const
   arrEqnBoxtmapping: array[EqnBoxt, tuple[name: string, cEnum: EqnBoxtC,
       cName: string, value: cint]] = [
@@ -5346,15 +4056,468 @@ converter toEqnPostC*(en: EqnPost): EqnPostC {.inline.} =
 
 
 
-# Declaration created in: hc_wrapgen.nim(441, 22)
-# Wrapper for `eqn_box`
-# Declared in eqn.h:54
-proc cnewEqnBox*(): ptr EqnBox {.importc: r"new eqn_box()", header: allHeaders.}
-  ## @import{[[code:struct!eqn_box]]}
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `tbl_opts`
+# Declared in tbl.h:19
+proc destroyTblOpts*(obj: ptr TblOpts): void {.importc: r"#.~tbl_opts()",
+    header: allHeaders.}
+  ## @import{[[code:struct!tbl_opts]]}
 
 
 
-# Declaration created in: hc_wrapgen.nim(455, 22)
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `tbl_opts`
+# Declared in tbl.h:19
+proc cnewTblOpts*(): ptr TblOpts {.importc: r"new tbl_opts()",
+                                   header: allHeaders.}
+  ## @import{[[code:struct!tbl_opts]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `tbl_opts`
+# Declared in tbl.h:19
+proc newTblOpts*(): ref TblOpts =
+  ## @import{[[code:struct!tbl_opts]]}
+  newImportAux()
+  new(result, proc (self: ref TblOpts) =
+    destroyTblOpts(addr self[]))
+  {.emit: "new ((void*)result) tbl_opts(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `tbl_opts`
+# Declared in tbl.h:19
+proc initTblOpts*(): TblOpts {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!tbl_opts]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `tbl_row`
+# Declared in tbl.h:74
+proc destroyTblRow*(obj: ptr TblRow): void {.importc: r"#.~tbl_row()",
+    header: allHeaders.}
+  ## @import{[[code:struct!tbl_row]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `tbl_row`
+# Declared in tbl.h:74
+proc cnewTblRow*(): ptr TblRow {.importc: r"new tbl_row()", header: allHeaders.}
+  ## @import{[[code:struct!tbl_row]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `tbl_row`
+# Declared in tbl.h:74
+proc newTblRow*(): ref TblRow =
+  ## @import{[[code:struct!tbl_row]]}
+  newImportAux()
+  new(result, proc (self: ref TblRow) =
+    destroyTblRow(addr self[]))
+  {.emit: "new ((void*)result) tbl_row(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `tbl_row`
+# Declared in tbl.h:74
+proc initTblRow*(): TblRow {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!tbl_row]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `tbl_dat`
+# Declared in tbl.h:94
+proc destroyTblDat*(obj: ptr TblDat): void {.importc: r"#.~tbl_dat()",
+    header: allHeaders.}
+  ## @import{[[code:struct!tbl_dat]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `tbl_dat`
+# Declared in tbl.h:94
+proc cnewTblDat*(): ptr TblDat {.importc: r"new tbl_dat()", header: allHeaders.}
+  ## @import{[[code:struct!tbl_dat]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `tbl_dat`
+# Declared in tbl.h:94
+proc newTblDat*(): ref TblDat =
+  ## @import{[[code:struct!tbl_dat]]}
+  newImportAux()
+  new(result, proc (self: ref TblDat) =
+    destroyTblDat(addr self[]))
+  {.emit: "new ((void*)result) tbl_dat(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `tbl_dat`
+# Declared in tbl.h:94
+proc initTblDat*(): TblDat {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!tbl_dat]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `tbl_span`
+# Declared in tbl.h:113
+proc destroyTblSpan*(obj: ptr TblSpan): void {.importc: r"#.~tbl_span()",
+    header: allHeaders.}
+  ## @import{[[code:struct!tbl_span]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `tbl_span`
+# Declared in tbl.h:113
+proc cnewTblSpan*(): ptr TblSpan {.importc: r"new tbl_span()",
+                                   header: allHeaders.}
+  ## @import{[[code:struct!tbl_span]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `tbl_span`
+# Declared in tbl.h:113
+proc newTblSpan*(): ref TblSpan =
+  ## @import{[[code:struct!tbl_span]]}
+  newImportAux()
+  new(result, proc (self: ref TblSpan) =
+    destroyTblSpan(addr self[]))
+  {.emit: "new ((void*)result) tbl_span(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `tbl_span`
+# Declared in tbl.h:113
+proc initTblSpan*(): TblSpan {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!tbl_span]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `roff_node`
+# Declared in roff.h:496
+proc destroyRoffNode*(obj: ptr RoffNode): void {.importc: r"#.~roff_node()",
+    header: allHeaders.}
+  ## @import{[[code:struct!roff_node]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `roff_node`
+# Declared in roff.h:496
+proc cnewRoffNode*(): ptr RoffNode {.importc: r"new roff_node()",
+                                     header: allHeaders.}
+  ## @import{[[code:struct!roff_node]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `roff_node`
+# Declared in roff.h:496
+proc newRoffNode*(): ref RoffNode =
+  ## @import{[[code:struct!roff_node]]}
+  newImportAux()
+  new(result, proc (self: ref RoffNode) =
+    destroyRoffNode(addr self[]))
+  {.emit: "new ((void*)result) roff_node(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `roff_node`
+# Declared in roff.h:496
+proc initRoffNode*(): RoffNode {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!roff_node]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `roff_meta`
+# Declared in roff.h:532
+proc destroyRoffMeta*(obj: ptr RoffMeta): void {.importc: r"#.~roff_meta()",
+    header: allHeaders.}
+  ## @import{[[code:struct!roff_meta]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `roff_meta`
+# Declared in roff.h:532
+proc cnewRoffMeta*(): ptr RoffMeta {.importc: r"new roff_meta()",
+                                     header: allHeaders.}
+  ## @import{[[code:struct!roff_meta]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `roff_meta`
+# Declared in roff.h:532
+proc newRoffMeta*(): ref RoffMeta =
+  ## @import{[[code:struct!roff_meta]]}
+  newImportAux()
+  new(result, proc (self: ref RoffMeta) =
+    destroyRoffMeta(addr self[]))
+  {.emit: "new ((void*)result) roff_meta(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `roff_meta`
+# Declared in roff.h:532
+proc initRoffMeta*(): RoffMeta {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!roff_meta]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `mdoc_bd`
+# Declared in mdoc.h:113
+proc destroyMdocBd*(obj: ptr MdocBd): void {.importc: r"#.~mdoc_bd()",
+    header: allHeaders.}
+  ## @import{[[code:struct!mdoc_bd]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `mdoc_bd`
+# Declared in mdoc.h:113
+proc cnewMdocBd*(): ptr MdocBd {.importc: r"new mdoc_bd()", header: allHeaders.}
+  ## @import{[[code:struct!mdoc_bd]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `mdoc_bd`
+# Declared in mdoc.h:113
+proc newMdocBd*(): ref MdocBd =
+  ## @import{[[code:struct!mdoc_bd]]}
+  newImportAux()
+  new(result, proc (self: ref MdocBd) =
+    destroyMdocBd(addr self[]))
+  {.emit: "new ((void*)result) mdoc_bd(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `mdoc_bd`
+# Declared in mdoc.h:113
+proc initMdocBd*(): MdocBd {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!mdoc_bd]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `mdoc_bl`
+# Declared in mdoc.h:119
+proc destroyMdocBl*(obj: ptr MdocBl): void {.importc: r"#.~mdoc_bl()",
+    header: allHeaders.}
+  ## @import{[[code:struct!mdoc_bl]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `mdoc_bl`
+# Declared in mdoc.h:119
+proc cnewMdocBl*(): ptr MdocBl {.importc: r"new mdoc_bl()", header: allHeaders.}
+  ## @import{[[code:struct!mdoc_bl]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `mdoc_bl`
+# Declared in mdoc.h:119
+proc newMdocBl*(): ref MdocBl =
+  ## @import{[[code:struct!mdoc_bl]]}
+  newImportAux()
+  new(result, proc (self: ref MdocBl) =
+    destroyMdocBl(addr self[]))
+  {.emit: "new ((void*)result) mdoc_bl(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `mdoc_bl`
+# Declared in mdoc.h:119
+proc initMdocBl*(): MdocBl {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!mdoc_bl]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `mdoc_bf`
+# Declared in mdoc.h:129
+proc destroyMdocBf*(obj: ptr MdocBf): void {.importc: r"#.~mdoc_bf()",
+    header: allHeaders.}
+  ## @import{[[code:struct!mdoc_bf]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `mdoc_bf`
+# Declared in mdoc.h:129
+proc cnewMdocBf*(): ptr MdocBf {.importc: r"new mdoc_bf()", header: allHeaders.}
+  ## @import{[[code:struct!mdoc_bf]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `mdoc_bf`
+# Declared in mdoc.h:129
+proc newMdocBf*(): ref MdocBf =
+  ## @import{[[code:struct!mdoc_bf]]}
+  newImportAux()
+  new(result, proc (self: ref MdocBf) =
+    destroyMdocBf(addr self[]))
+  {.emit: "new ((void*)result) mdoc_bf(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `mdoc_bf`
+# Declared in mdoc.h:129
+proc initMdocBf*(): MdocBf {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!mdoc_bf]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `mdoc_an`
+# Declared in mdoc.h:133
+proc destroyMdocAn*(obj: ptr MdocAn): void {.importc: r"#.~mdoc_an()",
+    header: allHeaders.}
+  ## @import{[[code:struct!mdoc_an]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `mdoc_an`
+# Declared in mdoc.h:133
+proc cnewMdocAn*(): ptr MdocAn {.importc: r"new mdoc_an()", header: allHeaders.}
+  ## @import{[[code:struct!mdoc_an]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `mdoc_an`
+# Declared in mdoc.h:133
+proc newMdocAn*(): ref MdocAn =
+  ## @import{[[code:struct!mdoc_an]]}
+  newImportAux()
+  new(result, proc (self: ref MdocAn) =
+    destroyMdocAn(addr self[]))
+  {.emit: "new ((void*)result) mdoc_an(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `mdoc_an`
+# Declared in mdoc.h:133
+proc initMdocAn*(): MdocAn {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!mdoc_an]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `mdoc_rs`
+# Declared in mdoc.h:137
+proc destroyMdocRs*(obj: ptr MdocRs): void {.importc: r"#.~mdoc_rs()",
+    header: allHeaders.}
+  ## @import{[[code:struct!mdoc_rs]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `mdoc_rs`
+# Declared in mdoc.h:137
+proc cnewMdocRs*(): ptr MdocRs {.importc: r"new mdoc_rs()", header: allHeaders.}
+  ## @import{[[code:struct!mdoc_rs]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `mdoc_rs`
+# Declared in mdoc.h:137
+proc newMdocRs*(): ref MdocRs =
+  ## @import{[[code:struct!mdoc_rs]]}
+  newImportAux()
+  new(result, proc (self: ref MdocRs) =
+    destroyMdocRs(addr self[]))
+  {.emit: "new ((void*)result) mdoc_rs(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `mdoc_rs`
+# Declared in mdoc.h:137
+proc initMdocRs*(): MdocRs {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!mdoc_rs]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
+# Wrapper for `mdoc_data`
+# Declared in mdoc.h:146
+proc destroyMdocData*(obj: ptr MdocData): void {.importc: r"#.~mdoc_data()",
+    header: allHeaders.}
+  ## @import{[[code:union!mdoc_data]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `mdoc_data`
+# Declared in mdoc.h:146
+proc cnewMdocData*(): ptr MdocData {.importc: r"new mdoc_data()",
+                                     header: allHeaders.}
+  ## @import{[[code:union!mdoc_data]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
+# Wrapper for `mdoc_data`
+# Declared in mdoc.h:146
+proc newMdocData*(): ref MdocData =
+  ## @import{[[code:union!mdoc_data]]}
+  newImportAux()
+  new(result, proc (self: ref MdocData) =
+    destroyMdocData(addr self[]))
+  {.emit: "new ((void*)result) mdoc_data(); /* Placement new */".}
+
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `mdoc_data`
+# Declared in mdoc.h:146
+proc initMdocData*(): MdocData {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:union!mdoc_data]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(457, 24)
 # Wrapper for `eqn_box`
 # Declared in eqn.h:54
 proc destroyEqnBox*(obj: ptr EqnBox): void {.importc: r"#.~eqn_box()",
@@ -5363,14 +4526,30 @@ proc destroyEqnBox*(obj: ptr EqnBox): void {.importc: r"#.~eqn_box()",
 
 
 
-# Declaration created in: hc_wrapgen.nim(465, 22)
+# Declaration created in: hc_wrapgen.nim(468, 24)
+# Wrapper for `eqn_box`
+# Declared in eqn.h:54
+proc cnewEqnBox*(): ptr EqnBox {.importc: r"new eqn_box()", header: allHeaders.}
+  ## @import{[[code:struct!eqn_box]]}
+
+
+
+# Declaration created in: hc_wrapgen.nim(476, 24)
 # Wrapper for `eqn_box`
 # Declared in eqn.h:54
 proc newEqnBox*(): ref EqnBox =
   ## @import{[[code:struct!eqn_box]]}
   newImportAux()
-  new(result, proc (destr: ref EqnBox) =
-    destroyEqnBox(addr destr[]))
+  new(result, proc (self: ref EqnBox) =
+    destroyEqnBox(addr self[]))
   {.emit: "new ((void*)result) eqn_box(); /* Placement new */".}
 
+
+
+
+# Declaration created in: hc_wrapgen.nim(486, 24)
+# Wrapper for `eqn_box`
+# Declared in eqn.h:54
+proc initEqnBox*(): EqnBox {.importc: r"{className}()", header: allHeaders.}
+  ## @import{[[code:struct!eqn_box]]}
 

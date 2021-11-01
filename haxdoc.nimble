@@ -17,6 +17,7 @@ requires "hcparse#head"
 requires "fusion"
 requires "cxxstd"
 requires "nimtraits#head"
+requires "nimble <= 0.13.0"
 
 requires "flatty >= 0.2.2"
 requires "supersnappy >= 2.1.1"

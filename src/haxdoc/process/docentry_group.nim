@@ -3,7 +3,7 @@ import ./docentry_query
 import std/[tables, options, colors, strformat]
 
 import
-  hmisc/[hdebug_misc, helpers],
+  hmisc/core/all,
   hmisc/types/hgraph,
   hmisc/hasts/graphviz_ast
 

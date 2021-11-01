@@ -3,33 +3,20 @@
 
 
 import
-  std / bitops, cstd / stddef, ./mandoc_parse_roff_eqn_main_tbl_mdoc,
-  hmisc / wrappers / wraphelp
+  std / bitops, ./main_manconf_mandoc_mandoc_parse_mansearch_mdoc_roff_tbl,
+  ./mandoc_parse_roff_eqn_main_tbl_mdoc, hmisc / wrappers / wraphelp
 
 
 
 export
-  mandoc_parse_roff_eqn_main_tbl_mdoc, wraphelp
+  mandoc_parse_roff_eqn_main_tbl_mdoc, wraphelp,
+  main_manconf_mandoc_mandoc_parse_mansearch_mdoc_roff_tbl
 
 
 
 
 import
   mandoc_common
-
-
-
-
-type
-
-  # Declaration created in: hc_wrapgen.nim(1258, 42)
-  TcTbl_cell* = enum
-    tcCellTalign = 4,         ## @import{[[code:cmacro!tkInvalid]]}
-    tcCellUp = 8,             ## @import{[[code:cmacro!tkInvalid]]}
-    tcCellBalign = 16,        ## @import{[[code:cmacro!tkInvalid]]}
-    tcCellWign = 32,          ## @import{[[code:cmacro!tkInvalid]]}
-    tcCellEqual = 64,         ## @import{[[code:cmacro!tkInvalid]]}
-    tcCellWmax = 128           ## @import{[[code:cmacro!tkInvalid]]}
 
 
 
